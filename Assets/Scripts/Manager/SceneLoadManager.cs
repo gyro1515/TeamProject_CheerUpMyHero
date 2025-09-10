@@ -14,13 +14,19 @@ public class SceneLoadManager : SingletonMono<SceneLoadManager>
 
     Coroutine _loadingCoroutine;
 
-    private void Awake()
+    private void Start()
     {
-        // 씬 클래스와 enum 매핑
-        //_scenes.Add(SceneState.Stage1, new Stage1());
-        //_scenes.Add(SceneState.Stage2, new TownScene());
-        //_scenes.Add(SceneState.Stage01, new BattleScene());
+        SceneManager.sceneLoaded += OnSceneLoadedComplete;
     }
+
+    protected override void Awake()
+    {
+        base.Awake();
+        // 씬 클래스와 enum 매핑
+        _scenes.Add(SceneState.Stage1, new Stage1());
+        _scenes.Add(SceneState.Stage2, new Stage2());
+        _scenes.Add(SceneState.Stage01, new Stage01());
+    } 
 
     public void LoadScene(SceneState sceneState)
     {
@@ -30,7 +36,7 @@ public class SceneLoadManager : SingletonMono<SceneLoadManager>
         // 로드할 씬이 등록되었는지 확인
         if (!_scenes.TryGetValue(sceneState, out var scene))
         {
-            Debug.LogError($"SceneType 이 없습니다. : {sceneState}");
+            Debug.LogError($"SceneState가 없습니다. : {sceneState}");
             return;
         }
 
@@ -77,12 +83,24 @@ public class SceneLoadManager : SingletonMono<SceneLoadManager>
         // (씬의 있는 오브젝트 - OnEnable / Awake / Start 등 초기화 대기) 
         yield return null;
 
-        //씬 전환이 완료된 후 페이드 인 효과 실행
-        yield return FadeManager.Instance.FadeIn();
-
 
         // 로딩된 씬의 진입 콜백 실행
         _currentScene.OnSceneEnter();
         _loadingCoroutine = null;
     }
+
+    private void OnSceneLoadedComplete(Scene scene, LoadSceneMode mode)
+    {
+        StartCoroutine(FadeManager.Instance.FadeIn());
+        if (_currentScene != null)
+        {
+            _currentScene.OnSceneEnter();
+        }
+    }
+
+    protected override void OnDestroy() //나중에 수정해야할 수도
+    {
+        base.OnDestroy();
+        SceneManager.sceneLoaded -= OnSceneLoadedComplete;
+    } 
 }
