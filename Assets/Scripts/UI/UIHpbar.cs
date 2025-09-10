@@ -12,9 +12,12 @@ public class UIHpbar : MonoBehaviour
 {
     [Header("체력바 세팅")]
     [SerializeField] Image hpBarImg;
+    [SerializeField] RectTransform _hpBarSize;
+
     BaseCharacter _character;
-    public void HpBarInit(BaseCharacter character, EUIHpBarType type)
+    public void HpBarInit(BaseCharacter character, EUIHpBarType type, Vector2? hpBarSize = null)
     {
+        _hpBarSize.sizeDelta = hpBarSize ?? new Vector2(100f, 16.5f);
         _character = character;
         _character.OnCurHpChane += SetHpBar;
         _character.OnDead += DestoryUIHpBar;

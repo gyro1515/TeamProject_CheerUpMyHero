@@ -8,6 +8,10 @@ public class PlayerUnit : BaseUnit
     {
         base.Awake();
         UIManager.Instance.GetUI<UIHpBarContainer>().AddHpBar(this, EUIHpBarType.PlayerUnit);
+    }
+    protected override void Start()
+    {
+        base.Start();
 
     }
 }

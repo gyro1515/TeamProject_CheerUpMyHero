@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 
-public abstract class BaseHQ : MonoBehaviour
+public abstract class BaseHQ : BaseCharacter, IDamageable
 {
     [Header("본부 세팅")]
     [SerializeField] protected float minY = 0;
@@ -11,11 +11,27 @@ public abstract class BaseHQ : MonoBehaviour
     [SerializeField] protected float spawnInterval = 0.5f;
     protected int tmpMinY;
     protected int tmpMaxY;
-    protected virtual void Awake()
+
+    
+
+    protected override void Awake()
     {
+        base.Awake();
         tmpMinY = (int)(minY * 100f);
         tmpMaxY = (int)(maxY * 100f) + 1;
         InvokeRepeating("SpawnUnit", 0f, spawnInterval);
+        OnDead += Dead;
     }
     protected abstract void SpawnUnit();
+    public void Dead()
+    {
+        Debug.Log("HQDead");
+        gameObject.SetActive(false);
+        Destroy(gameObject);
+    }
+    public void TakeDamage(float damage)
+    {
+        CurHp -= damage;
+    }
+    
 }

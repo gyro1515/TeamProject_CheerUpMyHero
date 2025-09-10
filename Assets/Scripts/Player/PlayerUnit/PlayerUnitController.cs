@@ -4,9 +4,56 @@ using UnityEngine;
 
 public class PlayerUnitController : BaseController
 {
+    PlayerUnit playerUnit;
+    protected override void Awake()
+    {
+        base.Awake();
+        playerUnit = GetComponent<PlayerUnit>();
+    }
+    protected override void Start()
+    {
+        base.Start();
+        StartCoroutine(TargetingRoutine());
+        StartCoroutine(AttackRoutine());
+    }
     protected override void FixedUpdate()
     {
         base.FixedUpdate();
-        gameObject.transform.position += Vector3.right * baseCharacter.MoveSpeed * Time.fixedDeltaTime;
+        gameObject.transform.position += playerUnit.MoveDir * baseCharacter.MoveSpeed * Time.fixedDeltaTime;
     }
+    public override void Attack()
+    {
+        base.Attack();
+        //playerUnit.TargetUnit.BaseController.TakeDamage(playerUnit.AtkPower);
+        playerUnit.TargetUnit.TakeDamage(playerUnit.AtkPower);
+        Debug.Log("아군 유닛: 공격!");
+    }
+    IEnumerator TargetingRoutine()
+    {
+        // 0.2초마다 타겟 갱신
+        WaitForSeconds wait = new WaitForSeconds(0.2f);
+
+        while (true)
+        {
+            playerUnit.TargetUnit = UnitManager.Instance.FindClosestTarget(playerUnit, true);
+            playerUnit.MoveDir = playerUnit.TargetUnit != null ? Vector3.zero : Vector3.right;
+            yield return wait;
+        }
+    }
+    IEnumerator AttackRoutine()
+    {
+        // 0.2초마다 타겟 갱신
+        WaitForSeconds wait = new WaitForSeconds(10f / playerUnit.AttackRate);
+        while (true)
+        {
+            if (playerUnit.TargetUnit != null)
+            {
+                Attack();
+                yield return wait;
+            }
+            else yield return null;
+
+        }
+    }
+
 }

@@ -20,10 +20,10 @@ public class UIHpBarContainer : BaseUI
         UIHpbar hpBar = Instantiate(uiHpBarPrefab).GetComponent<UIHpbar>();
         return hpBar;
     }
-    public UIHpbar AddHpBar(BaseCharacter character, EUIHpBarType type)
+    public UIHpbar AddHpBar(BaseCharacter character, EUIHpBarType type, Vector2? hpBarSize = null)
     {
         UIHpbar hpBar = Instantiate(uiHpBarPrefab,gameObject.transform).GetComponent<UIHpbar>();
-        hpBar.HpBarInit(character, type);
+        hpBar.HpBarInit(character, type, hpBarSize);
         return hpBar;
     }
 }

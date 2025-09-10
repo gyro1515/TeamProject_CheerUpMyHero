@@ -9,4 +9,9 @@ public class EnemyUnit : BaseUnit
         base.Awake();
         UIManager.Instance.GetUI<UIHpBarContainer>().AddHpBar(this, EUIHpBarType.EnemyUnit);
     }
+    protected override void Start()
+    {
+        base.Start();
+
+    }
 }

@@ -12,13 +12,16 @@ public class BaseCharacter : MonoBehaviour
     // 랜더 순서용
     [field: SerializeField] public SpriteRenderer characterSpriteRenderer { get; private set; }
     [field: SerializeField] public Vector3 HpBarPosByCharacter { get; private set; } // 보정용
-
+    [field: SerializeField] public Vector2 HpBarSize { get; private set; } // 체력바 사이즈용
+    public BaseController BaseController { get; private set; }
     float curHp;
+    public Vector3 MoveDir { get; set; }
 
     public float CurHp { get { return curHp; }
         set
         {
             curHp = value;
+            curHp = Mathf.Clamp(curHp, 0, MaxHp);
             OnCurHpChane?.Invoke(curHp, MaxHp);
             if(curHp <=0) OnDead?.Invoke();
             
@@ -28,6 +31,7 @@ public class BaseCharacter : MonoBehaviour
 
     protected virtual void Awake()
     {
+        BaseController = GetComponent<BaseController>();
         curHp = MaxHp;
     }
     protected virtual void Start()
@@ -37,13 +41,13 @@ public class BaseCharacter : MonoBehaviour
     }
     protected virtual void Update()
     {
-
+        
     }
     protected virtual void FixedUpdate()
     {
 
     }
-    public void InitCharacter()
+    public virtual void InitCharacter()
     {
         // 소환하면 위 아래로 움직일 일이 없으니까, 소환할때 sortingOrder 설정하기
         if (!characterSpriteRenderer) return;
