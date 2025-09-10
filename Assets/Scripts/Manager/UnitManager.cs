@@ -45,8 +45,8 @@ public class UnitManager : SingletonMono<UnitManager>
         {
             if (unit == null || !unit.gameObject.activeSelf) continue;
 
-            // 거리 계산 (제곱 거리)
-            float dist = (unit.gameObject.transform.position - callerPos).sqrMagnitude;
+            // 거리 계산
+            float dist = Mathf.Abs(unit.gameObject.transform.position.x - callerPos.x);
             if (dist > caller.AttackRange) continue; // 공격 범위 초과하면 다음
             if (dist > minDist) continue; // 최소 거리보다 멀다면 다음
             IDamageable tmp = unit.gameObject.GetComponent<IDamageable>();

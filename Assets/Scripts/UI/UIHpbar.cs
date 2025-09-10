@@ -39,7 +39,12 @@ public class UIHpbar : MonoBehaviour
     }
     private void Update()
     {
-        if (_character == null) return;
+        if (_character == null)
+        {
+            gameObject.SetActive(false);
+            Destroy(gameObject);
+            return; 
+        }
         SetHpBarPos();
     }
     private void FixedUpdate()

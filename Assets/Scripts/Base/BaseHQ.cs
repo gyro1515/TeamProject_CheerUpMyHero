@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public abstract class BaseHQ : BaseCharacter, IDamageable
@@ -25,6 +26,7 @@ public abstract class BaseHQ : BaseCharacter, IDamageable
     protected abstract void SpawnUnit();
     public void Dead()
     {
+        OnDead -= Dead;
         Debug.Log("HQDead");
         gameObject.SetActive(false);
         Destroy(gameObject);
