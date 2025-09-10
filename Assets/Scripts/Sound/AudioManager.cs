@@ -16,38 +16,33 @@ public class AudioManager : SingletonMono<AudioManager>
     private List<SFXSource> sfxPool;   // 효과음 풀 리스트
     private int sfxIndex = 0;          // 현재 사용할 인덱스
 
+    // 실행 전에 무조건 AudioManager 생성
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+    private static void CreateInstance()
+    {
+        if (Instance == null)
+        {
+            var go = new GameObject("AudioManager");
+            go.AddComponent<AudioManager>();
+            Debug.Log("[Bootstrap] AudioManager created at startup.");
+        }
+    }
+
     protected override void Awake()
     {
-        base.Awake();  // 싱글톤 초기화 (DontDestroyOnLoad 포함)
+        base.Awake(); // 싱글톤 초기화
+        InitBGMSource();
+        InitSFXPool();
+    }
 
-        // 씬안에 없이 런타임에 직접 생성
+    private void InitBGMSource()
+    {
         if (bgmSource == null)
         {
             var bgmObj = new GameObject("BGM Source");
             bgmObj.transform.SetParent(transform);
             bgmSource = bgmObj.AddComponent<AudioSource>();
             bgmSource.loop = true;
-        }
-
-        InitSFXPool();
-    }
-
-    private void InitSFXPool()
-    {
-        sfxPool = new List<SFXSource>();
-
-        if (sfxPrefab == null)
-        {
-            Debug.LogWarning("[AudioManager] sfxPrefab이 연결되지 않았습니다.");
-            return;
-        }
-
-        for (int i = 0; i < sfxPoolSize; i++)
-        {
-            var go = Instantiate(sfxPrefab, transform);
-            go.name = $"SFXSource_{i}";
-            var src = go.GetComponent<SFXSource>();
-            sfxPool.Add(src);
         }
     }
 
