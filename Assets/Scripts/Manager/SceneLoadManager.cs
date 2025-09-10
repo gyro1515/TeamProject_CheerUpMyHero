@@ -22,10 +22,10 @@ public class SceneLoadManager : SingletonMono<SceneLoadManager>
     protected override void Awake()
     {
         base.Awake();
-        // 씬 클래스와 enum 매핑
-        _scenes.Add(SceneState.Stage1, new Stage1());
-        _scenes.Add(SceneState.Stage2, new Stage2());
-        _scenes.Add(SceneState.Stage01, new Stage01());
+        // 씬 클래스와 enum 매핑 (씬 만들어지면 주석해제)
+        //_scenes.Add(SceneState.Stage1, new Stage1());
+        //_scenes.Add(SceneState.Stage2, new Stage2());
+        //_scenes.Add(SceneState.Stage01, new Stage01());
     } 
 
     public void LoadScene(SceneState sceneState)
