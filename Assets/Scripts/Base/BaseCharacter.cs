@@ -27,7 +27,7 @@ public class BaseCharacter : MonoBehaviour
     public bool IsDead { get; set; }
     public event Action<float, float> OnCurHpChane;
     public event Action OnDead;
-
+    [field: SerializeField] public int ListIndex { get; set; } = -1; // 자기 리스트 내 인덱스, UnitManager판별용
     protected virtual void Awake()
     {
         BaseController = GetComponent<BaseController>();

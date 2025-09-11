@@ -16,6 +16,6 @@ public class EnemyUnit : BaseUnit
     protected override void OnEnable()
     {
         base.OnEnable();
-        UnitManager.Instance.EnemyUnitList.Add(this);
+        UnitManager.Instance.AddUnitList(this, false);
     }
 }
