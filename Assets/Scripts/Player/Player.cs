@@ -12,7 +12,6 @@ public class Player : BaseCharacter
     protected override void Awake()
     {
         base.Awake();
-        UIManager.Instance.GetUI<UIHpBarContainer>().AddHpBar(this, EUIHpBarType.Player);
         GameManager.Instance.Player = this;
         UnitManager.Instance.PlayerUnitList.Add(this);
     }
@@ -24,7 +23,7 @@ public class Player : BaseCharacter
     {
         base.Update();
         // 테스트로 플레이어는 계속 정렬해주기
-        InitCharacter();
+        //InitCharacter();
     }
     
 }

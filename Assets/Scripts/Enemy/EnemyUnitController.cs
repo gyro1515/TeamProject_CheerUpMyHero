@@ -5,26 +5,47 @@ using UnityEngine;
 public class EnemyUnitController : BaseController
 {
     EnemyUnit enemyUnit;
+    Coroutine findTargetRoutine;
+    Coroutine attackRoutine;
     protected override void Awake()
     {
-        base.Awake();
         enemyUnit = GetComponent<EnemyUnit>();
+        enemyUnit.OnDead += () =>
+        {
+            UnitManager.Instance.RemoveUnitFromList(enemyUnit, false);
+        };
+        base.Awake();
+    }
+    protected override void OnEnable()
+    {
+        base.OnEnable();
+        
+        findTargetRoutine = StartCoroutine(TargetingRoutine());
+        attackRoutine = StartCoroutine(AttackRoutine());
     }
     protected override void Start()
     {
         base.Start();
-        StartCoroutine(TargetingRoutine());
-        StartCoroutine(AttackRoutine());
     }
     protected override void FixedUpdate()
     {
         base.FixedUpdate();
-        gameObject.transform.position += enemyUnit.MoveDir * baseCharacter.MoveSpeed * Time.fixedDeltaTime;
+        gameObject.transform.position += enemyUnit.MoveDir * enemyUnit.MoveSpeed * Time.fixedDeltaTime;
+    }
+    protected override void OnDisable()
+    {
+        base.OnDisable();
+        /*enemyUnit.OnDead -= () =>
+        {
+            UnitManager.Instance.RemoveUnitFromList(enemyUnit, false);
+        };*/
+        if (findTargetRoutine != null) StopCoroutine(findTargetRoutine);
+        if (attackRoutine != null) StopCoroutine(attackRoutine);
     }
     public override void Attack()
     {
         base.Attack();
-        //enemyUnit.TargetUnit.BaseController.TakeDamage(enemyUnit.AtkPower);
+
         enemyUnit.TargetUnit.TakeDamage(enemyUnit.AtkPower);
         Debug.Log("적 유닛: 공격!");
     }
