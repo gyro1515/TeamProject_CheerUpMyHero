@@ -1,15 +1,20 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class BaseController : MonoBehaviour, IAttackable, IDamageable
 {
     protected BaseCharacter baseCharacter;
+    BasePoolable poolable;
     protected virtual void Awake()
     {
+        poolable = GetComponent<BasePoolable>();
         baseCharacter = GetComponent<BaseCharacter>();
+    }
+    protected virtual void OnEnable()
+    {
         baseCharacter.OnDead += Dead;
-        
     }
     protected virtual void Start()
     {
@@ -41,6 +46,13 @@ public class BaseController : MonoBehaviour, IAttackable, IDamageable
     {
         // 죽으면 여기서 오브젝트 풀 반환
         baseCharacter.IsDead = true;
+        // 이 오브젝트에 BasePoolable스크립트가 붙어 있다면 오브젝트 풀링, 아니면 그냥 삭제
+        if (poolable)
+        {
+            poolable?.ReleaseSelf();
+            return;
+        }
+        Debug.Log($"{gameObject} 삭제됨");
         gameObject.SetActive(false);
         Destroy(gameObject);
     }

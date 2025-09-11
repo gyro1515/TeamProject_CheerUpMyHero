@@ -14,7 +14,7 @@ public class BaseCharacter : MonoBehaviour
     public BaseController BaseController { get; private set; }
     public Vector3 MoveDir { get; set; }
     public IDamageable Damageable { get; private set; }
-    float curHp;
+    [SerializeField] float curHp;
     public float CurHp { get { return curHp; }
         set
         {
@@ -30,10 +30,14 @@ public class BaseCharacter : MonoBehaviour
     protected virtual void Awake()
     {
         BaseController = GetComponent<BaseController>();
-        curHp = MaxHp;
         Damageable = GetComponent<IDamageable>();
     }
-    
+    protected virtual void OnEnable()
+    {
+        // 다시 활성화 됐을때
+        curHp = MaxHp;
+        IsDead = false;
+    }
     protected virtual void Start()
     {
         // UI 체력바 초기화용
@@ -47,13 +51,5 @@ public class BaseCharacter : MonoBehaviour
     {
 
     }
-    /*public virtual void InitCharacter()
-    {
-        // 소환하면 위 아래로 움직일 일이 없으니까, 소환할때 sortingOrder 설정하기
-        if (!characterSpriteRenderer) return;
-        // y값이 낮을수록 sortingOrder가 커짐 → 앞에 그려짐
-        characterSpriteRenderer.sortingOrder = 350 - (int)(gameObject.transform.position.y * 100);
-        // UI초기화용
-        //CurHp = curHp;
-    }*/
+    
 }

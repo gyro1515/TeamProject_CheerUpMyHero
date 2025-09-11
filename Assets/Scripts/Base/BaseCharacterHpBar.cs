@@ -17,7 +17,7 @@ public class BaseCharacterHpBar : MonoBehaviour
     }
     void SetHpBar(float curHp, float maxHp)
     {
-        if(!hpBarTransform || curHp != maxHp) return;
+        if(!hpBarTransform || curHp == maxHp) return;
         if(!hpBarGO.activeSelf) hpBarGO.SetActive(true);
         hpBarTransform.localScale = new Vector3(curHp/maxHp, 1f, 1f);
     }

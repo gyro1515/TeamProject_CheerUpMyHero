@@ -11,6 +11,10 @@ public class PlayerUnit : BaseUnit
     protected override void Start()
     {
         base.Start();
-
+    }
+    protected override void OnEnable()
+    {
+        base.OnEnable();
+        UnitManager.Instance.PlayerUnitList.Add(this);
     }
 }

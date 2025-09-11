@@ -5,25 +5,43 @@ using UnityEngine;
 public class PlayerUnitController : BaseController
 {
     PlayerUnit playerUnit;
+    Coroutine findTargetRoutine;
+    Coroutine attackRoutine;
     protected override void Awake()
     {
         playerUnit = GetComponent<PlayerUnit>();
+        
+        base.Awake();
+    }
+    protected override void OnEnable()
+    {
+        base.OnEnable();
         playerUnit.OnDead += () =>
         {
             UnitManager.Instance.RemoveUnitFromList(playerUnit, true);
         };
-        base.Awake();
+        findTargetRoutine = StartCoroutine(TargetingRoutine());
+        attackRoutine = StartCoroutine(AttackRoutine());
     }
     protected override void Start()
     {
         base.Start();
-        StartCoroutine(TargetingRoutine());
-        StartCoroutine(AttackRoutine());
+        
     }
     protected override void FixedUpdate()
     {
         base.FixedUpdate();
         gameObject.transform.position += playerUnit.MoveDir * playerUnit.MoveSpeed * Time.fixedDeltaTime;
+    }
+    protected override void OnDisable()
+    {
+        base.OnDisable();
+        playerUnit.OnDead -= () =>
+        {
+            UnitManager.Instance.RemoveUnitFromList(playerUnit, true);
+        };
+        if (findTargetRoutine != null) StopCoroutine(findTargetRoutine);
+        if (attackRoutine != null) StopCoroutine(attackRoutine);
     }
     public override void Attack()
     {

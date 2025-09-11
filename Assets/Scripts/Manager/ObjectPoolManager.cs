@@ -13,10 +13,11 @@ using UnityEngine.Pool;
 
 public enum PoolType
 {
-    TestBullet,
+    TestBullet, 
     TestBulletV2,
+    EnemyUnit1,
+    PlayerUnit1
 }
-
 
 public class ObjectPoolManager : SingletonMono<ObjectPoolManager>
 {
