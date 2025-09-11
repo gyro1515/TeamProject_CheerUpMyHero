@@ -3,7 +3,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class ResourceUI : MonoBehaviour
+public class ResourceUI : BaseUI
 {
     [Header("자원 UI 텍스트 연결")]
 

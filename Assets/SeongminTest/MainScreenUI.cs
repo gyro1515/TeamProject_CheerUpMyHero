@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class MainScreenUI : MonoBehaviour
+public class MainScreenUI : BaseUI
 {
     [Header("버튼 세팅")]
     [SerializeField] private Button _officerImageButton;
