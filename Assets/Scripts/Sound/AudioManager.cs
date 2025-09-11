@@ -32,17 +32,12 @@ public class AudioManager : SingletonMono<AudioManager>
     {
         base.Awake(); // 싱글톤 초기화
         InitBGMSource();
-        InitSFXPool();
-    }
+        //InitSFXPool();
 
-    private void InitBGMSource()
-    {
-        if (bgmSource == null)
+        var clip = Resources.Load<AudioClip>("Sound/Light Ambience 1");
+        if (clip != null)
         {
-            var bgmObj = new GameObject("BGM Source");
-            bgmObj.transform.SetParent(transform);
-            bgmSource = bgmObj.AddComponent<AudioSource>();
-            bgmSource.loop = true;
+            PlayBGM(clip, 1f);
         }
     }
 
@@ -56,6 +51,14 @@ public class AudioManager : SingletonMono<AudioManager>
         bgmSource.loop = true;
         bgmSource.Play();
     }
+    private void InitBGMSource()
+    {
+        if (bgmSource == null)
+        {
+            bgmSource = gameObject.AddComponent<AudioSource>();
+            bgmSource.playOnAwake = false;
+        }
+    }
 
     public void StopBGM() => bgmSource.Stop();
 
@@ -66,20 +69,19 @@ public class AudioManager : SingletonMono<AudioManager>
 
         var src = sfxPool[sfxIndex];
         src.Play(clip, volume, pitch);
-
         sfxIndex = (sfxIndex + 1) % sfxPool.Count;
     }
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.A))
-        {
-            // BGM 테스트
-            var clip = AssetDatabase.LoadAssetAtPath<AudioClip>("BGM/Ambience1");
-            PlayBGM(clip, 1f);
+        //if (Input.GetKey(KeyCode.A))
+        //{
+        //    // BGM 테스트
+        //    var clip = Resources.Load<AudioClip>("Sound/Light Ambience 1");
+        //    PlayBGM(clip, 1f);
 
-            if (Input.GetKeyDown(KeyCode.S))
-                StopBGM();
-        }
+        //    if (Input.GetKey(KeyCode.S))
+        //        StopBGM();
+        //}
     }
 }
