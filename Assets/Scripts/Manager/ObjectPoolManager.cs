@@ -7,11 +7,14 @@ using UnityEngine.Pool;
 //!!중요!!
 //새로운 풀링 오브젝트 추가시 주의 사항
 //1. 풀링해야할 것을 enum으로 지정 + "Prefabs/ObjPooling/" 위치에 enum과 같은 이름으로 프리팹 넣기
+//2. 프리팹에 BasePoolable 또는 그걸 상속받는 클래스 붙이기
+//3. ObjectPoolManager.Instance.Get(PoolType)으로 오브젝트 불러오기
+//4. 오브젝트 반납 로직 작성 필수: BasePoolable을 GetComponet해서 ReleaseSelf 호출
 
 public enum PoolType
 {
-    TestBullet, 
-    
+    TestBullet,
+    TestBulletV2,
 }
 
 
@@ -23,8 +26,6 @@ public class ObjectPoolManager : SingletonMono<ObjectPoolManager>
 
     //풀을 담을 딕셔너리(IObjectPool 내장 인터페이스 사용 => 나중에 ObjectPool말고도 별도 클래스를 만들어 활용 가능)
     private Dictionary<PoolType, IObjectPool<GameObject>> pools = new Dictionary<PoolType, IObjectPool<GameObject>>();
-
-    private ObjectPool<GameObject> bulletPool;
 
     protected override void Awake()
     {
@@ -83,7 +84,11 @@ public class ObjectPoolManager : SingletonMono<ObjectPoolManager>
         gameObject.transform.SetParent(container);
 
         // 생성된 오브젝트가 자신의 풀을 알도록 설정
-        gameObject.GetComponent<BasePoolable>().SetPool(pools[type]);
+        BasePoolable poolable = gameObject.GetComponent<BasePoolable>();
+        if( poolable != null )
+            poolable.SetPool(pools[type]);
+        else
+            Debug.LogError($"[ObjectPoolManager] 풀 로드 오류: '{gameObject.name}' 프리팹에 BasePoolable 컴포넌트가 없습니다.");
         return gameObject;
     }
 

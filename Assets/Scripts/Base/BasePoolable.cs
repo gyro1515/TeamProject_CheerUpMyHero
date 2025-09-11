@@ -13,7 +13,7 @@ public class BasePoolable : MonoBehaviour
     }
 
     //오브젝트풀로 돌아가는 조건 각자 만들기
-    protected virtual void ReleaseSelf()
+    public virtual void ReleaseSelf()
     {
         if (MyPool != null)
             MyPool.Release(this.gameObject);
