@@ -1,0 +1,121 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.Pool;
+
+//!!중요!!
+//새로운 풀링 오브젝트 추가시 주의 사항
+//1. 풀링해야할 것을 enum으로 지정 + "Prefabs/ObjPooling/" 위치에 enum과 같은 이름으로 프리팹 넣기
+//2. 프리팹에 BasePoolable 또는 그걸 상속받는 클래스 붙이기
+//3. ObjectPoolManager.Instance.Get(PoolType)으로 오브젝트 불러오기
+//4. 오브젝트 반납 로직 작성 필수: BasePoolable을 GetComponet해서 ReleaseSelf 호출
+
+public enum PoolType
+{
+    TestBullet,
+    TestBulletV2,
+}
+
+
+public class ObjectPoolManager : SingletonMono<ObjectPoolManager>
+{
+    private Array enums;
+
+    private const string POOLPATH = "Prefabs/ObjPooling/";
+
+    //풀을 담을 딕셔너리(IObjectPool 내장 인터페이스 사용 => 나중에 ObjectPool말고도 별도 클래스를 만들어 활용 가능)
+    private Dictionary<PoolType, IObjectPool<GameObject>> pools = new Dictionary<PoolType, IObjectPool<GameObject>>();
+
+    protected override void Awake()
+    {
+        base.Awake();
+
+        enums = Enum.GetValues(typeof(PoolType));
+
+        InitPool();
+    }
+
+    void InitPool()
+    {
+        Transform rootContainer = new GameObject("@Pool_Root").transform;
+
+        foreach (PoolType type in enums)
+        {
+            //중복 체크
+            if (pools.ContainsKey(type))
+            {
+                Debug.LogWarning($"[ObjectPoolManager] 풀 로드 오류: '{type}' 타입의 풀이 이미 존재합니다.");
+                continue;
+            }
+
+            //1. 프리팹 로드
+            GameObject prefab = Resources.Load<GameObject>(POOLPATH + type.ToString());
+            if (prefab == null)
+            {
+                Debug.LogError($"[ObjectPoolManager] 프리팹 로드 실패: Resources/{POOLPATH + type.ToString()}");
+            }
+
+            //2. 오브젝트를 담을 빈 게임 오브젝트 생성
+
+            Transform typeContainer = new GameObject(type.ToString() + "_Pool").transform;
+            typeContainer.SetParent(rootContainer);
+
+            //3. 풀 생성
+            IObjectPool<GameObject> objectPool = new ObjectPool<GameObject>
+            (
+                createFunc: () => CreateObject(prefab, type, typeContainer),      // 풀에 오브젝트가 없을 때 새로 생성하는 방법 => 람다 
+                actionOnGet: OnGetObject,       // 풀에서 오브젝트를 꺼낼 때(Get) 할 행동 => 주로 SetActive(true), 위치 초기화 등
+                actionOnRelease: OnReleaseObject, // 풀에 오브젝트를 반납할 때(Release) 할 행동 => 주로 SetActive(false)
+                actionOnDestroy: OnDestroyObject, // 풀이 가득 차서 오브젝트를 파괴할 때 할 행동
+                collectionCheck: true,          // 동일한 오브젝트가 풀에 중복으로 들어가는 것을 방지 (안전장치)
+                defaultCapacity: 10,            // 풀의 기본 크기
+                maxSize: 1000                     // 풀의 최대 크기
+            );
+
+            pools.Add( type, objectPool );
+        }
+    }
+
+    private GameObject CreateObject(GameObject obj, PoolType type, Transform container)
+    {
+        GameObject gameObject = Instantiate(obj);
+        
+        gameObject.transform.SetParent(container);
+
+        // 생성된 오브젝트가 자신의 풀을 알도록 설정
+        BasePoolable poolable = gameObject.GetComponent<BasePoolable>();
+        if( poolable != null )
+            poolable.SetPool(pools[type]);
+        else
+            Debug.LogError($"[ObjectPoolManager] 풀 로드 오류: '{gameObject.name}' 프리팹에 BasePoolable 컴포넌트가 없습니다.");
+        return gameObject;
+    }
+
+    private void OnGetObject(GameObject obj)
+    {
+        obj.SetActive(true);
+    }
+
+    private void OnReleaseObject(GameObject obj) 
+    {
+        obj.SetActive(false);
+    }
+
+    private void OnDestroyObject(GameObject obj)
+    {
+        Debug.LogWarning($"[ObjectPoolManager] 풀 경고: '{obj}' 타입 수가 최대에 도달해서 파괴되었습니다");
+        Destroy(obj);
+    }
+
+    public GameObject Get(PoolType pooltype)
+    {
+        if (!pools.ContainsKey(pooltype))
+        {
+            Debug.LogError($"[ObjectPoolManager] 풀 로드 실패: '{pooltype.ToString()}' 이름의 풀이 존재하지 않습니다.");
+            return null;
+        }
+
+        return pools[pooltype].Get();
+    }
+}
