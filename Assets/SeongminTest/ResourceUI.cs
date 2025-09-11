@@ -63,7 +63,8 @@ public class ResourceUI : BaseUI
         }
     }
 
-    // 모든 자원의 UI를 한꺼번에 업데이트하는 보조 메서드
+    // 모든 자원의 UI를 한꺼번에 업데이트하는 보조 메서드 
+    //이후에는 ResourceManager.AddResource 메서드가 호출될 때마다 업데이트
     private void UpdateAllResourceUI()
     {
         foreach (var type in _resourceTexts.Keys)
