@@ -24,7 +24,7 @@ public class Player : BaseCharacter
     {
         base.Update();
         // 테스트로 플레이어는 계속 정렬해주기
-        InitCharacter();
+        //InitCharacter();
     }
     
 }

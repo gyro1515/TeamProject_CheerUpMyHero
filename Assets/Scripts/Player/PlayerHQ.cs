@@ -17,10 +17,10 @@ public class PlayerHQ : BaseHQ
         if (playerUnitPrefabs[0] == null) return;
         Vector3 spawnPos = gameObject.transform.position;
         spawnPos.y += UnityEngine.Random.Range(tmpMinY, tmpMaxY) / 100f;
+        // 여기서 오브젝트 풀에서 가져오기
         GameObject playerUnitGO = Instantiate(playerUnitPrefabs[0], spawnPos, Quaternion.identity);
         playerUnitGO.transform.SetParent(gameObject.transform);
         PlayerUnit playerUnit = playerUnitGO.GetComponent<PlayerUnit>();
-        playerUnit?.InitCharacter();
         UnitManager.Instance.PlayerUnitList.Add(playerUnit);
     }
 }

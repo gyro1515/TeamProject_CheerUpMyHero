@@ -26,6 +26,7 @@ public abstract class BaseHQ : BaseCharacter, IDamageable
     protected abstract void SpawnUnit();
     public void Dead()
     {
+        // 여기서 오브젝트 풀 반환
         OnDead -= Dead;
         Debug.Log("HQDead");
         gameObject.SetActive(false);

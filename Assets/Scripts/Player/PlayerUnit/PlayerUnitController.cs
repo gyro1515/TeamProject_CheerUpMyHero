@@ -7,8 +7,12 @@ public class PlayerUnitController : BaseController
     PlayerUnit playerUnit;
     protected override void Awake()
     {
-        base.Awake();
         playerUnit = GetComponent<PlayerUnit>();
+        playerUnit.OnDead += () =>
+        {
+            UnitManager.Instance.RemoveUnitFromList(playerUnit, true);
+        };
+        base.Awake();
     }
     protected override void Start()
     {
@@ -19,7 +23,7 @@ public class PlayerUnitController : BaseController
     protected override void FixedUpdate()
     {
         base.FixedUpdate();
-        gameObject.transform.position += playerUnit.MoveDir * baseCharacter.MoveSpeed * Time.fixedDeltaTime;
+        gameObject.transform.position += playerUnit.MoveDir * playerUnit.MoveSpeed * Time.fixedDeltaTime;
     }
     public override void Attack()
     {

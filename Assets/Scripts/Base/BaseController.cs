@@ -9,6 +9,7 @@ public class BaseController : MonoBehaviour, IAttackable, IDamageable
     {
         baseCharacter = GetComponent<BaseCharacter>();
         baseCharacter.OnDead += Dead;
+        
     }
     protected virtual void Start()
     {
@@ -36,6 +37,7 @@ public class BaseController : MonoBehaviour, IAttackable, IDamageable
     }
     public virtual void Dead()
     {
+        // 죽으면 여기서 오브젝트 풀 반환
         gameObject.SetActive(false);
         Destroy(gameObject);
     }

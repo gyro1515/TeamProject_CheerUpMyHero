@@ -19,10 +19,10 @@ public class EnemyHQ : BaseHQ
         if (enemyUnitPrefabs[0] == null) return;
         Vector3 spawnPos = gameObject.transform.position;
         spawnPos.y += UnityEngine.Random.Range(tmpMinY, tmpMaxY) / 100f;
+        // 여기서 오브젝트 풀에서 가져오기
         GameObject enemyUnitGO = Instantiate(enemyUnitPrefabs[0], spawnPos, Quaternion.identity);
         enemyUnitGO.transform.SetParent(gameObject.transform);
         EnemyUnit enemyUnit = enemyUnitGO.GetComponent<EnemyUnit>();
-        enemyUnit?.InitCharacter();
         UnitManager.Instance.EnemyUnitList.Add(enemyUnit);
     }
 }
