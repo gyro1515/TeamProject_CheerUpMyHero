@@ -57,7 +57,7 @@ public class ResourceManager : SingletonMono<ResourceManager>
         if (_resources.ContainsKey(type))
         {
             _resources[type] += amount;
-            OnResourceChangedEvent?.Invoke(type, _resources[type]);
+            OnResourceChangedEvent?.Invoke(type, _resources[type]); //자원 수량 변경 이벤트
         }
         else
         {
