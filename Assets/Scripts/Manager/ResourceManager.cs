@@ -48,7 +48,7 @@ public class ResourceManager : SingletonMono<ResourceManager>
             return amount;
         }
         Debug.LogWarning($"ResourceManager: 존재하지 않는 자원 타입입니다. ({type})");
-        return 0;
+        return -1;
     }
 
     // 특정 자원의 수량을 변경하는 메서드

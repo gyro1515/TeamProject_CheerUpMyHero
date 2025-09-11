@@ -25,26 +25,15 @@ public class ResourceUI : BaseUI
         _resourceTexts.Add(ResourceType.Food, foodText);
         _resourceTexts.Add(ResourceType.Gem, gemText);
 
-
-        if (ResourceManager.Instance != null)
-        {
-            ResourceManager.Instance.OnResourceChangedEvent += OnResourceUpdated;
+         ResourceManager.Instance.OnResourceChangedEvent += OnResourceUpdated;
 
             // 게임 시작 시 초기 자원 값을 UI에 한 번 반영
             UpdateAllResourceUI();
-        }
-        else
-        {
-            Debug.LogError("ResourceManager 인스턴스를 찾을 수 없습니다. 먼저 ResourceManager를 설정하세요.");
-        }
     }
 
     private void OnDestroy()
     {
-        if (ResourceManager.Instance != null)
-        {
-            ResourceManager.Instance.OnResourceChangedEvent -= OnResourceUpdated;
-        }
+        ResourceManager.Instance.OnResourceChangedEvent -= OnResourceUpdated;       
     }
 
     // ResourceManager에서 자원 변경 이벤트가 발생하면 자동으로 호출됩니다.
