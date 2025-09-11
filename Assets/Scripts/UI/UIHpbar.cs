@@ -39,12 +39,6 @@ public class UIHpbar : MonoBehaviour
     }
     private void Update()
     {
-        if (_character == null)
-        {
-            gameObject.SetActive(false);
-            Destroy(gameObject);
-            return; 
-        }
         SetHpBarPos();
     }
     private void FixedUpdate()
@@ -60,11 +54,12 @@ public class UIHpbar : MonoBehaviour
         _character.OnCurHpChane -= SetHpBar;
         _character.OnDead -= DestoryUIHpBar;
         _character = null;
-        gameObject.SetActive(false);
-        Destroy(gameObject);
+        gameObject.SetActive(false); // 여기서 오브젝트 풀 반환
+        Destroy(gameObject); 
     }
     void SetHpBarPos()
     {
+        if (_character == null) return;
         gameObject.transform.position = Camera.main.WorldToScreenPoint(_character.gameObject.transform.position + _character.HpBarPosByCharacter);
     }
 

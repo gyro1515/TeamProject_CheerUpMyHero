@@ -22,6 +22,7 @@ public class UIHpBarContainer : BaseUI
     }
     public UIHpbar AddHpBar(BaseCharacter character, EUIHpBarType type, Vector2? hpBarSize = null)
     {
+        // 여기서 오브젝트 풀에서 가져오기
         UIHpbar hpBar = Instantiate(uiHpBarPrefab,gameObject.transform).GetComponent<UIHpbar>();
         hpBar.HpBarInit(character, type, hpBarSize);
         return hpBar;

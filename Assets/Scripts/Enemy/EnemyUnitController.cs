@@ -7,8 +7,12 @@ public class EnemyUnitController : BaseController
     EnemyUnit enemyUnit;
     protected override void Awake()
     {
-        base.Awake();
         enemyUnit = GetComponent<EnemyUnit>();
+        enemyUnit.OnDead += () =>
+        {
+            UnitManager.Instance.RemoveUnitFromList(enemyUnit, false);
+        };
+        base.Awake();
     }
     protected override void Start()
     {
@@ -19,12 +23,12 @@ public class EnemyUnitController : BaseController
     protected override void FixedUpdate()
     {
         base.FixedUpdate();
-        gameObject.transform.position += enemyUnit.MoveDir * baseCharacter.MoveSpeed * Time.fixedDeltaTime;
+        gameObject.transform.position += enemyUnit.MoveDir * enemyUnit.MoveSpeed * Time.fixedDeltaTime;
     }
     public override void Attack()
     {
         base.Attack();
-        //enemyUnit.TargetUnit.BaseController.TakeDamage(enemyUnit.AtkPower);
+
         enemyUnit.TargetUnit.TakeDamage(enemyUnit.AtkPower);
         Debug.Log("적 유닛: 공격!");
     }

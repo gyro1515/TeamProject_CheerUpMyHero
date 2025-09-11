@@ -7,8 +7,13 @@ public class PlayerController : BaseController
     Player player;
     protected override void Awake()
     {
-        base.Awake();
         player = GetComponent<Player>();
+        player.OnDead += () =>
+        {
+            UnitManager.Instance.RemoveUnitFromList(player, true);
+        };
+        base.Awake();
+
     }
     protected override void FixedUpdate()
     {

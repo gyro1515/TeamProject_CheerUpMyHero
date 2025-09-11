@@ -9,14 +9,12 @@ public class BaseCharacter : MonoBehaviour
     [field: SerializeField] public float MaxHp {  get; private set; }
     [field: SerializeField] public float AtkPower {  get; private set; }
     [field: SerializeField] public float MoveSpeed {  get; private set; }
-    // 랜더 순서용
-    [field: SerializeField] public SpriteRenderer characterSpriteRenderer { get; private set; }
     [field: SerializeField] public Vector3 HpBarPosByCharacter { get; private set; } // 보정용
     [field: SerializeField] public Vector2 HpBarSize { get; private set; } // 체력바 사이즈용
     public BaseController BaseController { get; private set; }
-    float curHp;
     public Vector3 MoveDir { get; set; }
-
+    public IDamageable Damageable { get; private set; }
+    float curHp;
     public float CurHp { get { return curHp; }
         set
         {
@@ -33,6 +31,7 @@ public class BaseCharacter : MonoBehaviour
     {
         BaseController = GetComponent<BaseController>();
         curHp = MaxHp;
+        Damageable = GetComponent<IDamageable>();
     }
     protected virtual void Start()
     {
@@ -47,7 +46,7 @@ public class BaseCharacter : MonoBehaviour
     {
 
     }
-    public virtual void InitCharacter()
+    /*public virtual void InitCharacter()
     {
         // 소환하면 위 아래로 움직일 일이 없으니까, 소환할때 sortingOrder 설정하기
         if (!characterSpriteRenderer) return;
@@ -55,5 +54,5 @@ public class BaseCharacter : MonoBehaviour
         characterSpriteRenderer.sortingOrder = 350 - (int)(gameObject.transform.position.y * 100);
         // UI초기화용
         //CurHp = curHp;
-    }
+    }*/
 }
