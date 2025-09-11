@@ -7,11 +7,11 @@ public class ResourceUI : BaseUI
 {
     [Header("자원 UI 텍스트 연결")]
 
-    [SerializeField] private TextMeshProUGUI waterText;
+    [SerializeField] private TextMeshProUGUI goldText;
     [SerializeField] private TextMeshProUGUI woodText;
-    [SerializeField] private TextMeshProUGUI stoneText;
+    [SerializeField] private TextMeshProUGUI ironText;
     [SerializeField] private TextMeshProUGUI foodText;
-    [SerializeField] private TextMeshProUGUI gemText;
+    [SerializeField] private TextMeshProUGUI magicStoneText;
 
 
     private Dictionary<ResourceType, TextMeshProUGUI> _resourceTexts = new();
@@ -19,11 +19,11 @@ public class ResourceUI : BaseUI
     private void Awake()
     {
 
-        _resourceTexts.Add(ResourceType.Water, waterText);
+        _resourceTexts.Add(ResourceType.Gold, goldText);
         _resourceTexts.Add(ResourceType.Wood, woodText);
-        _resourceTexts.Add(ResourceType.Stone, stoneText);
+        _resourceTexts.Add(ResourceType.Iron, ironText);
         _resourceTexts.Add(ResourceType.Food, foodText);
-        _resourceTexts.Add(ResourceType.Gem, gemText);
+        _resourceTexts.Add(ResourceType.MagicStone, magicStoneText);
 
          ResourceManager.Instance.OnResourceChangedEvent += OnResourceUpdated;
 

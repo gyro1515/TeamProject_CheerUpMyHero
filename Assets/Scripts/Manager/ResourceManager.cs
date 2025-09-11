@@ -5,11 +5,11 @@ using System.Collections.Generic;
 
 public enum ResourceType
 {
-    Water,
+    Gold,
     Wood,
-    Stone,
+    Iron,
     Food,
-    Gem
+    MagicStone
 }
 
 public class ResourceManager : SingletonMono<ResourceManager>
@@ -33,11 +33,11 @@ public class ResourceManager : SingletonMono<ResourceManager>
     private void InitializeResources()
     {
         // 5가지 자원을 모두 딕셔너리에 추가하고 초기 수량을 설정.
-        _resources[ResourceType.Water] = 1000;
+        _resources[ResourceType.Gold] = 1000;
         _resources[ResourceType.Wood] = 1000;
-        _resources[ResourceType.Stone] = 1000;
+        _resources[ResourceType.Iron] = 1000;
         _resources[ResourceType.Food] = 1000;
-        _resources[ResourceType.Gem] = 1000;
+        _resources[ResourceType.MagicStone] = 1000;
     }
 
     // 특정 자원의 현재 수량을 반환하는 메서드
