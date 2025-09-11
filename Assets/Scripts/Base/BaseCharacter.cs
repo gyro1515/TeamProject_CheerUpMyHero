@@ -22,7 +22,6 @@ public class BaseCharacter : MonoBehaviour
             curHp = Mathf.Clamp(curHp, 0, MaxHp);
             OnCurHpChane?.Invoke(curHp, MaxHp);
             if(curHp <=0) OnDead?.Invoke();
-            
         } }
     public event Action<float, float> OnCurHpChane;
     public event Action OnDead;
@@ -33,6 +32,7 @@ public class BaseCharacter : MonoBehaviour
         curHp = MaxHp;
         Damageable = GetComponent<IDamageable>();
     }
+    
     protected virtual void Start()
     {
         // UI 체력바 초기화용

@@ -7,8 +7,8 @@ using UnityEngine;
 public abstract class BaseHQ : BaseCharacter, IDamageable
 {
     [Header("본부 세팅")]
-    [SerializeField] protected float minY = 0;
-    [SerializeField] protected float maxY = 0;
+    [SerializeField] protected float minY = 0; // 스폰 위치 최소값
+    [SerializeField] protected float maxY = 0; // 스폰 위치 최대값
     [SerializeField] protected float spawnInterval = 0.5f;
     protected int tmpMinY;
     protected int tmpMaxY;
