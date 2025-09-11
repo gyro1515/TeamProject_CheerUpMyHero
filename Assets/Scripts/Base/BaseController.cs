@@ -33,12 +33,14 @@ public class BaseController : MonoBehaviour, IAttackable, IDamageable
 
     public virtual void TakeDamage(float damage)
     {
+        if (baseCharacter.IsDead) return;
         // 어떤 공식에 의해서 피해량이 결정이 되고
         baseCharacter.CurHp -= damage;
     }
     public virtual void Dead()
     {
         // 죽으면 여기서 오브젝트 풀 반환
+        baseCharacter.IsDead = true;
         gameObject.SetActive(false);
         Destroy(gameObject);
     }

@@ -23,6 +23,7 @@ public class BaseCharacter : MonoBehaviour
             OnCurHpChane?.Invoke(curHp, MaxHp);
             if(curHp <=0) OnDead?.Invoke();
         } }
+    public bool IsDead { get; set; }
     public event Action<float, float> OnCurHpChane;
     public event Action OnDead;
 
