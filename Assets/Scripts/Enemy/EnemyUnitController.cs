@@ -10,16 +10,16 @@ public class EnemyUnitController : BaseController
     protected override void Awake()
     {
         enemyUnit = GetComponent<EnemyUnit>();
-        
+        enemyUnit.OnDead += () =>
+        {
+            UnitManager.Instance.RemoveUnitFromList(enemyUnit, false);
+        };
         base.Awake();
     }
     protected override void OnEnable()
     {
         base.OnEnable();
-        enemyUnit.OnDead += () =>
-        {
-            UnitManager.Instance.RemoveUnitFromList(enemyUnit, false);
-        };
+        
         findTargetRoutine = StartCoroutine(TargetingRoutine());
         attackRoutine = StartCoroutine(AttackRoutine());
     }
@@ -35,10 +35,10 @@ public class EnemyUnitController : BaseController
     protected override void OnDisable()
     {
         base.OnDisable();
-        enemyUnit.OnDead -= () =>
+        /*enemyUnit.OnDead -= () =>
         {
             UnitManager.Instance.RemoveUnitFromList(enemyUnit, false);
-        };
+        };*/
         if (findTargetRoutine != null) StopCoroutine(findTargetRoutine);
         if (attackRoutine != null) StopCoroutine(attackRoutine);
     }

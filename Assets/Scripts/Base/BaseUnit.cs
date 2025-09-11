@@ -14,5 +14,11 @@ public abstract class BaseUnit : BaseCharacter
     protected override void OnEnable()
     {
         base.OnEnable();
+        TargetUnit = null;
+    }
+    protected override void OnDisable()
+    {
+        base.OnDisable();
+        TargetUnit = null;
     }
 }

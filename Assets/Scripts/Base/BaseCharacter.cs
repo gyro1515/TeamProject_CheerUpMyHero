@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class BaseCharacter : MonoBehaviour
@@ -51,5 +52,8 @@ public class BaseCharacter : MonoBehaviour
     {
 
     }
-    
+    protected virtual void OnDisable()
+    {
+        
+    }
 }
