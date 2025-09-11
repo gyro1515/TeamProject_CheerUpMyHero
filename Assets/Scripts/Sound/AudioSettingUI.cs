@@ -79,4 +79,13 @@ public class AudioSettingUI : MonoBehaviour
         if (sfxSlider) sfxSlider.onValueChanged.RemoveListener(OnSfxSliderChanged);
         PlayerPrefs.Save();
     }
+
+    public void Close()
+    {
+        gameObject.SetActive(false);
+    }
+    public void Open()
+    {
+        gameObject.SetActive(true);
+    }
 }

@@ -5,7 +5,7 @@ using UnityEngine;
 public class SFXSource : MonoBehaviour
 {
     private AudioSource audioSource; // 실제 재생을 담당하는 AudioSource
-    private bool wasKeyPressed = false;
+    //private bool wasKeyPressed = false;
 
     private void Awake()
     {
@@ -29,17 +29,11 @@ public class SFXSource : MonoBehaviour
 
     void Update()
     {
-        // 1번 키 다운 감지
-        if (Input.GetKeyDown(KeyCode.Alpha1))
-        {
-            wasKeyPressed = true;
-        }
-
-        // 1번 키 업 감지 → 누르고 뗐을 때만 실행
-        if (wasKeyPressed && Input.GetKeyUp(KeyCode.Alpha1))
-        {
-            wasKeyPressed = false;
-            AudioManager.Instance.PlaySFXByResource("Sound/Swing", 1f);
-        }
+        //숫자 1번키 테스트용
+        //if (Input.GetKeyUp(KeyCode.Alpha1))
+        //{
+        //wasKeyPressed = false;
+        //    AudioManager.Instance.PlaySFXByResource("Sound/Swing", 1f);
+        //}
     }
 }
