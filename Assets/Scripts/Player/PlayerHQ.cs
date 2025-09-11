@@ -5,7 +5,8 @@ using UnityEngine;
 public class PlayerHQ : BaseHQ
 {
     [Header("아군 본부 세팅")]
-    [SerializeField] List<GameObject> playerUnitPrefabs = new List<GameObject>();
+    [SerializeField] List<PoolType> playerUnits = new List<PoolType>();
+
     protected override void Awake()
     {
         base.Awake();
@@ -14,13 +15,13 @@ public class PlayerHQ : BaseHQ
     }
     protected override void SpawnUnit()
     {
-        if (playerUnitPrefabs[0] == null) return;
+        if (playerUnits.Count == 0) return;
         Vector3 spawnPos = gameObject.transform.position;
         spawnPos.y += UnityEngine.Random.Range(tmpMinY, tmpMaxY) / 100f;
-        GameObject playerUnitGO = Instantiate(playerUnitPrefabs[0], spawnPos, Quaternion.identity);
-        playerUnitGO.transform.SetParent(gameObject.transform);
-        PlayerUnit playerUnit = playerUnitGO.GetComponent<PlayerUnit>();
-        playerUnit?.InitCharacter();
-        UnitManager.Instance.PlayerUnitList.Add(playerUnit);
+        // 여기서 오브젝트 풀에서 가져오기
+        GameObject playerUnitGO = ObjectPoolManager.Instance.Get(playerUnits[0]);
+        playerUnitGO.transform.position = spawnPos;
+        //playerUnitGO.transform.SetParent(gameObject.transform);
+        //PlayerUnit playerUnit = playerUnitGO.GetComponent<PlayerUnit>();
     }
 }
