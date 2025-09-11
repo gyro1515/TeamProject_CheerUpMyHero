@@ -1,0 +1,74 @@
+using System.Collections.Generic;
+using TMPro;
+using UnityEngine;
+using UnityEngine.UI;
+
+public class ResourceUI : MonoBehaviour
+{
+    [Header("자원 UI 텍스트 연결")]
+
+    [SerializeField] private TextMeshProUGUI waterText;
+    [SerializeField] private TextMeshProUGUI woodText;
+    [SerializeField] private TextMeshProUGUI stoneText;
+    [SerializeField] private TextMeshProUGUI foodText;
+    [SerializeField] private TextMeshProUGUI gemText;
+
+
+    private Dictionary<ResourceType, TextMeshProUGUI> _resourceTexts = new();
+
+    private void Awake()
+    {
+
+        _resourceTexts.Add(ResourceType.Water, waterText);
+        _resourceTexts.Add(ResourceType.Wood, woodText);
+        _resourceTexts.Add(ResourceType.Stone, stoneText);
+        _resourceTexts.Add(ResourceType.Food, foodText);
+        _resourceTexts.Add(ResourceType.Gem, gemText);
+
+
+        if (ResourceManager.Instance != null)
+        {
+            ResourceManager.Instance.OnResourceChangedEvent += OnResourceUpdated;
+
+            // 게임 시작 시 초기 자원 값을 UI에 한 번 반영
+            UpdateAllResourceUI();
+        }
+        else
+        {
+            Debug.LogError("ResourceManager 인스턴스를 찾을 수 없습니다. 먼저 ResourceManager를 설정하세요.");
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (ResourceManager.Instance != null)
+        {
+            ResourceManager.Instance.OnResourceChangedEvent -= OnResourceUpdated;
+        }
+    }
+
+    // ResourceManager에서 자원 변경 이벤트가 발생하면 자동으로 호출됩니다.
+    private void OnResourceUpdated(ResourceType type, int newAmount)
+    {
+        UpdateResourceUI(type);
+    }
+
+    // 특정 자원의 UI 텍스트를 업데이트
+    private void UpdateResourceUI(ResourceType type)
+    {
+        if (_resourceTexts.TryGetValue(type, out TextMeshProUGUI textComponent))
+        {
+            int amount = ResourceManager.Instance.GetResourceAmount(type);
+            textComponent.text = amount.ToString();
+        }
+    }
+
+    // 모든 자원의 UI를 한꺼번에 업데이트하는 보조 메서드
+    private void UpdateAllResourceUI()
+    {
+        foreach (var type in _resourceTexts.Keys)
+        {
+            UpdateResourceUI(type);
+        }
+    }
+}
