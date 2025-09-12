@@ -27,8 +27,8 @@ public abstract class BaseHQ : BaseCharacter, IDamageable
     public virtual void Dead()
     {
         // 여기서 오브젝트 풀 반환
-        CancelInvoke("SpawnUnit");
-
+        CancelInvoke("SpawnUnit"); //게임 매니저에 있는 Time.timeScale = 0f;일시정지일뿐이라서 시간이 다시 흐르면 멈췄던 Invoke가 재시작되므로,
+                                   //'완전한 종료'를 위해 CancelInvoke가 필요
         OnDead -= Dead;
         Debug.Log("HQDead");
         gameObject.SetActive(false);
