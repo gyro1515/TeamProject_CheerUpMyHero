@@ -33,7 +33,7 @@ public class ResourceUI : BaseUI
 
     private void OnDestroy()
     {
-        ResourceManager.Instance.OnResourceChangedEvent -= OnResourceUpdated;       
+        //ResourceManager.Instance.OnResourceChangedEvent -= OnResourceUpdated;       
     }
 
     // ResourceManager에서 자원 변경 이벤트가 발생하면 자동으로 호출됩니다.
