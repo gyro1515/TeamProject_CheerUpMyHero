@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Pool;
+using UnityEngine.SceneManagement;
 
 //!!중요!!
 //새로운 풀링 오브젝트 추가시 주의 사항
@@ -54,7 +55,7 @@ public class ObjectPoolManager : SingletonMono<ObjectPoolManager>
         // 이때 다시 이 풀링 매니저를 사용하면 제대로 될까요...?
         // 제 느낌은 Get()할때 null 뜰거 같긴 합니다. 풀은 있지만 참조가 안되는...
         Transform rootContainer = new GameObject("@Pool_Root").transform;
-
+        rootContainer.SetParent(gameObject.transform);
         foreach (PoolType type in enums)
         {
             //중복 체크

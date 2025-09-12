@@ -3,7 +3,14 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-
+public enum SceneState
+{
+    // 예시들
+    None,
+    MainScene,
+    BattleScene,
+    WonJinTestScene
+}
 
 // 씬 전환을 관리하는 스크립트, 게임 시작 시 자동으로 생성되며, 씬 전환을 담당
 public class SceneLoader : SingletonMono<SceneLoader>

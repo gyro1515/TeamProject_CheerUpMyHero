@@ -6,14 +6,7 @@ using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public enum SceneState
-{
-    // 예시들
-    None,
-    MainScene,
-    BattleScene,
-    WonJinTestScene
-}
+
 public class SceneLoadManager : SingletonMono<SceneLoadManager>
 {
     private Dictionary<SceneState, SceneBase> _scenes = new();
