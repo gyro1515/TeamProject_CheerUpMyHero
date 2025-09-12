@@ -31,6 +31,8 @@ public class UIStageSelect : BaseUI
     [Header("스테이지 선택UI 테스트 용")]
     //리스트 개수 = 메인 스테이지 개수
     [SerializeField] List<MainStageData> stageList = new List<MainStageData>();
+    // 메인 스테이지 슬롯 리스트
+    List<UISelecStageSlot> mainSlotList = new List<UISelecStageSlot>();
     // 메인 스테이지에 따라 활성화할 서브 스테이즈 슬롯들
     List<UISelecStageSlot> subSlotList = new List<UISelecStageSlot>();
     // 최대 서브 스테이지 개수
@@ -50,6 +52,7 @@ public class UIStageSelect : BaseUI
             UISelecStageSlot slot = Instantiate(selectSlotPrefab, mainStageSlotsTransform).GetComponent<UISelecStageSlot>();
             slot.InitSlot(stageList[i].displayName, i, stageList[i].isUnlocked, this, ESelecStageSlotType.Main);
             slot.SelectButton.onClick.AddListener(MoveToSelSubStage);
+            mainSlotList.Add(slot);
         }
         // 최대 서브 스테이지 개수에 따라 먼저 슬롯 생성하기, 현재 9
         for (int i = 0;i < maxSubSlot; i++)
@@ -62,7 +65,10 @@ public class UIStageSelect : BaseUI
         // 돌아가기 버튼 세팅
         returnToSelDeckBtn.onClick.AddListener(MoveToSelDeck);
         returnToSelMainBtn.onClick.AddListener(MoveToSelMainStage);
-
+    }
+    private void OnEnable()
+    {
+        SetMainSlot();
     }
     void MoveToSelSubStage()
     {
@@ -82,6 +88,13 @@ public class UIStageSelect : BaseUI
     void MoveToSelDeck()
     {
         Debug.Log("덱 선택으로 이동");
+    }
+    void SetMainSlot()
+    {
+        for (int i = 0; i < mainSlotList.Count; i++)
+        {
+            mainSlotList[i].SetSlotUnLocked(stageList[i].isUnlocked);
+        }
     }
     void SetSubSlot(int mainStageIdx)
     {

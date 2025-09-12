@@ -36,6 +36,10 @@ public class UISelecStageSlot : MonoBehaviour
     {
         stageDisplayText.text = dispalyText;
         stageIdx = idx;
+        SetSlotUnLocked(isUnrocked);
+    }
+    public void SetSlotUnLocked(bool isUnrocked)
+    {
         unlockedImg.SetActive(!isUnrocked);
     }
     void SetSelectedMainSlotIdx()
