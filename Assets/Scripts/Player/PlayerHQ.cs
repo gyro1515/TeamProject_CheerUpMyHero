@@ -11,7 +11,7 @@ public class PlayerHQ : BaseHQ
     {
         base.Awake();
         UIManager.Instance.GetUI<UIHpBarContainer>().AddHpBar(this, EUIHpBarType.PlayerUnit, new Vector2(300f, 16.5f));
-        UnitManager.Instance.PlayerUnitList.Add(this);
+        UnitManager.Instance.AddUnitList(this, true);
     }
     protected override void SpawnUnit()
     {

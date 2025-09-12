@@ -15,6 +15,6 @@ public class PlayerUnit : BaseUnit
     protected override void OnEnable()
     {
         base.OnEnable();
-        UnitManager.Instance.PlayerUnitList.Add(this);
+        UnitManager.Instance.AddUnitList(this, true);
     }
 }

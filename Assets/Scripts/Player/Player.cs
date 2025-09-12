@@ -13,7 +13,7 @@ public class Player : BaseCharacter
     {
         base.Awake();
         GameManager.Instance.Player = this;
-        UnitManager.Instance.PlayerUnitList.Add(this);
+        UnitManager.Instance.AddUnitList(this, true);
     }
     protected override void Start()
     {
