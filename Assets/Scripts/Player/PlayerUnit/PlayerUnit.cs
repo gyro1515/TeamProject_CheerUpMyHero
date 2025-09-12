@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class PlayerUnit : BaseUnit
 {
+    [field: Header("플레이어 유닛 세팅")]
+    [field: SerializeField] public float SpawnCooldown { get; set; } = 5f; 
     protected override void Awake()
     {
         base.Awake();
