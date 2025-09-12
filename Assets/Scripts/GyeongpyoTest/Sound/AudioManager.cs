@@ -12,7 +12,7 @@ public class AudioManager : SingletonMono<AudioManager>
 
     [Header("SFX Prefab")]
     [SerializeField] private GameObject sfxPrefab;   // SFXSource가 붙은 프리팹 (없어도 런타임 생성)
-    [SerializeField] private int sfxPoolSize = 10;   // SFX 풀 크기
+    [SerializeField] private int sfxPoolSize;   // SFX 풀 크기
 
     private List<SFXSource> sfxPool;   // 효과음 풀 리스트
     private int sfxIndex = 0;          // 현재 사용할 인덱스 (라운드로빈)
@@ -55,7 +55,7 @@ public class AudioManager : SingletonMono<AudioManager>
         }
         else
         {
-            Debug.LogWarning("[AudioManager] BGM not found at path: Sound/Light Ambience 1");
+            //Debug.LogWarning("[AudioManager] BGM not found at path: Sound/Light Ambience 1");
         }
     }
 
@@ -85,7 +85,7 @@ public class AudioManager : SingletonMono<AudioManager>
     // -------------------- SFX Pool --------------------
     private void InitSFXPool()
     {
-        if (sfxPoolSize <= 0) sfxPoolSize = 1;                  // 최소 1 보장
+        if (sfxPoolSize <= 0)               
         sfxPool = new List<SFXSource>(sfxPoolSize);             // 용량 예약
 
         for (int i = 0; i < sfxPoolSize; i++)
@@ -104,8 +104,8 @@ public class AudioManager : SingletonMono<AudioManager>
             var src = obj.GetComponent<SFXSource>();            // SFXSource 보장
             if (src == null) src = obj.AddComponent<SFXSource>();
 
-            obj.name = $"SFX Source {i}";                       // 보기 좋게 명명
-            sfxPool.Add(src);                                   // 풀에 등록
+            obj.name = $"SFX Source {i}";                       
+            sfxPool.Add(src);                                   
         }
     }
 
