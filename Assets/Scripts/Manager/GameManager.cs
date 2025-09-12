@@ -38,6 +38,7 @@ public class GameManager : SingletonMono<GameManager>
         Debug.Log("스테이지 클리어!");
         Time.timeScale = 0f;
 
+        //스크립터블 오브젝트로 데이터 추가하는 방식으로 할 예정
         int goldReward = 100;
         int woodReward = 100;
         int ironReward = 100;
