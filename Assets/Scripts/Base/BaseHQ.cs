@@ -24,9 +24,11 @@ public abstract class BaseHQ : BaseCharacter, IDamageable
         OnDead += Dead;
     }
     protected abstract void SpawnUnit();
-    public void Dead()
+    public virtual void Dead()
     {
         // 여기서 오브젝트 풀 반환
+        CancelInvoke("SpawnUnit");
+
         OnDead -= Dead;
         Debug.Log("HQDead");
         gameObject.SetActive(false);

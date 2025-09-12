@@ -10,10 +10,17 @@ public class EnemyHQ : BaseHQ
     protected override void Awake()
     {
         base.Awake();
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.enemyHQ = this;
+        }
         UIManager.Instance.GetUI<UIHpBarContainer>().AddHpBar(this, EUIHpBarType.EnemyUnit, new Vector2(300f, 16.5f));
         UnitManager.Instance.AddUnitList(this, false);
     }
-
+    public override void Dead()
+    {
+        base.Dead();
+    }
     protected override void SpawnUnit()
     {
         if (enemyUnits.Count == 0) return;
