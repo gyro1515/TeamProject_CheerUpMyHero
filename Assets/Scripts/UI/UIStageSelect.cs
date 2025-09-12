@@ -107,7 +107,10 @@ public class UIStageSelect : BaseUI
             {
                 subSlotList[i].gameObject.SetActive(true);
                 SubStageData subData = stageList[mainStageIdx].subStages[i];
-                subSlotList[i].SetSlot(subData.displayName, i, subData.isUnlocked);
+                // 현재는 1-1, 9-4 등으로 서브 스테이지가 정의되어 있어서 subData.displayName이 필요 없지만
+                // 나중은 모르니까 일단 subData.displayName 남기기
+                //subSlotList[i].SetSlot(subData.displayName, i, subData.isUnlocked);
+                subSlotList[i].SetSlot($"{mainStageIdx + 1}-{i + 1}", i, subData.isUnlocked);
             }
             else
             {
