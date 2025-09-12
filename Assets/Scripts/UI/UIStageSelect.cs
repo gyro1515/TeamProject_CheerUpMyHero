@@ -72,22 +72,23 @@ public class UIStageSelect : BaseUI
     }
     void MoveToSelSubStage()
     {
-        mainStageSelectGO.SetActive(false);
-        subStageSelectGO.SetActive(true);
         SetSubSlot(SelectedMainSlotIdx);
+        FadeManager.Instance.SwitchGameObjects(mainStageSelectGO, subStageSelectGO);
     }
     void MoveToSelMainStage()
     {
-        mainStageSelectGO.SetActive(true);
-        subStageSelectGO.SetActive(false);
+        FadeManager.Instance.SwitchGameObjects(subStageSelectGO, mainStageSelectGO);
     }
     void MoveToBattle()
     {
-        Debug.Log("전투 씬으로 이동");
+        Debug.Log($"{SelectedMainSlotIdx + 1}-{SelectedSubSlotIdx + 1} 전투 씬으로 이동");
+        SceneLoader.Instance.StartLoadScene(SceneState.BattleScene);
     }
     void MoveToSelDeck()
     {
-        Debug.Log("덱 선택으로 이동");
+        //Debug.Log("덱 선택으로 이동");
+        Debug.Log("덱 선택으로 이동이지만, 현재는 메인 영지 선택으로");
+        FadeManager.Instance.SwitchGameObjects(gameObject, UIManager.Instance.GetUI<MainScreenUI>().gameObject);
     }
     void SetMainSlot()
     {

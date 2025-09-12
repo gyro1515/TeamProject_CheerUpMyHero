@@ -3,19 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public enum SceneState
-{
-    // 예시들
-    None,
-    StartScene,
-    Stage1,
-    Stage2,
-    Stage01,
-    WonJinTestStart,
-    Stage1WonJinTest,
-    Stage2WonJinTest,
-    Test_CJW,
-}
+
+
 // 씬 전환을 관리하는 스크립트, 게임 시작 시 자동으로 생성되며, 씬 전환을 담당
 public class SceneLoader : SingletonMono<SceneLoader>
 {
@@ -26,15 +15,10 @@ public class SceneLoader : SingletonMono<SceneLoader>
         /*{ SceneState.TopDown,     "TopDownScene" },
         { SceneState.FlappyPlane, "FlappyPlaneScene" },
         { SceneState.TheStack,    "TheStackScene" }*/
+        // 추가
+        { SceneState.MainScene,   "MainScene" },
+        { SceneState.BattleScene, "BattleScene" }
 
-        { SceneState.StartScene, "StartScene" },
-        { SceneState.Stage1, "Stage1" },
-        { SceneState.Stage2, "Stage2" },
-        { SceneState.Stage01, "Stage01" },
-        { SceneState.WonJinTestStart, "WonJinTestStart" },
-        { SceneState.Stage1WonJinTest, "Stage1WonJinTest" },
-        { SceneState.Stage2WonJinTest, "Stage2WonJinTest" },
-        { SceneState.Test_CJW, "Test_CJW" },
     };
 
     // 키 모아두기 예시

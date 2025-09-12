@@ -6,6 +6,10 @@ public class CameraController : MonoBehaviour
 {
     [SerializeField] GameObject playerGO;
 
+    private void Start()
+    {
+        playerGO = GameManager.Instance.Player.gameObject;
+    }
     private void FixedUpdate()
     {
         if (playerGO == null) return;
