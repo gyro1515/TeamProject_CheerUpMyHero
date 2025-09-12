@@ -7,11 +7,15 @@ public class EnemyUnit : BaseUnit
     protected override void Awake()
     {
         base.Awake();
-        UIManager.Instance.GetUI<UIHpBarContainer>().AddHpBar(this, EUIHpBarType.EnemyUnit);
     }
     protected override void Start()
     {
         base.Start();
 
+    }
+    protected override void OnEnable()
+    {
+        base.OnEnable();
+        UnitManager.Instance.AddUnitList(this, false);
     }
 }

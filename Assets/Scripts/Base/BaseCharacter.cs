@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class BaseCharacter : MonoBehaviour
@@ -14,7 +15,7 @@ public class BaseCharacter : MonoBehaviour
     public BaseController BaseController { get; private set; }
     public Vector3 MoveDir { get; set; }
     public IDamageable Damageable { get; private set; }
-    float curHp;
+    [SerializeField] float curHp;
     public float CurHp { get { return curHp; }
         set
         {
@@ -22,16 +23,21 @@ public class BaseCharacter : MonoBehaviour
             curHp = Mathf.Clamp(curHp, 0, MaxHp);
             OnCurHpChane?.Invoke(curHp, MaxHp);
             if(curHp <=0) OnDead?.Invoke();
-            
         } }
+    public bool IsDead { get; set; }
     public event Action<float, float> OnCurHpChane;
     public event Action OnDead;
-
+    [field: SerializeField] public int ListIndex { get; set; } = -1; // 자기 리스트 내 인덱스, UnitManager판별용
     protected virtual void Awake()
     {
         BaseController = GetComponent<BaseController>();
-        curHp = MaxHp;
         Damageable = GetComponent<IDamageable>();
+    }
+    protected virtual void OnEnable()
+    {
+        // 다시 활성화 됐을때
+        curHp = MaxHp;
+        IsDead = false;
     }
     protected virtual void Start()
     {
@@ -46,13 +52,8 @@ public class BaseCharacter : MonoBehaviour
     {
 
     }
-    /*public virtual void InitCharacter()
+    protected virtual void OnDisable()
     {
-        // 소환하면 위 아래로 움직일 일이 없으니까, 소환할때 sortingOrder 설정하기
-        if (!characterSpriteRenderer) return;
-        // y값이 낮을수록 sortingOrder가 커짐 → 앞에 그려짐
-        characterSpriteRenderer.sortingOrder = 350 - (int)(gameObject.transform.position.y * 100);
-        // UI초기화용
-        //CurHp = curHp;
-    }*/
+        
+    }
 }

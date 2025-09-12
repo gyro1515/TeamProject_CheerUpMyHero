@@ -7,11 +7,14 @@ public class PlayerUnit : BaseUnit
     protected override void Awake()
     {
         base.Awake();
-        UIManager.Instance.GetUI<UIHpBarContainer>().AddHpBar(this, EUIHpBarType.PlayerUnit);
     }
     protected override void Start()
     {
         base.Start();
-
+    }
+    protected override void OnEnable()
+    {
+        base.OnEnable();
+        UnitManager.Instance.AddUnitList(this, true);
     }
 }

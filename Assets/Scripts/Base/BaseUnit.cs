@@ -11,4 +11,14 @@ public abstract class BaseUnit : BaseCharacter
     //public BaseCharacter TargetUnit { get; set; }
     public IDamageable TargetUnit { get; set; }
     
+    protected override void OnEnable()
+    {
+        base.OnEnable();
+        TargetUnit = null;
+    }
+    protected override void OnDisable()
+    {
+        base.OnDisable();
+        TargetUnit = null;
+    }
 }

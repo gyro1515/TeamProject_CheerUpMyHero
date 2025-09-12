@@ -12,9 +12,8 @@ public class Player : BaseCharacter
     protected override void Awake()
     {
         base.Awake();
-        UIManager.Instance.GetUI<UIHpBarContainer>().AddHpBar(this, EUIHpBarType.Player);
         GameManager.Instance.Player = this;
-        UnitManager.Instance.PlayerUnitList.Add(this);
+        UnitManager.Instance.AddUnitList(this, true);
     }
     protected override void Start()
     {

@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.TextCore.Text;
 using UnityEngine.UI;
 
+// 현재 HQ에만 적용 중입니다.
 public enum EUIHpBarType
 {
     None, Player, PlayerUnit, EnemyUnit
