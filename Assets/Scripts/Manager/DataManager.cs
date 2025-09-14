@@ -30,6 +30,20 @@ public class DataManager : SingletonMono<DataManager>
         }
     }
 
+    private DataBase<StageRewardData, StageRewardSO> _rewardData;
+    public DataBase<StageRewardData, StageRewardSO> RewardData
+    {
+        get
+        {
+            if (Instance._rewardData == null)
+            {
+                Instance._rewardData = new DataBase<StageRewardData, StageRewardSO>();
+            }
+            return Instance._rewardData;
+        }
+    }
+
+
     protected override void Awake()
     {
         base.Awake();
