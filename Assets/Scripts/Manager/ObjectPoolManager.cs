@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Pool;
+using UnityEngine.SceneManagement;
 
 //!!중요!!
 //새로운 풀링 오브젝트 추가시 주의 사항
@@ -13,7 +14,6 @@ using UnityEngine.Pool;
 
 public enum PoolType
 {
-    TestBullet, 
     TestBulletV2,
     EnemyUnit1,
     PlayerUnit1
@@ -28,6 +28,28 @@ public class ObjectPoolManager : SingletonMono<ObjectPoolManager>
     //풀을 담을 딕셔너리(IObjectPool 내장 인터페이스 사용 => 나중에 ObjectPool말고도 별도 클래스를 만들어 활용 가능)
     private Dictionary<PoolType, IObjectPool<GameObject>> pools = new Dictionary<PoolType, IObjectPool<GameObject>>();
 
+    //현재 활성화된 풀 오브젝트 리스트(반납 처리용)
+    private List<BasePoolable> allActivePoolables = new();
+    //풀 오브젝트 캐싱용
+    private Dictionary<GameObject, BasePoolable> poolableCache = new Dictionary<GameObject, BasePoolable>();
+
+    //씬 바뀔 때 모든 풀 반납 처리
+    private void OnEnable()
+    {
+        SceneManager.sceneUnloaded += OnSceneUnloaded;
+    }
+
+    private void OnDisable()
+    {
+        SceneManager.sceneUnloaded -= OnSceneUnloaded;
+    }
+
+    private void OnSceneUnloaded(Scene current)
+    {
+        ReleaseAll();
+    }
+
+
     protected override void Awake()
     {
         base.Awake();
@@ -40,6 +62,7 @@ public class ObjectPoolManager : SingletonMono<ObjectPoolManager>
     void InitPool()
     {
         Transform rootContainer = new GameObject("@Pool_Root").transform;
+        rootContainer.SetParent(this.transform);
 
         foreach (PoolType type in enums)
         {
@@ -86,8 +109,12 @@ public class ObjectPoolManager : SingletonMono<ObjectPoolManager>
 
         // 생성된 오브젝트가 자신의 풀을 알도록 설정
         BasePoolable poolable = gameObject.GetComponent<BasePoolable>();
-        if( poolable != null )
+        if( poolable != null)
+        {
             poolable.SetPool(pools[type]);
+            poolableCache[obj] = poolable;
+        }
+            
         else
             Debug.LogError($"[ObjectPoolManager] 풀 로드 오류: '{gameObject.name}' 프리팹에 BasePoolable 컴포넌트가 없습니다.");
         return gameObject;
@@ -96,10 +123,21 @@ public class ObjectPoolManager : SingletonMono<ObjectPoolManager>
     private void OnGetObject(GameObject obj)
     {
         obj.SetActive(true);
+        if (poolableCache.TryGetValue(obj, out BasePoolable poolable))
+        {
+            if (!allActivePoolables.Contains(poolable))
+            {
+                allActivePoolables.Add(poolable);
+            }
+        }
     }
 
     private void OnReleaseObject(GameObject obj) 
     {
+        if (poolableCache.TryGetValue(obj, out BasePoolable poolable))
+        {
+            allActivePoolables.Remove(poolable);
+        }
         obj.SetActive(false);
     }
 
@@ -118,5 +156,18 @@ public class ObjectPoolManager : SingletonMono<ObjectPoolManager>
         }
 
         return pools[pooltype].Get();
+    }
+
+    //모든 풀 반납 처리 메서드
+    void ReleaseAll()
+    {
+        //리스트니까 뒤쪽부터 비우기
+        for (int i = allActivePoolables.Count -1; i>= 0; i--)
+        {
+            allActivePoolables[i].ReleaseSelf();
+        }
+        
+        allActivePoolables.Clear();
+        Debug.Log("[ObjectPoolManager]: 씬이 전환되어 모든 활성 오브젝트를 풀에 반납했습니다.");
     }
 }
