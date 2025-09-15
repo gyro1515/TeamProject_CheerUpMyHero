@@ -10,6 +10,7 @@ public class GameManager : SingletonMono<GameManager>
 
     public RewardPanelUI RewardPanelUI { get; set; }
     public EnemyHQ enemyHQ { get; set; }
+    public PlayerHQ PlayerHQ { get; set; }
 
     public Player Player { get; set; }
     private void Update()
