@@ -41,6 +41,8 @@ public class UIStageSelect : BaseUI
     RectTransform subStageSelRectTransform;
     public int SelectedMainSlotIdx { get; set; } = -1;
     public int SelectedSubSlotIdx { get; set; } = -1;
+
+    UISelectCard uiSelectCard;
     private void Awake()
     {
         subStageSelRectTransform = subStageSlotsTransform.GetComponent<RectTransform>();
@@ -65,6 +67,7 @@ public class UIStageSelect : BaseUI
         // 돌아가기 버튼 세팅
         returnToSelDeckBtn.onClick.AddListener(MoveToSelDeck);
         returnToSelMainBtn.onClick.AddListener(MoveToSelMainStage);
+        uiSelectCard = UIManager.Instance.GetUI<UISelectCard>();
     }
     private void OnEnable()
     {
@@ -86,9 +89,8 @@ public class UIStageSelect : BaseUI
     }
     void MoveToSelDeck()
     {
-        //Debug.Log("덱 선택으로 이동");
-        Debug.Log("덱 선택으로 이동이지만, 현재는 메인 영지 선택으로");
-        FadeManager.Instance.SwitchGameObjects(gameObject, UIManager.Instance.GetUI<MainScreenUI>().gameObject);
+        Debug.Log("덱 선택으로 이동");
+        FadeManager.Instance.SwitchGameObjects(gameObject, uiSelectCard.gameObject);
     }
     void SetMainSlot()
     {

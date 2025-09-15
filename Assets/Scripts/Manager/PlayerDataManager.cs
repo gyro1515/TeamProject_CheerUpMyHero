@@ -5,8 +5,6 @@ using UnityEngine;
 
 public class PlayerDataManager : SingletonMono<PlayerDataManager>
 {
-
-
     //편성된 덱 정보
     public List<int> DeckList { get; private set; } = new();
 

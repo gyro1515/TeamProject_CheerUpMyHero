@@ -52,6 +52,7 @@ public class UISelectCard : BaseUI
 
         uIScrollCard.Init(this);
         uICardDeckHolder.Init(this);
+        popUpUI.gameObject.SetActive(false);
     }
 
     public void SetDeck(int index, bool isSelected)

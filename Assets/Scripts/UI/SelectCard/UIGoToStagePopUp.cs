@@ -10,10 +10,15 @@ public class UIGoToStagePopUp : MonoBehaviour
     [SerializeField] Button stageButton;
     [SerializeField] Button backButton;
 
+    UISelectCard uiSelectCard;
+    UIStageSelect uiStageSelect;
+
     private void Awake()
     {
         stageButton.onClick.AddListener(GoToStageSelect);
         backButton.onClick.AddListener(ClosePopUP);
+        uiSelectCard = UIManager.Instance.GetUI<UISelectCard>();
+        uiStageSelect = UIManager.Instance.GetUI<UIStageSelect>();
     }
 
     void GoToStageSelect()
@@ -21,9 +26,7 @@ public class UIGoToStagePopUp : MonoBehaviour
         PlayerDataManager.Instance.SetDeckList(transferDesckList);
 
         //카드 선택 닫고 스테이지 선택 열기
-        UIManager.Instance.CloseUI<UISelectCard>();
-        UIManager.Instance.OpenUI<UIStageSelect>();
-
+        FadeManager.Instance.SwitchGameObjects(uiSelectCard.gameObject, uiStageSelect.gameObject);
         //근데 뒤로가기 버튼 생각하면 스테이지 선택을 열린 채로 두어야 할수도?
     }
 
