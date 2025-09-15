@@ -14,6 +14,7 @@ public class RewardPanelUI : BaseUI
     [SerializeField] private TMP_Text woodText;
     [SerializeField] private TMP_Text ironText;
     [SerializeField] private TMP_Text magicStoneText;
+    [SerializeField] private TMP_Text resultText;           // 승리 실패 뜨는 텍스트. 결과창 분리되면 없애기
     [SerializeField] private Button returnButton;
 
 
@@ -33,12 +34,14 @@ public class RewardPanelUI : BaseUI
         returnButton.onClick.AddListener(OnReturnToMainButton);
     }
 
-    public void OpenUI(int gold, int wood, int iron, int magicStone)
+    public void OpenUI(int gold, int wood, int iron, int magicStone, bool isVictory)
     {
         goldText.text = $"골드 + {gold}";
         woodText.text = $"목재 + {wood}";
         ironText.text = $"철괴 + {iron}";
         magicStoneText.text = $"마력석 + {magicStone}";
+
+        resultText.text = isVictory ? "스테이지 클리어" : "스테이지 실패";   // 승리, 실패 텍스트 조건문. 결과창 분리되면 삭제하기
 
         //패널을 끄고 실행을 하면 Awake에서 게임매니저에 자기 자신을 넣을 수 없어서 패널을 켜두고 알파값을 0으로 만든 상태에서
         //스테이지 클리어 함수가 실행이 되면 다시 알파값을 1로 만들고 보여지게

@@ -20,7 +20,6 @@ public abstract class BaseHQ : BaseCharacter, IDamageable
         base.Awake();
         tmpMinY = (int)(minY * 100f);
         tmpMaxY = (int)(maxY * 100f) + 1;
-        InvokeRepeating("SpawnUnit", 0f, spawnInterval);
         OnDead += Dead;
     }
     protected abstract void SpawnUnit();
