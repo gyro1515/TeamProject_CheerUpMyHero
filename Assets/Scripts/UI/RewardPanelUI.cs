@@ -57,6 +57,6 @@ public class RewardPanelUI : BaseUI
     private void OnReturnToMainButton()
     {
         Time.timeScale = 1f;
-        SceneManager.LoadScene("SeongminTestScene");
+        SceneManager.LoadScene("SeongminTestScene");//임시로 성민테스트씬 연결했음 추후 수정
     }
 }
