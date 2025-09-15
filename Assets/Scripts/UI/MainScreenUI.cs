@@ -17,7 +17,7 @@ public class MainScreenUI : BaseUI
     [SerializeField] private GameObject _testPanel;
     [SerializeField] private GameObject _deckSelectPanel;
 
-
+    UISelectCard uiSelectCard;
 
     private void Awake()
     {
@@ -36,12 +36,18 @@ public class MainScreenUI : BaseUI
         _deckSelectButton.onClick.AddListener(OnDeckSelectButtonClick);
         _notYetButton.onClick.AddListener(OnNotYetButtonClick);
 
+        // OnEnable()로 이동, 열릴때마다 팝업 닫아주기
+        /*_battlePanel.SetActive(false);
+        _testPanel.SetActive(false);
+        _deckSelectPanel.SetActive(false);*/
+        uiSelectCard = UIManager.Instance.GetUI<UISelectCard>();
+    }
+    private void OnEnable()
+    {
         _battlePanel.SetActive(false);
         _testPanel.SetActive(false);
         _deckSelectPanel.SetActive(false);
-
     }
-
     private void OnOfficerImageClick()
     {
         _battlePanel.SetActive(true);
@@ -59,9 +65,8 @@ public class MainScreenUI : BaseUI
     private void OnDeckSelectButtonClick()
     {
         // "덱 선택" 버튼 클릭 시 실행될 로직
-        //Debug.Log("덱을 선택하고 다음 단계로 넘어갑니다.");
-        Debug.Log("덱을 선택했지만 스테이지 선택으로 넘어갑니다.");
-        FadeManager.Instance.SwitchGameObjects(gameObject, UIManager.Instance.GetUI<UIStageSelect>().gameObject);
+        Debug.Log("덱을 선택하고 다음 단계로 넘어갑니다.");
+        FadeManager.Instance.SwitchGameObjects(gameObject, uiSelectCard.gameObject);
     }
 
     private void OnNotYetButtonClick()

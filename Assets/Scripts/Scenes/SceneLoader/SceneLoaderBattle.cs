@@ -7,6 +7,7 @@ public class SceneLoaderBattle : MonoBehaviour
     [SerializeField] GameObject map;
     private void Awake()
     {
+        UIManager.Instance.GetUI<UITest>();
         Instantiate(map);
     }
 

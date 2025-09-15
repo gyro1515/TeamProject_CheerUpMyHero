@@ -13,7 +13,12 @@ public class GameManager : SingletonMono<GameManager>
     public PlayerHQ PlayerHQ { get; set; }
 
     public Player Player { get; set; }
-     
+
+    protected override void Awake()
+    {
+        base.Awake();
+        //RewardPanelUI = UIManager.Instance.GetUI<RewardPanelUI>();
+    }
     private void Update()
     {
         // 테스트
