@@ -32,7 +32,7 @@ public class BuildingManager : SingletonMono<BuildingManager>
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        if (scene.name == "SeongminMainScene")//임시로
+        if (scene.name == "MainScene")//임시로
         {
             LoadResources();
             CreateGrid();
