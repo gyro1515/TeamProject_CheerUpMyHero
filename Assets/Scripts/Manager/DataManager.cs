@@ -55,6 +55,8 @@ public class DataManager : SingletonMono<DataManager>
             return Instance._buildingUpgradeData;
         }
     }
+    public BuildingUpgradeData[,] BuildingGridData { get; set; } = new BuildingUpgradeData[4, 4];
+
     protected override void Awake()
     {
         base.Awake();
