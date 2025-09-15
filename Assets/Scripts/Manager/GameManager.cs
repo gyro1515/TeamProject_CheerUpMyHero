@@ -4,6 +4,10 @@ using UnityEngine;
 
 public class GameManager : SingletonMono<GameManager>
 {
+
+    [Header("테스트용 스테이지 ID")]
+    public int currentStageID = 1001;
+
     public RewardPanelUI RewardPanelUI { get; set; }
     public EnemyHQ enemyHQ { get; set; }
 
@@ -29,20 +33,42 @@ public class GameManager : SingletonMono<GameManager>
 
                 enemyHQ.Dead();
 
-                StageClear();
+                ShowResultUI(true);
             }
         }
     }
-    public void StageClear()
+    public void ShowResultUI(bool isVictory)
     {
-        Debug.Log("스테이지 클리어!");
         Time.timeScale = 0f;
 
-        //스크립터블 오브젝트로 데이터 추가하는 방식으로 할 예정
-        int goldReward = 100;
-        int woodReward = 100;
-        int ironReward = 100;
-        int magicStoneReward = 100;
+        StageRewardData rewardData = DataManager.Instance.RewardData.GetData(currentStageID);
+        if (rewardData == null)
+        {
+            Debug.LogError($"ID: {currentStageID}에 해당하는 보상 데이터를 DataManager에서 찾을 수 없습니다!");
+            return;
+        }
+
+        int goldReward;
+        int woodReward;
+        int ironReward;
+        int magicStoneReward;
+
+        if (isVictory)
+        {
+            //가져온 보상 데이터(rewardData)의 값을 사용
+            goldReward = rewardData.rewardGold;
+            woodReward = rewardData.rewardWood;
+            ironReward = rewardData.rewardIron;
+            magicStoneReward = rewardData.rewardMagicStone;
+        }
+        else
+        {
+            //패배 시에도 가져온 데이터를 기준으로 20%를 계산
+            goldReward = (int)(rewardData.rewardGold * 0.2f);
+            woodReward = (int)(rewardData.rewardWood * 0.2f);
+            ironReward = (int)(rewardData.rewardIron * 0.2f);
+            magicStoneReward = (int)(rewardData.rewardMagicStone * 0.2f);
+        }
 
         ResourceManager.Instance.AddResource(ResourceType.Gold, goldReward);
         ResourceManager.Instance.AddResource(ResourceType.Wood, woodReward);
@@ -55,7 +81,7 @@ public class GameManager : SingletonMono<GameManager>
         }
         else
         {
-            Debug.LogError("RewardPanel이 GameManager에 연결되지 않았습니다!");
+            Debug.LogError("RewardPanel이 GameManager에 등록되지 않았습니다!");
         }
     }
 }
