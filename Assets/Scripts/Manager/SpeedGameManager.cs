@@ -8,14 +8,31 @@ public class SpeedGameManager : SingletonMono<SpeedGameManager>
 
     public SpeedState CurrentSpeed { get; private set; } = SpeedState.X1;
 
+    private bool isUnlocked = false;
+
     protected override void Awake()
     {
         base.Awake();
+
+        // 해금 여부 불러오기 저장이 아직 없으므로 기본값은 False로 고정
+        isUnlocked = false;
         ApplySpeed(CurrentSpeed);
+    }
+
+    public void UnlockSpeed()
+    {
+        isUnlocked = true;
+        Debug.Log("배속 해금됨");
     }
 
     public void ToggleSpeed()
     {
+        if (!isUnlocked)
+        {
+            Debug.Log("배속 해금 안됨");
+            return; 
+        }
+
         switch (CurrentSpeed)
         {
             case SpeedState.X1:

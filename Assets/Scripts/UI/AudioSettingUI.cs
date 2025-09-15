@@ -82,10 +82,12 @@ public class AudioSettingUI : MonoBehaviour
     public void Open()
     {
         gameObject.SetActive(true);
+        Time.timeScale = 0f;
     }
 
     public void Close()
     {
         gameObject.SetActive(false);
+        Time.timeScale = 1f;
     }
 }
