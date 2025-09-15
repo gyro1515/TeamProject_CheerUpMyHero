@@ -13,6 +13,7 @@ public class GameManager : SingletonMono<GameManager>
     public PlayerHQ PlayerHQ { get; set; }
 
     public Player Player { get; set; }
+
     private void Update()
     {
         // 테스트
