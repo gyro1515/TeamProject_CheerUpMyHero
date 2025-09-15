@@ -32,7 +32,7 @@ public class BuildingManager : SingletonMono<BuildingManager>
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        if (scene.name == "MainScene")
+        if (scene.name == "SeongminMainScene")//임시로
         {
             LoadResources();
             CreateGrid();
@@ -43,10 +43,6 @@ public class BuildingManager : SingletonMono<BuildingManager>
     {
         // 타일 프리팹 로드는 동일
         tilePrefab = Resources.Load<GameObject>("Prefabs/UI/BuildingTile");
-        if (tilePrefab == null)
-        {
-            Debug.LogError("BuildingTile 프리팹을 찾을 수 없습니다!");
-        }
 
         //MainScreenUI를 찾는 것은 동일
         MainScreenUI mainUI = UIManager.Instance.GetUI<MainScreenUI>();
@@ -58,7 +54,6 @@ public class BuildingManager : SingletonMono<BuildingManager>
             {
                 // Grid Layout Group 컴포넌트가 붙어있는 오브젝트의 Transform을 gridParent로 사용
                 gridParent = gridLayout.transform;
-                Debug.Log("BuildingGridPanel을 성공적으로 찾았습니다!");
             }
             else
             {
