@@ -9,5 +9,13 @@ public class SceneLoaderBattle : MonoBehaviour
     {
         Instantiate(map);
     }
+
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            SceneLoader.Instance.StartLoadScene(SceneState.MainScene);
+        }
+    }
 }
 

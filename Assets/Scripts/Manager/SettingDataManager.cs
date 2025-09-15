@@ -7,4 +7,9 @@ public class SettingDataManager : SingletonMono<SettingDataManager>
     //스테이지 해금 정보
 
 
+    public void SetStageData()
+    {
+        
+    }
+
 }

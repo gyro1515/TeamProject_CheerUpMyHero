@@ -33,7 +33,11 @@ public class ObjectPoolManager : SingletonMono<ObjectPoolManager>
 {
     private Array enums;
 
+    private bool _isCleaning;
+
     private const string POOLPATH = "Prefabs/ObjPooling/";
+
+    private List<Transform> poolTransforms = new();
 
     //풀을 담을 딕셔너리(IObjectPool 내장 인터페이스 사용 => 나중에 ObjectPool말고도 별도 클래스를 만들어 활용 가능)
     private Dictionary<PoolType, IObjectPool<GameObject>> pools = new Dictionary<PoolType, IObjectPool<GameObject>>();
@@ -56,7 +60,7 @@ public class ObjectPoolManager : SingletonMono<ObjectPoolManager>
 
     private void OnSceneUnloaded(Scene current)
     {
-        ReleaseAll();
+        CleanAll();
     }
 
 
@@ -75,6 +79,8 @@ public class ObjectPoolManager : SingletonMono<ObjectPoolManager>
         // 그럼 오브젝트 풀링으로 사용된 애들도 같이 날아갈 거고요.
         // 이때 다시 이 풀링 매니저를 사용하면 제대로 될까요...?
         // 제 느낌은 Get()할때 null 뜰거 같긴 합니다. 풀은 있지만 참조가 안되는...
+        //---> 수정 중  
+
         Transform rootContainer = new GameObject("@Pool_Root").transform;
         rootContainer.SetParent(gameObject.transform);
         foreach (PoolType type in enums)
@@ -97,6 +103,7 @@ public class ObjectPoolManager : SingletonMono<ObjectPoolManager>
 
             Transform typeContainer = new GameObject(type.ToString() + "_Pool").transform;
             typeContainer.SetParent(rootContainer);
+            poolTransforms.Add(typeContainer);
 
             //3. 풀 생성
             IObjectPool<GameObject> objectPool = new ObjectPool<GameObject>
@@ -116,6 +123,8 @@ public class ObjectPoolManager : SingletonMono<ObjectPoolManager>
 
     private GameObject CreateObject(GameObject obj, PoolType type, Transform container)
     {
+        if (_isCleaning) return null;
+
         GameObject gameObject = Instantiate(obj);
         
         gameObject.transform.SetParent(container);
@@ -126,6 +135,7 @@ public class ObjectPoolManager : SingletonMono<ObjectPoolManager>
         {
             poolable.SetPool(pools[type]);
             poolableCache[obj] = poolable;
+            Debug.Log($"캐싱!: {obj.name}");
         }
             
         else
@@ -135,7 +145,11 @@ public class ObjectPoolManager : SingletonMono<ObjectPoolManager>
 
     private void OnGetObject(GameObject obj)
     {
+        if (_isCleaning) return;
+
         obj.SetActive(true);
+
+
         if (poolableCache.TryGetValue(obj, out BasePoolable poolable))
         {
             if (!allActivePoolables.Contains(poolable))
@@ -143,10 +157,16 @@ public class ObjectPoolManager : SingletonMono<ObjectPoolManager>
                 allActivePoolables.Add(poolable);
             }
         }
+        else
+        {
+            Debug.Log("Poolable가 없다고??");
+        }
     }
 
     private void OnReleaseObject(GameObject obj) 
     {
+        if (_isCleaning) return;
+
         if (poolableCache.TryGetValue(obj, out BasePoolable poolable))
         {
             allActivePoolables.Remove(poolable);
@@ -156,12 +176,15 @@ public class ObjectPoolManager : SingletonMono<ObjectPoolManager>
 
     private void OnDestroyObject(GameObject obj)
     {
+        if (_isCleaning) return;
         Debug.LogWarning($"[ObjectPoolManager] 풀 경고: '{obj}' 타입 수가 최대에 도달해서 파괴되었습니다");
         Destroy(obj);
     }
 
     public GameObject Get(PoolType pooltype)
     {
+        if (_isCleaning) return null;
+
         if (!pools.ContainsKey(pooltype))
         {
             Debug.LogError($"[ObjectPoolManager] 풀 로드 실패: '{pooltype.ToString()}' 이름의 풀이 존재하지 않습니다.");
@@ -171,16 +194,37 @@ public class ObjectPoolManager : SingletonMono<ObjectPoolManager>
         return pools[pooltype].Get();
     }
 
-    //모든 풀 반납 처리 메서드
-    void ReleaseAll()
+
+
+    void CleanAll()
     {
-        //리스트니까 뒤쪽부터 비우기
-        for (int i = allActivePoolables.Count -1; i>= 0; i--)
+        if (_isCleaning) return;
+        _isCleaning = true;
+
+        try
         {
-            allActivePoolables[i].ReleaseSelf();
+            foreach (IObjectPool<GameObject> obj in pools.Values)
+            {
+                if (obj == null) continue;
+                // Close 프로세스 추가 가능
+                obj.Clear();
+            }
+
+            foreach (Transform transform in poolTransforms)
+            {
+                if (transform == null) continue;
+                // Close 프로세스 추가 가능
+
+                for (int i = 0; i < transform.childCount; i++)
+                {
+                    Destroy(transform.GetChild(i).gameObject);
+                }
+            }
         }
-        
-        allActivePoolables.Clear();
-        Debug.Log("[ObjectPoolManager]: 씬이 전환되어 모든 활성 오브젝트를 풀에 반납했습니다.");
+        finally
+        {
+            _isCleaning = false;
+        }
     }
+
 }
