@@ -7,6 +7,7 @@ public class UnitManager : SingletonMono<UnitManager>
     //[Header("유닛 확인용")]
     List<BaseCharacter> playerUnitList = new List<BaseCharacter>();
     List<BaseCharacter> enemyUnitList = new List<BaseCharacter>();
+    // 테스트로 여기서 아군HQ가져와서 스폰
 
     public void AddUnitList(BaseCharacter unit, bool isPlayer)
     {

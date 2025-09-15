@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Pool;
+using UnityEngine.SceneManagement;
 
 //!!중요!!
 //새로운 풀링 오브젝트 추가시 주의 사항
@@ -13,10 +14,19 @@ using UnityEngine.Pool;
 
 public enum PoolType
 {
-    TestBullet, 
     TestBulletV2,
     EnemyUnit1,
-    PlayerUnit1
+    PlayerUnit1,
+    PlayerUnit2,
+    PlayerUnit3,
+    PlayerUnit4,
+    PlayerUnit5,
+    PlayerUnit6,
+    PlayerUnit7,
+    PlayerUnit8,
+    PlayerUnit9,
+    PlayerUnit10,
+    PlayerUnit11,
 }
 
 public class ObjectPoolManager : SingletonMono<ObjectPoolManager>
@@ -39,8 +49,12 @@ public class ObjectPoolManager : SingletonMono<ObjectPoolManager>
 
     void InitPool()
     {
+        // 이 부분에서 rootContainer의 부모를 이 매니저 게임 오브젝트로 하지 않으면 씬 전환시마다 @Pool_Root가 삭제될텐데
+        // 그럼 오브젝트 풀링으로 사용된 애들도 같이 날아갈 거고요.
+        // 이때 다시 이 풀링 매니저를 사용하면 제대로 될까요...?
+        // 제 느낌은 Get()할때 null 뜰거 같긴 합니다. 풀은 있지만 참조가 안되는...
         Transform rootContainer = new GameObject("@Pool_Root").transform;
-
+        rootContainer.SetParent(gameObject.transform);
         foreach (PoolType type in enums)
         {
             //중복 체크

@@ -16,6 +16,7 @@ public class EnemyHQ : BaseHQ
         }
         UIManager.Instance.GetUI<UIHpBarContainer>().AddHpBar(this, EUIHpBarType.EnemyUnit, new Vector2(300f, 16.5f));
         UnitManager.Instance.AddUnitList(this, false);
+        InvokeRepeating("SpawnUnit", 0f, spawnInterval);
     }
     public override void Dead()
     {
