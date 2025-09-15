@@ -28,6 +28,20 @@ public class FadeManager : SingletonMono<FadeManager>
     {
         base.Awake();
     }
+    public void SwitchGameObjects(GameObject from, GameObject to)
+    {
+        StartCoroutine(SwitchGameObjectsRoutine(from, to));
+    }
+    IEnumerator SwitchGameObjectsRoutine(GameObject from, GameObject to)
+    {
+        // 페이드 아웃
+        yield return FadeOut();
+        // 전환 동작
+        if (from != null) from.SetActive(false);
+        if (to != null)to.SetActive(true);
+        // 페이드 인
+        yield return FadeIn();
+    }
     private void SetupFadeImage()
     {
         // 캔버스 생성
