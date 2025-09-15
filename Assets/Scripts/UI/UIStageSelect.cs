@@ -11,13 +11,13 @@ public class SubStageData
     public bool isUnlocked = false; // 해금 여부
 }
 
-[System.Serializable]
-public class MainStageData
-{
-    public string displayName;          // "1. 겨울왕국"
-    public bool isUnlocked = false;     // 메인 스테이지 해금 여부
-    public List<SubStageData> subStages = new List<SubStageData>(); // 서브 스테이지 리스트
-}
+//[System.Serializable]
+//public class MainStageData
+//{
+//    public string displayName;          // "1. 겨울왕국"
+//    public bool isUnlocked = false;     // 메인 스테이지 해금 여부
+//    public List<SubStageData> subStages = new List<SubStageData>(); // 서브 스테이지 리스트
+//}
 public class UIStageSelect : BaseUI
 {
     [Header("스테이지 선택UI 설정")]
