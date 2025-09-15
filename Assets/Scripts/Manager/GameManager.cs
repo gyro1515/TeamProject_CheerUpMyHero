@@ -32,6 +32,18 @@ public class GameManager : SingletonMono<GameManager>
                 StageClear();
             }
         }
+
+        // ========== 플레이어 바로 죽이는 치트키 B키 =============
+        if (Input.GetKeyDown(KeyCode.B))
+        {
+            if(Player != null && !Player.IsDead)
+            {
+                Debug.Log("B키 눌려서 플레이어 개체 즉시 죽임");
+                Player.CurHp = 0;                                   // 근데 이거 ondead 직업 호출하는 게 더 나은지? 모르겠음
+                StageDefeat();
+            }
+        }
+        // ========================================================
     }
     public void StageClear()
     {
@@ -58,4 +70,29 @@ public class GameManager : SingletonMono<GameManager>
             Debug.LogError("RewardPanel이 GameManager에 연결되지 않았습니다!");
         }
     }
+
+    // ================================================================================================
+    public void StageDefeat()
+    {
+        Debug.Log("스테이지 클리어 실패");
+        Time.timeScale = 0f;
+
+        // 차후에 데이터 테이블로 스테이지별 보상 만들어야 함
+        // 일단 해당 스테이지의 원래 보상은 모든 자원 100씩인 것으로 설정하고 코드 짬.
+        int goldReward = 100;
+        int woodReward = 100;
+        int ironReward = 100;
+        int magicStoneReward = 100;
+
+        // 우리 자원 체계가 int형인데, 20% 없애면 float형이 발생하는 경우가 반드시 생김.
+        // 이런 경우 어떻게 할지 : 버릴지, 올릴지, 내릴지, 반올림할 지 정해야 함.
+        ResourceManager.Instance.AddResource(ResourceType.Gold, (int)(goldReward * 0.2f));
+        ResourceManager.Instance.AddResource(ResourceType.Wood, (int)(woodReward * 0.2f));
+        ResourceManager.Instance.AddResource(ResourceType.Iron, (int)(ironReward * 0.2f));
+        ResourceManager.Instance.AddResource(ResourceType.MagicStone, (int)(magicStoneReward * 0.2f));
+
+        Debug.Log("게임 실패 UI 출력");
+        // 실패 시 전용 UI 따로 만들 지 한 번 생각해보기
+    }
+    // ================================================================================================
 }
