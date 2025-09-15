@@ -40,6 +40,17 @@ public class GameManager : SingletonMono<GameManager>
             }
         }
 
+        // 플레이어 HQ 바로 죽이는 치트키 V키
+        if (!Input.GetKeyDown(KeyCode.V))
+        {
+            if (PlayerHQ != null && PlayerHQ.gameObject.activeInHierarchy)
+            {
+                Debug.Log("V키 눌려서 아군 HQ 터뜨림");
+                PlayerHQ.CurHp = 0;
+                ShowResultUI(false);
+            }
+        }
+
         // 플레이어 바로 죽이는 치트키 B키
         if (Input.GetKeyDown(KeyCode.B))
         {
