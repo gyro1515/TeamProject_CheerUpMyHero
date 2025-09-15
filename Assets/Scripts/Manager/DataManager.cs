@@ -43,7 +43,18 @@ public class DataManager : SingletonMono<DataManager>
         }
     }
 
-
+    private DataBase<BuildingUpgradeData, BuildingUpgradeSO> _buildingUpgradeData;
+    public DataBase<BuildingUpgradeData, BuildingUpgradeSO> BuildingUpgradeData
+    {
+        get
+        {
+            if (Instance._buildingUpgradeData == null)
+            {
+                Instance._buildingUpgradeData = new DataBase<BuildingUpgradeData, BuildingUpgradeSO>();
+            }
+            return Instance._buildingUpgradeData;
+        }
+    }
     protected override void Awake()
     {
         base.Awake();
