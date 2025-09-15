@@ -9,8 +9,8 @@ public class UIPause : BaseUI
     [Header("일시정지 버튼")]
     [SerializeField] private Button _pauseButton;
 
-    [Header("일시정지 메뉴")]
-    [SerializeField] private GameObject _pausePanel;
+    [Header("환경설정 메뉴")]
+    [SerializeField] private GameObject _SettingPanel;
 
     private void Awake()
     {
@@ -20,6 +20,6 @@ public class UIPause : BaseUI
     private void OnPauseButtonClicked()
     {
         Time.timeScale = 0.0f;
-        _pausePanel.SetActive(true);
+        _SettingPanel.SetActive(true);
     }
 }
