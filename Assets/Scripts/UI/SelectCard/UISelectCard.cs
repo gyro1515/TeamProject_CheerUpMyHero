@@ -8,7 +8,7 @@ public class UISelectCard : BaseUI
     [SerializeField] UIScrollCard uIScrollCard;
     [SerializeField] UICardDeckHolder uICardDeckHolder;
     [SerializeField] Button adviserButton;
-    [SerializeField] GameObject popUpUI;
+    [SerializeField] UIGoToStagePopUp popUpUI;
 
     //이 UI가 알아야 하는것
     //플레이어가 보유하고 있는 카드들
@@ -40,11 +40,10 @@ public class UISelectCard : BaseUI
         
         //어디선가로부터 카드 정보 불러와야 함
         //임시로 생성
-        CardList.Add(0);
-        CardList.Add(1);
-        CardList.Add(2);
-        CardList.Add(3);
-        CardList.Add(4);
+        for (int i =0; i < 11; i++)
+        {
+            CardList.Add(i);
+        }
 
         for (int i = 0; i < CardList.Count; i++)
         {
@@ -73,7 +72,7 @@ public class UISelectCard : BaseUI
             Debug.Log($"{matchList.Count}번째 슬롯에 {i+1}번째 카드 매칭");
         }
 
-        uICardDeckHolder.DePloyDeck(DeckList);
+        uICardDeckHolder.DeployDeck(DeckList);
     }
 
     //편성된 슬롯 클릭 -> 카드 리스트의 해당하는 카드의 버튼 누름
@@ -88,7 +87,13 @@ public class UISelectCard : BaseUI
 
     private void ActivePopUP()
     {
-        popUpUI.SetActive(true);
+        if(DeckList.Count == 0)
+        {
+            Debug.Log("덱을 최소 하나 이상 선택해야 합니다");
+            return;
+        }
+        popUpUI.SetTransferDesckList(DeckList);
+        popUpUI.gameObject.SetActive(true);
     }
 
     private void OnDestroy()

@@ -14,6 +14,7 @@ using UnityEngine.SceneManagement;
 
 public enum PoolType
 {
+    TestBullet, 
     TestBulletV2,
     EnemyUnit1,
     PlayerUnit1
