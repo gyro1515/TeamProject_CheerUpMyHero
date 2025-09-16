@@ -127,57 +127,58 @@ public class BuildingManager : SingletonMono<BuildingManager>
 
     public void BuildBuildingOnTile(BuildingTile tile, int buildingBaseID)
     {
+        //데이터 가져오기
         BuildingUpgradeData constructionData = DataManager.Instance.BuildingUpgradeData.GetData(buildingBaseID);
         if (constructionData == null)
         {
-@ -128,38 + 129,31 @@ public class BuildingManager : SingletonMono<BuildingManager>
+
             return;
-}
+        }
 
-//건설 가능 여부 확인
-// 비용 확인
-bool canAfford = true;
-foreach (Cost cost in constructionData.costs)
-{
-    // 현재 보유한 자원이 필요한 자원보다 적은지 확인
-    if (ResourceManager.Instance.GetResourceAmount(cost.resourceType) < cost.amount)
-    {
-        canAfford = false;
-        Debug.Log($"{cost.resourceType} 자원이 부족합니다.");
-        break; // 하나라도 부족하면 즉시 확인 중단
-        break;
+        //건설 가능 여부 확인
+        // 비용 확인
+        bool canAfford = true;
+        foreach (Cost cost in constructionData.costs)
+        {
+            // 현재 보유한 자원이 필요한 자원보다 적은지 확인
+            if (ResourceManager.Instance.GetResourceAmount(cost.resourceType) < cost.amount)
+            {
+                canAfford = false;
+                Debug.Log($"{cost.resourceType} 자원이 부족합니다.");
+                break; // 하나라도 부족하면 즉시 확인 중단
+                break;
+            }
+        }
+
+        //자원이 충분할 때만 건설 진행
+        if (canAfford)
+        {
+            //비용 차감 (AddResource에 음수 값을 넣어 자원을 감소시킴)
+            foreach (Cost cost in constructionData.costs)
+            {
+                ResourceManager.Instance.AddResource(cost.resourceType, -cost.amount);
+            }
+            BuildingUpgradeData level1Data = DataManager.Instance.BuildingUpgradeData.GetData(constructionData.nextLevel);
+
+            DataManager.Instance.BuildingGridData[tile.X, tile.Y] = level1Data;
+            tile.SetBuilding(level1Data);
+            if (!canAfford) return;
+
+            Debug.Log($"{tile.X},{tile.Y}에 {level1Data.buildingName} 건설 완료!");
+        }
+        else
+            // 비용 차감
+            foreach (Cost cost in constructionData.costs)
+            {
+                Debug.Log("자원이 부족하여 건설할 수 없습니다.");
+                ResourceManager.Instance.AddResource(cost.resourceType, -cost.amount);
+            }
+
+        // ⚡ 0레벨 데이터 그대로 설치
+        DataManager.Instance.BuildingGridData[tile.X, tile.Y] = constructionData;
+        tile.SetBuilding(constructionData);
+
+        Debug.Log($"{tile.X},{tile.Y}에 {constructionData.buildingName} 건설 완료!");
     }
-}
-
-//자원이 충분할 때만 건설 진행
-if (canAfford)
-{
-    //비용 차감 (AddResource에 음수 값을 넣어 자원을 감소시킴)
-    foreach (Cost cost in constructionData.costs)
-    {
-        ResourceManager.Instance.AddResource(cost.resourceType, -cost.amount);
+    
     }
-    BuildingUpgradeData level1Data = DataManager.Instance.BuildingUpgradeData.GetData(constructionData.nextLevel);
-
-    DataManager.Instance.BuildingGridData[tile.X, tile.Y] = level1Data;
-    tile.SetBuilding(level1Data);
-    if (!canAfford) return;
-
-    Debug.Log($"{tile.X},{tile.Y}에 {level1Data.buildingName} 건설 완료!");
-}
-else
-    // 비용 차감
-    foreach (Cost cost in constructionData.costs)
-    {
-        Debug.Log("자원이 부족하여 건설할 수 없습니다.");
-        ResourceManager.Instance.AddResource(cost.resourceType, -cost.amount);
-    }
-
-// ⚡ 0레벨 데이터 그대로 설치
-DataManager.Instance.BuildingGridData[tile.X, tile.Y] = constructionData;
-tile.SetBuilding(constructionData);
-
-Debug.Log($"{tile.X},{tile.Y}에 {constructionData.buildingName} 건설 완료!");
-    }
-    public void UpgradeBuildingOnTile(BuildingTile tile)
-}
