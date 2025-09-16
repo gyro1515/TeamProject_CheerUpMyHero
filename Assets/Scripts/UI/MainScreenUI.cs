@@ -6,7 +6,7 @@ using UnityEngine.UI;
 public class MainScreenUI : BaseUI
 {
     [Header("버튼 세팅")]
-    [SerializeField] private Button _officerImageButton;
+    [SerializeField] private Button _adviserButton;
     [SerializeField] private Button _battleButton;
     [SerializeField] private Button _testButton;
     [SerializeField] private Button _deckSelectButton;
@@ -21,7 +21,7 @@ public class MainScreenUI : BaseUI
 
     private void Awake()
     {
-        if (_officerImageButton == null || _battleButton == null
+        if (_adviserButton == null || _battleButton == null
             || _battlePanel == null || _testPanel == null || _testButton == null 
             || _deckSelectPanel == null || _deckSelectButton == null || _notYetButton == null)
         {
@@ -29,7 +29,7 @@ public class MainScreenUI : BaseUI
             return;
         }
 
-        _officerImageButton.onClick.AddListener(OnOfficerImageClick);
+        _adviserButton.onClick.AddListener(OnAdviserButtonClck);
         // 전투 버튼을 클릭했을 때 OnBattleButtonClick 메서드를 실행하도록 연결합니다.
         _battleButton.onClick.AddListener(OnBattleButtonClick);
         _testButton.onClick.AddListener(OnTestButtonClick);
@@ -48,7 +48,7 @@ public class MainScreenUI : BaseUI
         _testPanel.SetActive(false);
         _deckSelectPanel.SetActive(false);
     }
-    private void OnOfficerImageClick()
+    private void OnAdviserButtonClck()
     {
         _battlePanel.SetActive(true);
         _testPanel.SetActive(true);

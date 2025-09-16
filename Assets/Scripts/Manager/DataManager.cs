@@ -43,6 +43,19 @@ public class DataManager : SingletonMono<DataManager>
         }
     }
 
+    private DataBase<BuildingUpgradeData, BuildingUpgradeSO> _buildingUpgradeData;
+    public DataBase<BuildingUpgradeData, BuildingUpgradeSO> BuildingUpgradeData
+    {
+        get
+        {
+            if (Instance._buildingUpgradeData == null)
+            {
+                Instance._buildingUpgradeData = new DataBase<BuildingUpgradeData, BuildingUpgradeSO>();
+            }
+            return Instance._buildingUpgradeData;
+        }
+    }
+    public BuildingUpgradeData[,] BuildingGridData { get; set; } = new BuildingUpgradeData[4, 4];
 
     protected override void Awake()
     {
