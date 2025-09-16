@@ -35,6 +35,11 @@ public class BuildingUpgradeImporter : Editor
                 data.level = GetSafeInt(currentRow, 2);
                 data.nextLevel = GetSafeInt(currentRow, 3);
 
+                if (data.nextLevel == -1)
+                {
+                    Debug.Log($"행 {row + 1} (ID: {data.idNumber}): nextLevel이 비어있으므로 최대 레벨입니다.");
+                }
+
                 // 비용(Cost) 데이터 읽기 (최대 4쌍)
                 for (int i = 0; i < 4; i++)
                 {
