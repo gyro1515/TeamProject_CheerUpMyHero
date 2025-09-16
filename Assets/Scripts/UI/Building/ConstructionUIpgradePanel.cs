@@ -67,7 +67,7 @@ public class ConstructionUpgradePanel : BaseUI
         if (currentData == null)
             BuildingManager.Instance.BuildBuildingOnTile(_targetTile, _dataToShow.idNumber);
         else
-           // BuildingManager.Instance.UpgradeBuildingOnTile(_targetTile);
+            BuildingManager.Instance.UpgradeBuildingOnTile(_targetTile);
 
         CloseUI();
     }
