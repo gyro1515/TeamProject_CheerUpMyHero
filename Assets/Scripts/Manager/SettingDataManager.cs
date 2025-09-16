@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
@@ -6,13 +7,16 @@ using UnityEngine;
 public class SettingDataManager : SingletonMono<SettingDataManager>
 {
     public List<MainStageData> MainStageData { get; private set; } = new();
+    public int ControlPanelLayoutType { get; private set; } // 배틀씬 하단 레이아웃 설정 값 | 0 : 기본값 | 1 : 바꾼 값
+    public const string ControlPanelLayoutTypeKey = "ControlPanelLayoutType";
+    public static event Action OnControlLayoutChanged;
 
     protected override void Awake()
     {
         base.Awake();
 
         LoadStageDataFromSO();
-
+        LoadLayoutSetting();
     }
 
     void LoadStageDataFromSO()
@@ -48,6 +52,19 @@ public class SettingDataManager : SingletonMono<SettingDataManager>
         }
     }
 
+    private void SetLayoutSetting(int type)
+    {
+        if (ControlPanelLayoutType == type) return;
+
+        ControlPanelLayoutType = type;
+        PlayerPrefs.SetInt(ControlPanelLayoutTypeKey, ControlPanelLayoutType);
+        PlayerPrefs.Save();
+    }
+
+    private void LoadLayoutSetting()
+    {
+        ControlPanelLayoutType =  PlayerPrefs.GetInt(ControlPanelLayoutTypeKey, 0);
+    }
 
     public void UnlockStage(int mainIndex, int subIndex)
     {
