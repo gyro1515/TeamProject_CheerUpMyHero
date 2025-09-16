@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -32,7 +33,12 @@ public class UIGoToStagePopUp : MonoBehaviour
 
     public void SetTransferDesckList(List<int> list)
     {
-        transferDesckList = list;
+        Debug.Log($"트랜스퍼 덱 리스트: 가져온 리스트 크기: {list.Count}");
+
+        transferDesckList.Clear();
+        transferDesckList = list.ToList();
+
+        Debug.Log($"트랜스퍼 덱 리스트: 덱 리스트 크기: {transferDesckList.Count}");
     }
 
     void ClosePopUP()
