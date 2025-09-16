@@ -13,7 +13,12 @@ public class GameManager : SingletonMono<GameManager>
     public PlayerHQ PlayerHQ { get; set; }
 
     public Player Player { get; set; }
-     
+
+    protected override void Awake()
+    {
+        base.Awake();
+        //RewardPanelUI = UIManager.Instance.GetUI<RewardPanelUI>();
+    }
     private void Update()
     {
         // 테스트
@@ -37,6 +42,17 @@ public class GameManager : SingletonMono<GameManager>
                 enemyHQ.Dead();
 
                 ShowResultUI(true);
+            }
+        }
+
+        // 플레이어 HQ 바로 죽이는 치트키 V키
+        if (!Input.GetKeyDown(KeyCode.V))
+        {
+            if (PlayerHQ != null && PlayerHQ.gameObject.activeInHierarchy)
+            {
+                Debug.Log("V키 눌려서 아군 HQ 터뜨림");
+                PlayerHQ.CurHp = 0;
+                ShowResultUI(false);
             }
         }
 

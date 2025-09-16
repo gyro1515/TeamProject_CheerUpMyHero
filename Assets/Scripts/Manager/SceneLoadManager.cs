@@ -25,7 +25,7 @@ public class SceneLoadManager : SingletonMono<SceneLoadManager>
         base.Awake();
         // 씬 클래스와 enum 매핑 (씬 만들어지면 주석해제)
         _scenes.Add(SceneState.MainScene, new MainScene());
-        //_scenes.Add(SceneState.BattleScene, new BattleScene()); // 일단 테스트로 원진 테스트씬으로
+        _scenes.Add(SceneState.BattleScene, new BattleScene()); // 일단 테스트로 원진 테스트씬으로
         _scenes.Add(SceneState.WonJinTestScene, new WonJinTestScene());
     } 
 
