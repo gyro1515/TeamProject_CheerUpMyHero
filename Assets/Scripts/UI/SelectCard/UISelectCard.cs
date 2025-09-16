@@ -56,7 +56,15 @@ public class UISelectCard : BaseUI
         uICardDeckHolder.Init(this);
 
         //덱이 리로드
-        StartCoroutine(ReloadDeck());
+        if (PlayerDataManager.Instance.DeckList.Count > 0)
+        {
+            //리스트에 굳이 ToList를 붙여주면 복사복을 만들어 사용하게 됨
+            foreach (int i in PlayerDataManager.Instance.DeckList.ToList())
+            {
+                uIScrollCard.SpawnedSlots[i].ButtonFormExternal();
+            }
+            Debug.Log("덱리스트 복구");
+        }
 
         popUpUI.gameObject.SetActive(false);
     }
@@ -104,22 +112,6 @@ public class UISelectCard : BaseUI
         }
         popUpUI.SetTransferDesckList(DeckList);
         popUpUI.gameObject.SetActive(true);
-    }
-
-    IEnumerator ReloadDeck()
-    {
-        yield return new WaitForSeconds(0.2f);
-        
-        //기존 덱이 존재하면, 불러옴. 어떻게? 버튼을 눌러준다..
-        if (PlayerDataManager.Instance.DeckList.Count > 0)
-        {
-            //리스트에 굳이 ToList를 붙여주면 복사복을 만들어 사용하게 됨
-            foreach (int i in PlayerDataManager.Instance.DeckList.ToList())
-            {
-                uIScrollCard.SpawnedSlots[i].ButtonFormExternal();
-            }
-            Debug.Log("덱리스트 복구");
-        }
     }
 
 

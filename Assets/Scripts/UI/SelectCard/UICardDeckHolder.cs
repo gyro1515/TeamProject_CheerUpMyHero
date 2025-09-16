@@ -11,7 +11,7 @@ public class UICardDeckHolder : MonoBehaviour
     private void Awake()
     {
         //동적 생성 안할것이라고 가정하고 slot 미리 배치해두기
-        int childCount = transform.childCount;
+        /*int childCount = transform.childCount;
         Transform[] childTransformsArray = new Transform[childCount];
         slots = new UIDeckSlot[childCount];
 
@@ -27,7 +27,7 @@ public class UICardDeckHolder : MonoBehaviour
             {
                 Debug.LogError($"[UISelectCard - UIUICardDeckHolder] 자식 오브젝트에 UIDeckSlot이 아닌 것이 포함되어 있습니다");
             }
-        }
+        }*/
     }
 
 
@@ -54,7 +54,6 @@ public class UICardDeckHolder : MonoBehaviour
             slots[i].onManualEmptySlot -= uISelectCard.CancelDeckBySlot;
         }
     }
-
     //나중에 int -> CardData등으로 변경
     public void DeployDeck(List<int> deckList)
     {
@@ -67,6 +66,10 @@ public class UICardDeckHolder : MonoBehaviour
 
         for (int i = listSize; i < slots.Length; i++)
         {
+            if (slots[i] == null)
+            {
+                Debug.Log("왜 널이야");
+            }
             slots[i].EmptySlot();
         }
     }
