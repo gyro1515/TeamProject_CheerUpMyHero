@@ -14,22 +14,19 @@ public class PlayerHQ : BaseHQ
         UnitManager.Instance.AddUnitList(this, true);
         GameManager.Instance.PlayerHQ = this;
     }
-    protected override void SpawnUnit()
+    protected override void SpawnUnit() // 현재 사용 안함
     {
         if (playerUnits.Count == 0) return;
-        Vector3 spawnPos = gameObject.transform.position;
-        spawnPos.y += UnityEngine.Random.Range(tmpMinY, tmpMaxY) / 100f;
+        
         // 여기서 오브젝트 풀에서 가져오기
         GameObject playerUnitGO = ObjectPoolManager.Instance.Get(playerUnits[0]);
-        playerUnitGO.transform.position = spawnPos;
+        playerUnitGO.transform.position = GetRandomSpawnPos();
         //playerUnitGO.transform.SetParent(gameObject.transform);
         //PlayerUnit playerUnit = playerUnitGO.GetComponent<PlayerUnit>();
     }
     public void SpawnUnit(PoolType poolType)
     {
-        Vector3 spawnPos = gameObject.transform.position;
-        spawnPos.y += UnityEngine.Random.Range(tmpMinY, tmpMaxY) / 100f;
         GameObject playerUnitGO = ObjectPoolManager.Instance.Get(poolType);
-        playerUnitGO.transform.position = spawnPos;
+        playerUnitGO.transform.position = GetRandomSpawnPos();
     }
 }

@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 [System.Serializable]
@@ -12,14 +13,70 @@ public class EnemyWaveSystem : MonoBehaviour
 {
     [field: Header("적 유닛 웨이브 정보 확인용")]
     [field: SerializeField] public List<EnemyWave> WaveData { get; private set; } = new List<EnemyWave>();
+    [Header("적 유닛 웨이브 설정 세팅")]
+    [SerializeField] float waveTime = 90f; // 웨이브 타임 -> 테스트로 20초
+    [SerializeField] float warningBeforeWaveTime = 15f; // 경고 타임 -> 테스트로 웨이브 3초 전에 출력
+    [SerializeField] float spawnWaveInterval = 0.5f; // 웨이브 마다 간격 달라질 수 있음, 현재는 통일
 
-    public event Action OnWaveFinish; // 웨이브 끝나면 다시 기본 유닛 스폰될 수 있도록
+    UIWaveWarning warningUI;
+    EnemyHQ enemyHQ;
+    float warningTime = -1f; // 경고 시간
+    float timeUntilWave = -1f; // 경고 시간 후 소환까지 걸리는 시간
 
     private void Awake()
     {
-        TestwaveDateInit();
+        enemyHQ = GetComponent<EnemyHQ>();
+        warningUI = UIManager.Instance.GetUI<UIWaveWarning>(); // 경고의 주체는 여기니까, 여기에 캐싱해 놓기 
+        warningTime = waveTime - warningBeforeWaveTime;
+        timeUntilWave = waveTime - warningTime;
+        TestWaveDateInit();
     }
-    void TestwaveDateInit()
+    private void Start()
+    {
+        // 웨이브 코루틴
+        StartCoroutine(WaveTimeRoutine());
+    }
+    IEnumerator WaveTimeRoutine()
+    {
+        int waveIdx = 0;
+
+        while (waveIdx < 5) // 5번째 웨이브까지 실행하기(실제 7분 30)
+        {
+            // warningTime까지 대기
+            yield return new WaitForSeconds(warningTime);
+
+            // 경고 표시 (한 번만)
+            warningUI.OpenUI();
+
+            // timeUntilWave 동안 대기
+            yield return new WaitForSeconds(timeUntilWave);
+
+            // 기존 적 유닛 스폰 일시 정지
+            enemyHQ.SetSpawnEnemyActive(false);
+            // 웨이브 시작
+            StartCoroutine(WaveRoutine(waveIdx++));
+            Debug.Log($"{waveIdx}번째 웨이브 시작");
+        }
+    }
+    IEnumerator WaveRoutine(int waveDataIdx)
+    {
+        // 데이터 없으면 바로 종료
+        if (waveDataIdx >= WaveData.Count) yield break;
+        // 캐싱하기
+        WaitForSeconds wait = new WaitForSeconds(spawnWaveInterval);
+        List<PoolType> unitList = WaveData[waveDataIdx].unitList;
+        int unitCnt = unitList.Count;
+        for (int i = 0; i < unitCnt; i++)
+        {
+            // 여기서 오브젝트 풀에서 가져오기
+            GameObject enemyUnitGO = ObjectPoolManager.Instance.Get(unitList[i]);
+            enemyUnitGO.transform.position = enemyHQ.GetRandomSpawnPos();
+            yield return wait;
+        }
+        // 웨이브 끝나면 기존 유닛 스폰 루틴 다시 활성화
+        enemyHQ.SetSpawnEnemyActive(true);
+    }
+    void TestWaveDateInit()
     {
         WaveData.Clear();
         EnemyWave wave1 = new EnemyWave();
