@@ -134,8 +134,8 @@ public class ObjectPoolManager : SingletonMono<ObjectPoolManager>
         if( poolable != null)
         {
             poolable.SetPool(pools[type]);
-            poolableCache[obj] = poolable;
-            Debug.Log($"캐싱!: {obj.name}");
+            //poolableCache[obj] = poolable;
+            //Debug.Log($"캐싱!: {obj.name}");
         }
             
         else
@@ -150,27 +150,27 @@ public class ObjectPoolManager : SingletonMono<ObjectPoolManager>
         obj.SetActive(true);
 
 
-        if (poolableCache.TryGetValue(obj, out BasePoolable poolable))
-        {
-            if (!allActivePoolables.Contains(poolable))
-            {
-                allActivePoolables.Add(poolable);
-            }
-        }
-        else
-        {
-            Debug.Log("Poolable가 없다고??");
-        }
+        //if (poolableCache.TryGetValue(obj, out BasePoolable poolable))
+        //{
+        //    if (!allActivePoolables.Contains(poolable))
+        //    {
+        //        allActivePoolables.Add(poolable);
+        //    }
+        //}
+        //else
+        //{
+        //    Debug.Log("Poolable가 없다고??");
+        //}
     }
 
     private void OnReleaseObject(GameObject obj) 
     {
-        if (_isCleaning) return;
+        //if (_isCleaning) return;
 
-        if (poolableCache.TryGetValue(obj, out BasePoolable poolable))
-        {
-            allActivePoolables.Remove(poolable);
-        }
+        //if (poolableCache.TryGetValue(obj, out BasePoolable poolable))
+        //{
+        //    allActivePoolables.Remove(poolable);
+        //}
         obj.SetActive(false);
     }
 

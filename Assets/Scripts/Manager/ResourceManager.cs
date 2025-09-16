@@ -3,14 +3,7 @@ using System;
 using System.Collections.Generic;
 
 
-public enum ResourceType
-{
-    Gold,
-    Wood,
-    Iron,
-    Food,
-    MagicStone
-}
+
 
 public class ResourceManager : SingletonMono<ResourceManager>
 {

@@ -43,6 +43,32 @@ public class DataManager : SingletonMono<DataManager>
         }
     }
 
+    private DataBase<MainStageData, MainStageSO> _mainStageData;
+    public DataBase<MainStageData, MainStageSO> MainStageData
+    {
+        get
+        {
+            if (Instance._mainStageData == null)
+            {
+                Instance._mainStageData = new DataBase<MainStageData, MainStageSO>();
+            }
+            return Instance._mainStageData;
+        }
+    }
+
+    private DataBase<SubStageData, SubStageSO> _subStageData;
+    public DataBase<SubStageData, SubStageSO> SubStageData
+    {
+        get
+        {
+            if (Instance._subStageData == null)
+            {
+                Instance._subStageData = new DataBase<SubStageData, SubStageSO>();
+            }
+            return Instance._subStageData;
+        }
+    }
+
 
     protected override void Awake()
     {
