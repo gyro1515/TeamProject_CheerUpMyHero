@@ -36,22 +36,22 @@ public class SettingDataManager : SingletonMono<SettingDataManager>
 
             for (int j = 0; j < subStageCount; j++)
             {
-                sb.Append(i+1).Append(0).Append(0).Append(j+1);
+                sb.Append(i + 1).Append(0).Append(0).Append(j + 1);
                 string indexSTr = sb.ToString();
                 bool successCast = int.TryParse(indexSTr, out int index);
-                MainStageData[i].subStages.Add(DataManager.Instance.SubStageData.GetData(index));
+                if (successCast)
+                    MainStageData[i].subStages.Add(DataManager.Instance.SubStageData.GetData(index));
+                else
+                    Debug.Log($"[SettingDataManager] 문자열로 index를 만들 수 없습니다.");
                 sb.Clear();
             }
         }
     }
 
 
-    //스테이지 해금 정보
-
-
-    public void SetStageData()
+    public void UnlockStage(int mainIndex, int subIndex)
     {
-        
+        MainStageData[mainIndex].subStages[subIndex].isUnlocked = true;
     }
 
 }
