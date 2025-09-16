@@ -48,6 +48,10 @@ public class SettingDataManager : SingletonMono<SettingDataManager>
         }
     }
 
+   public void SetStageData()
+    {
+
+    }
 
     public void UnlockStage(int mainIndex, int subIndex)
     {

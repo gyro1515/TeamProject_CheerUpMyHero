@@ -18,7 +18,7 @@ public class ConstructionUpgradePanel : BaseUI
     private BuildingUpgradeData _dataToShow;
     private CanvasGroup _canvasGroup;
 
-    // 🔹 모드 추가: 건설/업그레이드 구분
+    // 모드 추가: 건설/업그레이드 구분
     private enum PanelMode { None, Construction, Upgrade }
     private PanelMode _mode = PanelMode.None;
 
