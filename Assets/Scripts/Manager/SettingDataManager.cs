@@ -66,14 +66,6 @@ public class SettingDataManager : SingletonMono<SettingDataManager>
         ControlPanelLayoutType =  PlayerPrefs.GetInt(ControlPanelLayoutTypeKey, 0);
     }
 
-    //스테이지 해금 정보
-
-
-    public void SetStageData()
-    {
-
-    }
-
     public void UnlockStage(int mainIndex, int subIndex)
     {
         MainStageData[mainIndex].subStages[subIndex].isUnlocked = true;

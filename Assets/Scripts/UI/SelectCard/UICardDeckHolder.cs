@@ -51,7 +51,7 @@ public class UICardDeckHolder : MonoBehaviour
     {
         for (int i = 0; i < slots.Length; i++)
         {
-            slots[i].onManualEmptySlot += uISelectCard.CancelDeckBySlot;
+            slots[i].onManualEmptySlot -= uISelectCard.CancelDeckBySlot;
         }
     }
 
