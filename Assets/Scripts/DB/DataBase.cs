@@ -24,7 +24,6 @@ public class DataBase<T1, T2> where T1 : MonoData where T2 : MonoSO<T1>
         }
 
         _DB = new Dictionary<int, T1>(list.Count);          // item 정보를 넣을 딱 필요한 크기(list.Count) 만큼의 딕셔너리를 생성함.
-
         for (int i = 0; i < list.Count; i++)                // 엑셀 데이터 개수만큼 반복문 반복, 데이터 가져와서 딕셔너리에 넣어주는 반복문
         {
             var data = list[i];                             // data : 엑셀 데이터 중 i번째 데이터.
