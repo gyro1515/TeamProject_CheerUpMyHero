@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4607572844351071504}
   - component: {fileID: 6214211965214239402}
+  - component: {fileID: 8258439228759316766}
   - component: {fileID: 2111780670763653960}
   m_Layer: 7
   m_Name: EnemyHQ
@@ -51,10 +52,26 @@ MonoBehaviour:
   <MoveSpeed>k__BackingField: 0
   <HpBarPosByCharacter>k__BackingField: {x: 0, y: 5.5, z: 0}
   <HpBarSize>k__BackingField: {x: 0, y: 0}
+  curHp: 0
+  <ListIndex>k__BackingField: -1
   minY: 0
   maxY: 3
   spawnInterval: 3
-  enemyUnits: 02000000
+  waveTime: 8
+  warningBeforeWaveTime: 3
+  enemyUnits: 01000000
+--- !u!114 &8258439228759316766
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5121497801487616391}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a440a8f59131fd840bd3895da45b8bb4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!61 &2111780670763653960
 BoxCollider2D:
   m_ObjectHideFlags: 0

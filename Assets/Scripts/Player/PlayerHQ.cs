@@ -12,6 +12,7 @@ public class PlayerHQ : BaseHQ
         base.Awake();
         UIManager.Instance.GetUI<UIHpBarContainer>().AddHpBar(this, EUIHpBarType.PlayerUnit, new Vector2(300f, 16.5f));
         UnitManager.Instance.AddUnitList(this, true);
+        GameManager.Instance.PlayerHQ = this;
     }
     protected override void SpawnUnit()
     {
@@ -23,5 +24,12 @@ public class PlayerHQ : BaseHQ
         playerUnitGO.transform.position = spawnPos;
         //playerUnitGO.transform.SetParent(gameObject.transform);
         //PlayerUnit playerUnit = playerUnitGO.GetComponent<PlayerUnit>();
+    }
+    public void SpawnUnit(PoolType poolType)
+    {
+        Vector3 spawnPos = gameObject.transform.position;
+        spawnPos.y += UnityEngine.Random.Range(tmpMinY, tmpMaxY) / 100f;
+        GameObject playerUnitGO = ObjectPoolManager.Instance.Get(poolType);
+        playerUnitGO.transform.position = spawnPos;
     }
 }

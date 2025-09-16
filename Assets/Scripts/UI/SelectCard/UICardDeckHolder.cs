@@ -31,11 +31,15 @@ public class UICardDeckHolder : MonoBehaviour
     }
 
 
-    //OnEnable 대체. 호출 시점 조절 위함.
+    //참조 전달받는 용도
     public void Init(UISelectCard uISelectCard)
     {
         this.uISelectCard = uISelectCard;
+    }
 
+
+    private void OnEnable()
+    {
         for (int i = 0; i < slots.Length; i++)
         {
             slots[i].SetIndex(i);
@@ -52,7 +56,7 @@ public class UICardDeckHolder : MonoBehaviour
     }
 
     //나중에 int -> CardData등으로 변경
-    public void DePloyDeck(List<int> deckList)
+    public void DeployDeck(List<int> deckList)
     {
         int listSize = deckList.Count;
         
@@ -66,4 +70,5 @@ public class UICardDeckHolder : MonoBehaviour
             slots[i].EmptySlot();
         }
     }
+
 }

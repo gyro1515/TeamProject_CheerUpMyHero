@@ -5,11 +5,18 @@ using UnityEngine;
 public class SceneLoaderBattle : MonoBehaviour
 {
     [SerializeField] GameObject map;
-    [SerializeField] GameObject player;
     private void Awake()
     {
+        UIManager.Instance.GetUI<UITest>();
         Instantiate(map);
-        //Instantiate(player);
+    }
+
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            SceneLoader.Instance.StartLoadScene(SceneState.MainScene);
+        }
     }
 }
 
