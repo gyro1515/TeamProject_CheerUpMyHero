@@ -4,7 +4,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class ControlSettingPanel : BaseUI
+public class UIControlSettingPanel : BaseUI
 {
     [Header("패널 변경 버튼")]
     [SerializeField] private Button _changeButton;

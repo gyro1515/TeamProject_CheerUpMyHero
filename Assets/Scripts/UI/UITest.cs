@@ -37,11 +37,11 @@ public class UITest : BaseUI
 
         int layoutType = SettingDataManager.Instance.ControlPanelLayoutType;
 
-        GameObject prefebToInstantiate = (layoutType == 0) ? _defaultLayoutPrefeb : _changedLayoutPrefeb;
+        GameObject prefabToInstantiate = (layoutType == 0) ? _defaultLayoutPrefeb : _changedLayoutPrefeb;
 
-        if (prefebToInstantiate != null && _layoutParents != null)
+        if (prefabToInstantiate != null && _layoutParents != null)
         {
-            _currentLayoutInstance = Instantiate(prefebToInstantiate, _layoutParents);
+            _currentLayoutInstance = Instantiate(prefabToInstantiate, _layoutParents);
         }
     }
 }
