@@ -85,10 +85,10 @@ public class GameManager : SingletonMono<GameManager>
         int ironReward = Mathf.CeilToInt(rewardData.rewardIron * rewardMultiplier);
         int magicStoneReward = Mathf.CeilToInt(rewardData.rewardMagicStone * rewardMultiplier);
 
-        ResourceManager.Instance.AddResource(ResourceType.Gold, goldReward);
-        ResourceManager.Instance.AddResource(ResourceType.Wood, woodReward);
-        ResourceManager.Instance.AddResource(ResourceType.Iron, ironReward);
-        ResourceManager.Instance.AddResource(ResourceType.MagicStone, magicStoneReward);
+        PlayerDataManager.Instance.AddResource(ResourceType.Gold, goldReward);
+        PlayerDataManager.Instance.AddResource(ResourceType.Wood, woodReward);
+        PlayerDataManager.Instance.AddResource(ResourceType.Iron, ironReward);
+        PlayerDataManager.Instance.AddResource(ResourceType.MagicStone, magicStoneReward);
 
         // 실패 UI 따로 만들 거면 여기서 조건문 걸어주기
 

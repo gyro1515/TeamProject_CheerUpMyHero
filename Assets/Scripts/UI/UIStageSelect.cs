@@ -4,12 +4,12 @@ using UnityEngine;
 using UnityEngine.UI;
 
 // 나중에 플레이어 데이터에 들어갈 것들
-[System.Serializable]
-public class SubStageData
-{
-    public string displayName;      // "1-1" 같은 표시용 이름
-    public bool isUnlocked = false; // 해금 여부
-}
+//[System.Serializable]
+//public class SubStageData
+//{
+//    public string displayName;      // "1-1" 같은 표시용 이름
+//    public bool isUnlocked = false; // 해금 여부
+//}
 
 //[System.Serializable]
 //public class MainStageData
@@ -46,8 +46,12 @@ public class UIStageSelect : BaseUI
     private void Awake()
     {
         subStageSelRectTransform = subStageSlotsTransform.GetComponent<RectTransform>();
+
         // 테스트 용으로 스테이지 데이터 세팅하기
-        TestForStageData();
+        //TestForStageData();
+        stageList = SettingDataManager.Instance.MainStageData;
+
+
         // 슬롯 생성
         for (int i = 0; i < stageList.Count; i++)
         {
@@ -112,8 +116,10 @@ public class UIStageSelect : BaseUI
                 SubStageData subData = stageList[mainStageIdx].subStages[i];
                 // 현재는 1-1, 9-4 등으로 서브 스테이지가 정의되어 있어서 subData.displayName이 필요 없지만
                 // 나중은 모르니까 일단 subData.displayName 남기기
-                //subSlotList[i].SetSlot(subData.displayName, i, subData.isUnlocked);
-                subSlotList[i].SetSlot($"{mainStageIdx + 1}-{i + 1}", i, subData.isUnlocked);
+                //--> 부활
+                subSlotList[i].SetSlot(subData.displayName, i, subData.isUnlocked);
+
+                //subSlotList[i].SetSlot($"{mainStageIdx + 1}-{i + 1}", i, subData.isUnlocked);
             }
             else
             {

@@ -5,16 +5,10 @@ using UnityEngine;
 public class EnemyHQ : BaseHQ
 {
     [Header("적 본부 세팅")]
-    [SerializeField] float waveTime = 90f; // 웨이브 타임 -> 테스트로 15초
-    [SerializeField] float warningBeforeWaveTime = 15f; // 경고 타임 -> 테스트로 웨이브 3초 전에 출력
-    [SerializeField] List<PoolType> enemyUnits = new List<PoolType>();
-    
-    float warningTime = -1f; // 경고 시간
-    float timeUntilWave = -1f; // 경고 시간 후 소환까지 걸리는 시간
-    UIWaveWarning WarningUI { get; set; } // 일단 프로퍼티로
-    EnemyWaveSystem waveSystem;
-    Coroutine spawnUnitRoutine; // 추후 웨이브시 스폰은 일시 정지 할 수 도 있어서
+    [SerializeField] List<PoolType> enemyUnits = new List<PoolType>(); // 기본 스폰 유닛
 
+    public Coroutine spawnUnitRoutine; // 웨이브시 스폰은 일시 정지용
+    
     protected override void Awake()
     {
         base.Awake();
@@ -28,29 +22,21 @@ public class EnemyHQ : BaseHQ
         UnitManager.Instance.AddUnitList(this, false);
         
         //InvokeRepeating("SpawnUnit", 0f, spawnInterval);
-
-        WarningUI = UIManager.Instance.GetUI<UIWaveWarning>(); // 경고의 주체는 적 기지니까, 적 기지에 캐싱해 놓기 
-        warningTime = waveTime - warningBeforeWaveTime;
-        timeUntilWave = waveTime - warningTime;
-
-        waveSystem = GetComponent<EnemyWaveSystem>();
     }
     protected override void Start()
     {
         base.Start();
         // 계속해서 유닛을 스폰하도록
-        spawnUnitRoutine = StartCoroutine(SpawnUnitRoutine());
-        // 웨이브 코루틴
-        StartCoroutine(WaveTimeRoutine()); 
+        SetSpawnEnemyActive(true);
     }
     protected override void Update()
     {
         base.Update();
         // 워닝 테스트
-        if(Input.GetKeyDown(KeyCode.Alpha3))
+        /*if(Input.GetKeyDown(KeyCode.Alpha3))
         {
             WarningUI.OpenUI();
-        }
+        }*/
     }
     public override void Dead()
     {
@@ -59,17 +45,14 @@ public class EnemyHQ : BaseHQ
     protected override void SpawnUnit()
     {
         if (enemyUnits.Count == 0) return;
-        Vector3 spawnPos = gameObject.transform.position;
-        spawnPos.y += UnityEngine.Random.Range(tmpMinY, tmpMaxY) / 100f;
         // 여기서 오브젝트 풀에서 가져오기
         GameObject enemyUnitGO = ObjectPoolManager.Instance.Get(enemyUnits[0]);
-        enemyUnitGO.transform.position = spawnPos;
-        //enemyUnitGO.transform.SetParent(gameObject.transform);
-        //EnemyUnit enemyUnit = enemyUnitGO.GetComponent<EnemyUnit>();
-        //UnitManager.Instance.EnemyUnitList.Add(enemyUnit);
+        enemyUnitGO.transform.position = GetRandomSpawnPos();
     }
     IEnumerator SpawnUnitRoutine()
     {
+        yield return new WaitForSeconds(0.5f); // 잠깐 유예시간 주기
+
         WaitForSeconds wait = new WaitForSeconds(spawnInterval);
         while (true)
         {
@@ -78,23 +61,17 @@ public class EnemyHQ : BaseHQ
         }
 
     }
-    IEnumerator WaveTimeRoutine()
+    public void SetSpawnEnemyActive(bool active)
     {
-        int waveIdx = 0;
+        // 활성화 시, 혹시라도 이미 실행 중인 게 있다면 리턴
+        // (웨이브 끝나기 전에 웨이브 실행시 이렇게 됨)
+        if (active && spawnUnitRoutine != null) return;
 
-        while (waveIdx++ != 5) // 5번째 웨이브까지 실행하기(실제 7분 30초, 현재 40초)
+        if(active) spawnUnitRoutine = StartCoroutine(SpawnUnitRoutine());
+        else if(spawnUnitRoutine != null)
         {
-            // warningTime까지 대기
-            yield return new WaitForSeconds(warningTime);
-
-            // 경고 표시 (한 번만)
-            WarningUI.OpenUI();
-
-            // timeUntilWave 동안 대기
-            yield return new WaitForSeconds(timeUntilWave);
-
-            // 웨이브 시작
-            Debug.Log($"{waveIdx}번째 웨이브 시작");
+            StopCoroutine(spawnUnitRoutine);
+            spawnUnitRoutine = null;
         }
     }
 }

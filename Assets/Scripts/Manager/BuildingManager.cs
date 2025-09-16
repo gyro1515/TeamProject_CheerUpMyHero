@@ -104,24 +104,26 @@ public class BuildingManager : SingletonMono<BuildingManager>
     {
         BuildingUpgradeData currentBuilding = DataManager.Instance.BuildingGridData[tile.X, tile.Y];
 
+
         if (currentBuilding == null)
         {
-            // --- 비어있는 땅이면 '건설 선택 메뉴' 열기 ---
-            var panel = UIManager.Instance.GetUI<ConstructionSelectPanel>();
-            panel.Initialize(tile);
-            panel.OpenUI();
+            // 비어있는 땅이면 '건설 메뉴' 열기
+            // var constructionPanel = UIManager.Instance.GetUI<ConstructionPanel>();
+            // constructionPanel.Initialize(tile); // 건설 패널에 타일 정보 전달
+            // constructionPanel.OpenUI();
         }
         else
         {
-            // --- 건물이 있으면 '업그레이드 메뉴' 열기 ---
-            var panel = UIManager.Instance.GetUI<ConstructionUpgradePanel>();
-            panel.InitializeForUpgrade(tile); // 업그레이드용 함수 호출
-            panel.OpenUI();
+            // 건물이 있으면 '업그레이드 메뉴' 열기
+            // var upgradePanel = UIManager.Instance.GetUI<UpgradePanel>();
+            // upgradePanel.Initialize(tile, currentBuilding); // 업그레이드 패널에 타일과 건물 정보 전달
+            // upgradePanel.OpenUI();
         }
     }
 
     public void BuildBuildingOnTile(BuildingTile tile, int buildingBaseID)
     {
+        //데이터 가져오기
         BuildingUpgradeData constructionData = DataManager.Instance.BuildingUpgradeData.GetData(buildingBaseID);
         if (constructionData == null)
         {
@@ -129,79 +131,37 @@ public class BuildingManager : SingletonMono<BuildingManager>
             return;
         }
 
-        // 비용 확인
+        //건설 가능 여부 확인
         bool canAfford = true;
         foreach (Cost cost in constructionData.costs)
         {
-            if (ResourceManager.Instance.GetResourceAmount(cost.resourceType) < cost.amount)
+            // 현재 보유한 자원이 필요한 자원보다 적은지 확인
+            if (PlayerDataManager.Instance.GetResourceAmount(cost.resourceType) < cost.amount)
             {
                 canAfford = false;
                 Debug.Log($"{cost.resourceType} 자원이 부족합니다.");
-                break;
+                break; // 하나라도 부족하면 즉시 확인 중단
             }
         }
 
-        if (!canAfford) return;
-
-        // 비용 차감
-        foreach (Cost cost in constructionData.costs)
-        {
-            ResourceManager.Instance.AddResource(cost.resourceType, -cost.amount);
-        }
-
-        // ⚡ 0레벨 데이터 그대로 설치
-        DataManager.Instance.BuildingGridData[tile.X, tile.Y] = constructionData;
-        tile.SetBuilding(constructionData);
-
-        Debug.Log($"{tile.X},{tile.Y}에 {constructionData.buildingName} 건설 완료!");
-    }
-    public void UpgradeBuildingOnTile(BuildingTile tile)
-    {
-        // 1. 현재 타일의 건물 데이터 가져오기
-        BuildingUpgradeData currentData = DataManager.Instance.BuildingGridData[tile.X, tile.Y];
-        if (currentData == null)
-        {
-            Debug.LogError("업그레이드할 건물이 없습니다.");
-            return;
-        }
-
-        // 2. 다음 레벨 업그레이드 데이터 가져오기
-        BuildingUpgradeData nextData = DataManager.Instance.BuildingUpgradeData.GetData(currentData.nextLevel);
-        if (nextData == null)
-        {
-            Debug.Log("최대 레벨이라 더 이상 업그레이드할 수 없습니다.");
-            return;
-        }
-
-        // 3. 비용 확인
-        bool canAfford = true;
-        foreach (Cost cost in nextData.costs)
-        {
-            if (ResourceManager.Instance.GetResourceAmount(cost.resourceType) < cost.amount)
-            {
-                canAfford = false;
-                break;
-            }
-        }
-
-        // 4. 자원이 충분하면 업그레이드 진행
+        //자원이 충분할 때만 건설 진행
         if (canAfford)
         {
-            // 비용 차감
-            foreach (Cost cost in nextData.costs)
+            //비용 차감 (AddResource에 음수 값을 넣어 자원을 감소시킴)
+            foreach (Cost cost in constructionData.costs)
             {
-                ResourceManager.Instance.AddResource(cost.resourceType, -cost.amount);
+                PlayerDataManager.Instance.AddResource(cost.resourceType, -cost.amount);
             }
+            BuildingUpgradeData level1Data = DataManager.Instance.BuildingUpgradeData.GetData(constructionData.nextLevel);
 
-            // 그리드 데이터와 타일 상태를 다음 레벨 데이터로 업데이트
-            DataManager.Instance.BuildingGridData[tile.X, tile.Y] = nextData;
-            tile.SetBuilding(nextData);
+            DataManager.Instance.BuildingGridData[tile.X, tile.Y] = level1Data;
+            tile.SetBuilding(level1Data);
 
-            Debug.Log($"{nextData.buildingName}이(가) {nextData.level}레벨로 업그레이드되었습니다!");
+            Debug.Log($"{tile.X},{tile.Y}에 {level1Data.buildingName} 건설 완료!");
         }
         else
         {
-            Debug.Log("자원이 부족하여 업그레이드할 수 없습니다.");
+            Debug.Log("자원이 부족하여 건설할 수 없습니다.");
         }
     }
 }
