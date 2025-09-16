@@ -25,7 +25,7 @@ public class ResourceUI : BaseUI
         _resourceTexts.Add(ResourceType.Food, foodText);
         _resourceTexts.Add(ResourceType.MagicStone, magicStoneText);
 
-         ResourceManager.Instance.OnResourceChangedEvent += OnResourceUpdated;
+         PlayerDataManager.Instance.OnResourceChangedEvent += OnResourceUpdated;
 
             // 게임 시작 시 초기 자원 값을 UI에 한 번 반영
             UpdateAllResourceUI();
@@ -36,7 +36,7 @@ public class ResourceUI : BaseUI
         //ResourceManager.Instance.OnResourceChangedEvent -= OnResourceUpdated;       
     }
 
-    // ResourceManager에서 자원 변경 이벤트가 발생하면 자동으로 호출됩니다.
+    // PlayerDataManager에서 자원 변경 이벤트가 발생하면 자동으로 호출됩니다.
     private void OnResourceUpdated(ResourceType type, int newAmount)
     {
         UpdateResourceUI(type);
@@ -47,13 +47,13 @@ public class ResourceUI : BaseUI
     {
         if (_resourceTexts.TryGetValue(type, out TextMeshProUGUI textComponent))
         {
-            int amount = ResourceManager.Instance.GetResourceAmount(type);
+            int amount = PlayerDataManager.Instance.GetResourceAmount(type);
             textComponent.text = amount.ToString();
         }
     }
 
     // 모든 자원의 UI를 한꺼번에 업데이트하는 보조 메서드 
-    //이후에는 ResourceManager.AddResource 메서드가 호출될 때마다 업데이트
+    //이후에는 PlayerDataManager.AddResource 메서드가 호출될 때마다 업데이트
     private void UpdateAllResourceUI()
     {
         foreach (var type in _resourceTexts.Keys)
