@@ -136,7 +136,7 @@ public class BuildingManager : SingletonMono<BuildingManager>
         foreach (Cost cost in constructionData.costs)
         {
             // 현재 보유한 자원이 필요한 자원보다 적은지 확인
-            if (ResourceManager.Instance.GetResourceAmount(cost.resourceType) < cost.amount)
+            if (PlayerDataManager.Instance.GetResourceAmount(cost.resourceType) < cost.amount)
             {
                 canAfford = false;
                 Debug.Log($"{cost.resourceType} 자원이 부족합니다.");
@@ -150,7 +150,7 @@ public class BuildingManager : SingletonMono<BuildingManager>
             //비용 차감 (AddResource에 음수 값을 넣어 자원을 감소시킴)
             foreach (Cost cost in constructionData.costs)
             {
-                ResourceManager.Instance.AddResource(cost.resourceType, -cost.amount);
+                PlayerDataManager.Instance.AddResource(cost.resourceType, -cost.amount);
             }
             BuildingUpgradeData level1Data = DataManager.Instance.BuildingUpgradeData.GetData(constructionData.nextLevel);
 

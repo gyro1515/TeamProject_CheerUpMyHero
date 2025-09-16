@@ -54,7 +54,7 @@ public class ConstructionUpgradePanel : BaseUI
         foreach (Cost cost in _dataToShow.costs)
         {
             costStr += $"{cost.resourceType}: {cost.amount}\n";
-            if (ResourceManager.Instance.GetResourceAmount(cost.resourceType) < cost.amount)
+            if (PlayerDataManager.Instance.GetResourceAmount(cost.resourceType) < cost.amount)
                 canAfford = false;
         }
         costText.text = costStr;
