@@ -57,9 +57,10 @@ MonoBehaviour:
   minY: 0
   maxY: 3
   spawnInterval: 3
-  waveTime: 8
+  waveTime: 20
   warningBeforeWaveTime: 3
   enemyUnits: 01000000
+  spawnWaveInterval: 0.2
 --- !u!114 &8258439228759316766
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -72,6 +73,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a440a8f59131fd840bd3895da45b8bb4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  <WaveData>k__BackingField: []
 --- !u!61 &2111780670763653960
 BoxCollider2D:
   m_ObjectHideFlags: 0

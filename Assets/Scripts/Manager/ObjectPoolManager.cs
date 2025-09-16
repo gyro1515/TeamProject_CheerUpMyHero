@@ -27,6 +27,11 @@ public enum PoolType
     PlayerUnit9,
     PlayerUnit10,
     PlayerUnit11,
+    EnemyUnit2,
+    EnemyUnit3,
+    EnemyUnit4,
+    EnemyUnit5,
+
 }
 
 public class ObjectPoolManager : SingletonMono<ObjectPoolManager>
@@ -135,7 +140,7 @@ public class ObjectPoolManager : SingletonMono<ObjectPoolManager>
         {
             poolable.SetPool(pools[type]);
             poolableCache[obj] = poolable;
-            Debug.Log($"캐싱!: {obj.name}");
+            //Debug.Log($"캐싱!: {obj.name}");
         }
             
         else
@@ -159,7 +164,7 @@ public class ObjectPoolManager : SingletonMono<ObjectPoolManager>
         }
         else
         {
-            Debug.Log("Poolable가 없다고??");
+            //Debug.Log("Poolable가 없다고??");
         }
     }
 
