@@ -56,6 +56,8 @@ public class SettingDataManager : SingletonMono<SettingDataManager>
         ControlPanelLayoutType = type;
         PlayerPrefs.SetInt(ControlPanelLayoutTypeKey, ControlPanelLayoutType);
         PlayerPrefs.Save();
+
+        OnControlLayoutChanged?.Invoke();
     }
 
     private void LoadLayoutSetting()
