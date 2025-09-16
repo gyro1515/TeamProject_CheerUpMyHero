@@ -8,13 +8,14 @@ public class EnemyHQ : BaseHQ
     [SerializeField] float waveTime = 90f; // 웨이브 타임 -> 테스트로 20초
     [SerializeField] float warningBeforeWaveTime = 15f; // 경고 타임 -> 테스트로 웨이브 3초 전에 출력
     [SerializeField] List<PoolType> enemyUnits = new List<PoolType>();
-    [SerializeField] float spawnWaveInterval = 0.2f;
+    [SerializeField] float spawnWaveInterval = 0.2f; // 웨이브 마다 간격 달라질 수 있음, 현재는 통일
 
     float warningTime = -1f; // 경고 시간
     float timeUntilWave = -1f; // 경고 시간 후 소환까지 걸리는 시간
     UIWaveWarning WarningUI { get; set; } // 일단 프로퍼티로
     EnemyWaveSystem waveSystem;
-    Coroutine spawnUnitRoutine; // 웨이브시 스폰은 일시 정지
+    Coroutine spawnUnitRoutine; // 웨이브시 스폰은 일시 정지용
+    
     protected override void Awake()
     {
         base.Awake();
@@ -103,7 +104,6 @@ public class EnemyHQ : BaseHQ
     {
         // 데이터 없으면 바로 종료
         if (waveDataIdx >= waveSystem.WaveData.Count) yield break;
-
         // 캐싱하기
         WaitForSeconds wait = new WaitForSeconds(spawnWaveInterval);
         List<PoolType> unitList = waveSystem.WaveData[waveDataIdx].unitList;
