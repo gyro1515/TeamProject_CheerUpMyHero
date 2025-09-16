@@ -129,7 +129,7 @@ public class BuildingManager : SingletonMono<BuildingManager>
         bool canAfford = true;
         foreach (var cost in constructionData.costs)
         {
-            if (ResourceManager.Instance.GetResourceAmount(cost.resourceType) < cost.amount)
+            if (PlayerDataManager.Instance.GetResourceAmount(cost.resourceType) < cost.amount)
             {
                 canAfford = false;
                 Debug.Log($"{cost.resourceType} 자원이 부족합니다.");
@@ -141,7 +141,7 @@ public class BuildingManager : SingletonMono<BuildingManager>
 
         // 비용 차감
         foreach (var cost in constructionData.costs)
-            ResourceManager.Instance.AddResource(cost.resourceType, -cost.amount);
+            PlayerDataManager.Instance.AddResource(cost.resourceType, -cost.amount);
 
         // ⚡ 0레벨 데이터 그대로 설치
         if (DataManager.Instance.BuildingGridData == null)
@@ -182,7 +182,7 @@ public class BuildingManager : SingletonMono<BuildingManager>
         bool canAfford = true;
         foreach (var cost in nextData.costs)
         {
-            if (ResourceManager.Instance.GetResourceAmount(cost.resourceType) < cost.amount)
+            if (PlayerDataManager.Instance.GetResourceAmount(cost.resourceType) < cost.amount)
             {
                 canAfford = false;
                 break;
@@ -197,7 +197,7 @@ public class BuildingManager : SingletonMono<BuildingManager>
 
         // 비용 차감
         foreach (var cost in nextData.costs)
-            ResourceManager.Instance.AddResource(cost.resourceType, -cost.amount);
+            PlayerDataManager.Instance.AddResource(cost.resourceType, -cost.amount);
 
         // 그리드 데이터와 타일 적용
         DataManager.Instance.BuildingGridData[tile.X, tile.Y] = nextData;

@@ -33,7 +33,7 @@ public class ConstructionSelectPanel : BaseUI
 
     private void OnSelectBuilding(int buildingBaseID)
     {
-        // 🔹 ConstructionUpgradePanel을 가져와서 '건설 모드'로 초기화
+        // ConstructionUpgradePanel을 가져와서 '건설 모드'로 초기화
         var panel = UIManager.Instance.GetUI<ConstructionUpgradePanel>();
         if (panel != null)
         {
