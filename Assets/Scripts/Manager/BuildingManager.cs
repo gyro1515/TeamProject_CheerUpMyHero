@@ -127,7 +127,6 @@ public class BuildingManager : SingletonMono<BuildingManager>
 
     public void BuildBuildingOnTile(BuildingTile tile, int buildingBaseID)
     {
-        //데이터 가져오기
         BuildingUpgradeData constructionData = DataManager.Instance.BuildingUpgradeData.GetData(buildingBaseID);
         if (constructionData == null)
         {
@@ -181,4 +180,4 @@ tile.SetBuilding(constructionData);
 Debug.Log($"{tile.X},{tile.Y}에 {constructionData.buildingName} 건설 완료!");
     }
     public void UpgradeBuildingOnTile(BuildingTile tile)
-{
+}

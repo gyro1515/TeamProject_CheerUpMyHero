@@ -7,7 +7,5 @@ public class SceneLoadeUITest : MonoBehaviour
     private void Awake()
     {
         UIManager.Instance.OpenUI<UISelectCard>();
-
-        SettingDataManager.Instance.SetStageData();
     }
 }
