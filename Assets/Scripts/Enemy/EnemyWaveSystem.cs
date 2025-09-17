@@ -99,7 +99,7 @@ public class EnemyWaveSystem : MonoBehaviour
         foreach (StageWaveData waveData in waveDataList)
         {
             // 선택한 스테이지가 아니라면 다음
-            if (waveData.stage != selectedMainStageIdx) continue;
+            if (waveData.stage - 1 != selectedMainStageIdx) continue;
             // 웨이브Idx마다 WaveData.Add
             if(waveIdx < waveData.wave - 1)
             {
