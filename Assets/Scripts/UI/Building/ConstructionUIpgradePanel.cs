@@ -58,7 +58,7 @@ public class ConstructionUpgradePanel : BaseUI
             actionButton.gameObject.SetActive(true);
             titleText.text = $"{currentData.buildingName} Lv.{currentData.level} → Lv.{_dataToShow.level}";
             actionButtonText.text = "업그레이드";
-            UpdatePanelContents(currentData.costs, _dataToShow.effects, _dataToShow.description);
+            UpdatePanelContents(currentData.costs, _dataToShow.effects, currentData.description);
         }
     }
 
@@ -93,7 +93,7 @@ public class ConstructionUpgradePanel : BaseUI
 
         // --- cost text ---
         System.Text.StringBuilder sb = new System.Text.StringBuilder();
-        sb.AppendLine("필요 자원:");
+        sb.AppendLine("업그레이드 시 필요 자원:");
 
         StringBuilder effectSb = new StringBuilder();
         effectSb.AppendLine("적용 효과:");
