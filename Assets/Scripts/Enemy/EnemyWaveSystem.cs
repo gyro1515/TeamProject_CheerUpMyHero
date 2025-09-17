@@ -90,7 +90,7 @@ public class EnemyWaveSystem : MonoBehaviour
         // 데이터가 없다면 스테이지 1로 판단하기, 메인에서 시작하면 이럴 일 없음
         if (waveDataList == null) 
         { 
-            selectedMainStageIdx = 1;
+            selectedMainStageIdx = 0;
             waveDataList = waveSO.GetStageWaveDataList(selectedMainStageIdx);
             Debug.LogWarning("웨이브 정보 없어 -> 스테이지1 데이터로 세팅");
             //return; 나중에는 그냥 리턴하기
