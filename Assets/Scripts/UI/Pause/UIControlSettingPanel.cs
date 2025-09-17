@@ -4,7 +4,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class ControlSettingPanel : BaseUI
+public class UIControlSettingPanel : BaseUI
 {
     [Header("패널 변경 버튼")]
     [SerializeField] private Button _changeButton;
@@ -12,14 +12,13 @@ public class ControlSettingPanel : BaseUI
     [Header("돌아가기 버튼")]
     [SerializeField] private Button _cancelButton;
 
-    [Header("조작 Ui 옵션 바꾸기")]
-    [SerializeField] private Canvas _changeCanvas;
-    private RectTransform _leftMoveButton;
-    private RectTransform _rightMoveButton;
-    private RectTransform _centerLine;
-    private RectTransform _centerUnitPanel;
-    private RectTransform _selUnitButton;
-    private RectTransform _selPlayerButton;
+    [Header("조작 패널 옵션 미리보기 이미지")]
+    [SerializeField] private Image _currentLayoutImage;
+    [SerializeField] private Image _nextLayoutImage;
+
+    [Header("조작 패널 ")]
+    [SerializeField] private Sprite _defaultLayoutSprite;
+    [SerializeField] private Sprite _changedLayoutSprite;
 
     private bool isMoveButtonTop;
 
@@ -29,13 +28,48 @@ public class ControlSettingPanel : BaseUI
         _cancelButton.onClick.AddListener(OnCancelButtonClicked);
     }
 
+    private void OnEnable()
+    {
+        SettingDataManager.OnControlLayoutChanged += UpdatePreviewUI;
+    }
+
+    private void Start()
+    {
+        UpdatePreviewUI();
+    }
+
+    private void OnDisable()
+    {
+        SettingDataManager.OnControlLayoutChanged -= UpdatePreviewUI;
+    }
+
     private void OnChangeButtonClicked()
     {
-       
+        int currentType = SettingDataManager.Instance.ControlPanelLayoutType;
+        int nextType = 1 - currentType;     // currentType이 1이면 0, 0이면 1
+        SettingDataManager.Instance.SetLayoutSetting(nextType);
+
+        CloseUI();
     }
 
     private void OnCancelButtonClicked()
     {
         CloseUI();
+    }
+
+    private void UpdatePreviewUI()
+    {
+        int currentType = SettingDataManager.Instance.ControlPanelLayoutType;
+
+        if (currentType == 0)
+        {
+            _currentLayoutImage.sprite = _defaultLayoutSprite;
+            _nextLayoutImage.sprite = _changedLayoutSprite;
+        }
+        else
+        {
+            _currentLayoutImage.sprite = _changedLayoutSprite;
+            _nextLayoutImage.sprite = _defaultLayoutSprite;
+        }
     }
 }
