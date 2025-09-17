@@ -39,10 +39,12 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
     // 각 자원 타입과 수량을 저장할 딕셔너리
     private Dictionary<ResourceType, int> _resources = new();
 
+    // 선택한 스테이지 선택용
+    public (int mainStageIdx, int subStageIdx) SelectedStageIdx { get; set; }
+
     protected override void Awake()
     {
         base.Awake();
-
         if (Instance == this)
         {
             InitializeResources();

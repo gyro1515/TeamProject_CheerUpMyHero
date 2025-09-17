@@ -82,6 +82,18 @@ public class DataManager : SingletonMono<DataManager>
             return Instance._subStageData;
         }
     }
+    private DataBase<StageWaveData, StageWaveSO> _stageWaveData;
+    public DataBase<StageWaveData, StageWaveSO> StageWaveData
+    {
+        get
+        {
+            if (Instance._stageWaveData == null)
+            {
+                Instance._stageWaveData = new DataBase<StageWaveData, StageWaveSO>();
+            }
+            return Instance._stageWaveData;
+        }
+    }
 
 
     protected override void Awake()

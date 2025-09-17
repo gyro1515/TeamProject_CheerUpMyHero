@@ -4,8 +4,4 @@ using UnityEngine;
 public abstract class MonoSO<T> : ScriptableObject where T : MonoData
 {
     public abstract List<T> GetList();
-    public void SetData(Dictionary<int, T> _dic)
-    {
-
-    }
 }
