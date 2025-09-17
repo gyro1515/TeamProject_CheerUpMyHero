@@ -15,10 +15,12 @@ public enum ResourceType
 
 public class PlayerDataManager : SingletonMono<PlayerDataManager>
 {
+    // 선택한 스테이지 선택용
+    public (int mainStageIdx, int subStageIdx) SelectedStageIdx { get; set; } = (-1, -1);
+
     protected override void Awake()
     {
         base.Awake();
-
         if (Instance == this)
         {
             InitializeResources();

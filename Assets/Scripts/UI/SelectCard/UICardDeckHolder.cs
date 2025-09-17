@@ -10,7 +10,7 @@ public class UICardDeckHolder : MonoBehaviour
 
     private void Awake()
     {
-        //동적 생성 안할것이라고 가정하고 slot 미리 배치해두기
+        //현재 구조: 동적생성하긴 불필요하게 리소스 쓰고, 인스펙터에 연결하기 귀찮아서 만들고 보니 뭔가 이도저도 아닌 느낌
         int childCount = transform.childCount;
         Transform[] childTransformsArray = new Transform[childCount];
         slots = new UIDeckSlot[childCount];
@@ -45,6 +45,8 @@ public class UICardDeckHolder : MonoBehaviour
             slots[i].SetIndex(i);
             slots[i].onManualEmptySlot += uISelectCard.CancelDeckBySlot;
         }
+
+        uISelectCard.ReloadDeck();
     }
 
     private void OnDisable()

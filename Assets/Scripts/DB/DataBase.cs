@@ -9,13 +9,14 @@ public class DataBase<T1, T2> where T1 : MonoData where T2 : MonoSO<T1>
     public IEnumerable<int> Keys => _DB.Keys;       // Keys : IEnumable로 딕셔너리 key들 순회할 수 있게 해줌 -> 요걸로 foreach문 사용 가능함
     public IEnumerable<T1> Values => _DB.Values;    // Values : IEnumable로 딕셔너리 value들 순회할 수 있게 해줌 -> foreach
 
+    public T2 ExcelSO { get; set; }
     public DataBase(string fileName = null)
     {
         string realFileName = fileName ?? typeof(T2).Name;  // 매개변수로 따로 지정 안 해주면 T2(SO) 파일 이름 넣어줌.
         string filePath = $"DB/{realFileName}";
 
-        T2 so = Resources.Load<T2>(path: filePath);         // so : 데이터 SO 파일. 지정된 경로에서 SO를 불러와서 so변수에 저장해줌
-        List<T1> list = so.GetList();                       // list : SO에 저장된 엑셀 데이터. SO에 정의된 엑셀 데이터를 할당해둔 리스트 가져옴
+        ExcelSO = Resources.Load<T2>(path: filePath);         // so : 데이터 SO 파일. 지정된 경로에서 SO를 불러와서 so변수에 저장해줌
+        List<T1> list = ExcelSO.GetList();                       // list : SO에 저장된 엑셀 데이터. SO에 정의된 엑셀 데이터를 할당해둔 리스트 가져옴
 
         if (list == null || list.Count == 0)                // 파일을 못 불러오거나 파일에 담긴 정보가 없을 때
         {
@@ -24,7 +25,6 @@ public class DataBase<T1, T2> where T1 : MonoData where T2 : MonoSO<T1>
         }
 
         _DB = new Dictionary<int, T1>(list.Count);          // item 정보를 넣을 딱 필요한 크기(list.Count) 만큼의 딕셔너리를 생성함.
-
         for (int i = 0; i < list.Count; i++)                // 엑셀 데이터 개수만큼 반복문 반복, 데이터 가져와서 딕셔너리에 넣어주는 반복문
         {
             var data = list[i];                             // data : 엑셀 데이터 중 i번째 데이터.
