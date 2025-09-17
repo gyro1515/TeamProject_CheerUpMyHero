@@ -6,7 +6,7 @@ public class BuildingManager : SingletonMono<BuildingManager>
 {
     private GameObject tilePrefab;
     private Transform gridParent;
-    private BuildingTile[,] _tiles = new BuildingTile[4, 4];
+    private BuildingTile[,] _tiles = new BuildingTile[5, 5];
     private BuildingTile _selectedTile;
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
@@ -44,9 +44,9 @@ public class BuildingManager : SingletonMono<BuildingManager>
 
         foreach (Transform child in gridParent) Destroy(child.gameObject);
 
-        for (int y = 0; y < 4; y++)
+        for (int y = 0; y < 5; y++)
         {
-            for (int x = 0; x < 4; x++)
+            for (int x = 0; x < 5; x++)
             {
                 var tileGO = Instantiate(tilePrefab, gridParent);
                 var tile = tileGO.GetComponent<BuildingTile>();
@@ -72,19 +72,27 @@ public class BuildingManager : SingletonMono<BuildingManager>
         _selectedTile.SetSelected(true);
 
 
-        var currentBuilding = PlayerDataManager.Instance.BuildingGridData[tile.X, tile.Y];
-
-        if (currentBuilding == null)
+        if (tile.MyTileType == TileType.Normal)
         {
-            var panel = UIManager.Instance.GetUI<ConstructionSelectPanel>();
-            panel.Initialize(tile);
-            panel.OpenUI();
+            // --- 일반 영지일 때 (기존 로직) ---
+            var currentBuilding = PlayerDataManager.Instance.BuildingGridData[tile.X, tile.Y];
+            if (currentBuilding == null)
+            {
+                var panel = UIManager.Instance.GetUI<ConstructionSelectPanel>();
+                panel.Initialize(tile);
+                panel.OpenUI();
+            }
+            else
+            {
+                var panel = UIManager.Instance.GetUI<ConstructionUpgradePanel>();
+                panel.InitializeForUpgrade(tile);
+                panel.OpenUI();
+            }
         }
-        else
+        else if (tile.MyTileType == TileType.Special)
         {
-            var panel = UIManager.Instance.GetUI<ConstructionUpgradePanel>();
-            panel.InitializeForUpgrade(tile);
-            panel.OpenUI();
+            Debug.Log("특수 영지를 클릭했습니다!");
+            //특수 건물 건설 / 업그레이드 패널을 여는 코드를 추가
         }
     }
 
