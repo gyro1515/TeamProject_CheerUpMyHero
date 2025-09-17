@@ -15,30 +15,6 @@ public enum ResourceType
 
 public class PlayerDataManager : SingletonMono<PlayerDataManager>
 {
-    //편성된 덱 정보
-    public List<int> DeckList { get; private set; } = new();
-
-    public void SetDeckList(List<int> deckList)
-    {
-        DeckList.Clear();
-        DeckList = deckList;
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < DeckList.Count; i++)
-        {
-            sb.Append(DeckList[i].ToString());
-            sb.Append(", ");
-        }
-        sb.Length -= 2;
-        Debug.Log($"[PlayerDataManager] 덱 세팅 완료: {sb.ToString()}");
-    }
-
-    //자원
-    // 특정 자원의 수량 변경을 알리는 이벤트
-    public event Action<ResourceType, int> OnResourceChangedEvent;
-
-    // 각 자원 타입과 수량을 저장할 딕셔너리
-    private Dictionary<ResourceType, int> _resources = new();
-
     // 선택한 스테이지 선택용
     public (int mainStageIdx, int subStageIdx) SelectedStageIdx { get; set; }
 
@@ -50,6 +26,45 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
             InitializeResources();
         }
     }
+
+    //덱 편성 관련
+    #region Deck
+    //편성된 덱 정보
+    public List<int> DeckList { get; private set; } = new();
+
+    public void SetDeckList(List<int> deckList)
+    {
+        DeckList.Clear();
+        DeckList = deckList;
+        StringBuilder sb = new StringBuilder();
+
+        //
+        Debug.Log($"[PlayerDataManager] 현재 덱리스트 크기: {DeckList.Count}");
+
+        for (int i = 0; i < DeckList.Count; i++)
+        {
+            sb.Append(DeckList[i].ToString());
+            sb.Append(", ");
+        }
+        if (sb.Length < 2)
+        {
+            Debug.Log($"[PlayerDataManager] 덱 세팅 완료 안내메시지를 호출 실패했습니다");
+            return;
+        }
+
+        sb.Length -= 2;
+        Debug.Log($"[PlayerDataManager] 덱 세팅 완료: {sb.ToString()}");
+    }
+    #endregion
+
+    //자원 관련
+    #region Resources
+    //
+    // 특정 자원의 수량 변경을 알리는 이벤트
+    public event Action<ResourceType, int> OnResourceChangedEvent;
+
+    // 각 자원 타입과 수량을 저장할 딕셔너리
+    private Dictionary<ResourceType, int> _resources = new();
 
     private void InitializeResources()
     {
@@ -85,5 +100,5 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
             Debug.LogWarning($"ResourceManager: 존재하지 않는 자원 타입입니다. ({type})");
         }
     }
-
+    #endregion
 }

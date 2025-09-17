@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -35,8 +36,9 @@ public class UISelectCard : BaseUI
     }
 
     private void OnEnable()
-    {
+    { 
         CardList.Clear();
+        cardBoolList.Clear();
         
         //어디선가로부터 카드 정보 불러와야 함
         //임시로 생성
@@ -52,6 +54,18 @@ public class UISelectCard : BaseUI
 
         uIScrollCard.Init(this);
         uICardDeckHolder.Init(this);
+
+        //기존 덱이 존재하면, 불러옴. 어떻게? 버튼을 눌러준다..
+        if (PlayerDataManager.Instance.DeckList.Count > 0)
+        {
+            //리스트에 굳이 ToList를 붙여주면 복사복을 만들어 사용하게 됨
+            foreach (int i in PlayerDataManager.Instance.DeckList.ToList())
+            {
+                uIScrollCard.SpawnedSlots[i].ButtonFormExternal();
+            }
+            Debug.Log("덱리스트 복구");
+        }
+
         popUpUI.gameObject.SetActive(false);
     }
 
@@ -79,22 +93,42 @@ public class UISelectCard : BaseUI
     //편성된 슬롯 클릭 -> 카드 리스트의 해당하는 카드의 버튼 누름
     public void CancelDeckBySlot(int index)
     {
+        //
+        Debug.Log($"matchList.Count: {matchList.Count}");
+        Debug.Log($"index: {index}");
+        
         int cardNum = matchList[index];
 
         uIScrollCard.SpawnedSlots[cardNum].ButtonFormExternal();
 
     }
 
-
     private void ActivePopUP()
     {
-        if(DeckList.Count == 0)
+        if (DeckList.Count == 0)
         {
             Debug.Log("덱을 최소 하나 이상 선택해야 합니다");
             return;
         }
         popUpUI.SetTransferDesckList(DeckList);
         popUpUI.gameObject.SetActive(true);
+    }
+   
+
+
+
+    public void ReloadDeck()
+    {
+        //기존 덱이 존재하면, 불러옴. 어떻게? 버튼을 눌러준다..
+        if (PlayerDataManager.Instance.DeckList.Count > 0)
+        {
+            //리스트에 굳이 ToList를 붙여주면 복사복을 만들어 사용하게 됨
+            foreach (int i in PlayerDataManager.Instance.DeckList.ToList())
+            {
+                uIScrollCard.SpawnedSlots[i].ButtonFormExternal();
+            }
+            Debug.Log("덱리스트 복구");
+        }
     }
 
     private void OnDestroy()

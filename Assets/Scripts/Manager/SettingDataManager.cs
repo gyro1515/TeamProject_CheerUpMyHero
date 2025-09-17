@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
@@ -6,13 +7,15 @@ using UnityEngine;
 public class SettingDataManager : SingletonMono<SettingDataManager>
 {
     public List<MainStageData> MainStageData { get; private set; } = new();
+   
+    public static event Action OnControlLayoutChanged;
 
     protected override void Awake()
     {
         base.Awake();
 
         LoadStageDataFromSO();
-
+        LoadLayoutSetting();
     }
 
     void LoadStageDataFromSO()
@@ -39,19 +42,38 @@ public class SettingDataManager : SingletonMono<SettingDataManager>
                 sb.Append(i+1).Append(0).Append(0).Append(j+1);
                 string indexSTr = sb.ToString();
                 bool successCast = int.TryParse(indexSTr, out int index);
-                MainStageData[i].subStages.Add(DataManager.Instance.SubStageData.GetData(index));
+                if (successCast)
+                    MainStageData[i].subStages.Add(DataManager.Instance.SubStageData.GetData(index));
+                else
+                    Debug.Log($"[SettingDataManager] 문자열로 index를 만들 수 없습니다.");
                 sb.Clear();
             }
         }
     }
+    #region 조작패널 설정 저장
+    public int ControlPanelLayoutType { get; private set; } // 배틀씬 하단 레이아웃 설정 값 | 0 : 기본값 | 1 : 바꾼 값
+    public const string ControlPanelLayoutTypeKey = "ControlPanelLayoutType";
 
-
-    //스테이지 해금 정보
-
-
-    public void SetStageData()
+    public void SetLayoutSetting(int type)
     {
-        
+        if (ControlPanelLayoutType == type) return;
+
+        ControlPanelLayoutType = type;
+        PlayerPrefs.SetInt(ControlPanelLayoutTypeKey, ControlPanelLayoutType);
+        PlayerPrefs.Save();
+
+        OnControlLayoutChanged?.Invoke();
+    }
+
+    public void LoadLayoutSetting()
+    {
+        ControlPanelLayoutType =  PlayerPrefs.GetInt(ControlPanelLayoutTypeKey, 0);
+    }
+    #endregion
+
+    public void UnlockStage(int mainIndex, int subIndex)
+    {
+        MainStageData[mainIndex].subStages[subIndex].isUnlocked = true;
     }
 
 }

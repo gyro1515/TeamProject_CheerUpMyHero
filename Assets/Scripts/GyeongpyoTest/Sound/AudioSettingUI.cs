@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.Audio;
 using UnityEngine.UI;
 
-public class AudioSettingUI : MonoBehaviour
+public class AudioSettingUI : BaseUI
 {
     [Header("UI")]
     [SerializeField] private Slider masterSlider;
@@ -15,6 +15,8 @@ public class AudioSettingUI : MonoBehaviour
     private const string KEY_Master = "Master_VOL";
     private const string KEY_BGM = "BGM_VOL";
     private const string KEY_SFX = "SFX_VOL";
+
+    private CanvasGroup _canvasGroup;
 
     private void Awake()
     {
@@ -51,6 +53,8 @@ public class AudioSettingUI : MonoBehaviour
             AudioManager.Instance.SetSFXVolumeLinear(v);
             sfxSlider.onValueChanged.AddListener(OnSfxSliderChanged);
         }
+
+        _canvasGroup = GetComponent<CanvasGroup>();
     }
 
     public void OnMasterSliderChanged(float value)
@@ -79,13 +83,9 @@ public class AudioSettingUI : MonoBehaviour
         if (sfxSlider) sfxSlider.onValueChanged.RemoveListener(OnSfxSliderChanged);
         PlayerPrefs.Save();
     }
-    public void Open()
-    {
-        gameObject.SetActive(true);
-    }
 
     public void Close()
     {
-        gameObject.SetActive(false);
+        FadeOutUI(_canvasGroup);
     }
 }
