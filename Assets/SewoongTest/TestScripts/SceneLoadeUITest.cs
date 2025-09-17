@@ -8,6 +8,5 @@ public class SceneLoadeUITest : MonoBehaviour
     {
         UIManager.Instance.OpenUI<UISelectCard>();
 
-        SettingDataManager.Instance.SetStageData();
     }
 }
