@@ -63,12 +63,14 @@ public class UISettingMenu : BaseUI
 
     private void OnResumeButtonClicked()
     {
-        CloseUI();
+        FadeOutUI(_canvasGroup);
         Time.timeScale = 1.0f;
     }
     #endregion
 
     private List<CanvasGroup> _allPanels;
+
+    private CanvasGroup _canvasGroup;
 
     private void Awake()
     {
@@ -77,6 +79,8 @@ public class UISettingMenu : BaseUI
         _controlSettingButton.onClick.AddListener(OnControlSettingButtonClicked);
         _giveUpButton.onClick.AddListener(OnGiveUpButtonClicked);
         _resumeButton.onClick.AddListener(OnResumeButtonClicked);
+
+        _canvasGroup = GetComponent<CanvasGroup>();
 
         _allPanels = new List<CanvasGroup>
         {
