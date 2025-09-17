@@ -3,10 +3,19 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+public enum TileType
+{
+    Normal,    // 일반 영지
+    Special,   // 특수 영지
+    None
+}
+
 public class BuildingTile : MonoBehaviour
 {
     public int X { get; private set; }
     public int Y { get; private set; }
+    public TileType MyTileType { get; private set; } 
+
 
     private BuildingUpgradeData _buildingData;
     private Image _image;
@@ -22,6 +31,24 @@ public class BuildingTile : MonoBehaviour
     {
         X = x;
         Y = y;
+
+        MyTileType = TileType.Normal;
+
+
+        if (x == 4 && (y == 0 || y == 1 || y == 2 || y == 3))
+        {
+            MyTileType = TileType.Special;
+        }
+        //아래쪽 맨 밑 5칸 (0,4), (1,4), (2,4), (3,4), (4,4)
+        if (y == 4)
+        {
+            MyTileType = TileType.Special;
+        }
+        if (MyTileType == TileType.Special)
+        {
+            GetComponent<Image>().color = Color.gray;
+        }
+
         _image = GetComponent<Image>();
         GetComponent<Button>().onClick.AddListener(OnTileClick);
         _image.color = _emptyColor;

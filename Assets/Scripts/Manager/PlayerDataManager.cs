@@ -28,7 +28,7 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
     }
     //빌딩타일 데이터
     #region Building
-    public BuildingUpgradeData[,] BuildingGridData { get; set; } = new BuildingUpgradeData[4, 4];
+    public BuildingUpgradeData[,] BuildingGridData { get; set; } = new BuildingUpgradeData[5, 5];
     #endregion
 
     //덱 편성 관련
