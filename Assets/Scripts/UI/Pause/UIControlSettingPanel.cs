@@ -48,6 +48,8 @@ public class UIControlSettingPanel : BaseUI
         int currentType = SettingDataManager.Instance.ControlPanelLayoutType;
         int nextType = 1 - currentType;     // currentType이 1이면 0, 0이면 1
         SettingDataManager.Instance.SetLayoutSetting(nextType);
+
+        CloseUI();
     }
 
     private void OnCancelButtonClicked()
