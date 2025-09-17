@@ -1,4 +1,3 @@
-using System.Resources;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -6,94 +5,62 @@ public class BuildingManager : SingletonMono<BuildingManager>
 {
     private GameObject tilePrefab;
     private Transform gridParent;
-
     private BuildingTile[,] _tiles = new BuildingTile[4, 4];
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-    private static void Init()
-    {
-        if (Instance != null) { }
-    }
+    private static void Init() { if (Instance != null) { } }
 
-    protected override void Awake()
-    {
-        base.Awake();
-    }
+    protected override void Awake() { base.Awake(); }
 
-    private void OnEnable()
-    {
-        SceneManager.sceneLoaded += OnSceneLoaded;
-    }
-
-    private void OnDisable()
-    {
-        SceneManager.sceneLoaded -= OnSceneLoaded;
-    }
+    private void OnEnable() => SceneManager.sceneLoaded += OnSceneLoaded;
+    private void OnDisable() => SceneManager.sceneLoaded -= OnSceneLoaded;
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        if (scene.name == "SeongminMainScene")
-        {
-            LoadResources();
-            CreateGrid();
-        }
+        if (scene.name != "SeongminMainScene") return;
+        LoadResources();
+        CreateGrid();
     }
 
     private void LoadResources()
     {
         tilePrefab = Resources.Load<GameObject>("Prefabs/UI/BuildingTile");
 
-        MainScreenUI mainUI = UIManager.Instance.GetUI<MainScreenUI>();
+        var mainUI = UIManager.Instance.GetUI<MainScreenUI>();
         if (mainUI != null)
         {
             var gridLayout = mainUI.GetComponentInChildren<UnityEngine.UI.GridLayoutGroup>(true);
-            if (gridLayout != null)
-                gridParent = gridLayout.transform;
-            else
-                Debug.LogError("GridLayoutGroup이 없습니다.");
+            if (gridLayout != null) gridParent = gridLayout.transform;
+            else Debug.LogError("GridLayoutGroup이 없습니다.");
         }
-        else
-        {
-            Debug.LogError("MainScreenUI를 찾을 수 없습니다.");
-        }
+        else Debug.LogError("MainScreenUI를 찾을 수 없습니다.");
     }
 
     private void CreateGrid()
     {
-        if (gridParent == null)
-        {
-            Debug.LogError("gridParent가 null입니다.");
-            return;
-        }
+        if (gridParent == null) { Debug.LogError("gridParent가 null입니다."); return; }
 
-        foreach (Transform child in gridParent)
-            Destroy(child.gameObject);
+        foreach (Transform child in gridParent) Destroy(child.gameObject);
 
         for (int y = 0; y < 4; y++)
         {
             for (int x = 0; x < 4; x++)
             {
-                GameObject tileGO = Instantiate(tilePrefab, gridParent);
-                BuildingTile tile = tileGO.GetComponent<BuildingTile>();
+                var tileGO = Instantiate(tilePrefab, gridParent);
+                var tile = tileGO.GetComponent<BuildingTile>();
                 tile.Initialize(x, y);
                 _tiles[x, y] = tile;
 
-                // 그리드 데이터 적용
-                if (DataManager.Instance.BuildingGridData != null)
-                {
-                    var buildingData = DataManager.Instance.BuildingGridData[x, y];
-                    if (buildingData != null)
-                        tile.SetBuilding(buildingData);
-                }
+                var buildingData = DataManager.Instance.BuildingGridData[x, y];
+                if (buildingData != null) tile.SetBuilding(buildingData);
             }
         }
+
         Debug.Log("타일 그리드 생성 완료!");
     }
 
     public void HandleTileClick(BuildingTile tile)
     {
-        if (DataManager.Instance.BuildingGridData == null) return;
-
         var currentBuilding = DataManager.Instance.BuildingGridData[tile.X, tile.Y];
 
         if (currentBuilding == null)
@@ -113,97 +80,51 @@ public class BuildingManager : SingletonMono<BuildingManager>
     // ---------------- 건설 ----------------
     public void BuildBuildingOnTile(BuildingTile tile, int buildingBaseID)
     {
-        if (tile == null)
-        {
-            Debug.LogError("BuildBuildingOnTile: tile is null!");
-            return;
-        }
+        if (tile == null) { Debug.LogError("tile이 null입니다."); return; }
 
-        var constructionData = DataManager.Instance.BuildingUpgradeData.GetData(buildingBaseID);
-        if (constructionData == null)
-        {
-            Debug.LogError($"ID {buildingBaseID}에 해당하는 건설 데이터를 찾을 수 없습니다.");
-            return;
-        }
+        var data = DataManager.Instance.BuildingUpgradeData.GetData(buildingBaseID);
+        if (data == null) { Debug.LogError($"ID {buildingBaseID} 건설 데이터 없음."); return; }
 
-        // 비용 확인
+        // 비용 체크
         bool canAfford = true;
-        foreach (var cost in constructionData.costs)
-        {
-            if (PlayerDataManager.Instance.GetResourceAmount(cost.resourceType) < cost.amount)
-            {
-                canAfford = false;
-                Debug.Log($"{cost.resourceType} 자원이 부족합니다.");
-                break;
-            }
-        }
+        foreach (var cost in data.costs)
+            if (PlayerDataManager.Instance.GetResourceAmount(cost.resourceType) < cost.amount) canAfford = false;
 
-        if (!canAfford) return;
+        if (!canAfford) { Debug.Log("자원이 부족하여 건설 불가"); return; }
 
         // 비용 차감
-        foreach (var cost in constructionData.costs)
+        foreach (var cost in data.costs)
             PlayerDataManager.Instance.AddResource(cost.resourceType, -cost.amount);
 
-        // ⚡ 0레벨 데이터 그대로 설치
-        if (DataManager.Instance.BuildingGridData == null)
-        {
-            Debug.LogError("BuildingGridData가 초기화되지 않았습니다!");
-            return;
-        }
+        DataManager.Instance.BuildingGridData[tile.X, tile.Y] = data;
+        tile.SetBuilding(data);
 
-        DataManager.Instance.BuildingGridData[tile.X, tile.Y] = constructionData;
-        tile.SetBuilding(constructionData);
-
-        Debug.Log($"{tile.X},{tile.Y}에 {constructionData.buildingName} 건설 완료!");
+        Debug.Log($"{tile.X},{tile.Y}에 {data.buildingName} 건설 완료!");
     }
 
     // ---------------- 업그레이드 ----------------
     public void UpgradeBuildingOnTile(BuildingTile tile)
     {
-        if (tile == null)
-        {
-            Debug.LogError("UpgradeBuildingOnTile: tile is null!");
-            return;
-        }
+        if (tile == null) { Debug.LogError("tile이 null입니다."); return; }
 
-        var currentData = DataManager.Instance.BuildingGridData[tile.X, tile.Y];
-        if (currentData == null)
-        {
-            Debug.LogError("업그레이드할 건물이 없습니다.");
-            return;
-        }
+        var current = DataManager.Instance.BuildingGridData[tile.X, tile.Y];
+        if (current == null) { Debug.LogError("업그레이드할 건물 없음"); return; }
 
-        var nextData = DataManager.Instance.BuildingUpgradeData.GetData(currentData.nextLevel);
-        if (nextData == null)
-        {
-            Debug.Log("최대 레벨이라 업그레이드할 수 없습니다.");
-            return;
-        }
+        var next = DataManager.Instance.BuildingUpgradeData.GetData(current.nextLevel);
+        if (next == null) { Debug.Log("최대 레벨"); return; }
 
         bool canAfford = true;
-        foreach (var cost in nextData.costs)
-        {
-            if (PlayerDataManager.Instance.GetResourceAmount(cost.resourceType) < cost.amount)
-            {
-                canAfford = false;
-                break;
-            }
-        }
+        foreach (var cost in next.costs)
+            if (PlayerDataManager.Instance.GetResourceAmount(cost.resourceType) < cost.amount) canAfford = false;
 
-        if (!canAfford)
-        {
-            Debug.Log("자원이 부족하여 업그레이드할 수 없습니다.");
-            return;
-        }
+        if (!canAfford) { Debug.Log("자원이 부족"); return; }
 
-        // 비용 차감
-        foreach (var cost in nextData.costs)
+        foreach (var cost in next.costs)
             PlayerDataManager.Instance.AddResource(cost.resourceType, -cost.amount);
 
-        // 그리드 데이터와 타일 적용
-        DataManager.Instance.BuildingGridData[tile.X, tile.Y] = nextData;
-        tile.SetBuilding(nextData);
+        DataManager.Instance.BuildingGridData[tile.X, tile.Y] = next;
+        tile.SetBuilding(next);
 
-        Debug.Log($"{nextData.buildingName}이(가) {nextData.level}레벨로 업그레이드되었습니다!");
+        Debug.Log($"{current.buildingName} Lv.{current.level} → Lv.{next.level} 업그레이드 완료!");
     }
 }

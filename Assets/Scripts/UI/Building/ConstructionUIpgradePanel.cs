@@ -2,7 +2,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using DG.Tweening;
-using System.Collections.Generic;
 
 public class ConstructionUpgradePanel : BaseUI
 {
@@ -18,7 +17,6 @@ public class ConstructionUpgradePanel : BaseUI
     private BuildingUpgradeData _dataToShow;
     private CanvasGroup _canvasGroup;
 
-    // 모드 추가: 건설/업그레이드 구분
     private enum PanelMode { None, Construction, Upgrade }
     private PanelMode _mode = PanelMode.None;
 
@@ -29,14 +27,18 @@ public class ConstructionUpgradePanel : BaseUI
         closeButton.onClick.AddListener(() => CloseUI());
     }
 
-    // --- 업그레이드용 초기화 ---
+    // --- 업그레이드 초기화 ---
     public void InitializeForUpgrade(BuildingTile tile)
     {
         _targetTile = tile;
         _mode = PanelMode.Upgrade;
 
         BuildingUpgradeData currentData = DataManager.Instance.BuildingGridData[tile.X, tile.Y];
-        if (currentData == null) return;
+        if (currentData == null)
+        {
+            Debug.LogError("업그레이드할 건물이 없습니다.");
+            return;
+        }
 
         _dataToShow = DataManager.Instance.BuildingUpgradeData.GetData(currentData.nextLevel);
 
@@ -56,7 +58,7 @@ public class ConstructionUpgradePanel : BaseUI
         }
     }
 
-    // --- 건설용 초기화 ---
+    // --- 건설 초기화 ---
     public void InitializeForConstruction(BuildingTile tile, int buildingBaseID)
     {
         _targetTile = tile;
@@ -73,43 +75,65 @@ public class ConstructionUpgradePanel : BaseUI
 
     private void UpdatePanelContents()
     {
+        if (_dataToShow == null)
+        {
+            costText.text = "데이터 없음";
+            actionButtonText.text = _mode == PanelMode.Construction ? "건설" : "업그레이드";
+            actionButton.interactable = false;
+            actionButtonText.color = Color.red;
+            return;
+        }
+
+        // --- description ---
         descriptionText.text = _dataToShow.description;
 
-        string costStr = "필요 자원:\n";
+        // --- cost text ---
+        System.Text.StringBuilder sb = new System.Text.StringBuilder();
+        sb.AppendLine("필요 자원:");
+
         bool canAfford = true;
-        foreach (Cost cost in _dataToShow.costs)
+
+        foreach (var cost in _dataToShow.costs)
         {
-            costStr += $"{cost.resourceType}: {cost.amount}\n";
-            if (PlayerDataManager.Instance.GetResourceAmount(cost.resourceType) < cost.amount)
-            {
-                canAfford = false;
-            }
+            int playerAmount = PlayerDataManager.Instance.GetResourceAmount(cost.resourceType);
+            bool enough = playerAmount >= cost.amount;
+            if (!enough) canAfford = false;
+
+            // Rich Text 형식으로 표시
+            sb.AppendLine($"<color={(enough ? "black" : "red")}>{cost.resourceType}: {playerAmount}/{cost.amount}</color>");
         }
-        costText.text = costStr;
+
+        costText.text = sb.ToString();
+        costText.richText = true; // Rich Text 켜기
+
+        // --- 버튼 ---
+        actionButtonText.text = _mode == PanelMode.Construction ? "건설" : "업그레이드";
         actionButton.interactable = canAfford;
+        actionButtonText.color = canAfford ? Color.black : Color.red;
     }
 
     private void OnActionButtonClick()
     {
-        Debug.Log($"ActionButton clicked. TargetTile: {_targetTile}, DataToShow: {_dataToShow}");
+        if (_targetTile == null || _dataToShow == null) return;
 
-        if (_mode == PanelMode.Construction)
+        switch (_mode)
         {
-            BuildingManager.Instance.BuildBuildingOnTile(_targetTile, _dataToShow.idNumber);
+            case PanelMode.Construction:
+                BuildingManager.Instance.BuildBuildingOnTile(_targetTile, _dataToShow.idNumber);
+                break;
+            case PanelMode.Upgrade:
+                BuildingManager.Instance.UpgradeBuildingOnTile(_targetTile);
+                break;
         }
-        else if (_mode == PanelMode.Upgrade)
-        {
-            BuildingManager.Instance.UpgradeBuildingOnTile(_targetTile);
-        }
+
+        CloseUI();
     }
 
-    // --- DOTween 애니메이션 ---
     public override void OpenUI()
     {
         base.OpenUI();
         _canvasGroup.alpha = 0;
         transform.localScale = Vector3.one * 0.8f;
-
         _canvasGroup.interactable = false;
         _canvasGroup.DOFade(1, 0.3f).SetUpdate(true)
             .OnComplete(() => _canvasGroup.interactable = true);
