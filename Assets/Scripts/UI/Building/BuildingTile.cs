@@ -8,11 +8,13 @@ public class BuildingTile : MonoBehaviour
     public int X { get; private set; }
     public int Y { get; private set; }
 
-    [SerializeField] private BuildingUpgradeData _buildingData;
+    private BuildingUpgradeData _buildingData;
     private Image _image;
 
-    private Color _emptyColor = Color.white; // 빈 땅일 때의 기본 색상
-    private Color _builtColor = Color.cyan;  // 건물이 지어졌을 때의 색상 (원하는 색으로 변경)
+    private Color _emptyColor = Color.white;      // 빈 땅일 때의 기본 색상
+    private Color _builtColor = Color.cyan;       // 건물이 지어졌을 때의 색상
+    private Color _selectedColor = Color.yellow;  // 선택됐을 때의 색상
+
 
 
     // BuildingManager가 타일을 생성할 때 호출해 줄 초기화 함수
@@ -37,14 +39,8 @@ public class BuildingTile : MonoBehaviour
     {
         _buildingData = buildingData;
 
-        if (buildingData != null)
-        {
-            _image.color = _builtColor;
-        }
-        else
-        {
-            _image.color = _emptyColor;
-        }
+        _image.color = (buildingData != null) ? _builtColor : _emptyColor;
+
 
         // _image.sprite = ... // 데이터에 있는 건물 이미지로 교체하는 로직
     }
@@ -52,5 +48,19 @@ public class BuildingTile : MonoBehaviour
     public BuildingUpgradeData GetBuildingData()
     {
         return _buildingData;
+    }
+    public void SetSelected(bool isSelected)
+    {
+        if (isSelected)
+        {
+            // 선택되면 무조건 선택 색상으로 변경
+            _image.color = _selectedColor;
+        }
+        else
+        {
+            // 선택이 해제되면, 건물이 있는지 없는지에 따라 원래 색으로 복원
+            _image.color = (_buildingData != null) ? _builtColor : _emptyColor;
+        }
+
     }
 }

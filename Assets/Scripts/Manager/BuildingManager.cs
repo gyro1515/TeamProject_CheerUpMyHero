@@ -7,6 +7,7 @@ public class BuildingManager : SingletonMono<BuildingManager>
     private GameObject tilePrefab;
     private Transform gridParent;
     private BuildingTile[,] _tiles = new BuildingTile[4, 4];
+    private BuildingTile _selectedTile;
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     private static void Init() { if (Instance != null) { } }
@@ -62,6 +63,15 @@ public class BuildingManager : SingletonMono<BuildingManager>
 
     public void HandleTileClick(BuildingTile tile)
     {
+        if (_selectedTile != null)
+        {
+            _selectedTile.SetSelected(false);
+        }
+
+        _selectedTile = tile;
+        _selectedTile.SetSelected(true);
+
+
         var currentBuilding = DataManager.Instance.BuildingGridData[tile.X, tile.Y];
 
         if (currentBuilding == null)

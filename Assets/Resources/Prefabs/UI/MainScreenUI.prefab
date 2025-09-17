@@ -540,9 +540,9 @@ MonoBehaviour:
   _testButton: {fileID: 929352989714108610}
   _deckSelectButton: {fileID: 1473091446136189535}
   _notYetButton: {fileID: 7321403633944087322}
-  _battlePanel: {fileID: 8480921049630949325}
-  _testPanel: {fileID: 5647216437239877706}
-  _deckSelectPanel: {fileID: 8402972853489129197}
+  _battlePanelCanvasGroup: {fileID: 7465208334214088367}
+  _testPanelCanvasGroup: {fileID: 1767429065925725920}
+  _deckSelectPanelCanvasGroup: {fileID: 1317951639523377128}
 --- !u!223 &4957352065980514970
 Canvas:
   m_ObjectHideFlags: 0
@@ -2053,13 +2053,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 974371388724556470}
+  - component: {fileID: 1767429065925725920}
   m_Layer: 0
   m_Name: TestPanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &974371388724556470
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2080,6 +2081,18 @@ RectTransform:
   m_AnchoredPosition: {x: -24, y: 337}
   m_SizeDelta: {x: 450, y: 180}
   m_Pivot: {x: 0.5, y: 0}
+--- !u!225 &1767429065925725920
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5647216437239877706}
+  m_Enabled: 1
+  m_Alpha: 0
+  m_Interactable: 0
+  m_BlocksRaycasts: 0
+  m_IgnoreParentGroups: 0
 --- !u!1 &6657342038077150906
 GameObject:
   m_ObjectHideFlags: 0
@@ -2575,13 +2588,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6720660249816714269}
+  - component: {fileID: 1317951639523377128}
   m_Layer: 0
   m_Name: DeckSelectPanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &6720660249816714269
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2603,6 +2617,18 @@ RectTransform:
   m_AnchoredPosition: {x: -24, y: 312}
   m_SizeDelta: {x: 500, y: 300}
   m_Pivot: {x: 0.5, y: 0}
+--- !u!225 &1317951639523377128
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8402972853489129197}
+  m_Enabled: 1
+  m_Alpha: 0
+  m_Interactable: 0
+  m_BlocksRaycasts: 0
+  m_IgnoreParentGroups: 0
 --- !u!1 &8480921049630949325
 GameObject:
   m_ObjectHideFlags: 0
@@ -2612,13 +2638,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7524325419507971780}
+  - component: {fileID: 7465208334214088367}
   m_Layer: 0
   m_Name: BattlePanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &7524325419507971780
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2639,6 +2666,18 @@ RectTransform:
   m_AnchoredPosition: {x: -24, y: 136}
   m_SizeDelta: {x: 450, y: 180}
   m_Pivot: {x: 0.5, y: 0}
+--- !u!225 &7465208334214088367
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8480921049630949325}
+  m_Enabled: 1
+  m_Alpha: 0
+  m_Interactable: 0
+  m_BlocksRaycasts: 0
+  m_IgnoreParentGroups: 0
 --- !u!1 &8554797480081342217
 GameObject:
   m_ObjectHideFlags: 0

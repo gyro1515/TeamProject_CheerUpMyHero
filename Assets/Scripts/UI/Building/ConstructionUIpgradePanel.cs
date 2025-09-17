@@ -1,4 +1,5 @@
 using DG.Tweening;
+using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using TMPro;
@@ -209,19 +210,19 @@ public class ConstructionUpgradePanel : BaseUI
     public override void OpenUI()
     {
         base.OpenUI();
-        _canvasGroup.alpha = 0;
-        transform.localScale = Vector3.one * 0.8f;
-        _canvasGroup.interactable = false;
-        _canvasGroup.DOFade(1, 0.3f).SetUpdate(true)
-            .OnComplete(() => _canvasGroup.interactable = true);
-        transform.DOScale(1, 0.3f).SetEase(Ease.OutBack).SetUpdate(true);
-    }
 
+        FadeInUI(_canvasGroup);
+    }
     public override void CloseUI()
     {
-        _canvasGroup.interactable = false;
-        _canvasGroup.DOFade(0, 0.2f).SetUpdate(true);
-        transform.DOScale(0.8f, 0.2f).SetUpdate(true)
-            .OnComplete(() => base.CloseUI());
+        FadeOutUI(_canvasGroup);
+
+        StartCoroutine(CoCloseAfterDelay(0.3f));
+    }
+
+    private IEnumerator CoCloseAfterDelay(float delay)
+    {
+        yield return new WaitForSecondsRealtime(delay);
+        base.CloseUI();
     }
 }

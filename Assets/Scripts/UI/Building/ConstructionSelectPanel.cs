@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -6,7 +7,16 @@ public class ConstructionSelectPanel : BaseUI
     [SerializeField] private GameObject buildingSelectItemPrefab;
     [SerializeField] private Transform contentParent;
 
+    private CanvasGroup _canvasGroup;
+
     private BuildingTile _targetTile;
+
+
+    private void Awake()
+    {
+        _canvasGroup = GetComponent<CanvasGroup>();
+    }
+
 
     // 패널이 열릴 때 호출되는 함수
     public void Initialize(BuildingTile tile)
@@ -18,7 +28,6 @@ public class ConstructionSelectPanel : BaseUI
         {
             Destroy(child.gameObject);
         }
-
         // 2. 건설 가능한 모든 건물의 ID 목록을 가져오기 (임시)
         List<int> buildableIDs = new List<int> { 101, 201, 301, 401 };
 
@@ -27,7 +36,25 @@ public class ConstructionSelectPanel : BaseUI
         {
             GameObject itemGO = Instantiate(buildingSelectItemPrefab, contentParent);
             BuildingSelectItem item = itemGO.GetComponent<BuildingSelectItem>();
-            item.Initialize(id, _targetTile);
+            item.Initialize(id, _targetTile, this);
         }
+    }
+
+    public override void OpenUI()
+    {
+        base.OpenUI();
+        FadeInUI(_canvasGroup);
+    }
+
+    public override void CloseUI()
+    {
+        FadeOutUI(_canvasGroup);
+        StartCoroutine(CoCloseAfterDelay(0.3f));
+    }
+
+    private IEnumerator CoCloseAfterDelay(float delay)
+    {
+        yield return new WaitForSecondsRealtime(delay);
+        base.CloseUI();
     }
 }
