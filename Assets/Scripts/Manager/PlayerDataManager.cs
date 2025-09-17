@@ -26,6 +26,10 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
             InitializeResources();
         }
     }
+    //빌딩타일 데이터
+    #region Building
+    public BuildingUpgradeData[,] BuildingGridData { get; set; } = new BuildingUpgradeData[4, 4];
+    #endregion
 
     //덱 편성 관련
     #region Deck
@@ -69,11 +73,11 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
     private void InitializeResources()
     {
         // 5가지 자원을 모두 딕셔너리에 추가하고 초기 수량을 설정.
-        _resources[ResourceType.Gold] = 1000;
-        _resources[ResourceType.Wood] = 1000;
-        _resources[ResourceType.Iron] = 1000;
-        _resources[ResourceType.Food] = 1000;
-        _resources[ResourceType.MagicStone] = 1000;
+        _resources[ResourceType.Gold] = 10000;
+        _resources[ResourceType.Wood] = 10000;
+        _resources[ResourceType.Iron] = 10000;
+        _resources[ResourceType.Food] = 10000;
+        _resources[ResourceType.MagicStone] = 10000;
     }
 
     // 특정 자원의 현재 수량을 반환하는 메서드

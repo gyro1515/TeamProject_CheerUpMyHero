@@ -10,8 +10,10 @@ public enum BuildingEffectType
     BaseIronProduction,
     AdditionalIronProduction,
     MagicStoneFindChance,
-    magicStoneProduction,
-    MaxPopulation
+    MagicStoneProduction,
+    MaxPopulation,
+    CanSummonRareUnits,
+    CanSummonEpicUnits
 }
 
 [System.Serializable]
