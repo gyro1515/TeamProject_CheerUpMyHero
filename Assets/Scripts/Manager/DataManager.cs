@@ -55,7 +55,6 @@ public class DataManager : SingletonMono<DataManager>
             return Instance._buildingUpgradeData;
         }
     }
-    public BuildingUpgradeData[,] BuildingGridData { get; set; } = new BuildingUpgradeData[4, 4];
 
     private DataBase<MainStageData, MainStageSO> _mainStageData;
     public DataBase<MainStageData, MainStageSO> MainStageData

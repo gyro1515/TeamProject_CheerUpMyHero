@@ -53,7 +53,7 @@ public class BuildingManager : SingletonMono<BuildingManager>
                 tile.Initialize(x, y);
                 _tiles[x, y] = tile;
 
-                var buildingData = DataManager.Instance.BuildingGridData[x, y];
+                var buildingData = PlayerDataManager.Instance.BuildingGridData[x, y];
                 if (buildingData != null) tile.SetBuilding(buildingData);
             }
         }
@@ -72,7 +72,7 @@ public class BuildingManager : SingletonMono<BuildingManager>
         _selectedTile.SetSelected(true);
 
 
-        var currentBuilding = DataManager.Instance.BuildingGridData[tile.X, tile.Y];
+        var currentBuilding = PlayerDataManager.Instance.BuildingGridData[tile.X, tile.Y];
 
         if (currentBuilding == null)
         {
@@ -125,7 +125,7 @@ public class BuildingManager : SingletonMono<BuildingManager>
         }
 
         // 그리드 데이터에 '1레벨 데이터'를 저장하고, 타일 상태를 업데이트합니다.
-        DataManager.Instance.BuildingGridData[tile.X, tile.Y] = level1Data;
+        PlayerDataManager.Instance.BuildingGridData[tile.X, tile.Y] = level1Data;
         tile.SetBuilding(level1Data);
 
         Debug.Log($"{tile.X},{tile.Y}에 {level1Data.buildingName} 건설 완료!");
@@ -136,7 +136,7 @@ public class BuildingManager : SingletonMono<BuildingManager>
     {
         if (tile == null) { Debug.LogError("tile이 null입니다."); return; }
 
-        var current = DataManager.Instance.BuildingGridData[tile.X, tile.Y];
+        var current = PlayerDataManager.Instance.BuildingGridData[tile.X, tile.Y];
         if (current == null) { Debug.LogError("업그레이드할 건물 없음"); return; }
 
         var next = DataManager.Instance.BuildingUpgradeData.GetData(current.nextLevel);
@@ -151,7 +151,7 @@ public class BuildingManager : SingletonMono<BuildingManager>
         foreach (var cost in next.costs)
             PlayerDataManager.Instance.AddResource(cost.resourceType, -cost.amount);
 
-        DataManager.Instance.BuildingGridData[tile.X, tile.Y] = next;
+        PlayerDataManager.Instance.BuildingGridData[tile.X, tile.Y] = next;
         tile.SetBuilding(next);
 
         Debug.Log($"{current.buildingName} Lv.{current.level} → Lv.{next.level} 업그레이드 완료!");

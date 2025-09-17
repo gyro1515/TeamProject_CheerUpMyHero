@@ -38,7 +38,7 @@ public class ConstructionUpgradePanel : BaseUI
         _targetTile = tile;
         _mode = PanelMode.Upgrade;
 
-        BuildingUpgradeData currentData = DataManager.Instance.BuildingGridData[tile.X, tile.Y];
+        BuildingUpgradeData currentData = PlayerDataManager.Instance.BuildingGridData[tile.X, tile.Y];
         if (currentData == null)
         {
             Debug.LogError("업그레이드할 건물이 없습니다.");
