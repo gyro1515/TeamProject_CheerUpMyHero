@@ -11,6 +11,10 @@ public class BuildingTile : MonoBehaviour
     [SerializeField] private BuildingUpgradeData _buildingData;
     private Image _image;
 
+    private Color _emptyColor = Color.white; // 빈 땅일 때의 기본 색상
+    private Color _builtColor = Color.cyan;  // 건물이 지어졌을 때의 색상 (원하는 색으로 변경)
+
+
     // BuildingManager가 타일을 생성할 때 호출해 줄 초기화 함수
     public void Initialize(int x, int y)
     {
@@ -18,6 +22,8 @@ public class BuildingTile : MonoBehaviour
         Y = y;
         _image = GetComponent<Image>();
         GetComponent<Button>().onClick.AddListener(OnTileClick);
+        _image.color = _emptyColor;
+
     }
 
     // 타일이 클릭되면 BuildingManager에게 자신을 알림
@@ -30,6 +36,16 @@ public class BuildingTile : MonoBehaviour
     public void SetBuilding(BuildingUpgradeData buildingData)
     {
         _buildingData = buildingData;
+
+        if (buildingData != null)
+        {
+            _image.color = _builtColor;
+        }
+        else
+        {
+            _image.color = _emptyColor;
+        }
+
         // _image.sprite = ... // 데이터에 있는 건물 이미지로 교체하는 로직
     }
 

@@ -1,3 +1,4 @@
+using System.Resources;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -82,24 +83,42 @@ public class BuildingManager : SingletonMono<BuildingManager>
     {
         if (tile == null) { Debug.LogError("tile이 null입니다."); return; }
 
-        var data = DataManager.Instance.BuildingUpgradeData.GetData(buildingBaseID);
-        if (data == null) { Debug.LogError($"ID {buildingBaseID} 건설 데이터 없음."); return; }
+        // 0레벨(건설) 데이터 가져오기
+        var constructionData = DataManager.Instance.BuildingUpgradeData.GetData(buildingBaseID);
+        if (constructionData == null) { Debug.LogError($"ID {buildingBaseID} 건설 데이터 없음."); return; }
 
         // 비용 체크
         bool canAfford = true;
-        foreach (var cost in data.costs)
-            if (PlayerDataManager.Instance.GetResourceAmount(cost.resourceType) < cost.amount) canAfford = false;
+        foreach (var cost in constructionData.costs)
+        {
+            if (PlayerDataManager.Instance.GetResourceAmount(cost.resourceType) < cost.amount)
+            {
+                canAfford = false;
+                break;
+            }
+        }
 
         if (!canAfford) { Debug.Log("자원이 부족하여 건설 불가"); return; }
 
         // 비용 차감
-        foreach (var cost in data.costs)
+        foreach (var cost in constructionData.costs)
+        {
             PlayerDataManager.Instance.AddResource(cost.resourceType, -cost.amount);
+        }
 
-        DataManager.Instance.BuildingGridData[tile.X, tile.Y] = data;
-        tile.SetBuilding(data);
+        // 건설 후의 상태인 '1레벨 데이터'를 가져옵니다.
+        var level1Data = DataManager.Instance.BuildingUpgradeData.GetData(constructionData.nextLevel);
+        if (level1Data == null)
+        {
+            Debug.LogError($"ID {constructionData.nextLevel}에 해당하는 1레벨 데이터를 찾을 수 없습니다.");
+            return;
+        }
 
-        Debug.Log($"{tile.X},{tile.Y}에 {data.buildingName} 건설 완료!");
+        // 그리드 데이터에 '1레벨 데이터'를 저장하고, 타일 상태를 업데이트합니다.
+        DataManager.Instance.BuildingGridData[tile.X, tile.Y] = level1Data;
+        tile.SetBuilding(level1Data);
+
+        Debug.Log($"{tile.X},{tile.Y}에 {level1Data.buildingName} 건설 완료!");
     }
 
     // ---------------- 업그레이드 ----------------
