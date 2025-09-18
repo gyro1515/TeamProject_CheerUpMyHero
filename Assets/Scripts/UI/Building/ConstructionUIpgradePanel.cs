@@ -211,11 +211,11 @@ public class ConstructionUpgradePanel : BaseUI
     {
         base.OpenUI();
 
-        FadeInUI(_canvasGroup);
+        FadeEffectManager.Instance.FadeInUI(_canvasGroup);
     }
     public override void CloseUI()
     {
-        FadeOutUI(_canvasGroup);
+        FadeEffectManager.Instance.FadeOutUI(_canvasGroup);
 
         StartCoroutine(CoCloseAfterDelay(0.3f));
     }
