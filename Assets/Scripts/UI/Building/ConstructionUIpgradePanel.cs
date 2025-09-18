@@ -1,6 +1,7 @@
 using DG.Tweening;
 using System.Collections;
 using System.Collections.Generic;
+using System.Resources;
 using System.Text;
 using TMPro;
 using UnityEngine;
@@ -9,13 +10,20 @@ using UnityEngine.UI;
 public class ConstructionUpgradePanel : BaseUI
 {
     [Header("UI 요소 연결")]
-    [SerializeField] private TextMeshProUGUI titleText;
-    [SerializeField] private TextMeshProUGUI descriptionText;
+    // [SerializeField] private TextMeshProUGUI titleText;  삭제
+    //[SerializeField] private TextMeshProUGUI descriptionText; 삭제
     [SerializeField] private TextMeshProUGUI costText;
+    [SerializeField] private TextMeshProUGUI effectText;
     [SerializeField] private Button actionButton;
     [SerializeField] private TextMeshProUGUI actionButtonText;
     [SerializeField] private Button closeButton;
-    [SerializeField] private TextMeshProUGUI effectText;
+
+    [Header("이미지 및 레벨 텍스트")] 
+    [SerializeField] private Image currentImage;
+    [SerializeField] private Image nextImage;
+    [SerializeField] private TextMeshProUGUI currentLevelText;
+    [SerializeField] private TextMeshProUGUI nextLevelText;
+    [SerializeField] private GameObject arrowImage; // 업그레이드 화살표
 
     private BuildingTile _targetTile;
     private BuildingUpgradeData _dataToShow;
@@ -49,17 +57,20 @@ public class ConstructionUpgradePanel : BaseUI
 
         if (_dataToShow == null) // 최대 레벨
         {
-            titleText.text = $"{currentData.buildingName} (최대 레벨)";
+            currentLevelText.text = $"{currentData.buildingName} (최대 레벨)"; // 현재 레벨 텍스트에 표시
             actionButton.gameObject.SetActive(false);
             costText.text = "더 이상 업그레이드할 수 없습니다.";
-            descriptionText.text = currentData.description;
+            // descriptionText.text = currentData.description; 사용x
+            effectText.text = "";
         }
         else
         {
             actionButton.gameObject.SetActive(true);
-            titleText.text = $"{currentData.buildingName} Lv.{currentData.level} → Lv.{_dataToShow.level}";
+            arrowImage.SetActive(true);
+            currentLevelText.text = $"{currentData.buildingName} Lv.{currentData.level}";
+            nextLevelText.text = $"Lv.{_dataToShow.level}";
             actionButtonText.text = "업그레이드";
-            UpdatePanelContents(currentData.costs, _dataToShow.effects, currentData.description);
+            UpdatePanelContents(currentData.costs, _dataToShow.effects);
         }
     }
 
@@ -69,68 +80,69 @@ public class ConstructionUpgradePanel : BaseUI
         _targetTile = tile;
         _mode = PanelMode.Construction; 
 
-        // 건설 비용을 위해 0레벨 데이터를 가져옵니다.
+        // 건설 비용을 위해 0레벨 데이터를 가져옴
         BuildingUpgradeData constructionData = DataManager.Instance.BuildingUpgradeData.GetData(buildingBaseID);
         if (constructionData == null) return;
         _dataToShow = constructionData;
 
-        // 건설 후 적용될 효과를 위해 1레벨 데이터를 미리 가져옵니다.
+        // 건설 후 적용될 효과를 위해 1레벨 데이터를 미리 가져옴
         BuildingUpgradeData level1Data = DataManager.Instance.BuildingUpgradeData.GetData(constructionData.nextLevel);
         if (level1Data == null) return;
 
         actionButton.gameObject.SetActive(true);
-        titleText.text = $"{constructionData.buildingName} 건설";
+        arrowImage.SetActive(true);
+        currentLevelText.text = "빈 땅";
+        nextLevelText.text = $"{level1Data.buildingName} Lv.{level1Data.level}";
         actionButtonText.text = "건설";
 
-        // 비용은 0레벨 데이터, 효과는 1레벨 데이터를 사용해서 UI를 채웁니다.
-        UpdatePanelContents(constructionData.costs, level1Data.effects, constructionData.description);
+        // 비용은 0레벨 데이터, 효과는 1레벨 데이터를 사용해서 UI를 채움
+        UpdatePanelContents(constructionData.costs, level1Data.effects);
     }
 
 
-    private void UpdatePanelContents(List<Cost> costs, List<BuildingEffect> effects, string description)
+    private void UpdatePanelContents(List<Cost> costs, List<BuildingEffect> effects)
     {
-        // --- description ---
-        descriptionText.text = description;
-
         // --- cost text ---
-        System.Text.StringBuilder sb = new System.Text.StringBuilder();
-        sb.AppendLine("업그레이드 시 필요 자원:");
-
-        StringBuilder effectSb = new StringBuilder();
-        effectSb.AppendLine("적용 효과:");
-        foreach (BuildingEffect effect in effects)
-        {
-            string effectName = GetEffectNameInKorean(effect.effectType);
-
-            // GetEffectValueString 함수를 새로 만들어서 호출
-            string valueString = GetEffectValueString(effect);
-
-            effectSb.AppendLine($"{effectName}: +{valueString}");
-        }
-        effectText.text = effectSb.ToString();
-    
-
-
-
-        bool canAfford = true;
+        StringBuilder costSb = new StringBuilder("필요 자원:\n");
+        bool canAffordOverall = true; 
 
         foreach (var cost in costs)
         {
             int playerAmount = PlayerDataManager.Instance.GetResourceAmount(cost.resourceType);
-            bool enough = playerAmount >= cost.amount;
-            if (!enough) canAfford = false;
+            int requiredAmount = cost.amount;
 
-            // Rich Text 형식으로 표시
-            sb.AppendLine($"<color={(enough ? "black" : "red")}>{cost.resourceType}: {playerAmount}/{cost.amount}</color>");
+            // 현재 자원이 이 비용을 감당할 수 있는지 확인
+            bool hasEnoughForThisCost = playerAmount >= requiredAmount;
+            Debug.Log($"[자원 확인] 타입:{cost.resourceType}, 보유:{playerAmount}, 필요:{requiredAmount}");
+
+
+            //하나라도 부족한 자원이 있으면, 전체 업그레이드는 불가능
+            if (!hasEnoughForThisCost)
+            {
+                canAffordOverall = false;
+            }
+
+            //Rich Text 형식으로 표시할 때, 개별 자원의 충족 여부(hasEnoughForThisCost)를 사용
+            costSb.AppendLine($"<color={(hasEnoughForThisCost ? "black" : "red")}>{cost.resourceType}: {playerAmount}/{cost.amount}</color>");
         }
 
-        costText.text = sb.ToString();
-        costText.richText = true; // Rich Text 켜기
+        costText.text = costSb.ToString();
+        costText.richText = true; // Rich Text 기능이 켜져 있는지 확인
+
+
+        // --- effect text ---
+        StringBuilder effectSb = new StringBuilder("적용 효과:\n");
+        foreach (BuildingEffect effect in effects)
+        {
+            string effectName = GetEffectNameInKorean(effect.effectType);
+            string valueString = GetEffectValueString(effect);
+            effectSb.AppendLine($"{effectName}: +{valueString}");
+        }
+        effectText.text = effectSb.ToString();
 
         // --- 버튼 ---
-        actionButtonText.text = _mode == PanelMode.Construction ? "건설" : "업그레이드";
-        actionButton.interactable = canAfford;
-        actionButtonText.color = canAfford ? Color.black : Color.red;
+        actionButton.interactable = canAffordOverall;
+        actionButtonText.color = canAffordOverall ? Color.black : Color.red;
     }
 
     private string GetEffectValueString(BuildingEffect effect)
@@ -161,8 +173,6 @@ public class ConstructionUpgradePanel : BaseUI
     {
         switch (type)
         {
-            case BuildingEffectType.IncreaseMaxFood:
-                return "최대 식량";
             case BuildingEffectType.IncreaseFoodGainSpeed:
                 return "식량 획득 속도";
             case BuildingEffectType.BaseWoodProduction:
