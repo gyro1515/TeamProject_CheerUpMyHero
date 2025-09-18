@@ -89,6 +89,7 @@ public class UIStageSelect : BaseUI
     void MoveToBattle()
     {
         Debug.Log($"{SelectedMainSlotIdx + 1}-{SelectedSubSlotIdx + 1} 전투 씬으로 이동");
+        PlayerDataManager.Instance.SelectedStageIdx = (SelectedMainSlotIdx, SelectedSubSlotIdx);
         SceneLoader.Instance.StartLoadScene(SceneState.BattleScene);
     }
     void MoveToSelDeck()

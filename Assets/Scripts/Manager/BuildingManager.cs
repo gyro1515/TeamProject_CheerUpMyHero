@@ -1,167 +1,196 @@
+using System.Resources;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.UI;
 
 public class BuildingManager : SingletonMono<BuildingManager>
 {
     private GameObject tilePrefab;
     private Transform gridParent;
-
-    private BuildingTile[,] _tiles = new BuildingTile[4, 4];
+    private BuildingTile[,] _tiles = new BuildingTile[5, 5];
+    private BuildingTile _selectedTile;
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+    private static void Init() { if (Instance != null) { } }
 
-    private static void Init()
-    {
-        if (Instance != null) { }
-    }
+    protected override void Awake() { base.Awake(); }
 
-    protected override void Awake()
-    {
-        base.Awake();
-    }
-    private void OnEnable()
-    {
-        SceneManager.sceneLoaded += OnSceneLoaded;
-    }
-
-    private void OnDisable()
-    {
-        SceneManager.sceneLoaded -= OnSceneLoaded;
-    }
+    private void OnEnable() => SceneManager.sceneLoaded += OnSceneLoaded;
+    private void OnDisable() => SceneManager.sceneLoaded -= OnSceneLoaded;
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        if (scene.name == "SeongminMainScene")//임시로
-        {
-            LoadResources();
-            CreateGrid();
-        }
+        if (scene.name != "MainScene") return;
+        LoadResources();
+        CreateGrid();
     }
 
     private void LoadResources()
     {
-        // 타일 프리팹 로드는 동일
         tilePrefab = Resources.Load<GameObject>("Prefabs/UI/BuildingTile");
 
-        //MainScreenUI를 찾는 것은 동일
-        MainScreenUI mainUI = UIManager.Instance.GetUI<MainScreenUI>();
+        var mainUI = UIManager.Instance.GetUI<MainScreenUI>();
         if (mainUI != null)
         {
-            GridLayoutGroup gridLayout = mainUI.GetComponentInChildren<GridLayoutGroup>(true);
-
-            if (gridLayout != null)
-            {
-                // Grid Layout Group 컴포넌트가 붙어있는 오브젝트의 Transform을 gridParent로 사용
-                gridParent = gridLayout.transform;
-            }
-            else
-            {
-                Debug.LogError("MainScreenUI의 자식 중에 GridLayoutGroup을 가진 BuildingGridPanel을 찾을 수 없습니다!");
-            }
+            var gridLayout = mainUI.GetComponentInChildren<UnityEngine.UI.GridLayoutGroup>(true);
+            if (gridLayout != null) gridParent = gridLayout.transform;
+            else Debug.LogError("GridLayoutGroup이 없습니다.");
         }
-        else
-        {
-            Debug.LogError("UIManager가 MainScreenUI를 찾을 수 없습니다!");
-        }
+        else Debug.LogError("MainScreenUI를 찾을 수 없습니다.");
     }
+
     private void CreateGrid()
     {
-        if (gridParent == null)
-        {
-            Debug.LogError("gridParent가 null이므로 타일을 생성할 수 없습니다.");
-            return;
-        }
+        if (gridParent == null) { Debug.LogError("gridParent가 null입니다."); return; }
 
-        foreach (Transform child in gridParent)
-        {
-            Destroy(child.gameObject);
-        }
+        foreach (Transform child in gridParent) Destroy(child.gameObject);
 
-        for (int y = 0; y < 4; y++)
+        for (int y = 0; y < 5; y++)
         {
-            for (int x = 0; x < 4; x++)
+            for (int x = 0; x < 5; x++)
             {
-                // 타일 생성
-                GameObject tileGO = Instantiate(tilePrefab, gridParent);
-                BuildingTile tile = tileGO.GetComponent<BuildingTile>();
+                var tileGO = Instantiate(tilePrefab, gridParent);
+                var tile = tileGO.GetComponent<BuildingTile>();
                 tile.Initialize(x, y);
                 _tiles[x, y] = tile;
 
-                //DataManager에 저장된 건물 데이터를 가져와서 타일에 적용
-                BuildingUpgradeData buildingData = DataManager.Instance.BuildingGridData[x, y];
-                if (buildingData != null)
-                {
-                    tile.SetBuilding(buildingData);
-                }
+                var buildingData = PlayerDataManager.Instance.BuildingGridData[x, y];
+                if (buildingData != null) tile.SetBuilding(buildingData);
             }
         }
+
         Debug.Log("타일 그리드 생성 완료!");
     }
 
-    // 타일로부터 클릭 이벤트를 받는 중앙 처리 함수
     public void HandleTileClick(BuildingTile tile)
     {
-        BuildingUpgradeData currentBuilding = DataManager.Instance.BuildingGridData[tile.X, tile.Y];
+        //건설 / 업그레이드 관련 패널이 이미 활성화되어 있는지 확인합니다.
+        //var selectPanel = UIManager.Instance.GetUI<ConstructionSelectPanel>();
+        //var upgradePanel = UIManager.Instance.GetUI<ConstructionUpgradePanel>();
+ 
+        // 둘 중 하나라도 켜져있다면, 함수를 즉시 종료하여 아무 일도 일어나지 않게 막기
+        //if (upgradePanel.gameObject.activeInHierarchy || selectPanel.gameObject.activeInHierarchy)
+        //{
+        //    Debug.Log("이미 UI 패널이 열려있어 추가 행동을 막았습니다.");
+        //    return;
+        //}
 
 
-        if (currentBuilding == null)
+        // 이전에 선택된 타일이 있다면 선택 해제
+        if (_selectedTile != null)
         {
-            // 비어있는 땅이면 '건설 메뉴' 열기
-            // var constructionPanel = UIManager.Instance.GetUI<ConstructionPanel>();
-            // constructionPanel.Initialize(tile); // 건설 패널에 타일 정보 전달
-            // constructionPanel.OpenUI();
+            _selectedTile.SetSelected(false);
         }
-        else
+
+        // 새로 클릭된 타일을 선택 상태로 만듦
+        _selectedTile = tile;
+        _selectedTile.SetSelected(true);
+
+        var currentBuilding = PlayerDataManager.Instance.BuildingGridData[tile.X, tile.Y];
+
+
+        // 타일 타입에 따라 다른 UI를 열어줌
+        if (tile.MyTileType == TileType.Normal)
         {
-            // 건물이 있으면 '업그레이드 메뉴' 열기
-            // var upgradePanel = UIManager.Instance.GetUI<UpgradePanel>();
-            // upgradePanel.Initialize(tile, currentBuilding); // 업그레이드 패널에 타일과 건물 정보 전달
-            // upgradePanel.OpenUI();
+            if (currentBuilding == null)
+            {
+                // ❗️ 빈 땅일 때, 오직 ConstructionSelectPanel만 가져와서 엽니다.
+                var panel = UIManager.Instance.GetUI<ConstructionSelectPanel>();
+                panel.Initialize(tile);
+                panel.OpenUI();
+            }
+            else
+            {
+                // ❗️ 건물이 있을 때, 오직 ConstructionUpgradePanel만 가져와서 엽니다.
+                var panel = UIManager.Instance.GetUI<ConstructionUpgradePanel>();
+                panel.InitializeForUpgrade(tile);
+                panel.OpenUI();
+            }
+        }
+        else if (tile.MyTileType == TileType.Special)
+        {
+            Debug.Log("특수 영지를 클릭했습니다!");
+            //특수 영지용 UI 열기 추가
         }
     }
 
-    public void BuildBuildingOnTile(BuildingTile tile, int buildingBaseID)
+    //UI 패널이 닫힐 때 호출할 타일 선택 해제 함수
+    public void DeselectTile()
     {
-        //데이터 가져오기
-        BuildingUpgradeData constructionData = DataManager.Instance.BuildingUpgradeData.GetData(buildingBaseID);
-        if (constructionData == null)
+        if (_selectedTile != null)
         {
-            Debug.LogError($"ID: {buildingBaseID}에 해당하는 건설 데이터를 찾을 수 없습니다.");
-            return;
+            _selectedTile.SetSelected(false);
+            _selectedTile = null; // 선택된 타일 정보 초기화
         }
 
-        //건설 가능 여부 확인
+    }
+
+    // ---------------- 건설 ----------------
+    public void BuildBuildingOnTile(BuildingTile tile, int buildingBaseID)
+    {
+        if (tile == null) { Debug.LogError("tile이 null입니다."); return; }
+
+        // 0레벨(건설) 데이터 가져오기
+        var constructionData = DataManager.Instance.BuildingUpgradeData.GetData(buildingBaseID);
+        if (constructionData == null) { Debug.LogError($"ID {buildingBaseID} 건설 데이터 없음."); return; }
+
+        // 비용 체크
         bool canAfford = true;
-        foreach (Cost cost in constructionData.costs)
+        foreach (var cost in constructionData.costs)
         {
-            // 현재 보유한 자원이 필요한 자원보다 적은지 확인
             if (PlayerDataManager.Instance.GetResourceAmount(cost.resourceType) < cost.amount)
             {
                 canAfford = false;
-                Debug.Log($"{cost.resourceType} 자원이 부족합니다.");
-                break; // 하나라도 부족하면 즉시 확인 중단
+                break;
             }
         }
 
-        //자원이 충분할 때만 건설 진행
-        if (canAfford)
-        {
-            //비용 차감 (AddResource에 음수 값을 넣어 자원을 감소시킴)
-            foreach (Cost cost in constructionData.costs)
-            {
-                PlayerDataManager.Instance.AddResource(cost.resourceType, -cost.amount);
-            }
-            BuildingUpgradeData level1Data = DataManager.Instance.BuildingUpgradeData.GetData(constructionData.nextLevel);
+        if (!canAfford) { Debug.Log("자원이 부족하여 건설 불가"); return; }
 
-            DataManager.Instance.BuildingGridData[tile.X, tile.Y] = level1Data;
-            tile.SetBuilding(level1Data);
-
-            Debug.Log($"{tile.X},{tile.Y}에 {level1Data.buildingName} 건설 완료!");
-        }
-        else
+        // 비용 차감
+        foreach (var cost in constructionData.costs)
         {
-            Debug.Log("자원이 부족하여 건설할 수 없습니다.");
+            PlayerDataManager.Instance.AddResource(cost.resourceType, -cost.amount);
         }
+
+        // 건설 후의 상태인 '1레벨 데이터'를 가져옵니다.
+        var level1Data = DataManager.Instance.BuildingUpgradeData.GetData(constructionData.nextLevel);
+        if (level1Data == null)
+        {
+            Debug.LogError($"ID {constructionData.nextLevel}에 해당하는 1레벨 데이터를 찾을 수 없습니다.");
+            return;
+        }
+
+        // 그리드 데이터에 '1레벨 데이터'를 저장하고, 타일 상태를 업데이트합니다.
+        PlayerDataManager.Instance.BuildingGridData[tile.X, tile.Y] = level1Data;
+        tile.SetBuilding(level1Data);
+
+        Debug.Log($"{tile.X},{tile.Y}에 {level1Data.buildingName} 건설 완료!");
+    }
+
+    // ---------------- 업그레이드 ----------------
+    public void UpgradeBuildingOnTile(BuildingTile tile)
+    {
+        if (tile == null) { Debug.LogError("tile이 null입니다."); return; }
+
+        var current = PlayerDataManager.Instance.BuildingGridData[tile.X, tile.Y];
+        if (current == null) { Debug.LogError("업그레이드할 건물 없음"); return; }
+
+        var next = DataManager.Instance.BuildingUpgradeData.GetData(current.nextLevel);
+        if (next == null) { Debug.Log("최대 레벨"); return; }
+
+        bool canAfford = true;
+        foreach (var cost in current.costs)
+            if (PlayerDataManager.Instance.GetResourceAmount(cost.resourceType) < cost.amount) canAfford = false;
+
+        if (!canAfford) 
+        { Debug.Log("자원이 부족"); return; }
+
+        foreach (var cost in current.costs)
+            PlayerDataManager.Instance.AddResource(cost.resourceType, - cost.amount);
+
+        PlayerDataManager.Instance.BuildingGridData[tile.X, tile.Y] = next;
+        tile.SetBuilding(next);
+
+        Debug.Log($"{current.buildingName} Lv.{current.level} → Lv.{next.level} 업그레이드 완료!");
     }
 }

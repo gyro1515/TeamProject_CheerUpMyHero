@@ -3,15 +3,16 @@ using System.Collections.Generic;
 public enum BuildingEffectType
 {
     None,
-    IncreaseMaxFood,
     IncreaseFoodGainSpeed,
     BaseWoodProduction,
     AdditionalWoodProduction,
     BaseIronProduction,
     AdditionalIronProduction,
     MagicStoneFindChance,
-    magicStoneProduction,
-    MaxPopulation
+    MagicStoneProduction,
+    MaxPopulation,
+    CanSummonRareUnits,
+    CanSummonEpicUnits
 }
 
 [System.Serializable]

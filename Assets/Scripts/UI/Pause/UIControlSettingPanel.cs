@@ -21,11 +21,14 @@ public class UIControlSettingPanel : BaseUI
     [SerializeField] private Sprite _changedLayoutSprite;
 
     private bool isMoveButtonTop;
+    private CanvasGroup _canvasGroup;
 
     private void Awake()
     {
         _changeButton.onClick.AddListener(OnChangeButtonClicked);
         _cancelButton.onClick.AddListener(OnCancelButtonClicked);
+
+        _canvasGroup = GetComponent<CanvasGroup>();
     }
 
     private void OnEnable()
@@ -49,12 +52,12 @@ public class UIControlSettingPanel : BaseUI
         int nextType = 1 - currentType;     // currentType이 1이면 0, 0이면 1
         SettingDataManager.Instance.SetLayoutSetting(nextType);
 
-        CloseUI();
+        FadeOutUI(_canvasGroup);
     }
 
     private void OnCancelButtonClicked()
     {
-        CloseUI();
+        FadeOutUI(_canvasGroup);
     }
 
     private void UpdatePreviewUI()

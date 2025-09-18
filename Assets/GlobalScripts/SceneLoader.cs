@@ -9,6 +9,7 @@ public enum SceneState
     None,
     MainScene,
     BattleScene,
+    EmptyScene,
     WonJinTestScene
 }
 
@@ -23,10 +24,13 @@ public class SceneLoader : SingletonMono<SceneLoader>
         { SceneState.FlappyPlane, "FlappyPlaneScene" },
         { SceneState.TheStack,    "TheStackScene" }*/
         // 추가
-        { SceneState.MainScene,   "MainScene" },
-        { SceneState.BattleScene, "BattleScene" }
+        { SceneState.MainScene,   "MainScene"   },
+        { SceneState.BattleScene, "BattleScene" },
+        { SceneState.EmptyScene,  "EmptyScene"  }
 
     };
+    // 매니저 오브젝트 정리 용
+     public List<ISceneResettable> SceneResettables { get; private set; } = new();
 
     // 키 모아두기 예시
     public const string SelCharSKey = "SelectedCharacter";
@@ -48,11 +52,11 @@ public class SceneLoader : SingletonMono<SceneLoader>
     {
         base.Awake();
     }
-    static void Load(SceneState state)
+    static void Load(SceneState state, LoadSceneMode mode = LoadSceneMode.Single)
     {
         IsChange = true; // 씬 전환 시작
 
-        SceneManager.LoadScene(Instance.sceneNames[state]);
+        SceneManager.LoadScene(Instance.sceneNames[state], mode);
     }
 
     public static string GetSceneName(SceneState state)
@@ -62,13 +66,35 @@ public class SceneLoader : SingletonMono<SceneLoader>
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
+        if (scene.name == SceneState.EmptyScene.ToString())
+            return; // 빈 씬일 땐 페이드인 실행 X
         StartCoroutine(SceneLoaded());
     }
     static IEnumerator NextSceneSequence(SceneState nextScene)
     {
         yield return FadeManager.Instance.FadeOut(); // 페이드 아웃 끝나고
+
+        Debug.Log("빈 씬으로 전환");
+        Load(SceneState.EmptyScene);
+
+        // 리소스 정리하고 가비지 컬렉션 호출
+        Instance.ResetObject();
+        yield return Resources.UnloadUnusedAssets();
+        System.GC.Collect();
+
         Debug.Log("다음 씬으로");
-        SceneLoader.Load(nextScene);
+        // 비동기 vs 동기 로딩: 일단 체감은 동기가 더 빠른 거 같기도...
+        // 비동기
+        /*AsyncOperation op = SceneManager.LoadSceneAsync(nextScene.ToString(), LoadSceneMode.Single);
+        op.allowSceneActivation = false; // 로딩만 하고, 전환은 보류
+        // 로딩 대기
+        while (op.progress < 0.9f)
+            yield return null;
+        // 로딩 끝났으니 씬 전환
+        op.allowSceneActivation = true;*/
+
+        // 동기
+        Load(nextScene);
     }
     public void StartLoadScene(SceneState nextScene)
     {
@@ -82,5 +108,12 @@ public class SceneLoader : SingletonMono<SceneLoader>
         yield return FadeManager.Instance.FadeIn(); // 페이드 인
         //Debug.Log("씬 전환 완료");
         IsChange = false;
+    }
+    private void ResetObject()
+    {
+        foreach (var reset in SceneResettables)
+        {
+            reset.OnSceneReset();
+        }
     }
 }

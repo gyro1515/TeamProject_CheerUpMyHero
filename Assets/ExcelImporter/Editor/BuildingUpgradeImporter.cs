@@ -14,7 +14,7 @@ public class BuildingUpgradeImporter : Editor
     {
         var so = CreateInstance<BuildingUpgradeSO>();
 
-        using (FileStream stream = File.Open(XLSX_PATH, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+        using (FileStream stream = File.Open(XLSX_PATH, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))//공부하기
         {
             IWorkbook workbook = new XSSFWorkbook(stream);
             ISheet sheet = workbook.GetSheet("BuildingUpgrade");
@@ -34,6 +34,11 @@ public class BuildingUpgradeImporter : Editor
                 data.buildingName = GetSafeString(currentRow, 1);
                 data.level = GetSafeInt(currentRow, 2);
                 data.nextLevel = GetSafeInt(currentRow, 3);
+
+                if (data.nextLevel == -1)
+                {
+                    Debug.Log($"행 {row + 1} (ID: {data.idNumber}): nextLevel이 비어있으므로 최대 레벨입니다.");
+                }
 
                 // 비용(Cost) 데이터 읽기 (최대 4쌍)
                 for (int i = 0; i < 4; i++)
@@ -93,14 +98,15 @@ public class BuildingUpgradeImporter : Editor
     private static int GetSafeInt(IRow row, int cellIndex)
     {
         ICell cell = row.GetCell(cellIndex);
-        if (cell == null || cell.CellType != CellType.Numeric) return 0;
+        if (cell == null || cell.CellType != CellType.Numeric) return -1;
         return (int)cell.NumericCellValue;
+
     }
 
     private static float GetSafeFloat(IRow row, int cellIndex)
     {
         ICell cell = row.GetCell(cellIndex);
-        if (cell == null || cell.CellType != CellType.Numeric) return 0f;
+        if (cell == null || cell.CellType != CellType.Numeric) return -1f;
         return (float)cell.NumericCellValue;
     }
 }

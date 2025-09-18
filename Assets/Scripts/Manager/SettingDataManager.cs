@@ -39,7 +39,7 @@ public class SettingDataManager : SingletonMono<SettingDataManager>
 
             for (int j = 0; j < subStageCount; j++)
             {
-                sb.Append(i+1).Append(0).Append(0).Append(j+1);
+                sb.Append(i + 1).Append(0).Append(0).Append(j + 1);
                 string indexSTr = sb.ToString();
                 bool successCast = int.TryParse(indexSTr, out int index);
                 if (successCast)
