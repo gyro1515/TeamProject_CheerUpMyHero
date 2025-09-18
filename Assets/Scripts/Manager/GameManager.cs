@@ -20,7 +20,7 @@ public class GameManager : SingletonMono<GameManager>
     protected override void Awake()
     {
         base.Awake();
-        //RewardPanelUI = UIManager.Instance.GetUI<RewardPanelUI>();
+        RewardPanelUI = UIManager.Instance.GetUI<RewardPanelUI>();
     }
     private void Update()
     {
