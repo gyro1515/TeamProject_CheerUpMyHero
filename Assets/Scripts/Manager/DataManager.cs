@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class DataManager : SingletonMono<DataManager>
 {
-    private DataBase<ItemData, ItemSO> _itemData;
+    /* private DataBase<ItemData, ItemSO> _itemData;
     public DataBase<ItemData,ItemSO> ItemData
     {
         get
@@ -15,7 +15,9 @@ public class DataManager : SingletonMono<DataManager>
             }
             return Instance._itemData;
         }
-    }
+    } 
+
+    public ItemSO ItemSO => ItemData.SO; */
 
     private DataBase<EnemyData, EnemySO> _enemyData;
     public DataBase<EnemyData, EnemySO> EnemyData
