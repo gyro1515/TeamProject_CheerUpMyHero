@@ -64,15 +64,15 @@ public class BuildingManager : SingletonMono<BuildingManager>
     public void HandleTileClick(BuildingTile tile)
     {
         //건설 / 업그레이드 관련 패널이 이미 활성화되어 있는지 확인합니다.
-        var selectPanel = UIManager.Instance.GetUI<ConstructionSelectPanel>();
-        var upgradePanel = UIManager.Instance.GetUI<ConstructionUpgradePanel>();
+        //var selectPanel = UIManager.Instance.GetUI<ConstructionSelectPanel>();
+        //var upgradePanel = UIManager.Instance.GetUI<ConstructionUpgradePanel>();
  
         // 둘 중 하나라도 켜져있다면, 함수를 즉시 종료하여 아무 일도 일어나지 않게 막기
-        if (upgradePanel.gameObject.activeInHierarchy || selectPanel.gameObject.activeInHierarchy)
-        {
-            Debug.Log("이미 UI 패널이 열려있어 추가 행동을 막았습니다.");
-            return;
-        }
+        //if (upgradePanel.gameObject.activeInHierarchy || selectPanel.gameObject.activeInHierarchy)
+        //{
+        //    Debug.Log("이미 UI 패널이 열려있어 추가 행동을 막았습니다.");
+        //    return;
+        //}
 
 
         // 이전에 선택된 타일이 있다면 선택 해제
@@ -85,18 +85,22 @@ public class BuildingManager : SingletonMono<BuildingManager>
         _selectedTile = tile;
         _selectedTile.SetSelected(true);
 
+        var currentBuilding = PlayerDataManager.Instance.BuildingGridData[tile.X, tile.Y];
+
+
         // 타일 타입에 따라 다른 UI를 열어줌
         if (tile.MyTileType == TileType.Normal)
         {
-            var currentBuilding = PlayerDataManager.Instance.BuildingGridData[tile.X, tile.Y];
             if (currentBuilding == null)
             {
+                // ❗️ 빈 땅일 때, 오직 ConstructionSelectPanel만 가져와서 엽니다.
                 var panel = UIManager.Instance.GetUI<ConstructionSelectPanel>();
                 panel.Initialize(tile);
                 panel.OpenUI();
             }
             else
             {
+                // ❗️ 건물이 있을 때, 오직 ConstructionUpgradePanel만 가져와서 엽니다.
                 var panel = UIManager.Instance.GetUI<ConstructionUpgradePanel>();
                 panel.InitializeForUpgrade(tile);
                 panel.OpenUI();
