@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Resources;
 using UnityEngine;
 
 public class GameManager : SingletonMono<GameManager>
@@ -13,6 +14,8 @@ public class GameManager : SingletonMono<GameManager>
     public PlayerHQ PlayerHQ { get; set; }
 
     public Player Player { get; set; }
+
+
 
     protected override void Awake()
     {
@@ -80,26 +83,90 @@ public class GameManager : SingletonMono<GameManager>
             return;
         }
 
-        float rewardMultiplier = isVictory ? 1.0f : 0.2f;
-        int goldReward = Mathf.CeilToInt(rewardData.rewardGold * rewardMultiplier);
-        int woodReward = Mathf.CeilToInt(rewardData.rewardWood * rewardMultiplier);
-        int ironReward = Mathf.CeilToInt(rewardData.rewardIron * rewardMultiplier);
-        int magicStoneReward = Mathf.CeilToInt(rewardData.rewardMagicStone * rewardMultiplier);
+        int totalBaseWood = 0;
+        float totalBonusWoodPercent = 0f;
+        int totalBaseIron = 0;
+        float totalBonusIronPercent = 0f;
+        float totalMagicStoneChance = 0f;
+        int totalMagicStoneMin = 0;
+        int totalMagicStoneMax = 0;
 
-        PlayerDataManager.Instance.AddResource(ResourceType.Gold, goldReward);
-        PlayerDataManager.Instance.AddResource(ResourceType.Wood, woodReward);
-        PlayerDataManager.Instance.AddResource(ResourceType.Iron, ironReward);
-        PlayerDataManager.Instance.AddResource(ResourceType.MagicStone, magicStoneReward);
+        for (int y = 0; y < 5; y++)
+        {
+            for (int x = 0; x < 5; x++)
+            {
+                BuildingUpgradeData building = PlayerDataManager.Instance.BuildingGridData[x, y];
+                if (building != null)
+                {
+                    foreach (BuildingEffect effect in building.effects)
+                    {
+                        switch (effect.effectType)
+                        {
+                            case BuildingEffectType.BaseWoodProduction:
+                                totalBaseWood += (int)effect.effectValueMin;
+                                break;
+                            case BuildingEffectType.AdditionalWoodProduction:
+                                totalBonusWoodPercent += effect.effectValueMin;
+                                break;
+                            case BuildingEffectType.BaseIronProduction:
+                                totalBaseIron += (int)effect.effectValueMin;
+                                break;
+                            case BuildingEffectType.AdditionalIronProduction:
+                                totalBonusIronPercent += effect.effectValueMin;
+                                break;
+                            case BuildingEffectType.MagicStoneFindChance:
+                                totalMagicStoneChance += effect.effectValueMin;
+                                break;
+                            case BuildingEffectType.MagicStoneProduction:
+                                totalMagicStoneMin += (int)effect.effectValueMin;
+                                totalMagicStoneMax += (int)effect.effectValueMax;
+                                break;
+                        }
+                    }
+                }
+            }
+        }
+
+        int finalGold = rewardData.rewardGold;
+        int finalWood = rewardData.rewardWood + (int)(totalBaseWood * (1 + totalBonusWoodPercent / 100f));
+        int finalIron = rewardData.rewardIron + (int)(totalBaseIron * (1 + totalBonusIronPercent / 100f));
+        int finalMagicStone = rewardData.rewardMagicStone;
+
+        if (Random.Range(0, 100) < totalMagicStoneChance)
+        {
+            finalMagicStone += Random.Range(totalMagicStoneMin, totalMagicStoneMax + 1);
+        }
+
+
+        //float rewardMultiplier = isVictory ? 1.0f : 0.2f;
+        //int goldReward = Mathf.CeilToInt(rewardData.rewardGold * rewardMultiplier);
+        //int woodReward = Mathf.CeilToInt(rewardData.rewardWood * rewardMultiplier);
+        //int ironReward = Mathf.CeilToInt(rewardData.rewardIron * rewardMultiplier);
+        //int magicStoneReward = Mathf.CeilToInt(rewardData.rewardMagicStone * rewardMultiplier);
+
+        float rewardMultiplier = isVictory ? 1.0f : 0.2f;
+
+        finalGold = Mathf.CeilToInt(finalGold * rewardMultiplier);
+        finalWood = Mathf.CeilToInt(finalWood * rewardMultiplier);
+        finalIron = Mathf.CeilToInt(finalIron * rewardMultiplier);
+        finalMagicStone = Mathf.CeilToInt(finalMagicStone * rewardMultiplier);
+
+        PlayerDataManager.Instance.AddResource(ResourceType.Gold, finalGold);
+        PlayerDataManager.Instance.AddResource(ResourceType.Wood, finalWood);
+        PlayerDataManager.Instance.AddResource(ResourceType.Iron, finalIron);
+        PlayerDataManager.Instance.AddResource(ResourceType.MagicStone, finalMagicStone);
+
+
+
 
         // 실패 UI 따로 만들 거면 여기서 조건문 걸어주기
-
         if (RewardPanelUI != null && isVictory)
         {
-            RewardPanelUI.OpenUI(goldReward, woodReward, ironReward, magicStoneReward, true);
+            RewardPanelUI.OpenUI(finalGold, finalWood, finalIron, finalMagicStone, true);
         }
         else if (RewardPanelUI != null && !isVictory)
         {
-            RewardPanelUI.OpenUI(goldReward, woodReward, ironReward, magicStoneReward, false);
+            RewardPanelUI.OpenUI(finalGold, finalWood, finalIron, finalMagicStone, false);
         }
         else
         {
