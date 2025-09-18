@@ -19,7 +19,7 @@ public class BuildingManager : SingletonMono<BuildingManager>
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        if (scene.name != "SeongminMainScene") return;
+        if (scene.name != "MainScene") return;
         LoadResources();
         CreateGrid();
     }
