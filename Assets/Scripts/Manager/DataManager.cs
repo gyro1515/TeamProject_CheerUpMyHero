@@ -24,9 +24,9 @@ public class DataManager : SingletonMono<DataManager>
     {
         get
         {
-            if(Instance._enemyData == null)
+            if (Instance._enemyData == null)
             {
-                Instance._enemyData = new DataBase<EnemyData, EnemySO> ();
+                Instance._enemyData = new DataBase<EnemyData, EnemySO>();
             }
             return Instance._enemyData;
         }
@@ -57,7 +57,6 @@ public class DataManager : SingletonMono<DataManager>
             return Instance._buildingUpgradeData;
         }
     }
-    public BuildingUpgradeData[,] BuildingGridData { get; set; } = new BuildingUpgradeData[4, 4];
 
     private DataBase<MainStageData, MainStageSO> _mainStageData;
     public DataBase<MainStageData, MainStageSO> MainStageData
@@ -82,6 +81,18 @@ public class DataManager : SingletonMono<DataManager>
                 Instance._subStageData = new DataBase<SubStageData, SubStageSO>();
             }
             return Instance._subStageData;
+        }
+    }
+    private DataBase<StageWaveData, StageWaveSO> _stageWaveData;
+    public DataBase<StageWaveData, StageWaveSO> StageWaveData
+    {
+        get
+        {
+            if (Instance._stageWaveData == null)
+            {
+                Instance._stageWaveData = new DataBase<StageWaveData, StageWaveSO>();
+            }
+            return Instance._stageWaveData;
         }
     }
 

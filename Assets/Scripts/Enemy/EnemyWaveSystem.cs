@@ -22,14 +22,16 @@ public class EnemyWaveSystem : MonoBehaviour
     EnemyHQ enemyHQ;
     float warningTime = -1f; // 경고 시간
     float timeUntilWave = -1f; // 경고 시간 후 소환까지 걸리는 시간
-
+    int waveIdx = -1;
+    public int WaveIdx { get { return waveIdx; } }
     private void Awake()
     {
         enemyHQ = GetComponent<EnemyHQ>();
         warningUI = UIManager.Instance.GetUI<UIWaveWarning>(); // 경고의 주체는 여기니까, 여기에 캐싱해 놓기 
         warningTime = waveTime - warningBeforeWaveTime;
         timeUntilWave = waveTime - warningTime;
-        TestWaveDateInit();
+        //TestWaveDateInit();
+        SetWaveData();
     }
     private void Start()
     {
@@ -38,7 +40,7 @@ public class EnemyWaveSystem : MonoBehaviour
     }
     IEnumerator WaveTimeRoutine()
     {
-        int waveIdx = 0;
+        waveIdx = 0;
 
         while (waveIdx < 5) // 5번째 웨이브까지 실행하기(실제 7분 30)
         {
@@ -71,12 +73,50 @@ public class EnemyWaveSystem : MonoBehaviour
             // 여기서 오브젝트 풀에서 가져오기
             GameObject enemyUnitGO = ObjectPoolManager.Instance.Get(unitList[i]);
             enemyUnitGO.transform.position = enemyHQ.GetRandomSpawnPos();
+            enemyUnitGO.GetComponent<EnemyUnit>().SetStatMultiplierByWave(waveDataIdx);
             yield return wait;
         }
         // 웨이브 끝나면 기존 유닛 스폰 루틴 다시 활성화
         enemyHQ.SetSpawnEnemyActive(true);
     }
-    void TestWaveDateInit()
+    void SetWaveData()
+    {
+        // 빈 리스트로 시작
+        WaveData.Clear();
+        // 가져올 스테이지 정보 세팅
+        int selectedMainStageIdx = PlayerDataManager.Instance.SelectedStageIdx.mainStageIdx;
+        // 웨이브 데이터SO 가져오기
+        StageWaveSO waveSO = DataManager.Instance.StageWaveData.ExcelSO;
+        List<StageWaveData> waveDataList = waveSO.GetStageWaveDataList(selectedMainStageIdx);
+        int waveIdx = -1;
+        // 데이터가 없다면 스테이지 1로 판단하기, 메인에서 시작하면 이럴 일 없음
+        if (waveDataList == null) 
+        { 
+            selectedMainStageIdx = 0;
+            waveDataList = waveSO.GetStageWaveDataList(selectedMainStageIdx);
+            Debug.LogWarning("웨이브 정보 없어 -> 스테이지1 데이터로 세팅");
+            //return; 나중에는 그냥 리턴하기
+        }
+        
+        foreach (StageWaveData waveData in waveDataList)
+        {
+            // 선택한 스테이지가 아니라면 다음
+            if (waveData.stage - 1 != selectedMainStageIdx) continue;
+            // 웨이브Idx마다 WaveData.Add
+            if(waveIdx < waveData.wave - 1)
+            {
+                waveIdx++;
+                WaveData.Add(new EnemyWave());
+            }
+            // 해당 유닛 수만큼 wave.unitList에 추가
+            for (int j = 0; j < waveData.unitCount; j++)
+            {
+                WaveData[waveIdx].unitList.Add(waveData.poolType);
+            }
+        }
+    }
+    // 데이터 테이블에 따라 아래 형식 사용할 수 있어서 일단 주석처리
+    /*void TestWaveDateInit()
     {
         WaveData.Clear();
         EnemyWave wave1 = new EnemyWave();
@@ -184,5 +224,5 @@ public class EnemyWaveSystem : MonoBehaviour
             wave5.unitList.Add(PoolType.EnemyUnit2);
         }
         WaveData.Add(wave5);
-    }
+    }*/
 }

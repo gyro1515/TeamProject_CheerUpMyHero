@@ -1,3 +1,4 @@
+using DG.Tweening;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -12,18 +13,19 @@ public class MainScreenUI : BaseUI
     [SerializeField] private Button _deckSelectButton;
     [SerializeField] private Button _notYetButton;
 
-    [Header("패널 세팅")]
-    [SerializeField] private GameObject _battlePanel;
-    [SerializeField] private GameObject _testPanel;
-    [SerializeField] private GameObject _deckSelectPanel;
+    [Header("패널 (Canvas Group)")]
+    [SerializeField] private CanvasGroup _battlePanelCanvasGroup;
+    [SerializeField] private CanvasGroup _testPanelCanvasGroup;
+    [SerializeField] private CanvasGroup _deckSelectPanelCanvasGroup;
 
     UISelectCard uiSelectCard;
+
 
     private void Awake()
     {
         if (_adviserButton == null || _battleButton == null
-            || _battlePanel == null || _testPanel == null || _testButton == null 
-            || _deckSelectPanel == null || _deckSelectButton == null || _notYetButton == null)
+            || _battlePanelCanvasGroup == null || _testPanelCanvasGroup == null || _testButton == null
+            || _deckSelectPanelCanvasGroup == null || _deckSelectButton == null || _notYetButton == null)
         {
             Debug.LogError("MainSceneUI: 모든 UI 컴포넌트가 인스펙터에 연결되지 않았습니다.");
             return;
@@ -44,22 +46,22 @@ public class MainScreenUI : BaseUI
     }
     private void OnEnable()
     {
-        _battlePanel.SetActive(false);
-        _testPanel.SetActive(false);
-        _deckSelectPanel.SetActive(false);
+        ClosePanel(_battlePanelCanvasGroup, true);
+        ClosePanel(_testPanelCanvasGroup, true);
+        ClosePanel(_deckSelectPanelCanvasGroup, true);
     }
     private void OnAdviserButtonClck()
     {
-        _battlePanel.SetActive(true);
-        _testPanel.SetActive(true);
+        OpenPanel(_battlePanelCanvasGroup);
+        OpenPanel(_testPanelCanvasGroup);
     }
 
     private void OnBattleButtonClick()
     {
         Debug.Log("덱 선택 패널을 엽니다.");
-        _deckSelectPanel.SetActive(true);
-        _battlePanel.SetActive(false);
-        _testPanel.SetActive(false);
+        OpenPanel(_deckSelectPanelCanvasGroup);
+        ClosePanel(_battlePanelCanvasGroup);
+        ClosePanel(_testPanelCanvasGroup);
     }
 
     private void OnDeckSelectButtonClick()
@@ -73,12 +75,36 @@ public class MainScreenUI : BaseUI
     {
         // "아직 아니야" 버튼 클릭 시 실행될 로직
         Debug.Log("덱 선택을 취소하고 패널을 닫습니다.");
-        _deckSelectPanel.SetActive(false);
+        ClosePanel(_deckSelectPanelCanvasGroup);
     }
 
     private void OnTestButtonClick()
     {
         Debug.Log("테스트 버튼입니다.");
     }
+
+
+    private void OpenPanel(CanvasGroup canvasGroup)
+    {
+        if (canvasGroup == null) return;
+        FadeInUI(canvasGroup);
+    }
+
+    private void ClosePanel(CanvasGroup canvasGroup, bool immediate = false)
+    {
+        if (canvasGroup == null) return;
+
+        if (immediate)
+        {
+            canvasGroup.alpha = 0;
+            canvasGroup.interactable = false;
+            canvasGroup.blocksRaycasts = false;
+        }
+        else
+        {
+            FadeOutUI(canvasGroup);
+        }
+    }
+
 }
 
