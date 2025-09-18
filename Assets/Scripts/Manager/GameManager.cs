@@ -30,7 +30,7 @@ public class GameManager : SingletonMono<GameManager>
         {
             Time.timeScale = 1.0f;
         }
-
+        // ***현재는 밸런스 때문에 키를 눌러 클리어/실패 결과를 출력, 추후 각 HQ, Player에 옮겨야 할 내용**********
         //C키 눌러서 적 HQ 파괴
         if (Input.GetKeyDown(KeyCode.C))
         {
@@ -42,6 +42,7 @@ public class GameManager : SingletonMono<GameManager>
                 enemyHQ.Dead();
 
                 ShowResultUI(true);
+                ClearStage();
             }
         }
 
@@ -104,5 +105,21 @@ public class GameManager : SingletonMono<GameManager>
         {
             Debug.LogError("RewardPanel이 GameManager에 등록되지 않았습니다!");
         }
+    }
+    void ClearStage()
+    {
+        // 플레이어 선택 스테이지 데이터 기반으로 세팅
+        (int mainIdx, int subIdx) = PlayerDataManager.Instance.SelectedStageIdx;
+        Debug.Log($"스테이지{mainIdx + 1}-{subIdx + 1} 클리어");
+        // 스테이지 데이터 가져와서 해금하기
+        // 최대 서브 스테이지를 클리어 했다면 다음 메인 스테이지 해금, 서브 인덱스 1으로
+        int maxSubIdx = SettingDataManager.Instance.MainStageData[mainIdx].subStages.Count;
+        if (++subIdx >= maxSubIdx)
+        {
+            subIdx = 0;
+            SettingDataManager.Instance.MainStageData[++mainIdx].isUnlocked = true;
+        }
+        // 서브 스테이지 해금
+        SettingDataManager.Instance.MainStageData[mainIdx].subStages[subIdx].isUnlocked = true;
     }
 }

@@ -7,15 +7,15 @@ using UnityEngine;
 public class BaseCharacter : MonoBehaviour
 {
     [field: Header("기본 캐릭터 세팅")]
-    [field: SerializeField] public float MaxHp {  get; private set; }
-    [field: SerializeField] public float AtkPower {  get; private set; }
+    [field: SerializeField] public float MaxHp {  get; protected set; }
+    [field: SerializeField] public float AtkPower {  get; protected set; }
     [field: SerializeField] public float MoveSpeed {  get; private set; }
     [field: SerializeField] public Vector3 HpBarPosByCharacter { get; private set; } // 보정용
     [field: SerializeField] public Vector2 HpBarSize { get; private set; } // 체력바 사이즈용
     public BaseController BaseController { get; private set; }
     public Vector3 MoveDir { get; set; }
     public IDamageable Damageable { get; private set; }
-    [SerializeField] float curHp;
+    [SerializeField] protected float curHp;
     public float CurHp { get { return curHp; }
         set
         {
