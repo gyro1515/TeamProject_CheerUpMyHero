@@ -179,13 +179,13 @@ public class BuildingManager : SingletonMono<BuildingManager>
         if (next == null) { Debug.Log("최대 레벨"); return; }
 
         bool canAfford = true;
-        foreach (var cost in next.costs)
+        foreach (var cost in current.costs)
             if (PlayerDataManager.Instance.GetResourceAmount(cost.resourceType) < cost.amount) canAfford = false;
 
         if (!canAfford) 
         { Debug.Log("자원이 부족"); return; }
 
-        foreach (var cost in next.costs)
+        foreach (var cost in current.costs)
             PlayerDataManager.Instance.AddResource(cost.resourceType, - cost.amount);
 
         PlayerDataManager.Instance.BuildingGridData[tile.X, tile.Y] = next;
