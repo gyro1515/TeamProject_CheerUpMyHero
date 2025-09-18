@@ -19,24 +19,26 @@ public class ConstructionSelectPanel : BaseUI
 
 
     // 패널이 열릴 때 호출되는 함수
+    // 패널이 열릴 때 호출되는 함수
     public void Initialize(BuildingTile tile)
     {
         _targetTile = tile;
 
-        //// 1. 기존에 있던 버튼들을 모두 삭제
+        // 1. 기존에 있던 버튼들을 모두 삭제
         foreach (Transform child in contentParent)
         {
             Destroy(child.gameObject);
         }
-        // 2. 건설 가능한 모든 건물의 ID 목록을 가져오기 (임시)
-        List<int> buildableIDs = new List<int> { 101, 201, 301, 401 };
 
-        // 3. 각 ID에 해당하는 건물의 버튼을 생성하여 Content 자식으로 추가
-        foreach (int id in buildableIDs)
+        List<BuildingUpgradeData> buildableList = PlayerDataManager.Instance.GetBuildableList();
+
+        // 3. 각 건물 데이터에 해당하는 버튼을 생성하여 Content 자식으로 추가
+        foreach (BuildingUpgradeData data in buildableList)
         {
             GameObject itemGO = Instantiate(buildingSelectItemPrefab, contentParent);
             BuildingSelectItem item = itemGO.GetComponent<BuildingSelectItem>();
-            item.Initialize(id, _targetTile, this);
+            // data.idNumber를 사용하여 버튼을 초기화
+            item.Initialize(data.idNumber, _targetTile, this);
         }
     }
 

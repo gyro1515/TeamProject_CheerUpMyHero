@@ -63,18 +63,31 @@ public class BuildingManager : SingletonMono<BuildingManager>
 
     public void HandleTileClick(BuildingTile tile)
     {
+        //건설 / 업그레이드 관련 패널이 이미 활성화되어 있는지 확인합니다.
+        var selectPanel = UIManager.Instance.GetUI<ConstructionSelectPanel>();
+        var upgradePanel = UIManager.Instance.GetUI<ConstructionUpgradePanel>();
+ 
+        // 둘 중 하나라도 켜져있다면, 함수를 즉시 종료하여 아무 일도 일어나지 않게 막기
+        if (upgradePanel.gameObject.activeInHierarchy || selectPanel.gameObject.activeInHierarchy)
+        {
+            Debug.Log("이미 UI 패널이 열려있어 추가 행동을 막았습니다.");
+            return;
+        }
+
+
+        // 이전에 선택된 타일이 있다면 선택 해제
         if (_selectedTile != null)
         {
             _selectedTile.SetSelected(false);
         }
 
+        // 새로 클릭된 타일을 선택 상태로 만듦
         _selectedTile = tile;
         _selectedTile.SetSelected(true);
 
-
+        // 타일 타입에 따라 다른 UI를 열어줌
         if (tile.MyTileType == TileType.Normal)
         {
-            // --- 일반 영지일 때 (기존 로직) ---
             var currentBuilding = PlayerDataManager.Instance.BuildingGridData[tile.X, tile.Y];
             if (currentBuilding == null)
             {
@@ -92,8 +105,19 @@ public class BuildingManager : SingletonMono<BuildingManager>
         else if (tile.MyTileType == TileType.Special)
         {
             Debug.Log("특수 영지를 클릭했습니다!");
-            //특수 건물 건설 / 업그레이드 패널을 여는 코드를 추가
+            //특수 영지용 UI 열기 추가
         }
+    }
+
+    //UI 패널이 닫힐 때 호출할 타일 선택 해제 함수
+    public void DeselectTile()
+    {
+        if (_selectedTile != null)
+        {
+            _selectedTile.SetSelected(false);
+            _selectedTile = null; // 선택된 타일 정보 초기화
+        }
+
     }
 
     // ---------------- 건설 ----------------
@@ -154,10 +178,11 @@ public class BuildingManager : SingletonMono<BuildingManager>
         foreach (var cost in next.costs)
             if (PlayerDataManager.Instance.GetResourceAmount(cost.resourceType) < cost.amount) canAfford = false;
 
-        if (!canAfford) { Debug.Log("자원이 부족"); return; }
+        if (!canAfford) 
+        { Debug.Log("자원이 부족"); return; }
 
         foreach (var cost in next.costs)
-            PlayerDataManager.Instance.AddResource(cost.resourceType, -cost.amount);
+            PlayerDataManager.Instance.AddResource(cost.resourceType, - cost.amount);
 
         PlayerDataManager.Instance.BuildingGridData[tile.X, tile.Y] = next;
         tile.SetBuilding(next);
