@@ -47,7 +47,7 @@ public class EnemyUnitController : BaseController
         base.Attack();
 
         enemyUnit.TargetUnit.TakeDamage(enemyUnit.AtkPower);
-        Debug.Log("적 유닛: 공격!");
+        Debug.Log($"적 유닛 {gameObject.name}: 공격!");
     }
     IEnumerator TargetingRoutine()
     {

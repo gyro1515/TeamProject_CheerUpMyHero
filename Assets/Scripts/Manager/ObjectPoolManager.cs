@@ -31,7 +31,7 @@ public enum PoolType
     EnemyUnit3,
     EnemyUnit4,
     EnemyUnit5,
-
+    EnemyUnit6,
 }
 
 public class ObjectPoolManager : SingletonMono<ObjectPoolManager>
