@@ -7,7 +7,7 @@ public class EnemyUnitController : BaseController
     EnemyUnit enemyUnit;
     Coroutine findTargetRoutine;
     Coroutine attackRoutine;
-
+    
     protected override void Awake()
     {
         enemyUnit = GetComponent<EnemyUnit>();
@@ -109,5 +109,14 @@ public class EnemyUnitController : BaseController
         }
         // 공격 재생이 끝났다면 다시 적 찾기
         findTargetRoutine = StartCoroutine(TargetingRoutine());
+    }
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.cyan; // 색상 지정
+        Vector3 pos = transform.position;
+        pos.x -= enemyUnit.AttackRange / 2;
+        pos.y += 0.75f;
+        Gizmos.DrawWireCube(pos, new Vector3(enemyUnit.AttackRange, 2f));
     }
 }
