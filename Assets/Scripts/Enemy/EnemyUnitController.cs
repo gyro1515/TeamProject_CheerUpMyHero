@@ -58,6 +58,7 @@ public class EnemyUnitController : BaseController
         {
             enemyUnit.TargetUnit = UnitManager.Instance.FindClosestTarget(enemyUnit, false);
             enemyUnit.MoveDir = enemyUnit.TargetUnit != null ? Vector3.zero : Vector3.left;
+            if(animator) animator.SetFloat("Speed", Mathf.Abs((float)enemyUnit.MoveDir.x));
             yield return wait;
         }
     }
@@ -70,6 +71,7 @@ public class EnemyUnitController : BaseController
             if(enemyUnit.TargetUnit != null)
             {
                 Attack();
+                if (animator) animator.SetTrigger("Attack");
                 yield return wait;
             }
             else yield return null;
