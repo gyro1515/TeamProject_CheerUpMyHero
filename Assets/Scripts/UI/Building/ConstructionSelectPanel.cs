@@ -20,7 +20,7 @@ public class ConstructionSelectPanel : BaseUI
 
     // 패널이 열릴 때 호출되는 함수
     // 패널이 열릴 때 호출되는 함수
-    public void Initialize(BuildingTile tile)
+    public void Initialize(BuildingTile tile, ConstructionUpgradePanel upgradePanel)
     {
         _targetTile = tile;
 
@@ -38,7 +38,7 @@ public class ConstructionSelectPanel : BaseUI
             GameObject itemGO = Instantiate(buildingSelectItemPrefab, contentParent);
             BuildingSelectItem item = itemGO.GetComponent<BuildingSelectItem>();
             // data.idNumber를 사용하여 버튼을 초기화
-            item.Initialize(data.idNumber, _targetTile, this);
+            item.Initialize(data.idNumber, _targetTile, this, upgradePanel); 
         }
     }
 

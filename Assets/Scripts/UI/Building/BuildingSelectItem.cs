@@ -9,18 +9,20 @@ public class BuildingSelectItem : BaseUI
     [SerializeField] private TextMeshProUGUI buildingNameText;
     [SerializeField] private TextMeshProUGUI costText;
     [SerializeField] private TextMeshProUGUI descriptionText;
-    [SerializeField] private ConstructionSelectPanel _parentPanel;
+    private ConstructionSelectPanel _parentPanel;
+    private ConstructionUpgradePanel _upgradePanel;
 
 
 
     private int _buildingID;
     private BuildingTile _targetTile;
 
-    public void Initialize(int buildingID, BuildingTile targetTile, ConstructionSelectPanel parent)
+    public void Initialize(int buildingID, BuildingTile targetTile, ConstructionSelectPanel parent, ConstructionUpgradePanel upgradePanel)
     {
         _buildingID = buildingID;
         _targetTile = targetTile;
         _parentPanel = parent;
+        _upgradePanel = upgradePanel;
 
 
         // DataManager에서 건물 정보를 가져와 UI를 채웁니다.
@@ -43,13 +45,9 @@ public class BuildingSelectItem : BaseUI
     private void OnSelect()
     {
         // 건설/업그레이드 확인 패널을 엽니다.
-        var panel = UIManager.Instance.GetUI<ConstructionUpgradePanel>();
-        panel.InitializeForConstruction(_targetTile, _buildingID);
-        panel.OpenUI();
+        _upgradePanel.InitializeForConstruction(_targetTile, _buildingID);
+        _upgradePanel.OpenUI();
 
-        if (_parentPanel != null)
-        {
-            _parentPanel.CloseUI(); // 부모의 애니메이션이 적용된 CloseUI가 호출됨
-        }
+        _parentPanel?.CloseUI();
     }
 }
