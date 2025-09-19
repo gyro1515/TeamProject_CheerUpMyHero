@@ -5,6 +5,8 @@ using UnityEngine;
 
 public class BaseController : MonoBehaviour, IAttackable, IDamageable
 {
+    [Header("베이스 컨트롤러 세팅")]
+    [SerializeField] protected Animator animator;
     protected BaseCharacter baseCharacter;
     BasePoolable poolable;
     protected virtual void Awake()
