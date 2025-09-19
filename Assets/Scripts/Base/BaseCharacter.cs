@@ -13,7 +13,13 @@ public class BaseCharacter : MonoBehaviour
     [field: SerializeField] public Vector3 HpBarPosByCharacter { get; private set; } // 보정용
     [field: SerializeField] public Vector2 HpBarSize { get; private set; } // 체력바 사이즈용
     public BaseController BaseController { get; private set; }
-    public Vector3 MoveDir { get; set; }
+
+    protected Vector3 _moveDir;
+    public virtual Vector3 MoveDir
+    {
+        get { return _moveDir; }
+        set { _moveDir = value; }
+    }
     public IDamageable Damageable { get; private set; }
     [SerializeField] protected float curHp;
     public float CurHp { get { return curHp; }
