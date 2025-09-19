@@ -23,13 +23,13 @@ public class UIFPSSettingPanel : BaseUI
     {
         Application.targetFrameRate = 30;
         Debug.Log("FPSSettingPanel -> 30프레임 고정");
-        FadeOutUI(_canvasGroup);
+        FadeEffectManager.Instance.FadeOutUI(_canvasGroup);
     }
 
     private void On60FPSButtonClicked()
     {
         Application.targetFrameRate = 60;
         Debug.Log("FPSSettingPanel -> 60프레임 고정");
-        FadeOutUI(_canvasGroup);
+        FadeEffectManager.Instance.FadeOutUI(_canvasGroup);
     }    
 }

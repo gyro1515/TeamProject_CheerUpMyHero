@@ -4,18 +4,20 @@ using UnityEngine;
 
 public class DataManager : SingletonMono<DataManager>
 {
-    private DataBase<ItemData, ItemSO> _itemData;
-    public DataBase<ItemData, ItemSO> ItemData
+    /* private DataBase<ItemData, ItemSO> _itemData;
+    public DataBase<ItemData,ItemSO> ItemData
     {
         get
         {
-            if (Instance._itemData == null)
+            if(Instance._itemData == null)
             {
                 Instance._itemData = new DataBase<ItemData, ItemSO>();
             }
             return Instance._itemData;
         }
-    }
+    } 
+
+    public ItemSO ItemSO => ItemData.SO; */
 
     private DataBase<EnemyData, EnemySO> _enemyData;
     public DataBase<EnemyData, EnemySO> EnemyData

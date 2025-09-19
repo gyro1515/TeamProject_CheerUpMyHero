@@ -12,6 +12,7 @@ public class StageWaveSO : MonoSO<StageWaveData>
     {
         return stageWaveData;
     }
+
     public List<StageWaveData> GetStageWaveDataList(int mainStageIdx)
     {
         switch (mainStageIdx)
@@ -26,5 +27,23 @@ public class StageWaveSO : MonoSO<StageWaveData>
         }
         return null;
     }
-    
+
+    public override void SetData(Dictionary<int, StageWaveData> DB)
+    {
+        for (int i = 0; i < stageWaveData.Count; i++)
+        {
+            var data = stageWaveData[i];             
+            if (data == null) continue;
+
+            DB[data.idNumber] = data;                
+        }
+
+        for (int i = 0; i < stageWaveData2.Count; i++)
+        {
+            var data = stageWaveData2[i];
+            if (data == null) continue;
+
+            DB[data.idNumber] = data;
+        }
+    }
 }

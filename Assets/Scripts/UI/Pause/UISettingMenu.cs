@@ -63,7 +63,7 @@ public class UISettingMenu : BaseUI
 
     private void OnResumeButtonClicked()
     {
-        FadeOutUI(_canvasGroup);
+        FadeEffectManager.Instance.FadeOutUI(_canvasGroup);
         Time.timeScale = 1.0f;
     }
     #endregion
@@ -111,11 +111,11 @@ public class UISettingMenu : BaseUI
             {
                 if (panel.alpha > 0.0f)
                 {
-                    FadeOutUI(panel);
+                    FadeEffectManager.Instance.FadeOutUI(panel);
                 }
             }
         }
 
-        FadeInUI(target);
+        FadeEffectManager.Instance.FadeInUI(target);
     }
 }

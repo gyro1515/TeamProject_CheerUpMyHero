@@ -87,7 +87,7 @@ public class MainScreenUI : BaseUI
     private void OpenPanel(CanvasGroup canvasGroup)
     {
         if (canvasGroup == null) return;
-        FadeInUI(canvasGroup);
+        FadeEffectManager.Instance.FadeInUI(canvasGroup);
     }
 
     private void ClosePanel(CanvasGroup canvasGroup, bool immediate = false)
@@ -102,7 +102,7 @@ public class MainScreenUI : BaseUI
         }
         else
         {
-            FadeOutUI(canvasGroup);
+            FadeEffectManager.Instance.FadeOutUI(canvasGroup);
         }
     }
 

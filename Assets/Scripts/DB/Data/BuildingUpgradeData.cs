@@ -3,7 +3,6 @@ using System.Collections.Generic;
 public enum BuildingEffectType
 {
     None,
-    IncreaseMaxFood,
     IncreaseFoodGainSpeed,
     BaseWoodProduction,
     AdditionalWoodProduction,
@@ -37,6 +36,7 @@ public class BuildingUpgradeData : MonoData
     public string buildingName;
     public int level;
     public int nextLevel;
+   // public string spriteName; //이미지
 
     public List<Cost> costs = new List<Cost>();
     public List<BuildingEffect> effects = new List<BuildingEffect>();

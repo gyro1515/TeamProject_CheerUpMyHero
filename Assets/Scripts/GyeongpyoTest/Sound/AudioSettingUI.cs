@@ -86,6 +86,6 @@ public class AudioSettingUI : BaseUI
 
     public void Close()
     {
-        FadeOutUI(_canvasGroup);
+        FadeEffectManager.Instance.FadeOutUI(_canvasGroup);
     }
 }

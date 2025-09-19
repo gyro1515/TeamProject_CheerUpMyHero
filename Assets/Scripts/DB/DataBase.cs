@@ -9,14 +9,26 @@ public class DataBase<T1, T2> where T1 : MonoData where T2 : MonoSO<T1>
     public IEnumerable<int> Keys => _DB.Keys;       // Keys : IEnumable로 딕셔너리 key들 순회할 수 있게 해줌 -> 요걸로 foreach문 사용 가능함
     public IEnumerable<T1> Values => _DB.Values;    // Values : IEnumable로 딕셔너리 value들 순회할 수 있게 해줌 -> foreach
 
-    public T2 ExcelSO { get; set; }
+    public T2 SO {  get; private set; }             // 데이터 SO 파일 저장해주는 전역변수 -> 다른 곳에서도 사용할 수 있음
+
     public DataBase(string fileName = null)
     {
+        // SO 파일 저장할 경로 설정
         string realFileName = fileName ?? typeof(T2).Name;  // 매개변수로 따로 지정 안 해주면 T2(SO) 파일 이름 넣어줌.
         string filePath = $"DB/{realFileName}";
 
-        ExcelSO = Resources.Load<T2>(path: filePath);         // so : 데이터 SO 파일. 지정된 경로에서 SO를 불러와서 so변수에 저장해줌
-        List<T1> list = ExcelSO.GetList();                       // list : SO에 저장된 엑셀 데이터. SO에 정의된 엑셀 데이터를 할당해둔 리스트 가져옴
+        SO = Resources.Load<T2>(path: filePath);            // so : 데이터 SO 파일. 지정된 경로에서 SO를 불러와서 so변수에 저장해줌
+        
+        if (SO  == null)
+        {
+            Debug.Log("SO 파일 없어요 데이터 임포트 관련 뭔가 문제 있음");
+            return;
+        }
+        _DB = new Dictionary<int, T1>();
+
+        SO.SetData(_DB);
+
+        /*List<T1> list = SO.GetList();                       // list : SO에 저장된 엑셀 데이터. SO에 정의된 엑셀 데이터를 할당해둔 리스트 가져옴
 
         if (list == null || list.Count == 0)                // 파일을 못 불러오거나 파일에 담긴 정보가 없을 때
         {
@@ -34,12 +46,12 @@ public class DataBase<T1, T2> where T1 : MonoData where T2 : MonoSO<T1>
                 Debug.LogWarning($"ID 중복 있음 {data.idNumber} ID 중복임");
 
             _DB[data.idNumber] = data;                      // 딕셔너리에 key 값을 idNumber로, value 값을 엑셀의 i번째 데이터로 저장함.
-        }
+        }*/
     }
 
     public T1 GetData(int idNumber)                 // 데이터 얻어오는 함수
     {
-        _DB.TryGetValue(idNumber, out var data);    // idNumber를 키 값으로 하는 value를 null 검사하고 얻어옴.
+        _DB.TryGetValue(idNumber, out var data);    // idNumber를 키 값으로 하는 value를 data에 넣어줌. 해당하는 키 값 없으면 false 나옴 
         return data;
     }
 

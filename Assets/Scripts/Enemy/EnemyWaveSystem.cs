@@ -94,7 +94,7 @@ public class EnemyWaveSystem : MonoBehaviour
         // 가져올 스테이지 정보 세팅
         int selectedMainStageIdx = PlayerDataManager.Instance.SelectedStageIdx.mainStageIdx;
         // 웨이브 데이터SO 가져오기
-        StageWaveSO waveSO = DataManager.Instance.StageWaveData.ExcelSO;
+        StageWaveSO waveSO = DataManager.Instance.StageWaveData.SO;
         List<StageWaveData> waveDataList = waveSO.GetStageWaveDataList(selectedMainStageIdx);
         int waveIdx = -1;
         // 데이터가 없다면 스테이지 1로 판단하기, 메인에서 시작하면 이럴 일 없음
