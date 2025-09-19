@@ -7,7 +7,7 @@ public class EnemyUnitController : BaseController
     EnemyUnit enemyUnit;
     Coroutine findTargetRoutine;
     Coroutine attackRoutine;
-    
+    bool isAttacking = false;
     protected override void Awake()
     {
         enemyUnit = GetComponent<EnemyUnit>();
@@ -71,11 +71,14 @@ public class EnemyUnitController : BaseController
         {
             if(enemyUnit.TargetUnit != null)
             {
+                // 혹시라도 공격 재생이 안 끝났는데 공격을 시작해야 한다면 일단은 공격 안되게 하기
+                if(isAttacking) yield return null;
                 // 적 인식했다면 공격 시작
                 if (animator) animator.SetTrigger("Attack");
                 // 적 인식 루틴 정지(움직임 중지)
                 if (findTargetRoutine != null) StopCoroutine(findTargetRoutine);
                 // 어택 애니메이션 루틴 시작
+                isAttacking = true;
                 StartCoroutine(AtkAnimRoutine());
                 yield return wait;
             }
@@ -109,6 +112,7 @@ public class EnemyUnitController : BaseController
         }
         // 공격 재생이 끝났다면 다시 적 찾기
         findTargetRoutine = StartCoroutine(TargetingRoutine());
+        isAttacking = false;
     }
 
     private void OnDrawGizmos()
