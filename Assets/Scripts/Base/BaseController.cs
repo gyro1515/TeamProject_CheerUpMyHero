@@ -9,6 +9,8 @@ public class BaseController : MonoBehaviour, IAttackable, IDamageable
     [SerializeField] protected Animator animator;
     protected BaseCharacter baseCharacter;
     BasePoolable poolable;
+    protected readonly int attackStateHash = Animator.StringToHash("Attack");
+
     protected virtual void Awake()
     {
         poolable = GetComponent<BasePoolable>();
@@ -57,5 +59,20 @@ public class BaseController : MonoBehaviour, IAttackable, IDamageable
         Debug.Log($"{gameObject} 삭제됨");
         gameObject.SetActive(false);
         Destroy(gameObject);
+    }
+    protected float GetNormalizedTime(int stateHash)
+    {
+        AnimatorStateInfo currentInfo = animator.GetCurrentAnimatorStateInfo(0);
+        AnimatorStateInfo nextInfo = animator.GetNextAnimatorStateInfo(0);
+
+        if (animator.IsInTransition(0) && nextInfo.tagHash == stateHash)
+        {
+            return nextInfo.normalizedTime;
+        }
+        else if (!animator.IsInTransition(0) && currentInfo.tagHash == stateHash)
+        {
+            return currentInfo.normalizedTime;
+        }
+        else return -1f;
     }
 }
