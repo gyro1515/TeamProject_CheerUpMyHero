@@ -19,11 +19,19 @@ public class TestEnemySplashController : BaseController
 
 
     private Vector2 targetPos;
-    //테스트용, 데이터로 이전 예정
+    private Collider2D[] overLapCollider;
+    private List<BaseCharacter> listForSortTarget = new();
+    private const int MAX_OVERLAP_COUNT = 100;
+    private Vector2 boxSize;
+    private const float BOX_YSCALE = 6f; // 6은 일단 아무 숫자 넣음. 적절한 세로 박스 크기는 얼마??
+
+    [Header("공격 대상 레이어(플레이어 레이어)")]
+    [SerializeField] LayerMask targetLayerMask;
+
+    //테스트용, 데이터 테이블로 이전 예정
     [SerializeField] float attackBound = 3;
     [SerializeField] AttackTypeTest attackType;
     [SerializeField] int targetLimit = 2;
-    private Vector2 boxSize;
 
     protected override void Awake()
     {
@@ -33,10 +41,13 @@ public class TestEnemySplashController : BaseController
             UnitManager.Instance.RemoveUnitFromList(enemyUnit, false);
         };
         base.Awake();
+
+        
         if (attackType == AttackTypeTest.ExplosiveRange)
-            boxSize = new Vector2(attackBound, 6);
+            boxSize = new Vector2(attackBound, BOX_YSCALE);
         else if (attackType == AttackTypeTest.Penetrative || attackType == AttackTypeTest.Multiple)
-            boxSize = new Vector2(enemyUnit.AttackRange, 6);
+            boxSize = new Vector2(enemyUnit.AttackRange, BOX_YSCALE);
+        overLapCollider = new Collider2D[MAX_OVERLAP_COUNT];
     }
     protected override void OnEnable()
     {
@@ -73,15 +84,15 @@ public class TestEnemySplashController : BaseController
         }
         else if (attackType == AttackTypeTest.ExplosiveRange)
         {
-            UnitManager.Instance.ExplosiveAttackTarget(targetPos, false, enemyUnit.AtkPower, attackBound);
+            ExplosiveAttackTarget();
         }
         else if (attackType == AttackTypeTest.Penetrative)
         {
-            UnitManager.Instance.PenetrativeAttackTarget(enemyUnit, false);
+            PenetrativeAttackTarget();
         }
         else if (attackType == AttackTypeTest.Multiple)
         {
-            UnitManager.Instance.AttackClosestMultipleTarget(enemyUnit, false, targetLimit);
+            AttackClosestMultipleTarget();
         }
         Debug.Log($"적 유닛 {gameObject.name}: 공격!");
 
@@ -115,6 +126,72 @@ public class TestEnemySplashController : BaseController
         }
     }
 
+    #region AttackTypeMethods
+    //위치(x좌표) 중심 폭발형 범위공격
+    void ExplosiveAttackTarget()
+    {
+        int hitCount = Physics2D.OverlapBoxNonAlloc(targetPos, boxSize, 0f, overLapCollider, targetLayerMask);
+
+        for (int i = 0; i < hitCount; i++)
+        {
+            if (overLapCollider[i].TryGetComponent<BaseCharacter>(out BaseCharacter unit))
+                unit.Damageable.TakeDamage(enemyUnit.AtkPower);
+        }
+
+    }
+
+    //new 관통형 범위공격. 로직은 폭발과 동일, 대신 범위만 사거리 전체
+    public void PenetrativeAttackTarget()
+    {
+        Vector2 rangeCenter = new Vector2(enemyUnit.transform.position.x - (enemyUnit.AttackRange / 2), enemyUnit.transform.position.y);
+
+        int hitCount = Physics2D.OverlapBoxNonAlloc(rangeCenter, boxSize, 0f, overLapCollider, targetLayerMask);
+
+        for (int i = 0; i < hitCount; i++)
+        {
+            if (overLapCollider[i].TryGetComponent<BaseCharacter>(out BaseCharacter unit))
+                unit.Damageable.TakeDamage(enemyUnit.AtkPower);
+        }
+    }
+
+    //타겟수 제한 있는 범위공격 (가까운 순 정렬)
+    public void AttackClosestMultipleTarget()
+    {
+        listForSortTarget.Clear();
+        
+        Vector2 rangeCenter = new Vector2(enemyUnit.transform.position.x - (enemyUnit.AttackRange / 2), enemyUnit.transform.position.y);
+
+        int hitCount = Physics2D.OverlapBoxNonAlloc(rangeCenter, boxSize, 0f, overLapCollider, targetLayerMask);
+
+        for (int i = 0; i < hitCount; i++)
+        {
+            if (overLapCollider[i].TryGetComponent<BaseCharacter>(out BaseCharacter unit))
+                listForSortTarget.Add(unit);
+        }
+
+        //리스트 정렬
+        listForSortTarget.Sort((a, b) =>
+        {
+            float distA = Mathf.Abs(a.transform.position.x - enemyUnit.transform.position.x);
+            float distB = Mathf.Abs(b.transform.position.x - enemyUnit.transform.position.x);
+
+            // distA가 더 작으면(가까우면) 앞으로 오도록 정렬
+            return distA.CompareTo(distB);
+        });
+
+        int attackCount = Mathf.Min(targetLimit, listForSortTarget.Count);
+        Debug.Log($"현재 타겟: {attackCount}명");
+        for (int i = 0; i < attackCount; i++)
+        {
+            // 정렬된 리스트의 앞에서부터 순서대로 공격
+            listForSortTarget[i].Damageable.TakeDamage(enemyUnit.AtkPower);
+        }
+    }
+
+
+    #endregion
+
+    #region DrawRangeBox
     private void OnDrawGizmosSelected()
     {
         // 기즈모 색상 설정
@@ -124,8 +201,9 @@ public class TestEnemySplashController : BaseController
             Gizmos.DrawWireCube(targetPos, boxSize);
         else if (attackType == AttackTypeTest.Penetrative || attackType == AttackTypeTest.Multiple)
         {
-            Debug.Log("그리시오!");
             Gizmos.DrawWireCube(new Vector2(transform.position.x - (enemyUnit.AttackRange / 2), transform.position.y), boxSize);
         }
     }
+    #endregion
+
 }

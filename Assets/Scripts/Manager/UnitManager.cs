@@ -83,116 +83,90 @@ public class UnitManager : SingletonMono<UnitManager>
     }
 
 
-
-    //관통 범위 공격시, 지정 범위 안 모든 적 가져오기
-    //bound 매개변수는 target에 포함될 예정
-    //근데 다시 생각해보니까 찾는 단계에서 리스트를 찾을 이유가?? 공격단계에서 찾는게 호출이 훨씬 적음
-    //public List<IDamageable> PenetrativeFindTarget(BaseUnit target, bool isPlayer, float bound)
+    #region Legacy Attack Methods
+    ////위치(x좌표) 중심 폭발형 범위공격
+    ////나중엔 공격자의 정보를 넣어서 매개변수를 한번에 처리 예정
+    ////사실 이 친구는 매니저에 위치할 필요가 없긴 함
+    //public void ExplosiveAttackTarget(Vector2 targetPos, bool isPlayer, float atkPower, float bound)
     //{
-    //    if (target == null || target.gameObject == null) return null;
+    //    Vector2 boxSize = new Vector2(bound, 6); //6은 일단 아무 숫자 넣음. 적절한 세로 박스 크기는 얼마??
+        
+    //    //일단 awake로 레이어마스크 캐싱으로 불러옴
+    //    LayerMask targetLayerMask = isPlayer ? enemyLayerMask : playerLayerMask;
 
-    //    Vector3 callerPos = target.gameObject.transform.position;
-    //    List<BaseCharacter> unitList = isPlayer ? enemyUnitList : playerUnitList;
+    //    Collider2D[] hitColliders = Physics2D.OverlapBoxAll(targetPos, boxSize, 0f, targetLayerMask);
 
-    //    List<IDamageable> nearUnitList = new();
-
-    //    foreach (var unit in unitList)
+    //    foreach (Collider2D hit in hitColliders)
     //    {
-    //        if (unit == null || !unit.gameObject.activeSelf) continue;
-
-    //        // 거리 계산
-    //        float dist = Mathf.Abs(unit.gameObject.transform.position.x - callerPos.x);
-    //        if (dist > bound) continue; // 범위 초과하면 다음
-    //        IDamageable tmp = unit.Damageable;
-    //        if (tmp == null) continue;
-    //        nearUnitList.Add(tmp);
+    //        if (hit.TryGetComponent<BaseCharacter>(out BaseCharacter unit))
+    //            unit.Damageable.TakeDamage(atkPower);
     //    }
-    //    return nearUnitList;
+
     //}
 
-    //위치(x좌표) 중심 폭발형 범위공격
-    //나중엔 공격자의 정보를 넣어서 매개변수를 한번에 처리 예정
-    //사실 이 친구는 매니저에 위치할 필요가 없긴 함
-    public void ExplosiveAttackTarget(Vector2 targetPos, bool isPlayer, float atkPower, float bound)
-    {
-        Vector2 boxSize = new Vector2(bound, 6); //6은 일단 아무 숫자 넣음. 적절한 세로 박스 크기는 얼마??
+    ////new 관통형 범위공격. 로직은 폭발과 동일, 대신 범위만 사거리 전체
+    //public void PenetrativeAttackTarget(BaseUnit target, bool isPlayer)
+    //{
+    //    float leftOrRight = isPlayer ? target.AttackRange : -target.AttackRange;
+    //    Vector2 rangeCenter = new Vector2(target.transform.position.x + (leftOrRight / 2), target.transform.position.y);
         
-        //일단 awake로 레이어마스크 캐싱으로 불러옴
-        LayerMask targetLayerMask = isPlayer ? enemyLayerMask : playerLayerMask;
+    //    Vector2 boxSize = new Vector2(target.AttackRange, 6); //6은 일단 아무 숫자 넣음. 적절한 세로 박스 크기는 얼마??
 
-        Collider2D[] hitColliders = Physics2D.OverlapBoxAll(targetPos, boxSize, 0f, targetLayerMask);
+    //    LayerMask targetLayerMask = isPlayer ? enemyLayerMask : playerLayerMask;
 
-        foreach (Collider2D hit in hitColliders)
-        {
-            if (hit.TryGetComponent<BaseCharacter>(out BaseCharacter unit))
-                unit.Damageable.TakeDamage(atkPower);
-        }
+    //    Collider2D[] hitColliders = Physics2D.OverlapBoxAll(rangeCenter, boxSize, 0f, targetLayerMask);
 
-    }
+    //    foreach (Collider2D hit in hitColliders)
+    //    {
+    //        if (hit.TryGetComponent<BaseCharacter>(out BaseCharacter unit))
+    //            unit.Damageable.TakeDamage(target.AtkPower);
+    //    }
 
-    //new 관통형 범위공격. 로직은 폭발과 동일, 대신 범위만 사거리 전체
-    public void PenetrativeAttackTarget(BaseUnit target, bool isPlayer)
-    {
-        float leftOrRight = isPlayer ? target.AttackRange : -target.AttackRange;
-        Vector2 rangeCenter = new Vector2(target.transform.position.x + (leftOrRight / 2), target.transform.position.y);
-        
-        Vector2 boxSize = new Vector2(target.AttackRange, 6); //6은 일단 아무 숫자 넣음. 적절한 세로 박스 크기는 얼마??
-
-        LayerMask targetLayerMask = isPlayer ? enemyLayerMask : playerLayerMask;
-
-        Collider2D[] hitColliders = Physics2D.OverlapBoxAll(rangeCenter, boxSize, 0f, targetLayerMask);
-
-        foreach (Collider2D hit in hitColliders)
-        {
-            if (hit.TryGetComponent<BaseCharacter>(out BaseCharacter unit))
-                unit.Damageable.TakeDamage(target.AtkPower);
-        }
-
-    }
+    //}
 
 
 
 
-    //타겟수 제한 있는 범위공격 (가까운 순 정렬)
-    public void AttackClosestMultipleTarget(BaseUnit target, bool isPlayer, int targetLimit)
-    {
-        float leftOrRight = isPlayer ? target.AttackRange : -target.AttackRange;
-        Vector2 rangeCenter = new Vector2(target.transform.position.x + (leftOrRight / 2), target.transform.position.y);
+    ////타겟수 제한 있는 범위공격 (가까운 순 정렬)
+    //public void AttackClosestMultipleTarget(BaseUnit target, bool isPlayer, int targetLimit)
+    //{
+    //    float leftOrRight = isPlayer ? target.AttackRange : -target.AttackRange;
+    //    Vector2 rangeCenter = new Vector2(target.transform.position.x + (leftOrRight / 2), target.transform.position.y);
 
-        Vector2 boxSize = new Vector2(target.AttackRange, 6); //6은 일단 아무 숫자 넣음. 적절한 세로 박스 크기는 얼마??
+    //    Vector2 boxSize = new Vector2(target.AttackRange, 6); //6은 일단 아무 숫자 넣음. 적절한 세로 박스 크기는 얼마??
 
-        LayerMask targetLayerMask = isPlayer ? enemyLayerMask : playerLayerMask;
+    //    LayerMask targetLayerMask = isPlayer ? enemyLayerMask : playerLayerMask;
 
-        //실행 위치를 컨트롤러로 옮기고 배열을 만들어주면, nonAlloc도 가능할듯?
-        Collider2D[] hitColliders = Physics2D.OverlapBoxAll(rangeCenter, boxSize, 0f, targetLayerMask);
-        //얘도 리스트를 미리 만들기 가능
-        List<BaseCharacter> vaildList = new();
+    //    //실행 위치를 컨트롤러로 옮기고 배열을 만들어주면, nonAlloc도 가능할듯?
+    //    Collider2D[] hitColliders = Physics2D.OverlapBoxAll(rangeCenter, boxSize, 0f, targetLayerMask);
+    //    //얘도 리스트를 미리 만들기 가능
+    //    List<BaseCharacter> vaildList = new();
 
-        foreach (Collider2D hit in hitColliders)
-        {
-            if (hit.TryGetComponent<BaseCharacter>(out BaseCharacter unit))
-                vaildList.Add(unit);
-        }
+    //    foreach (Collider2D hit in hitColliders)
+    //    {
+    //        if (hit.TryGetComponent<BaseCharacter>(out BaseCharacter unit))
+    //            vaildList.Add(unit);
+    //    }
 
-        //리스트 정렬
-        vaildList.Sort((a, b) =>
-        {
-            float distA = Mathf.Abs(a.transform.position.x - target.transform.position.x);
-            float distB = Mathf.Abs(b.transform.position.x - target.transform.position.x);
+    //    //리스트 정렬
+    //    vaildList.Sort((a, b) =>
+    //    {
+    //        float distA = Mathf.Abs(a.transform.position.x - target.transform.position.x);
+    //        float distB = Mathf.Abs(b.transform.position.x - target.transform.position.x);
 
-            // distA가 더 작으면(가까우면) 앞으로 오도록 정렬
-            return distA.CompareTo(distB);
-        });
+    //        // distA가 더 작으면(가까우면) 앞으로 오도록 정렬
+    //        return distA.CompareTo(distB);
+    //    });
 
-        int attackCount = Mathf.Min(targetLimit, vaildList.Count);
-        for (int i = 0; i < attackCount; i++)
-        {
-            // 정렬된 리스트의 앞에서부터 순서대로 공격
-            vaildList[i].Damageable.TakeDamage(target.AtkPower);
-        }
-    }
+    //    int attackCount = Mathf.Min(targetLimit, vaildList.Count);
+    //    for (int i = 0; i < attackCount; i++)
+    //    {
+    //        // 정렬된 리스트의 앞에서부터 순서대로 공격
+    //        vaildList[i].Damageable.TakeDamage(target.AtkPower);
+    //    }
+    //}
 
-
+    #endregion
 
     /*public BaseCharacter FindClosestTarget(BaseUnit caller, bool isPlayer)
     {
