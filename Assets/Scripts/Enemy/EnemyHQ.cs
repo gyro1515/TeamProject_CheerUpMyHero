@@ -32,11 +32,7 @@ public class EnemyHQ : BaseHQ
     protected override void Update()
     {
         base.Update();
-        // 워닝 테스트
-        /*if(Input.GetKeyDown(KeyCode.Alpha3))
-        {
-            WarningUI.OpenUI();
-        }*/
+        
     }
     public override void Dead()
     {

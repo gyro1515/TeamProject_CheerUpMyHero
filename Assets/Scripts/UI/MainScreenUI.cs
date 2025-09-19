@@ -15,7 +15,7 @@ public class MainScreenUI : BaseUI
 
     [Header("패널 (Canvas Group)")]
     [SerializeField] private CanvasGroup _battlePanelCanvasGroup;
-    [SerializeField] private CanvasGroup _testPanelCanvasGroup;
+    //[SerializeField] private CanvasGroup _testPanelCanvasGroup;
     [SerializeField] private CanvasGroup _deckSelectPanelCanvasGroup;
 
     UISelectCard uiSelectCard;
@@ -24,7 +24,7 @@ public class MainScreenUI : BaseUI
     private void Awake()
     {
         if (_adviserButton == null || _battleButton == null
-            || _battlePanelCanvasGroup == null || _testPanelCanvasGroup == null || _testButton == null
+            || _battlePanelCanvasGroup == null /*|| _testPanelCanvasGroup == null*/ || _testButton == null
             || _deckSelectPanelCanvasGroup == null || _deckSelectButton == null || _notYetButton == null)
         {
             Debug.LogError("MainSceneUI: 모든 UI 컴포넌트가 인스펙터에 연결되지 않았습니다.");
@@ -47,13 +47,13 @@ public class MainScreenUI : BaseUI
     private void OnEnable()
     {
         ClosePanel(_battlePanelCanvasGroup, true);
-        ClosePanel(_testPanelCanvasGroup, true);
+        //ClosePanel(_testPanelCanvasGroup, true);
         ClosePanel(_deckSelectPanelCanvasGroup, true);
     }
     private void OnAdviserButtonClck()
     {
         OpenPanel(_battlePanelCanvasGroup);
-        OpenPanel(_testPanelCanvasGroup);
+        //OpenPanel(_testPanelCanvasGroup);
     }
 
     private void OnBattleButtonClick()
@@ -61,7 +61,7 @@ public class MainScreenUI : BaseUI
         Debug.Log("덱 선택 패널을 엽니다.");
         OpenPanel(_deckSelectPanelCanvasGroup);
         ClosePanel(_battlePanelCanvasGroup);
-        ClosePanel(_testPanelCanvasGroup);
+        //ClosePanel(_testPanelCanvasGroup);
     }
 
     private void OnDeckSelectButtonClick()
