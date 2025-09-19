@@ -89,7 +89,7 @@ public class EnemyUnitController : BaseController
     IEnumerator AtkAnimRoutine()
     {
         // Attack 상태 진입 대기
-        float normalizedTime = 1f;
+        float normalizedTime = -1f;
         do
         {
             normalizedTime = GetNormalizedTime(attackStateHash);
