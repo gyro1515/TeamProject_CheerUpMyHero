@@ -42,4 +42,10 @@ public class DataBase<T1, T2> where T1 : MonoData where T2 : MonoSO<T1>
         _DB.TryGetValue(idNumber, out var data);    // idNumber를 키 값으로 하는 value를 null 검사하고 얻어옴.
         return data;
     }
+
+    //데이터의 개수를 얻어오는 함수가 있으면 좋을 것 같아서 추가했습니다.
+    public int GetDataSize()
+    {
+        return _DB.Count;
+    }
 }

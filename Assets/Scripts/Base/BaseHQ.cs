@@ -10,10 +10,8 @@ public abstract class BaseHQ : BaseCharacter, IDamageable
     [SerializeField] protected float minY = 0; // 스폰 위치 최소값
     [SerializeField] protected float maxY = 0; // 스폰 위치 최대값
     [SerializeField] protected float spawnInterval = 0.5f;
-    protected int tmpMinY;
-    protected int tmpMaxY;
-
-    
+    int tmpMinY;
+    int tmpMaxY;
 
     protected override void Awake()
     {
@@ -22,7 +20,7 @@ public abstract class BaseHQ : BaseCharacter, IDamageable
         tmpMaxY = (int)(maxY * 100f) + 1;
         OnDead += Dead;
     }
-    protected abstract void SpawnUnit();
+    protected abstract void SpawnUnit(); // 추후 애너미에만 있을 지도...?
     public virtual void Dead()
     {
         // 여기서 오브젝트 풀 반환
@@ -37,5 +35,10 @@ public abstract class BaseHQ : BaseCharacter, IDamageable
     {
         CurHp -= damage;
     }
-    
+    public Vector3 GetRandomSpawnPos()
+    {
+        Vector3 spawnPos = gameObject.transform.position;
+        spawnPos.y += UnityEngine.Random.Range(tmpMinY, tmpMaxY) / 100f;
+        return spawnPos;
+    }
 }
