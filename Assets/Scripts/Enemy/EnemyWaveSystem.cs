@@ -38,6 +38,14 @@ public class EnemyWaveSystem : MonoBehaviour
         // 웨이브 코루틴
         StartCoroutine(WaveTimeRoutine());
     }
+    private void Update()
+    {
+        // 워닝 테스트
+        if (Input.GetKeyDown(KeyCode.Alpha3))
+        {
+            warningUI.OpenUI();
+        }
+    }
     IEnumerator WaveTimeRoutine()
     {
         waveIdx = 0;

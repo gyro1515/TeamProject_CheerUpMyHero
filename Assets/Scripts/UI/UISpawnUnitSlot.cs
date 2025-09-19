@@ -46,6 +46,7 @@ public class UISpawnUnitSlot : MonoBehaviour
     }
     void OnSpawnUnit()
     {
+        if (GameManager.Instance.PlayerHQ == null) return; // 플레이어 HQ 죽었다면 작동 안하게 하기
         SetTimerIconActive(true);
         // 여기서 유닛 소환, 테스트 용으로 이렇게 형변환
         if((int)playerUnitType != -1) GameManager.Instance.PlayerHQ.SpawnUnit(playerUnitType);
