@@ -322,15 +322,15 @@ GameObject:
   - component: {fileID: 6097573390348240658}
   - component: {fileID: 9025098274931528058}
   - component: {fileID: 5152206092796273553}
-  - component: {fileID: 4251159122797393286}
   - component: {fileID: 6877542443131849797}
+  - component: {fileID: 4375145300347451046}
   m_Layer: 5
   m_Name: ConstructionSelectPanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &3980948163234457466
 RectTransform:
   m_ObjectHideFlags: 0
@@ -414,7 +414,19 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
---- !u!114 &4251159122797393286
+--- !u!225 &6877542443131849797
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2555998067343666926}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
+--- !u!114 &4375145300347451046
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -428,18 +440,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   buildingSelectItemPrefab: {fileID: 546282769921532883, guid: 17f149d95076b174387e9a4be3f3e0b8, type: 3}
   contentParent: {fileID: 6013821701552080864}
---- !u!225 &6877542443131849797
-CanvasGroup:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2555998067343666926}
-  m_Enabled: 1
-  m_Alpha: 1
-  m_Interactable: 1
-  m_BlocksRaycasts: 1
-  m_IgnoreParentGroups: 0
 --- !u!1 &4674394048274469778
 GameObject:
   m_ObjectHideFlags: 0
@@ -473,7 +473,7 @@ RectTransform:
   m_Father: {fileID: 8819519785288864428}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
+  m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}
