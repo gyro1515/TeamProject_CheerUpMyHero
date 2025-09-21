@@ -11,6 +11,17 @@ public class MainScreenBuildingController : SingletonMono<MainScreenBuildingCont
     private BuildingTile[,] _tiles = new BuildingTile[5, 5];
     private BuildingTile _selectedTile;
 
+
+    protected override void Awake() //돈디스트로이 온 로드 에러가 떠서 추가했습니다
+    {
+        Transform originalParent = transform.parent; //UIManager에 의해 설정된 현재 부모를 기억
+
+        transform.SetParent(null);//DontDestroyOnLoad를 호출하기 위해 잠시 루트 오브젝트로 만듦
+
+        base.Awake();
+
+        transform.SetParent(originalParent);  //원래의 부모에게 다시 자식으로 돌아갑니다.
+    }
     private void Start()
     {
         CreateGrid();
