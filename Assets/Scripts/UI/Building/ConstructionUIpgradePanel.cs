@@ -182,11 +182,11 @@ public class ConstructionUpgradePanel : BaseUI
 
         if (_mode == PanelMode.Construction && _constructionData != null)
         {
-            BuildingManager.Instance.BuildBuildingOnTile(_targetTile, _constructionData.idNumber);
+            MainScreenBuildingController.Instance.BuildBuildingOnTile(_targetTile, _constructionData.idNumber);
         }
         else if (_mode == PanelMode.Upgrade)
         {
-            BuildingManager.Instance.UpgradeBuildingOnTile(_targetTile);
+            MainScreenBuildingController.Instance.UpgradeBuildingOnTile(_targetTile);
         }
 
         CloseUI();
