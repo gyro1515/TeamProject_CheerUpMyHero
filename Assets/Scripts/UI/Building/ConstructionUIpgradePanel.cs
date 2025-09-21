@@ -34,6 +34,8 @@ public class ConstructionUpgradePanel : BaseUI
     private BuildingUpgradeData _upgradeData;      // 업그레이드 시 사용할 데이터 (다음 레벨)
     private CanvasGroup _canvasGroup;
 
+    private bool _isClosing = false;
+
     private enum PanelMode { None, Construction, Upgrade }
     private PanelMode _mode = PanelMode.None;
 
@@ -259,6 +261,15 @@ public class ConstructionUpgradePanel : BaseUI
     }
     public override void CloseUI()
     {
+        if (_isClosing) return;
+        _isClosing = true;
+
+        if (_targetTile != null)
+        {
+            MainScreenBuildingController.Instance.DeselectTile();
+            _targetTile = null;
+        }
+
         FadeEffectManager.Instance.FadeOutUI(_canvasGroup);
         StartCoroutine(CoCloseAfterDelay(0.3f));
     }
@@ -267,5 +278,6 @@ public class ConstructionUpgradePanel : BaseUI
     {
         yield return new WaitForSecondsRealtime(delay);
         base.CloseUI();
+        _isClosing = false;
     }
 }
