@@ -14,8 +14,8 @@ public class GameManager : SingletonMono<GameManager>
     public PlayerHQ PlayerHQ { get; set; }
 
     public Player Player { get; set; }
+    public bool IsBattleStarted { get; private set; } = false;
 
-    private float foodTimer = 0f;
 
     protected override void Awake()
     {
@@ -74,55 +74,26 @@ public class GameManager : SingletonMono<GameManager>
                 ShowResultUI(false);
             }
         }
-        if (enemyHQ != null && enemyHQ.gameObject.activeInHierarchy)
+
+        if (IsBattleStarted)
         {
-            foodTimer += Time.deltaTime;
-            if (foodTimer >= 1f)
-            {
-                foodTimer = 0f;
-                PlayerDataManager.Instance.AddFoodOverTime(1f);
-            }
+            PlayerDataManager.Instance.AddFoodOverTime(Time.deltaTime);
         }
     }
 
     public void StartBattle()
     {
-        int baseMaxFood = 1000;
-        float baseFoodGain = 1f;
+        // 농장 레벨 기반 최대 저장량 세팅
+        PlayerDataManager.Instance.SetFarmLevel(PlayerDataManager.Instance.FarmLevel);
 
-        int totalFoodBonus = 0;
-        float totalFoodGainPercent = 0f;
+        IsBattleStarted = true;
 
-        for (int y = 0; y < 5; y++)
-        {
-            for (int x = 0; x < 5; x++)
-            {
-                BuildingUpgradeData building = PlayerDataManager.Instance.BuildingGridData[x, y];
-                if (building != null)
-                {
-                    foreach (BuildingEffect effect in building.effects)
-                    {
-                        switch (effect.effectType)
-                        {
-                            case BuildingEffectType.MaximumFood:
-                                totalFoodBonus += (int)effect.effectValueMin;
-                                break;
-                            case BuildingEffectType.IncreaseFoodGainSpeed:
-                                totalFoodGainPercent += effect.effectValueMin;
-                                break;
-                        }
-                    }
-                }
-            }
-        }
-
-        PlayerDataManager.Instance.ResetFood();
-        PlayerDataManager.Instance.SetMaxFood(baseMaxFood + totalFoodBonus);
-        PlayerDataManager.Instance.SetFoodGainPerSecond(baseFoodGain * (1f + totalFoodGainPercent / 100f));
+        Debug.Log($"Battle Started! MaxFood: {PlayerDataManager.Instance.MaxFood}, CurrentFood: {PlayerDataManager.Instance.CurrentFood}");
     }
 
     public void ShowResultUI(bool isVictory)
     {
+        IsBattleStarted = false;
         Time.timeScale = 0f;
 
         StageRewardData rewardData = DataManager.Instance.RewardData.GetData(currentStageID);

@@ -98,7 +98,7 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
         _resources[ResourceType.Gold] = 100000;
         _resources[ResourceType.Wood] = 10000;
         _resources[ResourceType.Iron] = 10000;
-        _resources[ResourceType.Food] = 0;
+        _resources[ResourceType.Food] = CurrentFood;
         _resources[ResourceType.MagicStone] = 10000;
     }
 
@@ -119,7 +119,12 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
         if (_resources.ContainsKey(type))
         {
             _resources[type] += amount;
-            OnResourceChangedEvent?.Invoke(type, _resources[type]); //자원 수량 변경 이벤트
+            if (type == ResourceType.Food)
+            {
+                CurrentFood = _resources[type];
+            }
+
+            OnResourceChangedEvent?.Invoke(type, _resources[type]);
         }
         else
         {
@@ -129,34 +134,75 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
     #endregion
 
     #region Food
+    // --- 푸드/농장 관련 ---
     public int CurrentFood { get; private set; } = 0;
-    public int MaxFood { get; private set; } = 1000; // 기본 최대치
-    public float FoodGainPerSecond { get; private set; } = 1f; // 기본 속도
+    public int MaxFood { get; private set; } = 0; // 농장 없으면 0
+    private float foodAccumulator = 0f;
 
-    public void ResetFood()
-    {
-        CurrentFood = 0;
-    }
+    public int FarmLevel { get; private set; } = 0; // 농장 레벨, 0이면 농장 없음
+    public int SupplyLevel { get; private set; } = 1; // 보급품 레벨, 최소 1
 
-    public void SetMaxFood(int value)
+    // 농장 레벨별 최대 저장량 (예시, 엑셀 데이터 기반)
+    private readonly int[] maxFoodByFarmLevel = { 500, 750, 1000, 1250, 1500, 1750, 2000, 2250, 2500 };
+
+    // 농장 레벨별 획득률 증가(%)
+    private readonly int[] farmFoodGainPercentByLevel = { 5, 10, 15, 20, 25, 30, 35, 40, 50 };
+
+    // 보급품 레벨별 기본 초당 획득량
+    private readonly int[] baseFoodGainBySupplyLevel = { 25, 29, 37, 47, 59, 75, 95, 119, 147 };
+    public void SetFarmLevel(int level)
     {
-        MaxFood = value;
+        FarmLevel = Mathf.Clamp(level, 0, maxFoodByFarmLevel.Length);
+        MaxFood = (FarmLevel == 0) ? 0 : maxFoodByFarmLevel[FarmLevel - 1];
+
         if (CurrentFood > MaxFood)
             CurrentFood = MaxFood;
-    }
 
-    public void SetFoodGainPerSecond(float value)
-    {
-        FoodGainPerSecond = value;
-    }
-
-    public void AddFoodOverTime(float deltaTime)
-    {
-        CurrentFood += Mathf.FloorToInt(FoodGainPerSecond * deltaTime);
-        if (CurrentFood > MaxFood)
-            CurrentFood = MaxFood;
+        _resources[ResourceType.Food] = CurrentFood;
         OnResourceChangedEvent?.Invoke(ResourceType.Food, CurrentFood);
     }
-    #endregion
 
-}
+    public void SetSupplyLevel(int level)
+    {
+        SupplyLevel = Mathf.Clamp(level, 1, baseFoodGainBySupplyLevel.Length);
+    }
+
+    // --- 보급품 획득 ---
+    public void AddFoodOverTime(float deltaTime)
+    {
+        // 기본 최대 저장량 (농장이 없으면 100)
+        int maxFood = (FarmLevel > 0) ? maxFoodByFarmLevel[FarmLevel - 1] : 100;
+
+        // 기본 초당 획득량: 보급품 레벨 기준
+        int baseGain = baseFoodGainBySupplyLevel[SupplyLevel - 1];
+
+        // 농장 레벨 증가율 적용 (농장이 없으면 0%)
+        int farmPercent = (FarmLevel > 0) ? farmFoodGainPercentByLevel[FarmLevel - 1] : 0;
+
+        // 이번 프레임 동안 획득할 수치
+        float gainThisFrame = baseGain * (1f + farmPercent / 100f) * deltaTime;
+        foodAccumulator += gainThisFrame;
+
+        // 소수점 누적 후 1 이상이면 CurrentFood에 반영
+        int gainInt = Mathf.FloorToInt(foodAccumulator);
+        if (gainInt > 0)
+        {
+            CurrentFood += gainInt;
+
+            // 최대 저장량 제한
+            if (CurrentFood > maxFood)
+                CurrentFood = maxFood;
+
+            _resources[ResourceType.Food] = CurrentFood;
+            OnResourceChangedEvent?.Invoke(ResourceType.Food, CurrentFood);
+
+            Debug.Log($"[Food Gain] +{gainInt} / CurrentFood: {CurrentFood}");
+
+            foodAccumulator -= gainInt; // 반영한 만큼 누적치 차감
+        }
+    }
+        #endregion
+    }
+
+
+
