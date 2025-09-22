@@ -10,6 +10,8 @@ public class ConstructionSelectPanel : BaseUI
     private CanvasGroup _canvasGroup;
 
     private BuildingTile _targetTile;
+    private bool _isClosing = false;
+
 
 
     private void Awake()
@@ -44,12 +46,19 @@ public class ConstructionSelectPanel : BaseUI
 
     public override void OpenUI()
     {
+        if (_isClosing) return; //중복 호출 방지
+        _isClosing = true;
         base.OpenUI();
         FadeEffectManager.Instance.FadeInUI(_canvasGroup);
     }
 
     public override void CloseUI()
     {
+        if (_targetTile != null)
+        {
+            MainScreenBuildingController.Instance.DeselectTile();
+            _targetTile = null; 
+        }
         FadeEffectManager.Instance.FadeOutUI(_canvasGroup);
         StartCoroutine(CoCloseAfterDelay(0.3f));
     }
@@ -58,5 +67,6 @@ public class ConstructionSelectPanel : BaseUI
     {
         yield return new WaitForSecondsRealtime(delay);
         base.CloseUI();
+        _isClosing = false; //완료 후 플래그 초기화
     }
 }
