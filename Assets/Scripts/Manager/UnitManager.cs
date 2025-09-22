@@ -46,7 +46,7 @@ public class UnitManager : SingletonMono<UnitManager>
         int last = unitList.Count - 1;
         //unit.ListIndex = -1; // 리스트에 삭제된 애는 -1로 -> 굳이...?
         // swap-back 방식, 맨 뒤에 것을 삭제할 것에 덮어쓰고, 맨 뒤 삭제
-        if (index < last)
+        if (index < last) // **추후 수정: if 체크가 비용이 더 클 거 같다면 if빼기
         {
             unitList[index] = unitList[last];
             unitList[index].ListIndex = index; // 교체된 녀석도 인덱스 갱신
@@ -68,11 +68,13 @@ public class UnitManager : SingletonMono<UnitManager>
 
         foreach (var unit in unitList)
         {
-            if (unit == null || unit == target || !unit.gameObject.activeSelf ) continue;
+            if (unit == null || unit == target || unit.IsDead ) continue;
 
             // 거리 계산
             Vector3 unitPos = unit.gameObject.transform.position;
-            float dist = Mathf.Abs(unitPos.x - callerPos.x);
+            //float dist = Mathf.Abs(unitPos.x - callerPos.x);
+            float dist = isPlayer ? unitPos.x - callerPos.x : callerPos.x - unitPos.x;
+            if (dist < 0f) continue; // 반대 방향 공격 x
             if (dist > target.AttackRange) continue; // 공격 범위 초과하면 다음
             if (dist > minDist) continue; // 최소 거리보다 멀다면 다음
             IDamageable tmp = unit.Damageable;

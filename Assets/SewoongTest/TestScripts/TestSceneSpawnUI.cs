@@ -27,7 +27,7 @@ public class TestSceneSpawnUI : MonoBehaviour
 
             PlayerUnit unit = unitPrefab.GetComponent<PlayerUnit>();
             // 변별을 위해 (int)playerUnitList[i] 사용 -> 인덱스화
-            unitSlot.InitSpawnUnitSlot(null, (int)playerUnitList[i], unit.SpawnCooldown, unit.foodConsumption);
+            unitSlot.InitSpawnUnitSlot(null, (int)playerUnitList[i], unit.SpawnCooldown, unit.FoodConsumption);
         }
     }
 }

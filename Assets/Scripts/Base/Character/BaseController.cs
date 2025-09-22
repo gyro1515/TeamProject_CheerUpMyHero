@@ -10,6 +10,7 @@ public class BaseController : MonoBehaviour, IAttackable, IDamageable
     protected BaseCharacter baseCharacter;
     BasePoolable poolable;
     protected readonly int attackStateHash = Animator.StringToHash("Attack");
+    public Animator Animator { get { return animator; } }
 
     protected virtual void Awake()
     {
@@ -19,6 +20,7 @@ public class BaseController : MonoBehaviour, IAttackable, IDamageable
     protected virtual void OnEnable()
     {
         baseCharacter.OnDead += Dead;
+        
     }
     protected virtual void Start()
     {
@@ -34,6 +36,7 @@ public class BaseController : MonoBehaviour, IAttackable, IDamageable
     protected virtual void OnDisable()
     {
         baseCharacter.OnDead -= Dead;
+        
     }
     public virtual void Attack()
     {
@@ -50,6 +53,20 @@ public class BaseController : MonoBehaviour, IAttackable, IDamageable
     {
         // 죽으면 여기서 오브젝트 풀 반환
         baseCharacter.IsDead = true;
+
+        // 아래 SetDead()로 이동
+        /*// 이 오브젝트에 BasePoolable스크립트가 붙어 있다면 오브젝트 풀링, 아니면 그냥 삭제
+        if (poolable)
+        {
+            poolable?.ReleaseSelf();
+            return;
+        }
+        Debug.Log($"{gameObject} 삭제됨");
+        gameObject.SetActive(false);
+        Destroy(gameObject);*/
+    }
+    public void SetDead()
+    {
         // 이 오브젝트에 BasePoolable스크립트가 붙어 있다면 오브젝트 풀링, 아니면 그냥 삭제
         if (poolable)
         {
@@ -60,8 +77,11 @@ public class BaseController : MonoBehaviour, IAttackable, IDamageable
         gameObject.SetActive(false);
         Destroy(gameObject);
     }
+
     protected float GetNormalizedTime(int stateHash)
     {
+        if (animator == null) return - 1f;
+        
         AnimatorStateInfo currentInfo = animator.GetCurrentAnimatorStateInfo(0);
         AnimatorStateInfo nextInfo = animator.GetNextAnimatorStateInfo(0);
 
@@ -74,5 +94,10 @@ public class BaseController : MonoBehaviour, IAttackable, IDamageable
             return currentInfo.normalizedTime;
         }
         else return -1f;
+    }
+
+    public bool IsDead()
+    {
+        return baseCharacter.IsDead;
     }
 }
