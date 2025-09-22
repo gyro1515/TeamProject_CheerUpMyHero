@@ -15,7 +15,7 @@ public class GameManager : SingletonMono<GameManager>
 
     public Player Player { get; set; }
 
-
+    private float foodTimer = 0f;
 
     protected override void Awake()
     {
@@ -67,13 +67,58 @@ public class GameManager : SingletonMono<GameManager>
         // 플레이어 바로 죽이는 치트키 B키
         if (Input.GetKeyDown(KeyCode.B))
         {
-            if(Player != null && !Player.IsDead)
+            if (Player != null && !Player.IsDead)
             {
                 Debug.Log("B키 눌려서 플레이어 개체 즉시 죽임");
                 Player.CurHp = 0;
                 ShowResultUI(false);
             }
         }
+        if (enemyHQ != null && enemyHQ.gameObject.activeInHierarchy)
+        {
+            foodTimer += Time.deltaTime;
+            if (foodTimer >= 1f)
+            {
+                foodTimer = 0f;
+                PlayerDataManager.Instance.AddFoodOverTime(1f);
+            }
+        }
+    }
+
+    public void StartBattle()
+    {
+        int baseMaxFood = 1000;
+        float baseFoodGain = 1f;
+
+        int totalFoodBonus = 0;
+        float totalFoodGainPercent = 0f;
+
+        for (int y = 0; y < 5; y++)
+        {
+            for (int x = 0; x < 5; x++)
+            {
+                BuildingUpgradeData building = PlayerDataManager.Instance.BuildingGridData[x, y];
+                if (building != null)
+                {
+                    foreach (BuildingEffect effect in building.effects)
+                    {
+                        switch (effect.effectType)
+                        {
+                            case BuildingEffectType.MaximumFood:
+                                totalFoodBonus += (int)effect.effectValueMin;
+                                break;
+                            case BuildingEffectType.IncreaseFoodGainSpeed:
+                                totalFoodGainPercent += effect.effectValueMin;
+                                break;
+                        }
+                    }
+                }
+            }
+        }
+
+        PlayerDataManager.Instance.ResetFood();
+        PlayerDataManager.Instance.SetMaxFood(baseMaxFood + totalFoodBonus);
+        PlayerDataManager.Instance.SetFoodGainPerSecond(baseFoodGain * (1f + totalFoodGainPercent / 100f));
     }
 
     public void ShowResultUI(bool isVictory)

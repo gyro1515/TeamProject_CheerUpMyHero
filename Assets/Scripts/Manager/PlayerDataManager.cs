@@ -98,7 +98,7 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
         _resources[ResourceType.Gold] = 100000;
         _resources[ResourceType.Wood] = 10000;
         _resources[ResourceType.Iron] = 10000;
-        _resources[ResourceType.Food] = 10000;
+        _resources[ResourceType.Food] = 0;
         _resources[ResourceType.MagicStone] = 10000;
     }
 
@@ -127,4 +127,36 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
         }
     }
     #endregion
+
+    #region Food
+    public int CurrentFood { get; private set; } = 0;
+    public int MaxFood { get; private set; } = 1000; // 기본 최대치
+    public float FoodGainPerSecond { get; private set; } = 1f; // 기본 속도
+
+    public void ResetFood()
+    {
+        CurrentFood = 0;
+    }
+
+    public void SetMaxFood(int value)
+    {
+        MaxFood = value;
+        if (CurrentFood > MaxFood)
+            CurrentFood = MaxFood;
+    }
+
+    public void SetFoodGainPerSecond(float value)
+    {
+        FoodGainPerSecond = value;
+    }
+
+    public void AddFoodOverTime(float deltaTime)
+    {
+        CurrentFood += Mathf.FloorToInt(FoodGainPerSecond * deltaTime);
+        if (CurrentFood > MaxFood)
+            CurrentFood = MaxFood;
+        OnResourceChangedEvent?.Invoke(ResourceType.Food, CurrentFood);
+    }
+    #endregion
+
 }
