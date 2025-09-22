@@ -10,30 +10,30 @@ public class UIGiveUpPanel : BaseUI
     [SerializeField] private Button _noButton;
 
     [Header("패널")]
-    [SerializeField] private GameObject _pausePanel;
-    [SerializeField] private GameObject _giveUpWarningPanel;
-    [SerializeField] private GameObject _giveUpPanel;
+    [SerializeField] private CanvasGroup _settingMenuPanel;
+
+    private CanvasGroup _canvasGroup;
 
     private void Awake()
     {
         _yesButton.onClick.AddListener(OnGiveUpYesButtonClicked);
         _noButton.onClick.AddListener(OnGiveUpNoButtonClicked);
+
+        _canvasGroup = GetComponent<CanvasGroup>();
     }
 
     private void OnGiveUpYesButtonClicked()
     {
-        _pausePanel.SetActive(false);
-        _giveUpWarningPanel.SetActive(false);
-        _giveUpPanel.SetActive(false);
+        FadeEffectManager.Instance.FadeOutUI(_canvasGroup);
+        FadeEffectManager.Instance.FadeOutUI(_settingMenuPanel);
         Time.timeScale = 1.0f;
-        Debug.Log("스테이지 실패 UI 뜨도록 하기");
+        GameManager.Instance.ShowResultUI(false);
     }
 
     private void OnGiveUpNoButtonClicked()
     {
-        _pausePanel.SetActive(false);
-        _giveUpWarningPanel.SetActive(false);
-        _giveUpPanel.SetActive(false);
+        FadeEffectManager.Instance.FadeOutUI(_canvasGroup);
+        FadeEffectManager.Instance.FadeOutUI(_settingMenuPanel);
         Time.timeScale = 1.0f;
     }
 }

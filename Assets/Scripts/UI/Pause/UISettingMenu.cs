@@ -5,78 +5,117 @@ using UnityEngine.UI;
 
 public class UISettingMenu : BaseUI
 {
+    #region 사운드 패널
     [Header("사운드 버튼")]
-    [SerializeField] private Button _SoundSettingButton;
+    [SerializeField] private Button _soundSettingButton;
 
     [Header("사운드 패널")]
-    [SerializeField] private GameObject _SoundSetting;
-
-    // ========================================================
-
-    [Header("성능 관리 버튼")]
-    [SerializeField] private Button _FPSSettingButton;
-
-    [Header("성능 관리 패널")]
-    [SerializeField] private GameObject _FPSSettingPanel;
-
-    // ========================================================
-
-    [Header("조작 패널 변경 버튼")]
-    [SerializeField] private Button _ControlSettingButton;
-
-    [Header("조작 패널 변경 패널")]
-    [SerializeField] private GameObject _ControlSettingPanel;
-
-    // ========================================================
-
-    [Header("전투포기 버튼")]
-    [SerializeField] private Button _giveUpButton;
-
-    [Header("포기 선택 패널")]
-    [SerializeField] private GameObject _giveUpPanel;
-
-    // ========================================================
-
-    [Header("포기 경고 패널")]
-    [SerializeField] private GameObject _giveUpWarningPanel;
-
-    [Header("돌아가기 버튼")]
-    [SerializeField] private Button _resumeButton;
-
-    
-    private void Awake()
-    {
-        _SoundSettingButton.onClick.AddListener(OnSoundSettingButtonClicked);
-        _FPSSettingButton.onClick.AddListener(OnFPSSettingButtonClicked);
-        _ControlSettingButton.onClick.AddListener(OnControlSettingButtonClicked);
-        _giveUpButton.onClick.AddListener(OnGiveUpButtonClicked);
-        _resumeButton.onClick.AddListener(OnResumeButtonClicked);
-    }
+    [SerializeField] private CanvasGroup _soundSettingPanel;
 
     private void OnSoundSettingButtonClicked()
     {
-        _SoundSetting.SetActive(true);
+        showPanel(_soundSettingPanel);
     }
+    #endregion
+
+    #region 성능 관리 패널
+    [Header("성능 관리 버튼")]
+    [SerializeField] private Button _fpsSettingButton;
+
+    [Header("성능 관리 패널")]
+    [SerializeField] private CanvasGroup _fpsSettingPanel;
 
     private void OnFPSSettingButtonClicked()
     {
-        _FPSSettingPanel.SetActive(true);
+        showPanel(_fpsSettingPanel);
     }
+    #endregion
+
+    #region 조작 패널 변경 패널
+    [Header("조작 패널 변경 버튼")]
+    [SerializeField] private Button _controlSettingButton;
+
+    [Header("조작 패널 변경 패널")]
+    [SerializeField] private CanvasGroup _controlSettingPanel;
 
     private void OnControlSettingButtonClicked()
     {
-        _ControlSettingPanel.SetActive(true);
+        showPanel(_controlSettingPanel);
     }
+    #endregion
+
+    #region 전투 포기 패널
+    [Header("전투 포기 버튼")]
+    [SerializeField] private Button _giveUpButton;
+
+    [Header("포기 선택 패널")]
+    [SerializeField] private CanvasGroup _giveUpPanel;
 
     private void OnGiveUpButtonClicked()
     {
-        _giveUpPanel.SetActive(true);
-        _giveUpWarningPanel.SetActive(true);
+        showPanel(_giveUpPanel);
     }
+    #endregion
+
+    #region 메인 메뉴 닫기
+    [Header("돌아가기 버튼")]
+    [SerializeField] private Button _resumeButton;
 
     private void OnResumeButtonClicked()
     {
-        CloseUI();
+        FadeEffectManager.Instance.FadeOutUI(_canvasGroup);
         Time.timeScale = 1.0f;
+    }
+    #endregion
+
+    private List<CanvasGroup> _allPanels;
+
+    private CanvasGroup _canvasGroup;
+
+    private void Awake()
+    {
+        _soundSettingButton.onClick.AddListener(OnSoundSettingButtonClicked);
+        _fpsSettingButton.onClick.AddListener(OnFPSSettingButtonClicked);
+        _controlSettingButton.onClick.AddListener(OnControlSettingButtonClicked);
+        _giveUpButton.onClick.AddListener(OnGiveUpButtonClicked);
+        _resumeButton.onClick.AddListener(OnResumeButtonClicked);
+
+        _canvasGroup = GetComponent<CanvasGroup>();
+
+        _allPanels = new List<CanvasGroup>
+        {
+            _soundSettingPanel, 
+            _fpsSettingPanel,
+            _controlSettingPanel,
+            _giveUpPanel
+        };
+
+        foreach (CanvasGroup panel in _allPanels )
+        {
+            if ( panel != null )
+            {
+                panel.alpha = 0.0f;
+                panel.interactable = false;
+                panel.blocksRaycasts = false;
+            }
+        }
+    }
+
+    private void showPanel(CanvasGroup target)
+    {
+        foreach (CanvasGroup panel in _allPanels )
+        {
+            if (panel == null) continue;
+
+            if (panel != target)
+            {
+                if (panel.alpha > 0.0f)
+                {
+                    FadeEffectManager.Instance.FadeOutUI(panel);
+                }
+            }
+        }
+
+        FadeEffectManager.Instance.FadeInUI(target);
     }
 }

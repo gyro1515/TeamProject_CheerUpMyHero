@@ -8,6 +8,9 @@ public class EnemyHQ : BaseHQ
     [SerializeField] List<PoolType> enemyUnits = new List<PoolType>(); // 기본 스폰 유닛
 
     public Coroutine spawnUnitRoutine; // 웨이브시 스폰은 일시 정지용
+
+    private EnemyWaveSystem waveSystem;
+    private bool isDefenseWaveSpawned = false;
     
     protected override void Awake()
     {
@@ -22,6 +25,8 @@ public class EnemyHQ : BaseHQ
         UnitManager.Instance.AddUnitList(this, false);
         
         //InvokeRepeating("SpawnUnit", 0f, spawnInterval);
+
+        waveSystem = GetComponent<EnemyWaveSystem>();
     }
     protected override void Start()
     {
@@ -32,11 +37,12 @@ public class EnemyHQ : BaseHQ
     protected override void Update()
     {
         base.Update();
-        // 워닝 테스트
-        /*if(Input.GetKeyDown(KeyCode.Alpha3))
+        
+        if (!isDefenseWaveSpawned && CurHp / MaxHp <= 0.7f)
         {
-            WarningUI.OpenUI();
-        }*/
+            isDefenseWaveSpawned = true;
+            waveSystem.SpawnDefenseWave();
+        }
     }
     public override void Dead()
     {

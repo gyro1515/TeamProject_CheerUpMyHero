@@ -6,5 +6,6 @@ using UnityEngine;
 [ExcelAsset]
 public class MstItems : ScriptableObject
 {
-	public List<MstItemEntity> Entities; 
+	public List<MstItemEntity> Entities;
+	public List<MstItemEntity> Entities2;
 }

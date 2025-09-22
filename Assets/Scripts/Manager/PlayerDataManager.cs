@@ -15,15 +15,43 @@ public enum ResourceType
 
 public class PlayerDataManager : SingletonMono<PlayerDataManager>
 {
+    // 선택한 스테이지 선택용
+    public (int mainStageIdx, int subStageIdx) SelectedStageIdx { get; set; } = (-1, -1);
+
     protected override void Awake()
     {
         base.Awake();
-
         if (Instance == this)
         {
             InitializeResources();
         }
     }
+    //빌딩 데이터
+    #region Building
+    public BuildingUpgradeData[,] BuildingGridData { get; set; } = new BuildingUpgradeData[5, 5];
+    // 건설 가능한 건물 목록을 저장해 둘 리스트 (한 번만 생성)
+    private List<BuildingUpgradeData> _buildableList;
+
+    // 건설 가능한 모든 건물의 목록을 반환하는 함수
+    public List<BuildingUpgradeData> GetBuildableList()
+    {
+        if (_buildableList == null)
+        {
+            _buildableList = new List<BuildingUpgradeData>();
+
+            // ❗️ DataManager.Instance를 통해 건물 데이터베이스에 접근하도록 수정합니다.
+            foreach (var data in DataManager.Instance.BuildingUpgradeData.Values)
+            {
+                // 0레벨인 데이터(최초 건설 데이터)만 목록에 추가
+                if (data.level == 0)
+                {
+                    _buildableList.Add(data);
+                }
+            }
+        }
+        return _buildableList;
+    }
+    #endregion
 
     //덱 편성 관련
     #region Deck
@@ -67,11 +95,11 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
     private void InitializeResources()
     {
         // 5가지 자원을 모두 딕셔너리에 추가하고 초기 수량을 설정.
-        _resources[ResourceType.Gold] = 1000;
-        _resources[ResourceType.Wood] = 1000;
-        _resources[ResourceType.Iron] = 1000;
-        _resources[ResourceType.Food] = 1000;
-        _resources[ResourceType.MagicStone] = 1000;
+        _resources[ResourceType.Gold] = 100000;
+        _resources[ResourceType.Wood] = 10000;
+        _resources[ResourceType.Iron] = 10000;
+        _resources[ResourceType.Food] = 10000;
+        _resources[ResourceType.MagicStone] = 10000;
     }
 
     // 특정 자원의 현재 수량을 반환하는 메서드

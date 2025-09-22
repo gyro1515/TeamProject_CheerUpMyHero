@@ -31,10 +31,10 @@ public enum PoolType
     EnemyUnit3,
     EnemyUnit4,
     EnemyUnit5,
-
+    EnemyUnit6,
 }
 
-public class ObjectPoolManager : SingletonMono<ObjectPoolManager>
+public class ObjectPoolManager : SingletonMono<ObjectPoolManager>, ISceneResettable
 {
     private Array enums;
 
@@ -53,7 +53,7 @@ public class ObjectPoolManager : SingletonMono<ObjectPoolManager>
     private Dictionary<GameObject, BasePoolable> poolableCache = new Dictionary<GameObject, BasePoolable>();
 
     //씬 바뀔 때 모든 풀 반납 처리
-    private void OnEnable()
+    /*private void OnEnable()
     {
         SceneManager.sceneUnloaded += OnSceneUnloaded;
     }
@@ -66,7 +66,7 @@ public class ObjectPoolManager : SingletonMono<ObjectPoolManager>
     private void OnSceneUnloaded(Scene current)
     {
         CleanAll();
-    }
+    }*/
 
 
     protected override void Awake()
@@ -77,7 +77,11 @@ public class ObjectPoolManager : SingletonMono<ObjectPoolManager>
 
         InitPool();
     }
-
+    private void Start()
+    {
+        // *** 씬 전환마다 리소스 정리하려면 추가 필요***
+        SceneLoader.Instance.SceneResettables.Add(this);
+    }
     void InitPool()
     {
         // 이 부분에서 rootContainer의 부모를 이 매니저 게임 오브젝트로 하지 않으면 씬 전환시마다 @Pool_Root가 삭제될텐데
@@ -231,5 +235,9 @@ public class ObjectPoolManager : SingletonMono<ObjectPoolManager>
             _isCleaning = false;
         }
     }
-
+    // 씬 전환 시 오브젝트 클리어용
+    public void OnSceneReset()
+    {
+        CleanAll();
+    }
 }

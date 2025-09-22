@@ -4,7 +4,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class UIManager : SingletonMono<UIManager>
+public class UIManager : SingletonMono<UIManager>, ISceneResettable
 {
     public const string UIPrefabPath = "Prefabs/UI/";
 
@@ -14,22 +14,23 @@ public class UIManager : SingletonMono<UIManager>
     {
         base.Awake();
     }
-    private void OnEnable()
+    /*private void OnEnable()
     {
         // 씬 언로드 이벤트 구독
         SceneManager.sceneUnloaded += OnSceneUnloaded;
-    }
-    
+    }*/
+
     private void Start()
     {
-        
+        // *** 씬 전환마다 리소스 정리하려면 추가 필요***
+        SceneLoader.Instance.SceneResettables.Add(this);
     }
-    private void OnDisable()
+    /*private void OnDisable()
     {
         // 씬 언로드 이벤트 해제 (메모리 누수 방지)
         SceneManager.sceneUnloaded -= OnSceneUnloaded;
     }
-
+*/
     // ================================
     // UI 관리
     // ================================
@@ -129,7 +130,8 @@ public class UIManager : SingletonMono<UIManager>
     {
         //Debug.Log("OnSceneUnloaded 호출");
         CleanAllUIs();
-        StartCoroutine(CoUnloadUnusedAssets());
+        // 이건 씬 로더에서 하겠습니다.
+        //StartCoroutine(CoUnloadUnusedAssets());
     }
 
     private void CleanAllUIs()
@@ -152,11 +154,17 @@ public class UIManager : SingletonMono<UIManager>
             _isCleaning = false;
         }
     }
+    // 씬 전환 시 오브젝트 클리어용
+    public void OnSceneReset()
+    {
+        CleanAllUIs();
+    }
+    
 
-    // UI 뿐만 아니라 전체 오브젝트 관리 시스템측면에서도 있으면 좋음
+    /*// UI 뿐만 아니라 전체 오브젝트 관리 시스템측면에서도 있으면 좋음
     private IEnumerator CoUnloadUnusedAssets()
     {
         yield return Resources.UnloadUnusedAssets();
         System.GC.Collect();
-    }
+    }*/
 }
