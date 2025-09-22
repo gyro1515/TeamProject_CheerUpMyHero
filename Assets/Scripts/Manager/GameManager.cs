@@ -83,8 +83,7 @@ public class GameManager : SingletonMono<GameManager>
 
     public void StartBattle()
     {
-        // 농장 레벨 기반 최대 저장량 세팅
-        PlayerDataManager.Instance.SetFarmLevel(PlayerDataManager.Instance.FarmLevel);
+        PlayerDataManager.Instance.ResetFood();
 
         IsBattleStarted = true;
 
