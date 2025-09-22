@@ -14,8 +14,9 @@ public class BuildingTile : MonoBehaviour
 {
     public int X { get; private set; }
     public int Y { get; private set; }
-    public TileType MyTileType { get; private set; } 
+    public TileType MyTileType { get; private set; }
 
+    public event System.Action<BuildingTile> OnTileClicked;
 
     private BuildingUpgradeData _buildingData;
     private Image _image;
@@ -55,10 +56,10 @@ public class BuildingTile : MonoBehaviour
 
     }
 
-    // 타일이 클릭되면 BuildingManager에게 자신을 알림
+
     private void OnTileClick()
     {
-        BuildingManager.Instance.HandleTileClick(this);
+        OnTileClicked?.Invoke(this);
     }
 
     // 건물이 건설/업그레이드되면 이 함수를 호출해서 타일의 모양과 데이터를 바꿈
