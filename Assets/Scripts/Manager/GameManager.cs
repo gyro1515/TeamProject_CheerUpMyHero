@@ -74,7 +74,14 @@ public class GameManager : SingletonMono<GameManager>
                 ShowResultUI(false);
             }
         }
-
+       if (Input.GetKeyDown(KeyCode.H))
+        {
+            if (enemyHQ != null && enemyHQ.gameObject.activeInHierarchy)
+            {
+                Debug.Log("H키 눌려서 적 HQ 피 반 깎음");
+                enemyHQ.CurHp = enemyHQ.MaxHp * 0.5f;
+            }
+        }
         if (IsBattleStarted)
         {
             PlayerDataManager.Instance.AddFoodOverTime(Time.deltaTime);
@@ -87,7 +94,7 @@ public class GameManager : SingletonMono<GameManager>
 
         IsBattleStarted = true;
 
-        Debug.Log($"Battle Started! MaxFood: {PlayerDataManager.Instance.MaxFood}, CurrentFood: {PlayerDataManager.Instance.CurrentFood}");
+        Debug.Log($"Battle Started! MaxFood: {PlayerDataManager.Instance.MaxFood}, CurrentFood: {PlayerDataManager.Instance.CurrentFood}");    
     }
 
     public void ShowResultUI(bool isVictory)

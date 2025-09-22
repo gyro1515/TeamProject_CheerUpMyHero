@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEditor.Experimental.GraphView;
@@ -14,6 +15,10 @@ public class UnitManager : SingletonMono<UnitManager>
     LayerMask playerLayerMask;
     LayerMask enemyLayerMask;
 
+    //미니맵에서 유닛이 스폰될때와 죽을때를 구독 중
+    public event Action<BaseCharacter, bool> onUnitSpawn;
+    public event Action<BaseCharacter, bool> onUnitDeSpawn;
+
 
     protected override void Awake()
     {
@@ -28,10 +33,13 @@ public class UnitManager : SingletonMono<UnitManager>
 
         unit.ListIndex = unitList.Count;
         unitList.Add(unit);
+        onUnitSpawn?.Invoke(unit, isPlayer);
     }
     public void RemoveUnitFromList(BaseCharacter unit, bool isPlayer)
     {
         List<BaseCharacter> unitList = isPlayer ? playerUnitList : enemyUnitList;
+
+        onUnitDeSpawn?.Invoke(unit, isPlayer);
 
         // List삭제가 O(1)이 되도록
         int index = unit.ListIndex;
