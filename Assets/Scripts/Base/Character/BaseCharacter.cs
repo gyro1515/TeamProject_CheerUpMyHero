@@ -39,6 +39,8 @@ public class BaseCharacter : MonoBehaviour
     public event Action<float, float> OnCurHpChane;
     public event Action OnDead;
     [field: SerializeField] public int ListIndex { get; set; } = -1; // 자기 리스트 내 인덱스, UnitManager판별용
+
+    public AnimationData AnimationData { get; private set; }
     protected virtual void Awake()
     {
         TmpMaxHp = MaxHp;
@@ -46,6 +48,7 @@ public class BaseCharacter : MonoBehaviour
         TmpSize = gameObject.transform.localScale;
         BaseController = GetComponent<BaseController>();
         Damageable = GetComponent<IDamageable>();
+        AnimationData = AnimationData.Instance;
     }
     protected virtual void OnEnable()
     {

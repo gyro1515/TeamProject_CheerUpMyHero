@@ -78,6 +78,8 @@ public class BaseController : MonoBehaviour, IAttackable, IDamageable
 
     protected float GetNormalizedTime(int stateHash)
     {
+        if (animator == null) return - 1f;
+        
         AnimatorStateInfo currentInfo = animator.GetCurrentAnimatorStateInfo(0);
         AnimatorStateInfo nextInfo = animator.GetNextAnimatorStateInfo(0);
 

@@ -13,6 +13,7 @@ public class KnockbackHandler : MonoBehaviour
     [SerializeField] float knockBackTime = 0.2f;
     [SerializeField] float knockBackScale = 0.3f;
     [SerializeField] float yPower = 2f;
+    [SerializeField] Ease easeType = Ease.OutQuad;
     //float hitBackTimer = 0.0f;
     float hitBackDistance = 0.0f;
     //float knockBackTimer = 0.0f;
@@ -70,8 +71,8 @@ public class KnockbackHandler : MonoBehaviour
         // 두트윈으로?
         float startPosY = baseUnit.gameObject.transform.position.y;
         float endPosY = startPosY + yPower;
-        baseUnit.gameObject.transform.DOMoveX(endPosX, hitBackTime).SetEase(Ease.OutQuad);
-        baseUnit.gameObject.transform.DOMoveY(endPosY, hitBackTime / 2).SetEase(Ease.OutQuad);
+        baseUnit.gameObject.transform.DOMoveX(endPosX, hitBackTime).SetEase(easeType);
+        baseUnit.gameObject.transform.DOMoveY(endPosY, hitBackTime / 2).SetEase(easeType);
         yield return new WaitForSeconds(hitBackTime / 2);
         baseUnit.gameObject.transform.DOMoveY(startPosY, hitBackTime / 2).SetEase(Ease.OutBounce);
         yield return new WaitForSeconds(hitBackTime / 2);
@@ -95,9 +96,11 @@ public class KnockbackHandler : MonoBehaviour
             yield break;
         }
         // 죽지 않았다면
-        baseUnit.BaseController.Animator.SetBool("isGetUp", true);
+        if(baseUnit.BaseController.Animator) 
+            baseUnit.BaseController.Animator.SetBool(baseUnit.AnimationData.GetUpParameterHash, true);
         yield return new WaitForSeconds(getUpTime);
-        baseUnit.BaseController.Animator.SetBool("isGetUp", false);
+        if (baseUnit.BaseController.Animator)
+            baseUnit.BaseController.Animator.SetBool(baseUnit.AnimationData.GetUpParameterHash, false);
         OnHitBackActive?.Invoke(false); // 히트백 끝
         //Debug.Log("히트백 끝!!!");
 

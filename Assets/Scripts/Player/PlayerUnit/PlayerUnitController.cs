@@ -19,7 +19,8 @@ public class PlayerUnitController : BaseUnitController
     protected override void OnEnable()
     {
         base.OnEnable();
-        
+
+        ResetPlayerUnitController();
         findTargetRoutine = StartCoroutine(TargetingRoutine());
         attackRoutine = StartCoroutine(AttackRoutine());
     }
@@ -60,10 +61,7 @@ public class PlayerUnitController : BaseUnitController
             if (findTargetRoutine != null) StopCoroutine(findTargetRoutine);
             if (attackRoutine != null) StopCoroutine(attackRoutine);
             if (atkAnimRoutine != null) StopCoroutine(atkAnimRoutine);
-            playerUnit.TargetUnit = null;
-            playerUnit.MoveDir = Vector3.zero;
-            animator.speed = 1f;
-            isAttacking = false;
+            ResetPlayerUnitController();
         }
         else
         {
@@ -81,7 +79,9 @@ public class PlayerUnitController : BaseUnitController
         {
             playerUnit.TargetUnit = UnitManager.Instance.FindClosestTarget(playerUnit, true);
             playerUnit.MoveDir = playerUnit.TargetUnit != null ? Vector3.zero : Vector3.right;
-            if (animator) animator.SetFloat("Speed", Mathf.Abs((float)playerUnit.MoveDir.x));
+            if (animator) animator.SetFloat(
+                playerUnit.AnimationData.SpeedParameterHash, 
+                Mathf.Abs((float)playerUnit.MoveDir.x));
             yield return wait;
         }
     }
@@ -94,8 +94,16 @@ public class PlayerUnitController : BaseUnitController
             if (playerUnit.TargetUnit != null)
             {
                 if (isAttacking) { yield return null; continue; }
+
+                // 현재 스트라이프, 애니메이션 없는 캐릭터도 있으므로
+                if (animator == null)
+                {
+                    Attack(); // 바로 공격
+                    yield return wait;
+                    continue;
+                }
                 // 적 인식했다면 공격 시작
-                if (animator) animator.SetTrigger("Attack");
+                animator?.SetTrigger(playerUnit.AnimationData.AttackParameterHash);
                 // 적 인식 루틴 정지(움직임 중지)
                 if (findTargetRoutine != null) StopCoroutine(findTargetRoutine);
                 // 어택 애니메이션 루틴 시작
@@ -138,5 +146,11 @@ public class PlayerUnitController : BaseUnitController
         findTargetRoutine = StartCoroutine(TargetingRoutine());
         isAttacking = false;
     }
-    
+    void ResetPlayerUnitController()
+    {
+        playerUnit.TargetUnit = null;
+        playerUnit.MoveDir = Vector3.zero;
+        if(animator) animator.speed = 1f;
+        isAttacking = false;
+    }
 }

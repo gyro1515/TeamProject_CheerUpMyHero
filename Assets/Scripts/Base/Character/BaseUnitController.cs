@@ -11,7 +11,8 @@ public abstract class BaseUnitController : BaseController
     {
         base.Awake();
         baseUnit = GetComponent<BaseUnit>();
-        baseUnit.OnHitBack += () => { animator.SetTrigger("HitBack"); };
+        baseUnit.OnHitBack += () => 
+        { if (animator) animator.SetTrigger(baseUnit.AnimationData.HitBackParameterHash); };
         knockbackHandler = GetComponent<KnockbackHandler>();
         knockbackHandler.OnHitBackActive += HitBackActive; // 히트백 시, 컨트롤러에서 해야할 일 바인드
     }

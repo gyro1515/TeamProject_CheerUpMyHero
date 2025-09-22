@@ -17,7 +17,9 @@ public class EnemyUnitController : BaseUnitController
     protected override void OnEnable()
     {
         base.OnEnable();
-        
+
+        ResetEnemyUnitController();
+
         findTargetRoutine = StartCoroutine(TargetingRoutine());
         attackRoutine = StartCoroutine(AttackRoutine());
     }
@@ -57,10 +59,7 @@ public class EnemyUnitController : BaseUnitController
             if (findTargetRoutine != null) StopCoroutine(findTargetRoutine);
             if (attackRoutine != null) StopCoroutine(attackRoutine);
             if (atkAnimRoutine != null) StopCoroutine(atkAnimRoutine);
-            enemyUnit.TargetUnit = null;
-            enemyUnit.MoveDir = Vector3.zero;
-            animator.speed = 1f;
-            isAttacking = false;
+            ResetEnemyUnitController();
         }
         else
         {
@@ -79,7 +78,8 @@ public class EnemyUnitController : BaseUnitController
             //Debug.Log("타겟 갱신");
             enemyUnit.TargetUnit = UnitManager.Instance.FindClosestTarget(enemyUnit, false);
             enemyUnit.MoveDir = enemyUnit.TargetUnit != null ? Vector3.zero : Vector3.left;
-            if(animator) animator.SetFloat("Speed", Mathf.Abs((float)enemyUnit.MoveDir.x));
+            if(animator) animator.SetFloat(
+                enemyUnit.AnimationData.SpeedParameterHash, Mathf.Abs((float)enemyUnit.MoveDir.x));
             yield return wait;
         }
     }
@@ -93,8 +93,16 @@ public class EnemyUnitController : BaseUnitController
             {
                 // 혹시라도 공격 재생이 안 끝났는데 공격을 시작해야 한다면 일단은 공격 안되게 하기
                 if (isAttacking) { yield return null; continue; }
+                // 현재 스트라이프, 애니메이션 없는 캐릭터도 있으므로
+                if(animator == null)
+                {
+                    Attack(); // 바로 공격
+                    yield return wait;
+                    continue;
+                }
+
                 // 적 인식했다면 공격 시작
-                if (animator) animator.SetTrigger("Attack");
+                animator?.SetTrigger(enemyUnit.AnimationData.AttackParameterHash);
                 // 적 인식 루틴 정지(움직임 중지)
                 if (findTargetRoutine != null) StopCoroutine(findTargetRoutine);
                 // 어택 애니메이션 루틴 시작
@@ -116,9 +124,13 @@ public class EnemyUnitController : BaseUnitController
             yield return null;
         } while (normalizedTime < 0f);
 
-        animator.speed = 0.13f;
+        // 현재 기준 예시:
+        // 공격 애니메이션 총 길이 0.25초
+        // 0.36지점까지 = 0.09초에 해당
+        // 0.09초를 딜레이 초로 늘리려면
+        animator.speed = enemyUnit.StartAttackTime / enemyUnit.AttackDelayTime;
 
-        while (normalizedTime < 0.4f)
+        while (normalizedTime < enemyUnit.StartAttackNormalizedTime)
         {
             normalizedTime = GetNormalizedTime(attackStateHash);
             yield return null;
@@ -134,8 +146,14 @@ public class EnemyUnitController : BaseUnitController
         findTargetRoutine = StartCoroutine(TargetingRoutine());
         isAttacking = false;
     }
-    
-    
+    void ResetEnemyUnitController()
+    {
+        enemyUnit.TargetUnit = null;
+        enemyUnit.MoveDir = Vector3.zero;
+        animator.speed = 1f;
+        isAttacking = false;
+    }
+
     private void OnDrawGizmos()
     {
         if (!Application.isPlaying) return;
