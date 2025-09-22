@@ -9,6 +9,10 @@ public class PlayerUnit : BaseUnit
     protected override void Awake()
     {
         base.Awake();
+        OnDead += () =>
+        {
+            UnitManager.Instance.RemoveUnitFromList(this, true);
+        };
     }
     protected override void Start()
     {

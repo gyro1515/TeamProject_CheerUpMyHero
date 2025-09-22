@@ -212,6 +212,7 @@ GameObject:
   - component: {fileID: 5891268899869468592}
   - component: {fileID: 6026240409640893552}
   - component: {fileID: 3663210988550714101}
+  - component: {fileID: -4125900101805373811}
   - component: {fileID: -7307097619041437047}
   - component: {fileID: -227179290429603040}
   - component: {fileID: -3339563003366436255}
@@ -262,6 +263,7 @@ MonoBehaviour:
   <AttackRate>k__BackingField: 2
   <AttackRange>k__BackingField: 15
   <foodConsumption>k__BackingField: 0
+  <HitBackCount>k__BackingField: 3
 --- !u!114 &3663210988550714101
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -276,6 +278,23 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   hpBarTransform: {fileID: 3565612373189297226}
   hpBarGO: {fileID: 6341158453756370156}
+--- !u!114 &-4125900101805373811
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6903239234365258212}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b2d4c117b600f2439ab39dc313a5577, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  hitBackTime: 1
+  hitBackScale: 1.5
+  knockBackTime: 0.2
+  knockBackScale: 0.1
+  yPower: 1
 --- !u!70 &-7307097619041437047
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
@@ -347,6 +366,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d9d6a3d1f07dfff45a052c978c46da37, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  animator: {fileID: 0}
   targetLayerMask:
     serializedVersion: 2
     m_Bits: 64

@@ -1498,7 +1498,7 @@ Animator:
   m_GameObject: {fileID: 2053642995026414969}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 83b51b268c8c6844a88c02b04653d9c7, type: 2}
+  m_Controller: {fileID: 9100000, guid: 39b16a7ca33f3b14b9a3d513b01269ed, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -3748,6 +3748,7 @@ GameObject:
   - component: {fileID: 5891268899869468592}
   - component: {fileID: 6026240409640893552}
   - component: {fileID: 3663210988550714101}
+  - component: {fileID: 7715913384889138070}
   - component: {fileID: 4453755380532900293}
   - component: {fileID: -7307097619041437047}
   - component: {fileID: -227179290429603040}
@@ -3798,7 +3799,11 @@ MonoBehaviour:
   <ListIndex>k__BackingField: -1
   <AttackRate>k__BackingField: 1
   <AttackRange>k__BackingField: 15
-  <foodConsumption>k__BackingField: 0
+  <FoodConsumption>k__BackingField: 0
+  <AttackDelayTime>k__BackingField: 1
+  <StartAttackTime>k__BackingField: 0.09
+  <StartAttackNormalizedTime>k__BackingField: 0.36
+  <HitBackCount>k__BackingField: 3
 --- !u!114 &3663210988550714101
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3813,6 +3818,23 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   hpBarTransform: {fileID: 3565612373189297226}
   hpBarGO: {fileID: 6341158453756370156}
+--- !u!114 &7715913384889138070
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6903239234365258212}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b2d4c117b600f2439ab39dc313a5577, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  hitBackTime: 1
+  hitBackScale: 1.5
+  knockBackTime: 0.2
+  knockBackScale: 0.1
+  yPower: 1
 --- !u!114 &4453755380532900293
 MonoBehaviour:
   m_ObjectHideFlags: 0

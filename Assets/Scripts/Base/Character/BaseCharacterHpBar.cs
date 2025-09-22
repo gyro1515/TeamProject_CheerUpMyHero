@@ -12,8 +12,8 @@ public class BaseCharacterHpBar : MonoBehaviour
     {
         _character = GetComponent<BaseCharacter>();
         _character.OnCurHpChane += SetHpBar;
-        _character.OnDead += SetHpBarAcriveFalse;
-        SetHpBarAcriveFalse();
+        _character.OnDead += SetHpBarActiveFalse;
+        SetHpBarActiveFalse();
     }
     void SetHpBar(float curHp, float maxHp)
     {
@@ -21,7 +21,7 @@ public class BaseCharacterHpBar : MonoBehaviour
         if(!hpBarGO.activeSelf) hpBarGO.SetActive(true);
         hpBarTransform.localScale = new Vector3(curHp/maxHp, 1f, 1f);
     }
-    void SetHpBarAcriveFalse()
+    void SetHpBarActiveFalse()
     {
         hpBarGO.SetActive(false);
     }

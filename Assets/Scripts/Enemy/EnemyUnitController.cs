@@ -2,19 +2,16 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class EnemyUnitController : BaseController
+public class EnemyUnitController : BaseUnitController
 {
     EnemyUnit enemyUnit;
     Coroutine findTargetRoutine;
     Coroutine attackRoutine;
+    Coroutine atkAnimRoutine;
     bool isAttacking = false;
     protected override void Awake()
     {
         enemyUnit = GetComponent<EnemyUnit>();
-        enemyUnit.OnDead += () =>
-        {
-            UnitManager.Instance.RemoveUnitFromList(enemyUnit, false);
-        };
         base.Awake();
     }
     protected override void OnEnable()
@@ -36,18 +33,41 @@ public class EnemyUnitController : BaseController
     protected override void OnDisable()
     {
         base.OnDisable();
-        /*enemyUnit.OnDead -= () =>
-        {
-            UnitManager.Instance.RemoveUnitFromList(enemyUnit, false);
-        };*/
-        if (findTargetRoutine != null) StopCoroutine(findTargetRoutine);
-        if (attackRoutine != null) StopCoroutine(attackRoutine);
+        // Dead()로 이동
+        /*if (findTargetRoutine != null) StopCoroutine(findTargetRoutine);
+        if (attackRoutine != null) StopCoroutine(attackRoutine);*/
     }
     public override void Attack()
     {
         base.Attack();
         enemyUnit.TargetUnit.TakeDamage(enemyUnit.AtkPower);
-        Debug.Log($"적 유닛 {gameObject.name}: 공격!");
+        //Debug.Log($"적 유닛 {gameObject.name}: 공격!");
+    }
+    public override void Dead()
+    {
+        base.Dead();
+        if (findTargetRoutine != null) StopCoroutine(findTargetRoutine);
+        if (attackRoutine != null) StopCoroutine(attackRoutine);
+    }
+    protected override void HitBackActive(bool active)
+    {
+        if (active) // 히트백 활성화되면
+        {
+            // 실행 중인 모든 코루틴 중지
+            if (findTargetRoutine != null) StopCoroutine(findTargetRoutine);
+            if (attackRoutine != null) StopCoroutine(attackRoutine);
+            if (atkAnimRoutine != null) StopCoroutine(atkAnimRoutine);
+            enemyUnit.TargetUnit = null;
+            enemyUnit.MoveDir = Vector3.zero;
+            animator.speed = 1f;
+            isAttacking = false;
+        }
+        else
+        {
+            // 기존처럼 찾기 실행
+            findTargetRoutine = StartCoroutine(TargetingRoutine());
+            attackRoutine = StartCoroutine(AttackRoutine());
+        }
     }
     IEnumerator TargetingRoutine()
     {
@@ -56,7 +76,7 @@ public class EnemyUnitController : BaseController
 
         while (true)
         {
-            Debug.Log("타겟 갱신");
+            //Debug.Log("타겟 갱신");
             enemyUnit.TargetUnit = UnitManager.Instance.FindClosestTarget(enemyUnit, false);
             enemyUnit.MoveDir = enemyUnit.TargetUnit != null ? Vector3.zero : Vector3.left;
             if(animator) animator.SetFloat("Speed", Mathf.Abs((float)enemyUnit.MoveDir.x));
@@ -69,17 +89,17 @@ public class EnemyUnitController : BaseController
         WaitForSeconds wait = new WaitForSeconds(10f / enemyUnit.AttackRate);
         while (true)
         {
-            if(enemyUnit.TargetUnit != null)
+            if (enemyUnit.TargetUnit != null)
             {
                 // 혹시라도 공격 재생이 안 끝났는데 공격을 시작해야 한다면 일단은 공격 안되게 하기
-                if(isAttacking) yield return null;
+                if (isAttacking) { yield return null; continue; }
                 // 적 인식했다면 공격 시작
                 if (animator) animator.SetTrigger("Attack");
                 // 적 인식 루틴 정지(움직임 중지)
                 if (findTargetRoutine != null) StopCoroutine(findTargetRoutine);
                 // 어택 애니메이션 루틴 시작
                 isAttacking = true;
-                StartCoroutine(AtkAnimRoutine());
+                atkAnimRoutine = StartCoroutine(AtkAnimRoutine());
                 yield return wait;
             }
             else yield return null;
@@ -114,9 +134,12 @@ public class EnemyUnitController : BaseController
         findTargetRoutine = StartCoroutine(TargetingRoutine());
         isAttacking = false;
     }
-
+    
+    
     private void OnDrawGizmos()
     {
+        if (!Application.isPlaying) return;
+
         Gizmos.color = Color.cyan; // 색상 지정
         Vector3 pos = transform.position;
         pos.x -= enemyUnit.AttackRange / 2;

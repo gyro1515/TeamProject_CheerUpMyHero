@@ -4040,6 +4040,7 @@ GameObject:
   - component: {fileID: 5891268899869468592}
   - component: {fileID: 6026240409640893552}
   - component: {fileID: 3663210988550714101}
+  - component: {fileID: -9117676622873108103}
   - component: {fileID: 4453755380532900293}
   - component: {fileID: -7307097619041437047}
   - component: {fileID: -227179290429603040}
@@ -4089,8 +4090,9 @@ MonoBehaviour:
   curHp: 0
   <ListIndex>k__BackingField: -1
   <AttackRate>k__BackingField: 3
-  <AttackRange>k__BackingField: 1
+  <AttackRange>k__BackingField: 2
   <foodConsumption>k__BackingField: 0
+  <HitBackCount>k__BackingField: 3
 --- !u!114 &3663210988550714101
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4105,6 +4107,23 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   hpBarTransform: {fileID: 3565612373189297226}
   hpBarGO: {fileID: 6341158453756370156}
+--- !u!114 &-9117676622873108103
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6903239234365258212}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b2d4c117b600f2439ab39dc313a5577, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  hitBackTime: 1
+  hitBackScale: 1.5
+  knockBackTime: 0.2
+  knockBackScale: 0.1
+  yPower: 1
 --- !u!114 &4453755380532900293
 MonoBehaviour:
   m_ObjectHideFlags: 0

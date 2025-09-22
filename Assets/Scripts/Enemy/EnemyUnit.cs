@@ -8,6 +8,10 @@ public class EnemyUnit : BaseUnit
     protected override void Awake()
     {
         base.Awake();
+        OnDead += () =>
+        {
+            UnitManager.Instance.RemoveUnitFromList(this, false);
+        };
     }
     protected override void OnEnable()
     {
@@ -43,9 +47,10 @@ public class EnemyUnit : BaseUnit
                 break;
         }
         // 배율에 따른 체력 공격력 세팅
-        MaxHp = MaxHp * statMultiplier;
+        MaxHp = TmpMaxHp * statMultiplier;
         curHp = MaxHp;
-        AtkPower = AtkPower * statMultiplier;
+        AtkPower = TmpAtkPower * statMultiplier;
+        gameObject.transform.localScale = TmpSize * statMultiplier;
     }
 
 

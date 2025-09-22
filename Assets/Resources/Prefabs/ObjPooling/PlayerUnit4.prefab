@@ -297,6 +297,7 @@ GameObject:
   - component: {fileID: 780326423638818762}
   - component: {fileID: 1267594787810560912}
   - component: {fileID: 187243894227736016}
+  - component: {fileID: -7631358335201665664}
   - component: {fileID: 9141355355231569853}
   - component: {fileID: -4692508701773614562}
   - component: {fileID: 2870869735140178694}
@@ -339,15 +340,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <MaxHp>k__BackingField: 15
-  <AtkPower>k__BackingField: 0.7
+  <AtkPower>k__BackingField: 10
   <MoveSpeed>k__BackingField: 1
   <HpBarPosByCharacter>k__BackingField: {x: 0, y: 2.3, z: 0}
   <HpBarSize>k__BackingField: {x: 0, y: 0}
   curHp: 0
   <ListIndex>k__BackingField: -1
   <AttackRate>k__BackingField: 10
-  <AttackRange>k__BackingField: 1.5
-  <foodConsumption>k__BackingField: 0
+  <AttackRange>k__BackingField: 5
+  <FoodConsumption>k__BackingField: 0
+  <AttackDelayTime>k__BackingField: 1
+  <StartAttackTime>k__BackingField: 0.31
+  <StartAttackNormalizedTime>k__BackingField: 0.62
+  <HitBackCount>k__BackingField: 3
   <SpawnCooldown>k__BackingField: 4
 --- !u!114 &187243894227736016
 MonoBehaviour:
@@ -363,6 +368,23 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   hpBarTransform: {fileID: 7626362129868625165}
   hpBarGO: {fileID: 3125864142201707986}
+--- !u!114 &-7631358335201665664
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 278518049929321206}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b2d4c117b600f2439ab39dc313a5577, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  hitBackTime: 1
+  hitBackScale: 1.5
+  knockBackTime: 0.2
+  knockBackScale: 0.1
+  yPower: 1
 --- !u!114 &9141355355231569853
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -847,7 +869,7 @@ Animator:
   m_GameObject: {fileID: 847520416639247269}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 83b51b268c8c6844a88c02b04653d9c7, type: 2}
+  m_Controller: {fileID: 9100000, guid: a4bb8699c4d391a4794c1d837439a8bb, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
