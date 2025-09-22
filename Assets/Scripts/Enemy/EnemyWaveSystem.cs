@@ -68,6 +68,15 @@ public class EnemyWaveSystem : MonoBehaviour
             Debug.Log($"{waveIdx}번째 웨이브 시작");
         }
     }
+
+    public void SpawnDefenseWave()
+    {
+        if (WaveData.Count <= 2) return;
+
+        StartCoroutine(WaveRoutine(2));
+        Debug.Log("체력 70퍼 이하라서 방어 웨이브 스폰함");
+    }
+
     IEnumerator WaveRoutine(int waveDataIdx)
     {
         // 데이터 없으면 바로 종료
@@ -87,6 +96,7 @@ public class EnemyWaveSystem : MonoBehaviour
         // 웨이브 끝나면 기존 유닛 스폰 루틴 다시 활성화
         enemyHQ.SetSpawnEnemyActive(true);
     }
+
     void SetWaveData()
     {
         // 빈 리스트로 시작
