@@ -74,6 +74,29 @@ public class BuildingUpgradeImporter : Editor
                     }
                 }
                 data.description = GetSafeString(currentRow, 24);
+                int buildingTypeColIndex = 25;
+                string buildingTypeStr = GetSafeString(currentRow, buildingTypeColIndex);
+
+                // 엑셀에 값이 비어있지 않은 경우에만 Enum으로 변환을 시도합니다.
+                if (!string.IsNullOrEmpty(buildingTypeStr))
+                {
+                    // 엑셀에 적힌 문자열(예: "Farm")을 실제 BuildingType Enum 값으로 변환합니다.
+                    try
+                    {
+                        data.buildingType = (BuildingType)System.Enum.Parse(typeof(BuildingType), buildingTypeStr, true); // true: 대소문자 무시
+                    }
+                    catch (System.ArgumentException)
+                    {
+                        // 엑셀에 오타가 있을 경우를 대비한 경고 메시지
+                        Debug.LogError($"행 {row + 1}: BuildingType '{buildingTypeStr}'을(를) 찾을 수 없습니다. 오타가 있는지 확인해주세요.");
+                        data.buildingType = BuildingType.None;
+                    }
+                }
+                else
+                {
+                    // 만약 셀이 비어있다면 기본값(None)으로 설정
+                    data.buildingType = BuildingType.None;
+                }
 
                 so.BuildingUpgrade.Add(data);
             }

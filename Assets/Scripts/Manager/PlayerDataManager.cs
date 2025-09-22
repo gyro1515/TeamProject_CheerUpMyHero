@@ -98,7 +98,7 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
         _resources[ResourceType.Gold] = 100000;
         _resources[ResourceType.Wood] = 10000;
         _resources[ResourceType.Iron] = 10000;
-        _resources[ResourceType.Food] = 10000;
+        _resources[ResourceType.Food] = CurrentFood;
         _resources[ResourceType.MagicStone] = 10000;
     }
 
@@ -119,7 +119,12 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
         if (_resources.ContainsKey(type))
         {
             _resources[type] += amount;
-            OnResourceChangedEvent?.Invoke(type, _resources[type]); //자원 수량 변경 이벤트
+            if (type == ResourceType.Food)
+            {
+                CurrentFood = _resources[type];
+            }
+
+            OnResourceChangedEvent?.Invoke(type, _resources[type]);
         }
         else
         {
@@ -127,4 +132,140 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
         }
     }
     #endregion
+
+    #region Food
+    // --- 푸드/농장 관련 ---
+    public int CurrentFood { get; private set; } = 0;
+    public int MaxFood { get; private set; } = 20000;
+    private float foodAccumulator = 0f;
+
+    public int SupplyLevel { get; private set; } = 1; // 보급품 레벨, 최소 1
+    private float currentFarmGainPercent = 0f; // 모든 농장의 식량 획득률 보너스를 합산할 변수
+
+    // 농장 레벨별 최대 저장량 (엑셀 데이터 기반)
+    private readonly int[] maxFoodByFarmLevel = { 500, 750, 1000, 1250, 1500, 1750, 2000, 2250, 2500 };
+
+    // 농장 레벨별 획득률 증가(%)
+    private readonly int[] farmFoodGainPercentByLevel = { 5, 10, 15, 20, 25, 30, 35, 40, 50 };
+
+    // 보급품 레벨별 기본 초당 획득량
+    private readonly int[] baseFoodGainBySupplyLevel = { 25, 29, 37, 47, 59, 75, 95, 119, 147 };
+
+    private readonly int[] supplyUpgradeCosts = { 100, 220, 450, 900, 1800, 3500, 5500, 8000 };
+
+
+    //모든 농장 건물의 효과를 합산하여 MaxFood와 획득률을 계산
+    public void UpdateTotalFarmEffect()
+    {
+        int totalMaxFood = 20000;
+        float totalGainPercent = 0f;
+
+        for (int y = 0; y < 5; y++)
+        {
+            for (int x = 0; x < 5; x++)
+            {
+                var building = BuildingGridData[x, y];
+                if (building != null && building.buildingType == BuildingType.Farm)
+                {
+                    // 건물의 레벨에 맞는 배열 인덱스를 계산합니다. (1레벨 -> 0번 인덱스)
+                    int levelIndex = Mathf.Clamp(building.level - 1, 0, maxFoodByFarmLevel.Length - 1);
+
+                    // "이 농장 하나"의 최대 저장량을 totalMaxFood에 더합니다.
+                    totalMaxFood += maxFoodByFarmLevel[levelIndex];
+
+                    // "이 농장 하나"의 획득률 보너스를 totalGainPercent에 더합니다.
+                    totalGainPercent += farmFoodGainPercentByLevel[levelIndex];
+                }
+            }
+        }
+
+        // 최종 계산된 값으로 MaxFood와 currentFarmGainPercent를 업데이트합니다.
+        MaxFood = totalMaxFood;
+        currentFarmGainPercent = totalGainPercent;
+
+        // 최대 저장량이 줄었을 경우를 대비해 현재 식량을 조절합니다.
+        if (CurrentFood > MaxFood)
+            CurrentFood = MaxFood;
+
+        // UI 갱신을 위해 이벤트를 호출합니다.
+        OnResourceChangedEvent?.Invoke(ResourceType.Food, CurrentFood);
+        Debug.Log($"농장 효과 총합 계산 완료: 최대 식량 = {MaxFood}, 추가 획득률 = {currentFarmGainPercent}%");
+    }
+
+    public void UpgradeSupplyLevel()
+    {
+        // 현재 레벨이 최대 레벨인지 확인
+        if (SupplyLevel >= baseFoodGainBySupplyLevel.Length)
+        {
+            Debug.Log("최대 레벨입니다.");
+            return;
+        }
+
+        // 다음 레벨업에 필요한 비용을 가져옴 (현재 레벨 1 -> 비용 인덱스 0)
+        int requiredFood = supplyUpgradeCosts[SupplyLevel - 1];
+
+        // 현재 식량이 필요한 비용보다 충분한지 확인
+        if (CurrentFood >= requiredFood)
+        {
+            // 식량 차감
+            AddResource(ResourceType.Food, -requiredFood);
+
+            // 레벨업
+            SupplyLevel++;
+            Debug.Log($"Supply Level Up! 현재 SupplyLevel: {SupplyLevel}");
+        }
+        else
+        {
+            // 식량이 부족할 경우
+            Debug.Log($"식량이 부족합니다. 필요 식량: {requiredFood}");
+        }
+    }
+
+    // --- 보급품 획득 ---
+    public void AddFoodOverTime(float deltaTime)
+    {
+        // 최대 저장량이 0이면 식량이 오르지 않도록 방지
+        if (MaxFood <= 0) return;
+
+        int baseGain = baseFoodGainBySupplyLevel[SupplyLevel - 1];
+
+        // 새로 만든 currentFarmGainPercent 변수를 사용하도록 수정
+        float gainThisFrame = baseGain * (1f + currentFarmGainPercent / 100f) * deltaTime;
+        foodAccumulator += gainThisFrame;
+
+        int gainInt = Mathf.FloorToInt(foodAccumulator);
+        if (gainInt > 0)
+        {
+            CurrentFood += gainInt;
+
+            if (CurrentFood > MaxFood)
+                CurrentFood = MaxFood;
+
+            _resources[ResourceType.Food] = CurrentFood;
+            OnResourceChangedEvent?.Invoke(ResourceType.Food, CurrentFood);
+            foodAccumulator -= gainInt;
+        }
+    }
+    public void ResetFood()
+    {
+        CurrentFood = 0;
+        foodAccumulator = 0f;
+        _resources[ResourceType.Food] = CurrentFood;
+        OnResourceChangedEvent?.Invoke(ResourceType.Food, CurrentFood);
+        Debug.Log("현재 식량을 0으로 초기화했습니다.");
+    }
+    public bool TryGetUpgradeCost(out int cost)
+    {
+        cost = 0;
+        if (SupplyLevel >= baseFoodGainBySupplyLevel.Length)
+        {
+            return false; // 최대 레벨
+        }
+        cost = supplyUpgradeCosts[SupplyLevel - 1];
+        return true;
+    }
+    #endregion
 }
+
+
+

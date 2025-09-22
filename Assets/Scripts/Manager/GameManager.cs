@@ -14,7 +14,7 @@ public class GameManager : SingletonMono<GameManager>
     public PlayerHQ PlayerHQ { get; set; }
 
     public Player Player { get; set; }
-
+    public bool IsBattleStarted { get; private set; } = false;
 
 
     protected override void Awake()
@@ -67,17 +67,39 @@ public class GameManager : SingletonMono<GameManager>
         // 플레이어 바로 죽이는 치트키 B키
         if (Input.GetKeyDown(KeyCode.B))
         {
-            if(Player != null && !Player.IsDead)
+            if (Player != null && !Player.IsDead)
             {
                 Debug.Log("B키 눌려서 플레이어 개체 즉시 죽임");
                 Player.CurHp = 0;
                 ShowResultUI(false);
             }
         }
+       if (Input.GetKeyDown(KeyCode.H))
+        {
+            if (enemyHQ != null && enemyHQ.gameObject.activeInHierarchy)
+            {
+                Debug.Log("H키 눌려서 적 HQ 피 반 깎음");
+                enemyHQ.CurHp = enemyHQ.MaxHp * 0.5f;
+            }
+        }
+        if (IsBattleStarted)
+        {
+            PlayerDataManager.Instance.AddFoodOverTime(Time.deltaTime);
+        }
+    }
+
+    public void StartBattle()
+    {
+        PlayerDataManager.Instance.ResetFood();
+
+        IsBattleStarted = true;
+
+        Debug.Log($"Battle Started! MaxFood: {PlayerDataManager.Instance.MaxFood}, CurrentFood: {PlayerDataManager.Instance.CurrentFood}");    
     }
 
     public void ShowResultUI(bool isVictory)
     {
+        IsBattleStarted = false;
         Time.timeScale = 0f;
 
         StageRewardData rewardData = DataManager.Instance.RewardData.GetData(currentStageID);

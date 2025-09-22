@@ -5,6 +5,8 @@ using UnityEngine;
 public class PlayerController : BaseController
 {
     Player player;
+    
+    private Transform playerTransform;
 
     [Header("플레이어 스프라이트 들")]
     [SerializeField] Transform spriteTransform;
@@ -31,6 +33,7 @@ public class PlayerController : BaseController
         };
         base.Awake();
 
+        playerTransform = GetComponent<Transform>();
     }
 
     protected override void Update()
@@ -42,6 +45,9 @@ public class PlayerController : BaseController
             if (animator)
                 animator.SetTrigger(player.AnimationData.AttackParameterHash);
         }
+        Vector3 playerPosition = playerTransform.position;
+        playerPosition.x = Mathf.Clamp(playerTransform.position.x, -18f, 18f);
+        playerTransform.position = playerPosition;
     }
 
 

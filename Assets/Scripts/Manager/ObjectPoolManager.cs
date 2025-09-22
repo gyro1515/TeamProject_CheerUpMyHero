@@ -32,6 +32,7 @@ public enum PoolType
     EnemyUnit4,
     EnemyUnit5,
     EnemyUnit6,
+    UIMinimapIcon,
 }
 
 public class ObjectPoolManager : SingletonMono<ObjectPoolManager>, ISceneResettable
@@ -47,10 +48,13 @@ public class ObjectPoolManager : SingletonMono<ObjectPoolManager>, ISceneResetta
     //풀을 담을 딕셔너리(IObjectPool 내장 인터페이스 사용 => 나중에 ObjectPool말고도 별도 클래스를 만들어 활용 가능)
     private Dictionary<PoolType, IObjectPool<GameObject>> pools = new Dictionary<PoolType, IObjectPool<GameObject>>();
 
-    //현재 활성화된 풀 오브젝트 리스트(반납 처리용)
-    private List<BasePoolable> allActivePoolables = new();
-    //풀 오브젝트 캐싱용
-    private Dictionary<GameObject, BasePoolable> poolableCache = new Dictionary<GameObject, BasePoolable>();
+    //풀들 transform 관리용. 일부 경우에서 능동적으로 풀들의 transform을 옮기고 다시 복구시켜야 함
+    public Dictionary<PoolType, Transform> poolTransformsDic { get; private set; } = new();
+
+    ////현재 활성화된 풀 오브젝트 리스트(반납 처리용)
+    //private List<BasePoolable> allActivePoolables = new();
+    ////풀 오브젝트 캐싱용
+    //private Dictionary<GameObject, BasePoolable> poolableCache = new Dictionary<GameObject, BasePoolable>();
 
     //씬 바뀔 때 모든 풀 반납 처리
     /*private void OnEnable()
@@ -88,7 +92,7 @@ public class ObjectPoolManager : SingletonMono<ObjectPoolManager>, ISceneResetta
         // 그럼 오브젝트 풀링으로 사용된 애들도 같이 날아갈 거고요.
         // 이때 다시 이 풀링 매니저를 사용하면 제대로 될까요...?
         // 제 느낌은 Get()할때 null 뜰거 같긴 합니다. 풀은 있지만 참조가 안되는...
-        //---> 수정 중  
+        //---> 수정 완
 
         Transform rootContainer = new GameObject("@Pool_Root").transform;
         rootContainer.SetParent(gameObject.transform);
@@ -113,6 +117,7 @@ public class ObjectPoolManager : SingletonMono<ObjectPoolManager>, ISceneResetta
             Transform typeContainer = new GameObject(type.ToString() + "_Pool").transform;
             typeContainer.SetParent(rootContainer);
             poolTransforms.Add(typeContainer);
+            poolTransformsDic.Add(type, typeContainer);
 
             //3. 풀 생성
             IObjectPool<GameObject> objectPool = new ObjectPool<GameObject>

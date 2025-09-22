@@ -14,6 +14,7 @@ public class UISpawnUnitSlot : MonoBehaviour
     float _cooldown = -1f;
     float _cooldownTimer = -1f;
     bool isCooldown = false;
+    int _foodConsumption = 0;
     PoolType playerUnitType;
     private void Awake()
     {
@@ -29,8 +30,9 @@ public class UISpawnUnitSlot : MonoBehaviour
         SetTimerIconActive(false);
     }
     
-    public void InitSpawnUnitSlot(Sprite sprite, int cardIdx, float cooldown)
+    public void InitSpawnUnitSlot(Sprite sprite, int cardIdx, float cooldown, int foodConsumption)
     {
+        _foodConsumption = foodConsumption;
         unitIcon.sprite = sprite;
         text.text = cardIdx.ToString();
         _cooldown = cooldown;
@@ -47,6 +49,10 @@ public class UISpawnUnitSlot : MonoBehaviour
     void OnSpawnUnit()
     {
         if (GameManager.Instance.PlayerHQ == null) return; // 플레이어 HQ 죽었다면 작동 안하게 하기
+        if (PlayerDataManager.Instance.CurrentFood < _foodConsumption) return;
+
+        PlayerDataManager.Instance.AddResource(ResourceType.Food, -_foodConsumption);
+
         SetTimerIconActive(true);
         // 여기서 유닛 소환, 테스트 용으로 이렇게 형변환
         if((int)playerUnitType != -1) GameManager.Instance.PlayerHQ.SpawnUnit(playerUnitType);
