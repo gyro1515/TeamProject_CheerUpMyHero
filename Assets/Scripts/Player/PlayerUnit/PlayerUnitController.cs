@@ -37,9 +37,9 @@ public class PlayerUnitController : BaseUnitController
     protected override void OnDisable()
     {
         base.OnDisable();
-        
+        /*
         if (findTargetRoutine != null) StopCoroutine(findTargetRoutine);
-        if (attackRoutine != null) StopCoroutine(attackRoutine);
+        if (attackRoutine != null) StopCoroutine(attackRoutine);*/
     }
     public override void Attack()
     {
@@ -74,7 +74,7 @@ public class PlayerUnitController : BaseUnitController
     {
         // 0.2초마다 타겟 갱신
         WaitForSeconds wait = new WaitForSeconds(0.2f);
-
+        yield return null;
         while (true)
         {
             playerUnit.TargetUnit = UnitManager.Instance.FindClosestTarget(playerUnit, true);
@@ -132,6 +132,12 @@ public class PlayerUnitController : BaseUnitController
 
         while (normalizedTime < playerUnit.StartAttackNormalizedTime)
         {
+            if (playerUnit.TargetUnit.IsDead()) // 공격 중에 죽었다면 브레이크
+            {
+                ResetPlayerUnitController();
+                findTargetRoutine = StartCoroutine(TargetingRoutine());
+                yield break;
+            }
             normalizedTime = GetNormalizedTime(attackStateHash);
             yield return null;
         }

@@ -2549,6 +2549,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 575678351631045536}
+  - component: {fileID: 123323569270178234}
   m_Layer: 0
   m_Name: P_LClose
   m_TagString: Untagged
@@ -2572,6 +2573,18 @@ Transform:
   - {fileID: 1356630583576112506}
   m_Father: {fileID: 2838587869570444461}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &123323569270178234
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3951437910252435970}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9975f43bd66fb7d45b1bbea27d938a7c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &4254876935521047740
 GameObject:
   m_ObjectHideFlags: 0
@@ -3364,7 +3377,7 @@ Animator:
   m_Controller: {fileID: 9100000, guid: 83b51b268c8c6844a88c02b04653d9c7, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
-  m_ApplyRootMotion: 0
+  m_ApplyRootMotion: 1
   m_LinearVelocityBlending: 0
   m_StabilizeFeet: 0
   m_WarningMessage: 
@@ -4127,6 +4140,7 @@ MonoBehaviour:
   knockBackTime: 0.2
   knockBackScale: 0.1
   yPower: 1
+  easeType: 6
 --- !u!114 &4453755380532900293
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5197,6 +5211,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 438350660640815584}
+  - component: {fileID: 6690832438014317434}
   m_Layer: 0
   m_Name: P_RClose
   m_TagString: Untagged
@@ -5220,6 +5235,18 @@ Transform:
   - {fileID: 4863296351693440373}
   m_Father: {fileID: 2838587869570444461}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6690832438014317434
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9083880986001244364}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9975f43bd66fb7d45b1bbea27d938a7c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &9137889339746782877
 GameObject:
   m_ObjectHideFlags: 0

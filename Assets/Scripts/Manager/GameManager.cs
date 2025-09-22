@@ -28,12 +28,12 @@ public class GameManager : SingletonMono<GameManager>
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
             Time.timeScale += 0.5f;
-            Debug.Log("AddTimeScale");
+            //Debug.Log("AddTimeScale");
         }
         else if (Input.GetKeyDown(KeyCode.Alpha2))
         {
             Time.timeScale = 1.0f;
-            Debug.Log("ResetTimeScale");
+            //Debug.Log("ResetTimeScale");
         }
         // ***현재는 밸런스 때문에 키를 눌러 클리어/실패 결과를 출력, 추후 각 HQ, Player에 옮겨야 할 내용**********
         //C키 눌러서 적 HQ 파괴

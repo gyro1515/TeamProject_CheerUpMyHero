@@ -20,6 +20,7 @@ public class BaseController : MonoBehaviour, IAttackable, IDamageable
     protected virtual void OnEnable()
     {
         baseCharacter.OnDead += Dead;
+        
     }
     protected virtual void Start()
     {
@@ -35,6 +36,7 @@ public class BaseController : MonoBehaviour, IAttackable, IDamageable
     protected virtual void OnDisable()
     {
         baseCharacter.OnDead -= Dead;
+        
     }
     public virtual void Attack()
     {
@@ -92,5 +94,10 @@ public class BaseController : MonoBehaviour, IAttackable, IDamageable
             return currentInfo.normalizedTime;
         }
         else return -1f;
+    }
+
+    public bool IsDead()
+    {
+        return baseCharacter.IsDead;
     }
 }

@@ -13,6 +13,7 @@ public class PlayerUnit : BaseUnit
         {
             UnitManager.Instance.RemoveUnitFromList(this, true);
         };
+
     }
     protected override void Start()
     {
@@ -22,5 +23,6 @@ public class PlayerUnit : BaseUnit
     {
         base.OnEnable();
         UnitManager.Instance.AddUnitList(this, true);
+        
     }
 }

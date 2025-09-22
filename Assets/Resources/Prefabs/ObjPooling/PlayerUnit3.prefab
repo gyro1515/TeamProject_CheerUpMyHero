@@ -203,6 +203,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2741336331241590484}
+  - component: {fileID: 4365191158878621844}
   m_Layer: 0
   m_Name: P_LClose
   m_TagString: Untagged
@@ -226,6 +227,18 @@ Transform:
   - {fileID: 3601808553969219726}
   m_Father: {fileID: 708128358105433610}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &4365191158878621844
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 169647332426468396}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9975f43bd66fb7d45b1bbea27d938a7c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &218714203250431091
 GameObject:
   m_ObjectHideFlags: 0
@@ -359,6 +372,7 @@ MonoBehaviour:
   knockBackTime: 0.2
   knockBackScale: 0.1
   yPower: 1
+  easeType: 6
 --- !u!114 &9141355355231569853
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -887,6 +901,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3971328769446343477}
+  - component: {fileID: 6117040563008677285}
   m_Layer: 0
   m_Name: P_RClose
   m_TagString: Untagged
@@ -910,6 +925,18 @@ Transform:
   - {fileID: 2939408909005657123}
   m_Father: {fileID: 708128358105433610}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6117040563008677285
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1224176530416019454}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9975f43bd66fb7d45b1bbea27d938a7c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1230975041113753021
 GameObject:
   m_ObjectHideFlags: 0
@@ -4421,7 +4448,7 @@ Animator:
   m_Controller: {fileID: 9100000, guid: 39b16a7ca33f3b14b9a3d513b01269ed, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
-  m_ApplyRootMotion: 0
+  m_ApplyRootMotion: 1
   m_LinearVelocityBlending: 0
   m_StabilizeFeet: 0
   m_WarningMessage: 

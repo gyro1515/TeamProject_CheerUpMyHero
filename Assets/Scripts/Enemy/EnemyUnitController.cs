@@ -72,6 +72,9 @@ public class EnemyUnitController : BaseUnitController
     {
         // 0.2초마다 타겟 갱신
         WaitForSeconds wait = new WaitForSeconds(0.2f);
+        // 한 프레임 쉬어가기, 소환 후 -> OnEnable -> TargetingRoutine() 한 프레임에 실행
+        // 위치 갱신 하기 전 실행하기 때문에 바로 0,0,0 좌표 값 기준에서 타겟 가져옴
+        yield return null; 
 
         while (true)
         {
@@ -132,6 +135,12 @@ public class EnemyUnitController : BaseUnitController
 
         while (normalizedTime < enemyUnit.StartAttackNormalizedTime)
         {
+            if(enemyUnit.TargetUnit.IsDead()) // 공격 중에 죽었다면 브레이크
+            {
+                ResetEnemyUnitController();
+                findTargetRoutine = StartCoroutine(TargetingRoutine());
+                yield break;
+            }
             normalizedTime = GetNormalizedTime(attackStateHash);
             yield return null;
         }

@@ -53,7 +53,7 @@ public class BaseCharacter : MonoBehaviour
     protected virtual void OnEnable()
     {
         // 다시 활성화 됐을때
-        curHp = MaxHp;
+        curHp = TmpMaxHp;
         IsDead = false;
     }
     protected virtual void Start()

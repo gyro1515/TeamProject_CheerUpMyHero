@@ -64,7 +64,9 @@ public class UnitManager : SingletonMono<UnitManager>
 
             // 거리 계산
             Vector3 unitPos = unit.gameObject.transform.position;
-            float dist = Mathf.Abs(unitPos.x - callerPos.x);
+            //float dist = Mathf.Abs(unitPos.x - callerPos.x);
+            float dist = isPlayer ? unitPos.x - callerPos.x : callerPos.x - unitPos.x;
+            if (dist < 0f) continue; // 반대 방향 공격 x
             if (dist > target.AttackRange) continue; // 공격 범위 초과하면 다음
             if (dist > minDist) continue; // 최소 거리보다 멀다면 다음
             IDamageable tmp = unit.Damageable;
