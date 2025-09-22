@@ -5,6 +5,7 @@ using UnityEngine;
 public class PlayerController : BaseController
 {
     Player player;
+    Transform playerTransform;
 
     [Header("플레이어 스프라이트 들")]
     [SerializeField] Transform spriteTransform;
@@ -31,6 +32,7 @@ public class PlayerController : BaseController
         };
         base.Awake();
 
+        playerTransform = GetComponent<Transform>();
     }
 
     protected override void Update()
