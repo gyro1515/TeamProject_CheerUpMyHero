@@ -30,6 +30,8 @@ public class ArtifactSO : MonoSO<ArtifactData>
             var data = passiveArtifacts[i];
             if (data == null) continue;
 
+            data.ArtifactGradeProcess();
+
             DB[data.idNumber] = data;
         }
 
