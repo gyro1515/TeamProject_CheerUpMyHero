@@ -1,8 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
-public class AnimatonData : IAnimationData
+public class AnimationData : SingletonMono<AnimationData>, IAnimationData
 {
     [SerializeField] private string baseParameterName = "Idle";
     [SerializeField] private string attackParameterName = "Attack";
@@ -10,6 +11,7 @@ public class AnimatonData : IAnimationData
     [SerializeField] private string getUpParameterName = "isGetUp";
     [SerializeField] private string dieParameterName = "Die";
     [SerializeField] private string speedParameterName = "Speed";
+    [SerializeField] private string basicParameterName = "Blend Tree";
 
     public int BaseParameterHash {  get; private set; }
     public int AttackParameterHash { get; private set; }
@@ -17,7 +19,12 @@ public class AnimatonData : IAnimationData
     public int GetUpParameterHash {  get; private set; }
     public int DieParameterHash { get; private set; }
     public int SpeedParameterHash {  get; private set; }
-
+    public int BasicParameterHash {  get; private set; }
+    protected override void Awake()
+    {
+        base.Awake();
+        Initialize();
+    }
     public void Initialize()
     {
         BaseParameterHash = Animator.StringToHash(baseParameterName);
@@ -26,5 +33,6 @@ public class AnimatonData : IAnimationData
         GetUpParameterHash = Animator.StringToHash(getUpParameterName);
         DieParameterHash = Animator.StringToHash(dieParameterName);
         SpeedParameterHash = Animator.StringToHash(speedParameterName);
+        BasicParameterHash = Animator.StringToHash(basicParameterName);
     }
 }

@@ -237,6 +237,7 @@ public class ConstructionUpgradePanel : BaseUI
      };
     private static readonly Dictionary<BuildingEffectType, string> EffectNames = new()
 {
+    { BuildingEffectType.MaximumFood, "식량 최대 저장량" },
     { BuildingEffectType.IncreaseFoodGainSpeed, "식량 획득 속도" },
     { BuildingEffectType.BaseWoodProduction, "기본 목재 획득량" },
     { BuildingEffectType.AdditionalWoodProduction, "추가 목재 획득량" },

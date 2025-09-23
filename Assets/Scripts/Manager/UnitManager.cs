@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEditor.Experimental.GraphView;
@@ -14,6 +15,10 @@ public class UnitManager : SingletonMono<UnitManager>
     LayerMask playerLayerMask;
     LayerMask enemyLayerMask;
 
+    //미니맵에서 유닛이 스폰될때와 죽을때를 구독 중
+    public event Action<BaseCharacter, bool> onUnitSpawn;
+    public event Action<BaseCharacter, bool> onUnitDeSpawn;
+
 
     protected override void Awake()
     {
@@ -28,17 +33,20 @@ public class UnitManager : SingletonMono<UnitManager>
 
         unit.ListIndex = unitList.Count;
         unitList.Add(unit);
+        onUnitSpawn?.Invoke(unit, isPlayer);
     }
     public void RemoveUnitFromList(BaseCharacter unit, bool isPlayer)
     {
         List<BaseCharacter> unitList = isPlayer ? playerUnitList : enemyUnitList;
+
+        onUnitDeSpawn?.Invoke(unit, isPlayer);
 
         // List삭제가 O(1)이 되도록
         int index = unit.ListIndex;
         int last = unitList.Count - 1;
         //unit.ListIndex = -1; // 리스트에 삭제된 애는 -1로 -> 굳이...?
         // swap-back 방식, 맨 뒤에 것을 삭제할 것에 덮어쓰고, 맨 뒤 삭제
-        if (index < last)
+        if (index < last) // **추후 수정: if 체크가 비용이 더 클 거 같다면 if빼기
         {
             unitList[index] = unitList[last];
             unitList[index].ListIndex = index; // 교체된 녀석도 인덱스 갱신
@@ -60,11 +68,13 @@ public class UnitManager : SingletonMono<UnitManager>
 
         foreach (var unit in unitList)
         {
-            if (unit == null || unit == target || !unit.gameObject.activeSelf ) continue;
+            if (unit == null || unit == target || unit.IsDead ) continue;
 
             // 거리 계산
             Vector3 unitPos = unit.gameObject.transform.position;
-            float dist = Mathf.Abs(unitPos.x - callerPos.x);
+            //float dist = Mathf.Abs(unitPos.x - callerPos.x);
+            float dist = isPlayer ? unitPos.x - callerPos.x : callerPos.x - unitPos.x;
+            if (dist < 0f) continue; // 반대 방향 공격 x
             if (dist > target.AttackRange) continue; // 공격 범위 초과하면 다음
             if (dist > minDist) continue; // 최소 거리보다 멀다면 다음
             IDamageable tmp = unit.Damageable;

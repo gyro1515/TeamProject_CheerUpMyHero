@@ -43,7 +43,7 @@ public class PlayerController : BaseController
         {
             Debug.Log("N");
             if (animator)
-                animator.SetTrigger("Attack");
+                animator.SetTrigger(player.AnimationData.AttackParameterHash);
         }
     }
 
@@ -62,7 +62,7 @@ public class PlayerController : BaseController
     void PlayerMoveAnimation(Vector3 newMoveDir)
     {
         if (animator) 
-            animator.SetFloat("Speed", Mathf.Abs((float)player.MoveDir.x));
+            animator.SetFloat(player.AnimationData.SpeedParameterHash, Mathf.Abs((float)player.MoveDir.x));
         if (player.MoveDir.x < 0)
             spriteTransform.rotation = Quaternion.Euler(0, 0, 0);
         else
