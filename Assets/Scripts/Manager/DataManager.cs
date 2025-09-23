@@ -113,5 +113,6 @@ public class DataManager : SingletonMono<DataManager>
     protected override void Awake()
     {
         base.Awake();
+        
     }
 }
