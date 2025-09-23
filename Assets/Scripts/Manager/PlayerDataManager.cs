@@ -26,6 +26,7 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
             InitializeResources();
         }
     }
+
     //빌딩 데이터
     #region Building
     public BuildingUpgradeData[,] BuildingGridData { get; set; } = new BuildingUpgradeData[5, 5];
@@ -264,6 +265,7 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
         cost = supplyUpgradeCosts[SupplyLevel - 1];
         return true;
     }
+
     #endregion
 }
 

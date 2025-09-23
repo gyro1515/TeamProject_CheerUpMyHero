@@ -10,7 +10,6 @@ public class ResourceUI : BaseUI
     [SerializeField] private TextMeshProUGUI goldText;
     [SerializeField] private TextMeshProUGUI woodText;
     [SerializeField] private TextMeshProUGUI ironText;
-    [SerializeField] private TextMeshProUGUI foodText;
     [SerializeField] private TextMeshProUGUI magicStoneText;
 
 
@@ -22,7 +21,6 @@ public class ResourceUI : BaseUI
         _resourceTexts.Add(ResourceType.Gold, goldText);
         _resourceTexts.Add(ResourceType.Wood, woodText);
         _resourceTexts.Add(ResourceType.Iron, ironText);
-        _resourceTexts.Add(ResourceType.Food, foodText);
         _resourceTexts.Add(ResourceType.MagicStone, magicStoneText);
 
          PlayerDataManager.Instance.OnResourceChangedEvent += OnResourceUpdated;
