@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using static UnityEngine.GraphicsBuffer;
@@ -10,7 +11,8 @@ public class UnitManager : SingletonMono<UnitManager>
     //[Header("유닛 확인용")]
     List<BaseCharacter> playerUnitList = new List<BaseCharacter>();
     List<BaseCharacter> enemyUnitList = new List<BaseCharacter>();
-    // 테스트로 여기서 아군HQ가져와서 스폰
+    public List<BaseCharacter> PlayerUnitList { get { return playerUnitList; } }
+    public List<BaseCharacter> EnemyUnitList { get { return enemyUnitList; } }
 
     LayerMask playerLayerMask;
     LayerMask enemyLayerMask;
@@ -91,7 +93,6 @@ public class UnitManager : SingletonMono<UnitManager>
     {
         return FindClosestTarget(target, isPlayer, out _);
     }
-
 
     #region Legacy Attack Methods
     ////위치(x좌표) 중심 폭발형 범위공격

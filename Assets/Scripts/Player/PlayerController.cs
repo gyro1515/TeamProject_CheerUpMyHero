@@ -26,13 +26,8 @@ public class PlayerController : BaseController
 
     protected override void Awake()
     {
-        player = GetComponent<Player>();
-        player.OnDead += () =>
-        {
-            UnitManager.Instance.RemoveUnitFromList(player, true);
-        };
         base.Awake();
-
+        player = GetComponent<Player>();
         playerTransform = GetComponent<Transform>();
     }
 

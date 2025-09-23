@@ -75,6 +75,15 @@ public class EnemyWaveSystem : MonoBehaviour
 
         StartCoroutine(WaveRoutine(2));
         Debug.Log("체력 70퍼 이하라서 방어 웨이브 스폰함");
+        // 모든 적에게 히트백
+        List<BaseCharacter> unitList = UnitManager.Instance.PlayerUnitList;
+        for (int i = 0; i < unitList.Count; i++)
+        {
+            if (unitList[i] is BaseUnit unit)
+            {
+                unit.StartHitBack();
+            }
+        }
     }
 
     IEnumerator WaveRoutine(int waveDataIdx)
