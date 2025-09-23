@@ -42,8 +42,8 @@ public class PlayerController : BaseController
     {
         base.Start();
 
-        playerHQ = FindObjectOfType<PlayerHQ>();
-        enemyHQ = FindObjectOfType<EnemyHQ>();
+        playerHQ = GameManager.Instance.PlayerHQ;
+        enemyHQ = GameManager.Instance.enemyHQ;
 
         if (playerHQ == null || enemyHQ == null)
         {

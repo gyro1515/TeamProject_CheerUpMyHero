@@ -295,7 +295,14 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
 
     public void AddArtifact(int artifactId)
     {
-
+        if (DataManager.Instance.ArtifactData.TryGetValue(artifactId, out ArtifactData data))
+        {
+            OwnedArtifacts.Add(data);
+        }
+        else
+        {
+            Debug.Log("유물 id null이거나 뭔가 문제 있어요 점검하기");
+        }
     }
     #endregion
 }
