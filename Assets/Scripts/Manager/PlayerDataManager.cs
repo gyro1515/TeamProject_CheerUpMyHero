@@ -288,6 +288,16 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
         Debug.Log($"모든 건물 효과 계산 완료: 최대 식량={_calculatedMaxFood}, 식량 보너스={currentFarmGainPercent}%, 유닛 쿨감={TotalUnitCooldownReduction}%, 레어 슬롯={RareUnitSlots}, 에픽 슬롯={EpicUnitSlots}");
     }
     #endregion
+
+    // 유물 관련
+    #region Artifact
+    public List<ArtifactData> OwnedArtifacts { get; private set; } = new List<ArtifactData>();
+
+    public void AddArtifact(int artifactId)
+    {
+
+    }
+    #endregion
 }
 
 
