@@ -79,4 +79,9 @@ public abstract class BaseUnit : BaseCharacter
     {
         IsInvincible = active;
     }
+    public void StartHitBack()
+    {
+        if (IsInvincible) return; // 이미 히트백이라면 리턴
+        OnHitBack?.Invoke();
+    }
 }
