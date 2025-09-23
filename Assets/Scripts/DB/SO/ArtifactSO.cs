@@ -1,7 +1,9 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[ExcelAsset(AssetPath = "Resources/DB")]
 public class ArtifactSO : MonoSO<ArtifactData>
 {
     public List<ActiveArtifactData> activeArtifacts;
@@ -39,4 +41,5 @@ public class ArtifactSO : MonoSO<ArtifactData>
             DB[data.idNumber] = data;
         }
     }
+
 }

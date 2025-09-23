@@ -19,6 +19,19 @@ public class DataManager : SingletonMono<DataManager>
 
     public ItemSO ItemSO => ItemData.SO; */
 
+    private DataBase<ArtifactData, ArtifactSO> _artifactData;
+    public DataBase<ArtifactData, ArtifactSO> ArtifactData
+    {
+        get
+        {
+            if (Instance._artifactData == null)
+            {
+                Instance._artifactData = new DataBase<ArtifactData, ArtifactSO>();
+            }
+            return Instance._artifactData;
+        }
+    }
+
     private DataBase<EnemyData, EnemySO> _enemyData;
     public DataBase<EnemyData, EnemySO> EnemyData
     {

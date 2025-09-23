@@ -1,0 +1,997 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 8
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6e60b97901d5c174db3199441194755c, type: 3}
+  m_Name: ArtifactSO
+  m_EditorClassIdentifier: 
+  activeArtifacts:
+  - idNumber: 8010001
+    name: "\uC5BC\uC74C \uC815\uB839\uC758 \uC228\uACB0"
+    description: "\uD50C\uB808\uC774\uC5B4 \uC804\uBC29 \uBC94\uC704\uC758 \uC801\uB4E4\uC5D0\uAC8C
+      (\uD53C\uD574\uB7C9%)\uC758 \uAD11\uC5ED \uD53C\uD574\uB97C \uC8FC\uACE0, 15\uCD08
+      \uB3D9\uC548 \uC774\uB3D9 \uC18D\uB3C4\uC640 \uACF5\uACA9 \uC18D\uB3C4\uB97C
+      15% \uAC10\uC18C \uC2DC\uD0B5\uB2C8\uB2E4."
+    artifactType: 0
+    type: "\uAD11\uC5ED \uACF5\uACA9, \uB514\uBC84\uD504"
+    cost: 3
+    levelData: []
+  - idNumber: 8010002
+    name: "\uCC9C\uB465\uC2E0\uC758 \uC2EC\uD310"
+    description: "\uD654\uBA74\uC758 \uBAA8\uB4E0 \uC801 \uC720\uB2DB\uC5D0\uAC8C
+      (\uD53C\uD574\uB7C9%)\uC758 \uD53C\uD574\uB97C \uC8FC\uB294 \uBC88\uAC1C\uB97C
+      5\uD68C\uC5D0 \uAC78\uCCD0 \uB0B4\uB9AC\uCE69\uB2C8\uB2E4."
+    artifactType: 0
+    type: "\uAD11\uC5ED \uACF5\uACA9"
+    cost: 5
+    levelData: []
+  - idNumber: 8010003
+    name: "\uC655\uAD6D\uC758 \uC9C4\uAD70\uAC00"
+    description: "5\uCD08 \uB3D9\uC548 \uBAA8\uB4E0 \uC544\uAD70 \uC720\uB2DB\uC758
+      \uACF5\uACA9\uB825\uC774 (\uACF5\uACA9\uB825 \uC99D\uAC00\uC728%)\uB9CC\uD07C
+      \uC99D\uAC00\uD558\uACE0, \uACF5\uACA9 \uC18D\uB3C4\uAC00 (\uACF5\uACA9 \uC18D\uB3C4
+      \uC99D\uAC00\uC728%) \uBE68\uB77C\uC9D1\uB2C8\uB2E4."
+    artifactType: 0
+    type: "\uC544\uAD70 \uBC84\uD504"
+    cost: 10
+    levelData: []
+  - idNumber: 8010004
+    name: "\uC5EC\uC2E0\uC758 \uCD95\uBCF5"
+    description: "\uC2A4\uD0AC \uC2DC\uC804 3\uCD08 \uD6C4, \uBE5B\uC758 \uAE30\uB465\uC774
+      \uB0B4\uB824\uC640 \uBAA8\uB4E0 \uC544\uAD70 \uC720\uB2DB\uC758 \uCCB4\uB825\uC744
+      \uCD5C\uB300 \uCCB4\uB825\uC758 (\uD68C\uBCF5\uB7C9%)\uB9CC\uD07C \uC989\uC2DC
+      \uD68C\uBCF5 \uC2DC\uD0B5\uB2C8\uB2E4."
+    artifactType: 0
+    type: "\uD68C\uBCF5"
+    cost: 10
+    levelData: []
+  - idNumber: 8010005
+    name: "\uAC70\uC778\uC758 \uC11D\uD310"
+    description: "\uD50C\uB808\uC774\uC5B4 \uC55E\uC5D0(\uC790\uB9AC \uACE0\uC815)
+      (n\uCD08) \uB3D9\uC548 \uB192\uC740 \uCCB4\uB825\uC744 \uAC00\uC9C4 \uC218\uD638
+      \uC804\uB839\uC744 \uC18C\uD658\uD569\uB2C8\uB2E4."
+    artifactType: 0
+    type: "\uC18C\uD658"
+    cost: 15
+    levelData: []
+  passiveArtifacts:
+  - idNumber: 8020001
+    name: "\uACE0\uB300 \uC655\uC758 \uC778\uC7A5"
+    description: "\uD50C\uB808\uC774\uC5B4\uC758 \uACF5\uACA9\uB825\uC744 %\uB85C
+      \uC99D\uAC00"
+    artifactType: 1
+    effectTarget: 0
+    statType: 0
+    commonValue: 5
+    rareValue: 12
+    epicValue: 25
+    uniqueValue: 50
+    legendaryValue: 75
+  - idNumber: 8020002
+    name: "\uC218\uD638 \uAE30\uC0AC\uC758 \uD749\uAC11"
+    description: "\uD50C\uB808\uC774\uC5B4\uC758 \uCCB4\uB825\uC744 %\uB85C \uC99D\uAC00"
+    artifactType: 1
+    effectTarget: 0
+    statType: 1
+    commonValue: 5
+    rareValue: 12
+    epicValue: 25
+    uniqueValue: 50
+    legendaryValue: 75
+  - idNumber: 8020003
+    name: "\uBC14\uB78C \uC815\uB839\uC758 \uAE43\uD138"
+    description: "\uD50C\uB808\uC774\uC5B4\uC758 \uC774\uB3D9 \uC18D\uB3C4\uB97C
+      %\uB85C \uC99D\uAC00"
+    artifactType: 1
+    effectTarget: 0
+    statType: 2
+    commonValue: 2
+    rareValue: 5
+    epicValue: 10
+    uniqueValue: 20
+    legendaryValue: 40
+  - idNumber: 8020004
+    name: "\uC9C0\uD718\uAD00\uC758 \uAE43\uBC1C"
+    description: "\uD50C\uB808\uC774\uC5B4\uC758 \uC624\uB77C \uBC94\uC704\uB97C
+      %\uB85C \uC99D\uAC00"
+    artifactType: 1
+    effectTarget: 0
+    statType: 3
+    commonValue: 15
+    rareValue: 30
+    epicValue: 50
+    uniqueValue: 75
+    legendaryValue: 100
+  - idNumber: 8020005
+    name: "\uACE0\uB300 \uD22C\uC0AC\uC758 \uC774\uBE68 \uBAA9\uAC78\uC774"
+    description: "\uBAA8\uB4E0 \uADFC\uAC70\uB9AC \uC720\uB2DB\uC758 \uACF5\uACA9\uB825\uC744
+      %\uB85C \uC99D\uAC00"
+    artifactType: 1
+    effectTarget: 1
+    statType: 4
+    commonValue: 5
+    rareValue: 12
+    epicValue: 25
+    uniqueValue: 50
+    legendaryValue: 75
+  - idNumber: 8020006
+    name: "\uAC70\uBD81 \uC6A9\uC758 \uB4F1\uAECD\uC9C8 \uC870\uAC01"
+    description: "\uBAA8\uB4E0 \uADFC\uAC70\uB9AC \uC720\uB2DB\uC758 \uCCB4\uB825\uC744
+      %\uB85C \uC99D\uAC00"
+    artifactType: 1
+    effectTarget: 1
+    statType: 5
+    commonValue: 5
+    rareValue: 12
+    epicValue: 25
+    uniqueValue: 50
+    legendaryValue: 75
+  - idNumber: 8020007
+    name: "\uADF8\uB9AC\uD540\uC758 \uBC1C\uD1B1"
+    description: "\uBAA8\uB4E0 \uC6D0\uAC70\uB9AC \uC720\uB2DB\uC758 \uACF5\uACA9\uB825\uC744
+      %\uB85C \uC99D\uAC00"
+    artifactType: 1
+    effectTarget: 2
+    statType: 6
+    commonValue: 5
+    rareValue: 12
+    epicValue: 25
+    uniqueValue: 50
+    legendaryValue: 75
+  - idNumber: 8020008
+    name: "\uB098\uBB34 \uC815\uB839\uC758 \uC218\uD53C"
+    description: "\uBAA8\uB4E0 \uC6D0\uAC70\uB9AC \uC720\uB2DB\uC758 \uCCB4\uB825\uC744
+      %\uB85C \uC99D\uAC00"
+    artifactType: 1
+    effectTarget: 2
+    statType: 7
+    commonValue: 5
+    rareValue: 12
+    epicValue: 25
+    uniqueValue: 50
+    legendaryValue: 75
+  activeArtifactLevels:
+  - idNumber: 8010001
+    name: "\uC5BC\uC74C \uC815\uB839\uC758 \uC228\uACB0"
+    description: "\uD50C\uB808\uC774\uC5B4 \uC804\uBC29 \uBC94\uC704\uC758 \uC801\uB4E4\uC5D0\uAC8C
+      (\uD53C\uD574\uB7C9%)\uC758 \uAD11\uC5ED \uD53C\uD574\uB97C \uC8FC\uACE0, 15\uCD08
+      \uB3D9\uC548 \uC774\uB3D9 \uC18D\uB3C4\uC640 \uACF5\uACA9 \uC18D\uB3C4\uB97C
+      15% \uAC10\uC18C \uC2DC\uD0B5\uB2C8\uB2E4."
+    artifactType: 0
+    level: 1
+    coolTime: 45
+    damageBonusPercent: 200
+    attackBonusPercent: 0
+    attackSpeedBonusPercent: 0
+    healPercent: 0
+    summonHealth: 0
+    summonDuration: 0
+    woodCost: 10
+    goldCost: 500
+    ironCost: 5
+    magicStoneCost: 0
+  - idNumber: 8010001
+    name: "\uC5BC\uC74C \uC815\uB839\uC758 \uC228\uACB0"
+    description: "\uD50C\uB808\uC774\uC5B4 \uC804\uBC29 \uBC94\uC704\uC758 \uC801\uB4E4\uC5D0\uAC8C
+      (\uD53C\uD574\uB7C9%)\uC758 \uAD11\uC5ED \uD53C\uD574\uB97C \uC8FC\uACE0, 15\uCD08
+      \uB3D9\uC548 \uC774\uB3D9 \uC18D\uB3C4\uC640 \uACF5\uACA9 \uC18D\uB3C4\uB97C
+      15% \uAC10\uC18C \uC2DC\uD0B5\uB2C8\uB2E4."
+    artifactType: 0
+    level: 2
+    coolTime: 42
+    damageBonusPercent: 230
+    attackBonusPercent: 0
+    attackSpeedBonusPercent: 0
+    healPercent: 0
+    summonHealth: 0
+    summonDuration: 0
+    woodCost: 30
+    goldCost: 1000
+    ironCost: 10
+    magicStoneCost: 0
+  - idNumber: 8010001
+    name: "\uC5BC\uC74C \uC815\uB839\uC758 \uC228\uACB0"
+    description: "\uD50C\uB808\uC774\uC5B4 \uC804\uBC29 \uBC94\uC704\uC758 \uC801\uB4E4\uC5D0\uAC8C
+      (\uD53C\uD574\uB7C9%)\uC758 \uAD11\uC5ED \uD53C\uD574\uB97C \uC8FC\uACE0, 15\uCD08
+      \uB3D9\uC548 \uC774\uB3D9 \uC18D\uB3C4\uC640 \uACF5\uACA9 \uC18D\uB3C4\uB97C
+      15% \uAC10\uC18C \uC2DC\uD0B5\uB2C8\uB2E4."
+    artifactType: 0
+    level: 3
+    coolTime: 40
+    damageBonusPercent: 265
+    attackBonusPercent: 0
+    attackSpeedBonusPercent: 0
+    healPercent: 0
+    summonHealth: 0
+    summonDuration: 0
+    woodCost: 50
+    goldCost: 2000
+    ironCost: 25
+    magicStoneCost: 1
+  - idNumber: 8010001
+    name: "\uC5BC\uC74C \uC815\uB839\uC758 \uC228\uACB0"
+    description: "\uD50C\uB808\uC774\uC5B4 \uC804\uBC29 \uBC94\uC704\uC758 \uC801\uB4E4\uC5D0\uAC8C
+      (\uD53C\uD574\uB7C9%)\uC758 \uAD11\uC5ED \uD53C\uD574\uB97C \uC8FC\uACE0, 15\uCD08
+      \uB3D9\uC548 \uC774\uB3D9 \uC18D\uB3C4\uC640 \uACF5\uACA9 \uC18D\uB3C4\uB97C
+      15% \uAC10\uC18C \uC2DC\uD0B5\uB2C8\uB2E4."
+    artifactType: 0
+    level: 4
+    coolTime: 38
+    damageBonusPercent: 300
+    attackBonusPercent: 0
+    attackSpeedBonusPercent: 0
+    healPercent: 0
+    summonHealth: 0
+    summonDuration: 0
+    woodCost: 75
+    goldCost: 3000
+    ironCost: 35
+    magicStoneCost: 3
+  - idNumber: 8010001
+    name: "\uC5BC\uC74C \uC815\uB839\uC758 \uC228\uACB0"
+    description: "\uD50C\uB808\uC774\uC5B4 \uC804\uBC29 \uBC94\uC704\uC758 \uC801\uB4E4\uC5D0\uAC8C
+      (\uD53C\uD574\uB7C9%)\uC758 \uAD11\uC5ED \uD53C\uD574\uB97C \uC8FC\uACE0, 15\uCD08
+      \uB3D9\uC548 \uC774\uB3D9 \uC18D\uB3C4\uC640 \uACF5\uACA9 \uC18D\uB3C4\uB97C
+      15% \uAC10\uC18C \uC2DC\uD0B5\uB2C8\uB2E4."
+    artifactType: 0
+    level: 5
+    coolTime: 35
+    damageBonusPercent: 340
+    attackBonusPercent: 0
+    attackSpeedBonusPercent: 0
+    healPercent: 0
+    summonHealth: 0
+    summonDuration: 0
+    woodCost: 100
+    goldCost: 4000
+    ironCost: 50
+    magicStoneCost: 5
+  - idNumber: 8010001
+    name: "\uC5BC\uC74C \uC815\uB839\uC758 \uC228\uACB0"
+    description: "\uD50C\uB808\uC774\uC5B4 \uC804\uBC29 \uBC94\uC704\uC758 \uC801\uB4E4\uC5D0\uAC8C
+      (\uD53C\uD574\uB7C9%)\uC758 \uAD11\uC5ED \uD53C\uD574\uB97C \uC8FC\uACE0, 15\uCD08
+      \uB3D9\uC548 \uC774\uB3D9 \uC18D\uB3C4\uC640 \uACF5\uACA9 \uC18D\uB3C4\uB97C
+      15% \uAC10\uC18C \uC2DC\uD0B5\uB2C8\uB2E4."
+    artifactType: 0
+    level: 6
+    coolTime: 32
+    damageBonusPercent: 380
+    attackBonusPercent: 0
+    attackSpeedBonusPercent: 0
+    healPercent: 0
+    summonHealth: 0
+    summonDuration: 0
+    woodCost: 200
+    goldCost: 6000
+    ironCost: 100
+    magicStoneCost: 15
+  - idNumber: 8010001
+    name: "\uC5BC\uC74C \uC815\uB839\uC758 \uC228\uACB0"
+    description: "\uD50C\uB808\uC774\uC5B4 \uC804\uBC29 \uBC94\uC704\uC758 \uC801\uB4E4\uC5D0\uAC8C
+      (\uD53C\uD574\uB7C9%)\uC758 \uAD11\uC5ED \uD53C\uD574\uB97C \uC8FC\uACE0, 15\uCD08
+      \uB3D9\uC548 \uC774\uB3D9 \uC18D\uB3C4\uC640 \uACF5\uACA9 \uC18D\uB3C4\uB97C
+      15% \uAC10\uC18C \uC2DC\uD0B5\uB2C8\uB2E4."
+    artifactType: 0
+    level: 7
+    coolTime: 30
+    damageBonusPercent: 430
+    attackBonusPercent: 0
+    attackSpeedBonusPercent: 0
+    healPercent: 0
+    summonHealth: 0
+    summonDuration: 0
+    woodCost: 350
+    goldCost: 8000
+    ironCost: 175
+    magicStoneCost: 30
+  - idNumber: 8010001
+    name: "\uC5BC\uC74C \uC815\uB839\uC758 \uC228\uACB0"
+    description: "\uD50C\uB808\uC774\uC5B4 \uC804\uBC29 \uBC94\uC704\uC758 \uC801\uB4E4\uC5D0\uAC8C
+      (\uD53C\uD574\uB7C9%)\uC758 \uAD11\uC5ED \uD53C\uD574\uB97C \uC8FC\uACE0, 15\uCD08
+      \uB3D9\uC548 \uC774\uB3D9 \uC18D\uB3C4\uC640 \uACF5\uACA9 \uC18D\uB3C4\uB97C
+      15% \uAC10\uC18C \uC2DC\uD0B5\uB2C8\uB2E4."
+    artifactType: 0
+    level: 8
+    coolTime: 28
+    damageBonusPercent: 480
+    attackBonusPercent: 0
+    attackSpeedBonusPercent: 0
+    healPercent: 0
+    summonHealth: 0
+    summonDuration: 0
+    woodCost: 500
+    goldCost: 10000
+    ironCost: 350
+    magicStoneCost: 50
+  - idNumber: 8010001
+    name: "\uC5BC\uC74C \uC815\uB839\uC758 \uC228\uACB0"
+    description: "\uD50C\uB808\uC774\uC5B4 \uC804\uBC29 \uBC94\uC704\uC758 \uC801\uB4E4\uC5D0\uAC8C
+      (\uD53C\uD574\uB7C9%)\uC758 \uAD11\uC5ED \uD53C\uD574\uB97C \uC8FC\uACE0, 15\uCD08
+      \uB3D9\uC548 \uC774\uB3D9 \uC18D\uB3C4\uC640 \uACF5\uACA9 \uC18D\uB3C4\uB97C
+      15% \uAC10\uC18C \uC2DC\uD0B5\uB2C8\uB2E4."
+    artifactType: 0
+    level: 9
+    coolTime: 25
+    damageBonusPercent: 550
+    attackBonusPercent: 0
+    attackSpeedBonusPercent: 0
+    healPercent: 0
+    summonHealth: 0
+    summonDuration: 0
+    woodCost: -1
+    goldCost: -1
+    ironCost: -1
+    magicStoneCost: -1
+  - idNumber: 8010002
+    name: "\uCC9C\uB465\uC2E0\uC758 \uC2EC\uD310"
+    description: "\uD654\uBA74\uC758 \uBAA8\uB4E0 \uC801 \uC720\uB2DB\uC5D0\uAC8C
+      (\uD53C\uD574\uB7C9%)\uC758 \uD53C\uD574\uB97C \uC8FC\uB294 \uBC88\uAC1C\uB97C
+      5\uD68C\uC5D0 \uAC78\uCCD0 \uB0B4\uB9AC\uCE69\uB2C8\uB2E4."
+    artifactType: 0
+    level: 1
+    coolTime: 90
+    damageBonusPercent: 60
+    attackBonusPercent: 0
+    attackSpeedBonusPercent: 0
+    healPercent: 0
+    summonHealth: 0
+    summonDuration: 0
+    woodCost: 20
+    goldCost: 800
+    ironCost: 10
+    magicStoneCost: 0
+  - idNumber: 8010002
+    name: "\uCC9C\uB465\uC2E0\uC758 \uC2EC\uD310"
+    description: "\uD654\uBA74\uC758 \uBAA8\uB4E0 \uC801 \uC720\uB2DB\uC5D0\uAC8C
+      (\uD53C\uD574\uB7C9%)\uC758 \uD53C\uD574\uB97C \uC8FC\uB294 \uBC88\uAC1C\uB97C
+      5\uD68C\uC5D0 \uAC78\uCCD0 \uB0B4\uB9AC\uCE69\uB2C8\uB2E4."
+    artifactType: 0
+    level: 2
+    coolTime: 86
+    damageBonusPercent: 70
+    attackBonusPercent: 0
+    attackSpeedBonusPercent: 0
+    healPercent: 0
+    summonHealth: 0
+    summonDuration: 0
+    woodCost: 50
+    goldCost: 1250
+    ironCost: 25
+    magicStoneCost: 0
+  - idNumber: 8010002
+    name: "\uCC9C\uB465\uC2E0\uC758 \uC2EC\uD310"
+    description: "\uD654\uBA74\uC758 \uBAA8\uB4E0 \uC801 \uC720\uB2DB\uC5D0\uAC8C
+      (\uD53C\uD574\uB7C9%)\uC758 \uD53C\uD574\uB97C \uC8FC\uB294 \uBC88\uAC1C\uB97C
+      5\uD68C\uC5D0 \uAC78\uCCD0 \uB0B4\uB9AC\uCE69\uB2C8\uB2E4."
+    artifactType: 0
+    level: 3
+    coolTime: 82
+    damageBonusPercent: 80
+    attackBonusPercent: 0
+    attackSpeedBonusPercent: 0
+    healPercent: 0
+    summonHealth: 0
+    summonDuration: 0
+    woodCost: 80
+    goldCost: 2500
+    ironCost: 40
+    magicStoneCost: 2
+  - idNumber: 8010002
+    name: "\uCC9C\uB465\uC2E0\uC758 \uC2EC\uD310"
+    description: "\uD654\uBA74\uC758 \uBAA8\uB4E0 \uC801 \uC720\uB2DB\uC5D0\uAC8C
+      (\uD53C\uD574\uB7C9%)\uC758 \uD53C\uD574\uB97C \uC8FC\uB294 \uBC88\uAC1C\uB97C
+      5\uD68C\uC5D0 \uAC78\uCCD0 \uB0B4\uB9AC\uCE69\uB2C8\uB2E4."
+    artifactType: 0
+    level: 4
+    coolTime: 78
+    damageBonusPercent: 90
+    attackBonusPercent: 0
+    attackSpeedBonusPercent: 0
+    healPercent: 0
+    summonHealth: 0
+    summonDuration: 0
+    woodCost: 150
+    goldCost: 4000
+    ironCost: 75
+    magicStoneCost: 5
+  - idNumber: 8010002
+    name: "\uCC9C\uB465\uC2E0\uC758 \uC2EC\uD310"
+    description: "\uD654\uBA74\uC758 \uBAA8\uB4E0 \uC801 \uC720\uB2DB\uC5D0\uAC8C
+      (\uD53C\uD574\uB7C9%)\uC758 \uD53C\uD574\uB97C \uC8FC\uB294 \uBC88\uAC1C\uB97C
+      5\uD68C\uC5D0 \uAC78\uCCD0 \uB0B4\uB9AC\uCE69\uB2C8\uB2E4."
+    artifactType: 0
+    level: 5
+    coolTime: 74
+    damageBonusPercent: 100
+    attackBonusPercent: 0
+    attackSpeedBonusPercent: 0
+    healPercent: 0
+    summonHealth: 0
+    summonDuration: 0
+    woodCost: 300
+    goldCost: 5500
+    ironCost: 150
+    magicStoneCost: 8
+  - idNumber: 8010002
+    name: "\uCC9C\uB465\uC2E0\uC758 \uC2EC\uD310"
+    description: "\uD654\uBA74\uC758 \uBAA8\uB4E0 \uC801 \uC720\uB2DB\uC5D0\uAC8C
+      (\uD53C\uD574\uB7C9%)\uC758 \uD53C\uD574\uB97C \uC8FC\uB294 \uBC88\uAC1C\uB97C
+      5\uD68C\uC5D0 \uAC78\uCCD0 \uB0B4\uB9AC\uCE69\uB2C8\uB2E4."
+    artifactType: 0
+    level: 6
+    coolTime: 70
+    damageBonusPercent: 115
+    attackBonusPercent: 0
+    attackSpeedBonusPercent: 0
+    healPercent: 0
+    summonHealth: 0
+    summonDuration: 0
+    woodCost: 500
+    goldCost: 7500
+    ironCost: 250
+    magicStoneCost: 25
+  - idNumber: 8010002
+    name: "\uCC9C\uB465\uC2E0\uC758 \uC2EC\uD310"
+    description: "\uD654\uBA74\uC758 \uBAA8\uB4E0 \uC801 \uC720\uB2DB\uC5D0\uAC8C
+      (\uD53C\uD574\uB7C9%)\uC758 \uD53C\uD574\uB97C \uC8FC\uB294 \uBC88\uAC1C\uB97C
+      5\uD68C\uC5D0 \uAC78\uCCD0 \uB0B4\uB9AC\uCE69\uB2C8\uB2E4."
+    artifactType: 0
+    level: 7
+    coolTime: 76
+    damageBonusPercent: 130
+    attackBonusPercent: 0
+    attackSpeedBonusPercent: 0
+    healPercent: 0
+    summonHealth: 0
+    summonDuration: 0
+    woodCost: 750
+    goldCost: 10000
+    ironCost: 350
+    magicStoneCost: 50
+  - idNumber: 8010002
+    name: "\uCC9C\uB465\uC2E0\uC758 \uC2EC\uD310"
+    description: "\uD654\uBA74\uC758 \uBAA8\uB4E0 \uC801 \uC720\uB2DB\uC5D0\uAC8C
+      (\uD53C\uD574\uB7C9%)\uC758 \uD53C\uD574\uB97C \uC8FC\uB294 \uBC88\uAC1C\uB97C
+      5\uD68C\uC5D0 \uAC78\uCCD0 \uB0B4\uB9AC\uCE69\uB2C8\uB2E4."
+    artifactType: 0
+    level: 8
+    coolTime: 72
+    damageBonusPercent: 145
+    attackBonusPercent: 0
+    attackSpeedBonusPercent: 0
+    healPercent: 0
+    summonHealth: 0
+    summonDuration: 0
+    woodCost: 1000
+    goldCost: 12000
+    ironCost: 500
+    magicStoneCost: 80
+  - idNumber: 8010002
+    name: "\uCC9C\uB465\uC2E0\uC758 \uC2EC\uD310"
+    description: "\uD654\uBA74\uC758 \uBAA8\uB4E0 \uC801 \uC720\uB2DB\uC5D0\uAC8C
+      (\uD53C\uD574\uB7C9%)\uC758 \uD53C\uD574\uB97C \uC8FC\uB294 \uBC88\uAC1C\uB97C
+      5\uD68C\uC5D0 \uAC78\uCCD0 \uB0B4\uB9AC\uCE69\uB2C8\uB2E4."
+    artifactType: 0
+    level: 9
+    coolTime: 65
+    damageBonusPercent: 160
+    attackBonusPercent: 0
+    attackSpeedBonusPercent: 0
+    healPercent: 0
+    summonHealth: 0
+    summonDuration: 0
+    woodCost: -1
+    goldCost: -1
+    ironCost: -1
+    magicStoneCost: -1
+  - idNumber: 8010003
+    name: "\uC655\uAD6D\uC758 \uC9C4\uAD70\uAC00"
+    description: "5\uCD08 \uB3D9\uC548 \uBAA8\uB4E0 \uC544\uAD70 \uC720\uB2DB\uC758
+      \uACF5\uACA9\uB825\uC774 (\uACF5\uACA9\uB825 \uC99D\uAC00\uC728%)\uB9CC\uD07C
+      \uC99D\uAC00\uD558\uACE0, \uACF5\uACA9 \uC18D\uB3C4\uAC00 (\uACF5\uACA9 \uC18D\uB3C4
+      \uC99D\uAC00\uC728%) \uBE68\uB77C\uC9D1\uB2C8\uB2E4."
+    artifactType: 0
+    level: 1
+    coolTime: 150
+    damageBonusPercent: 0
+    attackBonusPercent: 15
+    attackSpeedBonusPercent: 10
+    healPercent: 0
+    summonHealth: 0
+    summonDuration: 0
+    woodCost: 30
+    goldCost: 1200
+    ironCost: 15
+    magicStoneCost: 0
+  - idNumber: 8010003
+    name: "\uC655\uAD6D\uC758 \uC9C4\uAD70\uAC00"
+    description: "5\uCD08 \uB3D9\uC548 \uBAA8\uB4E0 \uC544\uAD70 \uC720\uB2DB\uC758
+      \uACF5\uACA9\uB825\uC774 (\uACF5\uACA9\uB825 \uC99D\uAC00\uC728%)\uB9CC\uD07C
+      \uC99D\uAC00\uD558\uACE0, \uACF5\uACA9 \uC18D\uB3C4\uAC00 (\uACF5\uACA9 \uC18D\uB3C4
+      \uC99D\uAC00\uC728%) \uBE68\uB77C\uC9D1\uB2C8\uB2E4."
+    artifactType: 0
+    level: 2
+    coolTime: 147
+    damageBonusPercent: 0
+    attackBonusPercent: 17.5
+    attackSpeedBonusPercent: 11
+    healPercent: 0
+    summonHealth: 0
+    summonDuration: 0
+    woodCost: 75
+    goldCost: 1900
+    ironCost: 40
+    magicStoneCost: 0
+  - idNumber: 8010003
+    name: "\uC655\uAD6D\uC758 \uC9C4\uAD70\uAC00"
+    description: "5\uCD08 \uB3D9\uC548 \uBAA8\uB4E0 \uC544\uAD70 \uC720\uB2DB\uC758
+      \uACF5\uACA9\uB825\uC774 (\uACF5\uACA9\uB825 \uC99D\uAC00\uC728%)\uB9CC\uD07C
+      \uC99D\uAC00\uD558\uACE0, \uACF5\uACA9 \uC18D\uB3C4\uAC00 (\uACF5\uACA9 \uC18D\uB3C4
+      \uC99D\uAC00\uC728%) \uBE68\uB77C\uC9D1\uB2C8\uB2E4."
+    artifactType: 0
+    level: 3
+    coolTime: 144
+    damageBonusPercent: 0
+    attackBonusPercent: 20
+    attackSpeedBonusPercent: 12
+    healPercent: 0
+    summonHealth: 0
+    summonDuration: 0
+    woodCost: 120
+    goldCost: 3800
+    ironCost: 60
+    magicStoneCost: 3
+  - idNumber: 8010003
+    name: "\uC655\uAD6D\uC758 \uC9C4\uAD70\uAC00"
+    description: "5\uCD08 \uB3D9\uC548 \uBAA8\uB4E0 \uC544\uAD70 \uC720\uB2DB\uC758
+      \uACF5\uACA9\uB825\uC774 (\uACF5\uACA9\uB825 \uC99D\uAC00\uC728%)\uB9CC\uD07C
+      \uC99D\uAC00\uD558\uACE0, \uACF5\uACA9 \uC18D\uB3C4\uAC00 (\uACF5\uACA9 \uC18D\uB3C4
+      \uC99D\uAC00\uC728%) \uBE68\uB77C\uC9D1\uB2C8\uB2E4."
+    artifactType: 0
+    level: 4
+    coolTime: 141
+    damageBonusPercent: 0
+    attackBonusPercent: 22.5
+    attackSpeedBonusPercent: 13
+    healPercent: 0
+    summonHealth: 0
+    summonDuration: 0
+    woodCost: 220
+    goldCost: 6000
+    ironCost: 110
+    magicStoneCost: 8
+  - idNumber: 8010003
+    name: "\uC655\uAD6D\uC758 \uC9C4\uAD70\uAC00"
+    description: "5\uCD08 \uB3D9\uC548 \uBAA8\uB4E0 \uC544\uAD70 \uC720\uB2DB\uC758
+      \uACF5\uACA9\uB825\uC774 (\uACF5\uACA9\uB825 \uC99D\uAC00\uC728%)\uB9CC\uD07C
+      \uC99D\uAC00\uD558\uACE0, \uACF5\uACA9 \uC18D\uB3C4\uAC00 (\uACF5\uACA9 \uC18D\uB3C4
+      \uC99D\uAC00\uC728%) \uBE68\uB77C\uC9D1\uB2C8\uB2E4."
+    artifactType: 0
+    level: 5
+    coolTime: 138
+    damageBonusPercent: 0
+    attackBonusPercent: 25
+    attackSpeedBonusPercent: 14
+    healPercent: 0
+    summonHealth: 0
+    summonDuration: 0
+    woodCost: 450
+    goldCost: 8500
+    ironCost: 220
+    magicStoneCost: 12
+  - idNumber: 8010003
+    name: "\uC655\uAD6D\uC758 \uC9C4\uAD70\uAC00"
+    description: "5\uCD08 \uB3D9\uC548 \uBAA8\uB4E0 \uC544\uAD70 \uC720\uB2DB\uC758
+      \uACF5\uACA9\uB825\uC774 (\uACF5\uACA9\uB825 \uC99D\uAC00\uC728%)\uB9CC\uD07C
+      \uC99D\uAC00\uD558\uACE0, \uACF5\uACA9 \uC18D\uB3C4\uAC00 (\uACF5\uACA9 \uC18D\uB3C4
+      \uC99D\uAC00\uC728%) \uBE68\uB77C\uC9D1\uB2C8\uB2E4."
+    artifactType: 0
+    level: 6
+    coolTime: 134
+    damageBonusPercent: 0
+    attackBonusPercent: 27.5
+    attackSpeedBonusPercent: 15
+    healPercent: 0
+    summonHealth: 0
+    summonDuration: 0
+    woodCost: 750
+    goldCost: 11500
+    ironCost: 380
+    magicStoneCost: 40
+  - idNumber: 8010003
+    name: "\uC655\uAD6D\uC758 \uC9C4\uAD70\uAC00"
+    description: "5\uCD08 \uB3D9\uC548 \uBAA8\uB4E0 \uC544\uAD70 \uC720\uB2DB\uC758
+      \uACF5\uACA9\uB825\uC774 (\uACF5\uACA9\uB825 \uC99D\uAC00\uC728%)\uB9CC\uD07C
+      \uC99D\uAC00\uD558\uACE0, \uACF5\uACA9 \uC18D\uB3C4\uAC00 (\uACF5\uACA9 \uC18D\uB3C4
+      \uC99D\uAC00\uC728%) \uBE68\uB77C\uC9D1\uB2C8\uB2E4."
+    artifactType: 0
+    level: 7
+    coolTime: 130
+    damageBonusPercent: 0
+    attackBonusPercent: 30
+    attackSpeedBonusPercent: 16
+    healPercent: 0
+    summonHealth: 0
+    summonDuration: 0
+    woodCost: 1100
+    goldCost: 15000
+    ironCost: 550
+    magicStoneCost: 75
+  - idNumber: 8010003
+    name: "\uC655\uAD6D\uC758 \uC9C4\uAD70\uAC00"
+    description: "5\uCD08 \uB3D9\uC548 \uBAA8\uB4E0 \uC544\uAD70 \uC720\uB2DB\uC758
+      \uACF5\uACA9\uB825\uC774 (\uACF5\uACA9\uB825 \uC99D\uAC00\uC728%)\uB9CC\uD07C
+      \uC99D\uAC00\uD558\uACE0, \uACF5\uACA9 \uC18D\uB3C4\uAC00 (\uACF5\uACA9 \uC18D\uB3C4
+      \uC99D\uAC00\uC728%) \uBE68\uB77C\uC9D1\uB2C8\uB2E4."
+    artifactType: 0
+    level: 8
+    coolTime: 125
+    damageBonusPercent: 0
+    attackBonusPercent: 32.5
+    attackSpeedBonusPercent: 17
+    healPercent: 0
+    summonHealth: 0
+    summonDuration: 0
+    woodCost: 1500
+    goldCost: 18000
+    ironCost: 750
+    magicStoneCost: 120
+  - idNumber: 8010003
+    name: "\uC655\uAD6D\uC758 \uC9C4\uAD70\uAC00"
+    description: "5\uCD08 \uB3D9\uC548 \uBAA8\uB4E0 \uC544\uAD70 \uC720\uB2DB\uC758
+      \uACF5\uACA9\uB825\uC774 (\uACF5\uACA9\uB825 \uC99D\uAC00\uC728%)\uB9CC\uD07C
+      \uC99D\uAC00\uD558\uACE0, \uACF5\uACA9 \uC18D\uB3C4\uAC00 (\uACF5\uACA9 \uC18D\uB3C4
+      \uC99D\uAC00\uC728%) \uBE68\uB77C\uC9D1\uB2C8\uB2E4."
+    artifactType: 0
+    level: 9
+    coolTime: 120
+    damageBonusPercent: 0
+    attackBonusPercent: 35
+    attackSpeedBonusPercent: 18
+    healPercent: 0
+    summonHealth: 0
+    summonDuration: 0
+    woodCost: -1
+    goldCost: -1
+    ironCost: -1
+    magicStoneCost: -1
+  - idNumber: 8010004
+    name: "\uC5EC\uC2E0\uC758 \uCD95\uBCF5"
+    description: "\uC2A4\uD0AC \uC2DC\uC804 3\uCD08 \uD6C4, \uBE5B\uC758 \uAE30\uB465\uC774
+      \uB0B4\uB824\uC640 \uBAA8\uB4E0 \uC544\uAD70 \uC720\uB2DB\uC758 \uCCB4\uB825\uC744
+      \uCD5C\uB300 \uCCB4\uB825\uC758 (\uD68C\uBCF5\uB7C9%)\uB9CC\uD07C \uC989\uC2DC
+      \uD68C\uBCF5 \uC2DC\uD0B5\uB2C8\uB2E4."
+    artifactType: 0
+    level: 1
+    coolTime: 150
+    damageBonusPercent: 0
+    attackBonusPercent: 0
+    attackSpeedBonusPercent: 0
+    healPercent: 20
+    summonHealth: 0
+    summonDuration: 0
+    woodCost: 30
+    goldCost: 1200
+    ironCost: 15
+    magicStoneCost: 0
+  - idNumber: 8010004
+    name: "\uC5EC\uC2E0\uC758 \uCD95\uBCF5"
+    description: "\uC2A4\uD0AC \uC2DC\uC804 3\uCD08 \uD6C4, \uBE5B\uC758 \uAE30\uB465\uC774
+      \uB0B4\uB824\uC640 \uBAA8\uB4E0 \uC544\uAD70 \uC720\uB2DB\uC758 \uCCB4\uB825\uC744
+      \uCD5C\uB300 \uCCB4\uB825\uC758 (\uD68C\uBCF5\uB7C9%)\uB9CC\uD07C \uC989\uC2DC
+      \uD68C\uBCF5 \uC2DC\uD0B5\uB2C8\uB2E4."
+    artifactType: 0
+    level: 2
+    coolTime: 147
+    damageBonusPercent: 0
+    attackBonusPercent: 0
+    attackSpeedBonusPercent: 0
+    healPercent: 22.5
+    summonHealth: 0
+    summonDuration: 0
+    woodCost: 75
+    goldCost: 1900
+    ironCost: 40
+    magicStoneCost: 0
+  - idNumber: 8010004
+    name: "\uC5EC\uC2E0\uC758 \uCD95\uBCF5"
+    description: "\uC2A4\uD0AC \uC2DC\uC804 3\uCD08 \uD6C4, \uBE5B\uC758 \uAE30\uB465\uC774
+      \uB0B4\uB824\uC640 \uBAA8\uB4E0 \uC544\uAD70 \uC720\uB2DB\uC758 \uCCB4\uB825\uC744
+      \uCD5C\uB300 \uCCB4\uB825\uC758 (\uD68C\uBCF5\uB7C9%)\uB9CC\uD07C \uC989\uC2DC
+      \uD68C\uBCF5 \uC2DC\uD0B5\uB2C8\uB2E4."
+    artifactType: 0
+    level: 3
+    coolTime: 144
+    damageBonusPercent: 0
+    attackBonusPercent: 0
+    attackSpeedBonusPercent: 0
+    healPercent: 25
+    summonHealth: 0
+    summonDuration: 0
+    woodCost: 120
+    goldCost: 3800
+    ironCost: 60
+    magicStoneCost: 3
+  - idNumber: 8010004
+    name: "\uC5EC\uC2E0\uC758 \uCD95\uBCF5"
+    description: "\uC2A4\uD0AC \uC2DC\uC804 3\uCD08 \uD6C4, \uBE5B\uC758 \uAE30\uB465\uC774
+      \uB0B4\uB824\uC640 \uBAA8\uB4E0 \uC544\uAD70 \uC720\uB2DB\uC758 \uCCB4\uB825\uC744
+      \uCD5C\uB300 \uCCB4\uB825\uC758 (\uD68C\uBCF5\uB7C9%)\uB9CC\uD07C \uC989\uC2DC
+      \uD68C\uBCF5 \uC2DC\uD0B5\uB2C8\uB2E4."
+    artifactType: 0
+    level: 4
+    coolTime: 141
+    damageBonusPercent: 0
+    attackBonusPercent: 0
+    attackSpeedBonusPercent: 0
+    healPercent: 28
+    summonHealth: 0
+    summonDuration: 0
+    woodCost: 220
+    goldCost: 6000
+    ironCost: 110
+    magicStoneCost: 8
+  - idNumber: 8010004
+    name: "\uC5EC\uC2E0\uC758 \uCD95\uBCF5"
+    description: "\uC2A4\uD0AC \uC2DC\uC804 3\uCD08 \uD6C4, \uBE5B\uC758 \uAE30\uB465\uC774
+      \uB0B4\uB824\uC640 \uBAA8\uB4E0 \uC544\uAD70 \uC720\uB2DB\uC758 \uCCB4\uB825\uC744
+      \uCD5C\uB300 \uCCB4\uB825\uC758 (\uD68C\uBCF5\uB7C9%)\uB9CC\uD07C \uC989\uC2DC
+      \uD68C\uBCF5 \uC2DC\uD0B5\uB2C8\uB2E4."
+    artifactType: 0
+    level: 5
+    coolTime: 138
+    damageBonusPercent: 0
+    attackBonusPercent: 0
+    attackSpeedBonusPercent: 0
+    healPercent: 31.5
+    summonHealth: 0
+    summonDuration: 0
+    woodCost: 450
+    goldCost: 8500
+    ironCost: 220
+    magicStoneCost: 12
+  - idNumber: 8010004
+    name: "\uC5EC\uC2E0\uC758 \uCD95\uBCF5"
+    description: "\uC2A4\uD0AC \uC2DC\uC804 3\uCD08 \uD6C4, \uBE5B\uC758 \uAE30\uB465\uC774
+      \uB0B4\uB824\uC640 \uBAA8\uB4E0 \uC544\uAD70 \uC720\uB2DB\uC758 \uCCB4\uB825\uC744
+      \uCD5C\uB300 \uCCB4\uB825\uC758 (\uD68C\uBCF5\uB7C9%)\uB9CC\uD07C \uC989\uC2DC
+      \uD68C\uBCF5 \uC2DC\uD0B5\uB2C8\uB2E4."
+    artifactType: 0
+    level: 6
+    coolTime: 134
+    damageBonusPercent: 0
+    attackBonusPercent: 0
+    attackSpeedBonusPercent: 0
+    healPercent: 35
+    summonHealth: 0
+    summonDuration: 0
+    woodCost: 750
+    goldCost: 11500
+    ironCost: 380
+    magicStoneCost: 40
+  - idNumber: 8010004
+    name: "\uC5EC\uC2E0\uC758 \uCD95\uBCF5"
+    description: "\uC2A4\uD0AC \uC2DC\uC804 3\uCD08 \uD6C4, \uBE5B\uC758 \uAE30\uB465\uC774
+      \uB0B4\uB824\uC640 \uBAA8\uB4E0 \uC544\uAD70 \uC720\uB2DB\uC758 \uCCB4\uB825\uC744
+      \uCD5C\uB300 \uCCB4\uB825\uC758 (\uD68C\uBCF5\uB7C9%)\uB9CC\uD07C \uC989\uC2DC
+      \uD68C\uBCF5 \uC2DC\uD0B5\uB2C8\uB2E4."
+    artifactType: 0
+    level: 7
+    coolTime: 130
+    damageBonusPercent: 0
+    attackBonusPercent: 0
+    attackSpeedBonusPercent: 0
+    healPercent: 40
+    summonHealth: 0
+    summonDuration: 0
+    woodCost: 1100
+    goldCost: 15000
+    ironCost: 550
+    magicStoneCost: 75
+  - idNumber: 8010004
+    name: "\uC5EC\uC2E0\uC758 \uCD95\uBCF5"
+    description: "\uC2A4\uD0AC \uC2DC\uC804 3\uCD08 \uD6C4, \uBE5B\uC758 \uAE30\uB465\uC774
+      \uB0B4\uB824\uC640 \uBAA8\uB4E0 \uC544\uAD70 \uC720\uB2DB\uC758 \uCCB4\uB825\uC744
+      \uCD5C\uB300 \uCCB4\uB825\uC758 (\uD68C\uBCF5\uB7C9%)\uB9CC\uD07C \uC989\uC2DC
+      \uD68C\uBCF5 \uC2DC\uD0B5\uB2C8\uB2E4."
+    artifactType: 0
+    level: 8
+    coolTime: 125
+    damageBonusPercent: 0
+    attackBonusPercent: 0
+    attackSpeedBonusPercent: 0
+    healPercent: 45
+    summonHealth: 0
+    summonDuration: 0
+    woodCost: 1500
+    goldCost: 18000
+    ironCost: 750
+    magicStoneCost: 120
+  - idNumber: 8010004
+    name: "\uC5EC\uC2E0\uC758 \uCD95\uBCF5"
+    description: "\uC2A4\uD0AC \uC2DC\uC804 3\uCD08 \uD6C4, \uBE5B\uC758 \uAE30\uB465\uC774
+      \uB0B4\uB824\uC640 \uBAA8\uB4E0 \uC544\uAD70 \uC720\uB2DB\uC758 \uCCB4\uB825\uC744
+      \uCD5C\uB300 \uCCB4\uB825\uC758 (\uD68C\uBCF5\uB7C9%)\uB9CC\uD07C \uC989\uC2DC
+      \uD68C\uBCF5 \uC2DC\uD0B5\uB2C8\uB2E4."
+    artifactType: 0
+    level: 9
+    coolTime: 120
+    damageBonusPercent: 0
+    attackBonusPercent: 0
+    attackSpeedBonusPercent: 0
+    healPercent: 50
+    summonHealth: 0
+    summonDuration: 0
+    woodCost: -1
+    goldCost: -1
+    ironCost: -1
+    magicStoneCost: -1
+  - idNumber: 8010005
+    name: "\uAC70\uC778\uC758 \uC11D\uD310"
+    description: "\uD50C\uB808\uC774\uC5B4 \uC55E\uC5D0(\uC790\uB9AC \uACE0\uC815)
+      (n\uCD08) \uB3D9\uC548 \uB192\uC740 \uCCB4\uB825\uC744 \uAC00\uC9C4 \uC218\uD638
+      \uC804\uB839\uC744 \uC18C\uD658\uD569\uB2C8\uB2E4."
+    artifactType: 0
+    level: 1
+    coolTime: 210
+    damageBonusPercent: 0
+    attackBonusPercent: 0
+    attackSpeedBonusPercent: 0
+    healPercent: 0
+    summonHealth: 7500
+    summonDuration: 25
+    woodCost: 50
+    goldCost: 2000
+    ironCost: 25
+    magicStoneCost: 0
+  - idNumber: 8010005
+    name: "\uAC70\uC778\uC758 \uC11D\uD310"
+    description: "\uD50C\uB808\uC774\uC5B4 \uC55E\uC5D0(\uC790\uB9AC \uACE0\uC815)
+      (n\uCD08) \uB3D9\uC548 \uB192\uC740 \uCCB4\uB825\uC744 \uAC00\uC9C4 \uC218\uD638
+      \uC804\uB839\uC744 \uC18C\uD658\uD569\uB2C8\uB2E4."
+    artifactType: 0
+    level: 2
+    coolTime: 206
+    damageBonusPercent: 0
+    attackBonusPercent: 0
+    attackSpeedBonusPercent: 0
+    healPercent: 0
+    summonHealth: 10000
+    summonDuration: 26
+    woodCost: 120
+    goldCost: 3500
+    ironCost: 60
+    magicStoneCost: 0
+  - idNumber: 8010005
+    name: "\uAC70\uC778\uC758 \uC11D\uD310"
+    description: "\uD50C\uB808\uC774\uC5B4 \uC55E\uC5D0(\uC790\uB9AC \uACE0\uC815)
+      (n\uCD08) \uB3D9\uC548 \uB192\uC740 \uCCB4\uB825\uC744 \uAC00\uC9C4 \uC218\uD638
+      \uC804\uB839\uC744 \uC18C\uD658\uD569\uB2C8\uB2E4."
+    artifactType: 0
+    level: 3
+    coolTime: 202
+    damageBonusPercent: 0
+    attackBonusPercent: 0
+    attackSpeedBonusPercent: 0
+    healPercent: 0
+    summonHealth: 12500
+    summonDuration: 27
+    woodCost: 200
+    goldCost: 7000
+    ironCost: 100
+    magicStoneCost: 5
+  - idNumber: 8010005
+    name: "\uAC70\uC778\uC758 \uC11D\uD310"
+    description: "\uD50C\uB808\uC774\uC5B4 \uC55E\uC5D0(\uC790\uB9AC \uACE0\uC815)
+      (n\uCD08) \uB3D9\uC548 \uB192\uC740 \uCCB4\uB825\uC744 \uAC00\uC9C4 \uC218\uD638
+      \uC804\uB839\uC744 \uC18C\uD658\uD569\uB2C8\uB2E4."
+    artifactType: 0
+    level: 4
+    coolTime: 198
+    damageBonusPercent: 0
+    attackBonusPercent: 0
+    attackSpeedBonusPercent: 0
+    healPercent: 0
+    summonHealth: 15000
+    summonDuration: 28
+    woodCost: 350
+    goldCost: 11000
+    ironCost: 180
+    magicStoneCost: 15
+  - idNumber: 8010005
+    name: "\uAC70\uC778\uC758 \uC11D\uD310"
+    description: "\uD50C\uB808\uC774\uC5B4 \uC55E\uC5D0(\uC790\uB9AC \uACE0\uC815)
+      (n\uCD08) \uB3D9\uC548 \uB192\uC740 \uCCB4\uB825\uC744 \uAC00\uC9C4 \uC218\uD638
+      \uC804\uB839\uC744 \uC18C\uD658\uD569\uB2C8\uB2E4."
+    artifactType: 0
+    level: 5
+    coolTime: 194
+    damageBonusPercent: 0
+    attackBonusPercent: 0
+    attackSpeedBonusPercent: 0
+    healPercent: 0
+    summonHealth: 17500
+    summonDuration: 30
+    woodCost: 700
+    goldCost: 16000
+    ironCost: 350
+    magicStoneCost: 25
+  - idNumber: 8010005
+    name: "\uAC70\uC778\uC758 \uC11D\uD310"
+    description: "\uD50C\uB808\uC774\uC5B4 \uC55E\uC5D0(\uC790\uB9AC \uACE0\uC815)
+      (n\uCD08) \uB3D9\uC548 \uB192\uC740 \uCCB4\uB825\uC744 \uAC00\uC9C4 \uC218\uD638
+      \uC804\uB839\uC744 \uC18C\uD658\uD569\uB2C8\uB2E4."
+    artifactType: 0
+    level: 6
+    coolTime: 190
+    damageBonusPercent: 0
+    attackBonusPercent: 0
+    attackSpeedBonusPercent: 0
+    healPercent: 0
+    summonHealth: 20000
+    summonDuration: 32
+    woodCost: 1200
+    goldCost: 22000
+    ironCost: 600
+    magicStoneCost: 60
+  - idNumber: 8010005
+    name: "\uAC70\uC778\uC758 \uC11D\uD310"
+    description: "\uD50C\uB808\uC774\uC5B4 \uC55E\uC5D0(\uC790\uB9AC \uACE0\uC815)
+      (n\uCD08) \uB3D9\uC548 \uB192\uC740 \uCCB4\uB825\uC744 \uAC00\uC9C4 \uC218\uD638
+      \uC804\uB839\uC744 \uC18C\uD658\uD569\uB2C8\uB2E4."
+    artifactType: 0
+    level: 7
+    coolTime: 185
+    damageBonusPercent: 0
+    attackBonusPercent: 0
+    attackSpeedBonusPercent: 0
+    healPercent: 0
+    summonHealth: 25000
+    summonDuration: 34
+    woodCost: 1800
+    goldCost: 28000
+    ironCost: 900
+    magicStoneCost: 120
+  - idNumber: 8010005
+    name: "\uAC70\uC778\uC758 \uC11D\uD310"
+    description: "\uD50C\uB808\uC774\uC5B4 \uC55E\uC5D0(\uC790\uB9AC \uACE0\uC815)
+      (n\uCD08) \uB3D9\uC548 \uB192\uC740 \uCCB4\uB825\uC744 \uAC00\uC9C4 \uC218\uD638
+      \uC804\uB839\uC744 \uC18C\uD658\uD569\uB2C8\uB2E4."
+    artifactType: 0
+    level: 8
+    coolTime: 180
+    damageBonusPercent: 0
+    attackBonusPercent: 0
+    attackSpeedBonusPercent: 0
+    healPercent: 0
+    summonHealth: 35000
+    summonDuration: 37
+    woodCost: 2500
+    goldCost: 35000
+    ironCost: 1200
+    magicStoneCost: 200
+  - idNumber: 8010005
+    name: "\uAC70\uC778\uC758 \uC11D\uD310"
+    description: "\uD50C\uB808\uC774\uC5B4 \uC55E\uC5D0(\uC790\uB9AC \uACE0\uC815)
+      (n\uCD08) \uB3D9\uC548 \uB192\uC740 \uCCB4\uB825\uC744 \uAC00\uC9C4 \uC218\uD638
+      \uC804\uB839\uC744 \uC18C\uD658\uD569\uB2C8\uB2E4."
+    artifactType: 0
+    level: 9
+    coolTime: 175
+    damageBonusPercent: 0
+    attackBonusPercent: 0
+    attackSpeedBonusPercent: 0
+    healPercent: 0
+    summonHealth: 50000
+    summonDuration: 40
+    woodCost: -1
+    goldCost: -1
+    ironCost: -1
+    magicStoneCost: -1
