@@ -21,7 +21,7 @@ public enum BuildingEffectType
     AdditionalIronProduction,
     MagicStoneFindChance,
     MagicStoneProduction,
-    MaxPopulation,
+    UnitCoolDown,
     CanSummonRareUnits,
     CanSummonEpicUnits
 }
