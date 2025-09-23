@@ -13,6 +13,8 @@ public class UIMiniMap : MonoBehaviour
 
     private float playerHQPos;
     private float enemyHQPos;
+    //아마 HQ가 좌우대칭이 아니여서 UI가 삐져나오는 것 같은데, 일단 위치수정하기 전까지 보정치 주기
+    private float offsetPlus = 3.5f;
 
     private Color32 playerColor = new Color32(0, 0, 255, 100);
     private Color32 enemyColor = new Color32(255, 0, 0, 135);
@@ -43,8 +45,11 @@ public class UIMiniMap : MonoBehaviour
         playerHQPos = GameManager.Instance.PlayerHQ.transform.position.x;
         enemyHQPos = GameManager.Instance.enemyHQ.transform.position.x;
 
-        wordWidth = enemyHQPos - playerHQPos;
+        wordWidth = (enemyHQPos + offsetPlus) - playerHQPos;
         uIWidth = rectTransform.rect.width;
+
+        Debug.Log($"월드 크기: {wordWidth}");
+        Debug.Log($"UI 크기: {uIWidth}");
     }
 
     //한박자 늦게 업데이트
