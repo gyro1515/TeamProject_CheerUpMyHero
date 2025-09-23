@@ -18,7 +18,7 @@ public class MainScreenUI : BaseUI
     //[SerializeField] private CanvasGroup _testPanelCanvasGroup;
     [SerializeField] private CanvasGroup _deckSelectPanelCanvasGroup;
 
-    UISelectCard uiSelectCard;
+    //UISelectCard uiSelectCard;
 
 
     private void Awake()
@@ -42,7 +42,7 @@ public class MainScreenUI : BaseUI
         /*_battlePanel.SetActive(false);
         _testPanel.SetActive(false);
         _deckSelectPanel.SetActive(false);*/
-        uiSelectCard = UIManager.Instance.GetUI<UISelectCard>();
+        //uiSelectCard = UIManager.Instance.GetUI<UISelectCard>();
     }
     private void OnEnable()
     {
@@ -68,7 +68,7 @@ public class MainScreenUI : BaseUI
     {
         // "덱 선택" 버튼 클릭 시 실행될 로직
         Debug.Log("덱을 선택하고 다음 단계로 넘어갑니다.");
-        FadeManager.Instance.SwitchGameObjects(gameObject, uiSelectCard.gameObject);
+      //  FadeManager.Instance.SwitchGameObjects(gameObject, uiSelectCard.gameObject);
     }
 
     private void OnNotYetButtonClick()

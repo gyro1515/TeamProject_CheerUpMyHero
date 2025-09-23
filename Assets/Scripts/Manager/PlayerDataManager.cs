@@ -94,9 +94,6 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
     public void SaveDecks()
     {
         Debug.Log("현재 덱 구성을 파일에 저장합니다.");
-        // TODO: Dictionary 형태의 DeckPresets를 Json으로 변환하여 PlayerPrefs 등에 저장하는 코드를 추가해야 합니다.
-        // ex) string json = JsonConvert.SerializeObject(DeckPresets);
-        // PlayerPrefs.SetString("DeckPresets_SaveFile", json);
     }
     #endregion
 

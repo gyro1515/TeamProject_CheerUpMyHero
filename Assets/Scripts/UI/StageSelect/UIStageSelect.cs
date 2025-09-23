@@ -42,7 +42,7 @@ public class UIStageSelect : BaseUI
     public int SelectedMainSlotIdx { get; set; } = -1;
     public int SelectedSubSlotIdx { get; set; } = -1;
 
-    UISelectCard uiSelectCard;
+    //UISelectCard uiSelectCard;
     private void Awake()
     {
         subStageSelRectTransform = subStageSlotsTransform.GetComponent<RectTransform>();
@@ -61,7 +61,7 @@ public class UIStageSelect : BaseUI
             mainSlotList.Add(slot);
         }
         // 최대 서브 스테이지 개수에 따라 먼저 슬롯 생성하기, 현재 9
-        for (int i = 0;i < maxSubSlot; i++)
+        for (int i = 0; i < maxSubSlot; i++)
         {
             UISelecStageSlot slot = Instantiate(selectSlotPrefab, subStageSlotsTransform).GetComponent<UISelecStageSlot>();
             slot.InitSlot("", i, false, this, ESelecStageSlotType.Sub);
@@ -71,7 +71,7 @@ public class UIStageSelect : BaseUI
         // 돌아가기 버튼 세팅
         returnToSelDeckBtn.onClick.AddListener(MoveToSelDeck);
         returnToSelMainBtn.onClick.AddListener(MoveToSelMainStage);
-        uiSelectCard = UIManager.Instance.GetUI<UISelectCard>();
+       // uiSelectCard = UIManager.Instance.GetUI<UISelectCard>();
     }
     private void OnEnable()
     {
@@ -95,7 +95,7 @@ public class UIStageSelect : BaseUI
     void MoveToSelDeck()
     {
         Debug.Log("덱 선택으로 이동");
-        FadeManager.Instance.SwitchGameObjects(gameObject, uiSelectCard.gameObject);
+       // FadeManager.Instance.SwitchGameObjects(gameObject, uiSelectCard.gameObject);
     }
     void SetMainSlot()
     {
@@ -111,7 +111,7 @@ public class UIStageSelect : BaseUI
         subStageSlotsTransform.position = resetPos;
         for (int i = 0; i < maxSubSlot; i++)
         {
-            if(i < stageList[mainStageIdx].subStages.Count)
+            if (i < stageList[mainStageIdx].subStages.Count)
             {
                 subSlotList[i].gameObject.SetActive(true);
                 SubStageData subData = stageList[mainStageIdx].subStages[i];

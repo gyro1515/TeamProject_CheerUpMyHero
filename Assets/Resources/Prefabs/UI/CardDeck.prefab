@@ -2064,6 +2064,7 @@ GameObject:
   - component: {fileID: 721299595063096118}
   - component: {fileID: 192757248124340350}
   - component: {fileID: 4060009695812787888}
+  - component: {fileID: 2936666479723136508}
   m_Layer: 5
   m_Name: CardDeck
   m_TagString: Untagged
@@ -2154,6 +2155,32 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
+--- !u!114 &2936666479723136508
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3398918991454861956}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 11aa19798f8099d48bf648ae65e92574, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  deckTabButtons:
+  - {fileID: 8489358661147901457}
+  - {fileID: 442583682193745860}
+  - {fileID: 9184464435283705088}
+  - {fileID: 876090418160767432}
+  - {fileID: 8324916193646550332}
+  unitSlotPrefab: {fileID: 3398918991454861956}
+  unitSlotParent: {fileID: 5415926789891594621}
+  resetButton: {fileID: 3010279254509419298}
+  completeButton: {fileID: 7079873945893544055}
+  autoButton: {fileID: 5040515943878257991}
+  adviserButton: {fileID: 7238294098591581562}
+  relicButton: {fileID: 2144436195303158747}
+  confirmationPopup: {fileID: 2313971012597117247}
 --- !u!1 &3406329954696575585
 GameObject:
   m_ObjectHideFlags: 0
@@ -4035,6 +4062,7 @@ GameObject:
   - component: {fileID: 6805879896274163113}
   - component: {fileID: 7108968894384568435}
   - component: {fileID: 5944692876779384543}
+  - component: {fileID: 2313971012597117247}
   m_Layer: 5
   m_Name: ConfirmationPopup
   m_TagString: Untagged
@@ -4112,6 +4140,21 @@ CanvasGroup:
   m_Interactable: 0
   m_BlocksRaycasts: 0
   m_IgnoreParentGroups: 0
+--- !u!114 &2313971012597117247
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6239608697268707682}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5301e0d2f1e400408904889ced5e58f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  confirmButton: {fileID: 115828993061550557}
+  cancelButton: {fileID: 7355562397854905591}
+  dontAskAgainToggle: {fileID: 721351412002355504}
 --- !u!1 &6401434848025624374
 GameObject:
   m_ObjectHideFlags: 0
