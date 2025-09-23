@@ -10,7 +10,9 @@ public enum ResourceType
     Wood,
     Iron,
     Food,
-    MagicStone
+    MagicStone,
+    Bm,
+    Ticket
 }
 
 public class PlayerDataManager : SingletonMono<PlayerDataManager>
@@ -24,6 +26,7 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
         if (Instance == this)
         {
             InitializeResources();
+            LoadDecks();
         }
     }
 
@@ -56,33 +59,47 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
 
     //덱 편성 관련
     #region Deck
-    //편성된 덱 정보
-    public List<int> DeckList { get; private set; } = new();
+    // Dictionary<덱 번호, 유닛 ID 리스트> 형태로 5개의 덱을 관리합니다.
+    public Dictionary<int, List<int>> DeckPresets { get; private set; } = new Dictionary<int, List<int>>();
 
-    public void SetDeckList(List<int> deckList)
+    public int ActiveDeckIndex { get; set; } = 1;
+
+    private void LoadDecks()
+    {       
+        for (int i = 1; i <= 5; i++)
+        {
+            // 각 덱을 9개의 빈 슬롯(-1은 빈 슬롯을 의미)으로 초기화합니다.
+            if (!DeckPresets.ContainsKey(i))
+            {
+                DeckPresets[i] = new List<int>(new int[9]);
+                for (int j = 0; j < 9; j++)
+                {
+                    DeckPresets[i][j] = -1;
+                }
+            }
+        }
+        Debug.Log("덱 프리셋 5개를 초기화했습니다.");
+    }
+
+    // 현재 덱 구성을 딕셔너리에 업데이트합니다.
+    public void UpdateDeck(int deckIndex, List<int> unitIds)
     {
-        DeckList.Clear();
-        DeckList = deckList;
-        StringBuilder sb = new StringBuilder();
-
-        //
-        Debug.Log($"[PlayerDataManager] 현재 덱리스트 크기: {DeckList.Count}");
-
-        for (int i = 0; i < DeckList.Count; i++)
+        if (DeckPresets.ContainsKey(deckIndex))
         {
-            sb.Append(DeckList[i].ToString());
-            sb.Append(", ");
+            DeckPresets[deckIndex] = new List<int>(unitIds); // 새로운 리스트로 교체
         }
-        if (sb.Length < 2)
-        {
-            Debug.Log($"[PlayerDataManager] 덱 세팅 완료 안내메시지를 호출 실패했습니다");
-            return;
-        }
+    }
 
-        sb.Length -= 2;
-        Debug.Log($"[PlayerDataManager] 덱 세팅 완료: {sb.ToString()}");
+    // 게임 종료나 특정 시점에 덱 정보를 저장할 때 사용합니다.
+    public void SaveDecks()
+    {
+        Debug.Log("현재 덱 구성을 파일에 저장합니다.");
+        // TODO: Dictionary 형태의 DeckPresets를 Json으로 변환하여 PlayerPrefs 등에 저장하는 코드를 추가해야 합니다.
+        // ex) string json = JsonConvert.SerializeObject(DeckPresets);
+        // PlayerPrefs.SetString("DeckPresets_SaveFile", json);
     }
     #endregion
+
 
     //자원 관련
     #region Resources
@@ -96,11 +113,13 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
     private void InitializeResources()
     {
         // 5가지 자원을 모두 딕셔너리에 추가하고 초기 수량을 설정.
-        _resources[ResourceType.Gold] = 100000;
+        _resources[ResourceType.Gold] = 10000;
         _resources[ResourceType.Wood] = 10000;
         _resources[ResourceType.Iron] = 10000;
         _resources[ResourceType.Food] = CurrentFood;
         _resources[ResourceType.MagicStone] = 10000;
+        _resources[ResourceType.Bm] = 0; 
+        _resources[ResourceType.Ticket] = 0;
     }
 
     // 특정 자원의 현재 수량을 반환하는 메서드
