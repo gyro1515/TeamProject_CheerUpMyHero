@@ -120,9 +120,16 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
         if (_resources.ContainsKey(type))
         {
             _resources[type] += amount;
+
             if (type == ResourceType.Food)
             {
                 CurrentFood = _resources[type];
+
+                if (amount < 0)
+                {
+                    MaxFood += amount;
+                    if (MaxFood < 0) MaxFood = 0;
+                }
             }
 
             OnResourceChangedEvent?.Invoke(type, _resources[type]);
@@ -138,6 +145,9 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
     // --- 푸드/농장 관련 ---
     public int CurrentFood { get; private set; } = 0;
     public int MaxFood { get; private set; } = 20000;
+
+    private int _calculatedMaxFood = 20000;
+
     private float foodAccumulator = 0f;
 
     public int SupplyLevel { get; private set; } = 1; // 보급품 레벨, 최소 1
@@ -158,7 +168,7 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
     //모든 농장 건물의 효과를 합산하여 MaxFood와 획득률을 계산
     public void UpdateTotalFarmEffect()
     {
-        int totalMaxFood = 20000;
+        int totalCalculatedMax = 20000;
         float totalGainPercent = 0f;
 
         for (int y = 0; y < 5; y++)
@@ -168,25 +178,25 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
                 var building = BuildingGridData[x, y];
                 if (building != null && building.buildingType == BuildingType.Farm)
                 {
-                    // 건물의 레벨에 맞는 배열 인덱스를 계산합니다. (1레벨 -> 0번 인덱스)
                     int levelIndex = Mathf.Clamp(building.level - 1, 0, maxFoodByFarmLevel.Length - 1);
-
-                    // "이 농장 하나"의 최대 저장량을 totalMaxFood에 더합니다.
-                    totalMaxFood += maxFoodByFarmLevel[levelIndex];
-
-                    // "이 농장 하나"의 획득률 보너스를 totalGainPercent에 더합니다.
+                    totalCalculatedMax += maxFoodByFarmLevel[levelIndex];
                     totalGainPercent += farmFoodGainPercentByLevel[levelIndex];
                 }
             }
         }
 
         // 최종 계산된 값으로 MaxFood와 currentFarmGainPercent를 업데이트합니다.
-        MaxFood = totalMaxFood;
+        _calculatedMaxFood = totalCalculatedMax; // '원래 최대 저장량' 갱신
         currentFarmGainPercent = totalGainPercent;
 
+
         // 최대 저장량이 줄었을 경우를 대비해 현재 식량을 조절합니다.
-        if (CurrentFood > MaxFood)
-            CurrentFood = MaxFood;
+        //if (CurrentFood > MaxFood)
+        //    CurrentFood = MaxFood;
+        if (MaxFood > _calculatedMaxFood)
+        {
+            MaxFood = _calculatedMaxFood;
+        }
 
         // UI 갱신을 위해 이벤트를 호출합니다.
         OnResourceChangedEvent?.Invoke(ResourceType.Food, CurrentFood);
@@ -222,6 +232,8 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
         }
     }
 
+
+
     // --- 보급품 획득 ---
     public void AddFoodOverTime(float deltaTime)
     {
@@ -237,8 +249,13 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
         int gainInt = Mathf.FloorToInt(foodAccumulator);
         if (gainInt > 0)
         {
+            //얻는 식량만큼 현재 최대 저장량을 감소
+            MaxFood -= gainInt;
+            if (MaxFood < 0) MaxFood = 0;
+
             CurrentFood += gainInt;
 
+            // 현재 식량이 (줄어든) 최대 저장량을 초과할 수 없도록 제한
             if (CurrentFood > MaxFood)
                 CurrentFood = MaxFood;
 
@@ -251,9 +268,12 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
     {
         CurrentFood = 0;
         foodAccumulator = 0f;
+
+        MaxFood = _calculatedMaxFood;
+
         _resources[ResourceType.Food] = CurrentFood;
         OnResourceChangedEvent?.Invoke(ResourceType.Food, CurrentFood);
-        Debug.Log("현재 식량을 0으로 초기화했습니다.");
+        Debug.Log("현재 식량을 0으로, 최대 식량을 원래 값으로 초기화했습니다.");
     }
     public bool TryGetUpgradeCost(out int cost)
     {
