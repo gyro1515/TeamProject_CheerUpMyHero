@@ -45,9 +45,6 @@ public class PlayerController : BaseController
             if (animator)
                 animator.SetTrigger("Attack");
         }
-        Vector3 playerPosition = playerTransform.position;
-        playerPosition.x = Mathf.Clamp(playerTransform.position.x, -18f, 18f);
-        playerTransform.position = playerPosition;
     }
 
 
@@ -56,7 +53,10 @@ public class PlayerController : BaseController
         base.FixedUpdate();
         if (!player) return;
         gameObject.transform.position += player.MoveDir * player.MoveSpeed * Time.fixedDeltaTime;
-        
+
+        Vector3 playerPosition = playerTransform.position;
+        playerPosition.x = Mathf.Clamp(playerTransform.position.x, -18f, 18f);
+        playerTransform.position = playerPosition;
     }
 
     void PlayerMoveAnimation(Vector3 newMoveDir)
