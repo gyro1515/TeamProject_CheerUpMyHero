@@ -90,8 +90,6 @@ public class UIStageSelect : BaseUI
     {
         Debug.Log($"{SelectedMainSlotIdx + 1}-{SelectedSubSlotIdx + 1} 전투 씬으로 이동");
         PlayerDataManager.Instance.SelectedStageIdx = (SelectedMainSlotIdx, SelectedSubSlotIdx);
-        //GameManager에게 전투 시작 준비를 명령
-        GameManager.Instance.StartBattle(); //배틀씬으로 갔을 때부터 식량 획득 증가 함수
         SceneLoader.Instance.StartLoadScene(SceneState.BattleScene);
     }
     void MoveToSelDeck()
