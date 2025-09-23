@@ -14,6 +14,10 @@ public class DeckPresetController : MonoBehaviour
     [SerializeField] private GameObject unitSlotPrefab; // 유닛 슬롯 프리팹
     [SerializeField] private Transform unitSlotParent;  // 슬롯들이 생성될 부모 Panel
 
+    [Header("시너지 UI 설정")]
+    [SerializeField] private GameObject synergyIconPrefab; // 시너지 아이콘 프리팹
+    [SerializeField] private Transform synergyIconParent;  // 아이콘들이 생성될 부모 Panel
+
     [Header("기능 버튼")]
     [SerializeField] private Button resetButton;
     [SerializeField] private Button completeButton;
@@ -90,9 +94,31 @@ public class DeckPresetController : MonoBehaviour
 
         }
         UpdateCompleteButtonState();
+
+        UpdateSynergyUI();
+
     }
 
-    void OnUnitSlotClicked(int slotIndex)
+    private void UpdateSynergyUI()
+    {
+        // 1. 기존에 있던 시너지 아이콘들을 모두 삭제
+        foreach (Transform child in synergyIconParent)
+        {
+            Destroy(child.gameObject);
+        }
+
+        //  현재 덱 구성으로 어떤 시너지가 활성화됐는지 계산 
+        // List<SynergyData> activeSynergies = SynergyManager.Instance.CalculateSynergies(currentDeckUnits);
+
+        //  활성화된 시너지 개수만큼 프리팹으로 아이콘을 생성
+        // foreach (var synergy in activeSynergies)
+        // {
+        //     GameObject iconGO = Instantiate(synergyIconPrefab, synergyIconParent);
+        //     // iconGO.GetComponent<SynergyIconUI>().SetData(synergy); // 아이콘에 데이터 전달
+        // }
+    }
+
+        void OnUnitSlotClicked(int slotIndex)
     {
         Debug.Log($"{_currentDeckIndex}번 덱의 {slotIndex}번 슬롯 클릭됨");
     }
