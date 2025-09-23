@@ -45,7 +45,7 @@ public class UIJoyStickHandle : MonoBehaviour, IPointerDownHandler, IPointerUpHa
         if (dir.x == 0f) return;
         float playerMoveDir = dir.x < 0f ? -1f : 1f;
         GameManager.Instance.Player.MoveDir = new Vector3(playerMoveDir, 0f, 0f);
-        Debug.Log($"{dir.magnitude} / {rad}");
+        //Debug.Log($"{dir.magnitude} / {rad}");
     }
 
     public void OnPointerUp(PointerEventData eventData)
