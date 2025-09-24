@@ -9,5 +9,6 @@ public class SceneLoaderMain : MonoBehaviour
         UIManager.Instance.GetUI<MainScreenUI>();
         UIManager.Instance.GetUI<DeckPresetController>().CloseUI();
         UIManager.Instance.GetUI<UIStageSelect>().CloseUI();
+        UIManager.Instance.GetUI<UISelectCard>().CloseUI();
     }
 }
