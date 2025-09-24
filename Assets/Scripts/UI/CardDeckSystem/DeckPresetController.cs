@@ -53,6 +53,8 @@ public class DeckPresetController : MonoBehaviour
         relicButton.onClick.AddListener(OnRelicButtonClicked);
 
         SelectDeck(_currentDeckIndex);
+        completeButton.interactable = true; //테스트 코드
+
     }
 
     void InstantiateUnitSlots()
@@ -92,8 +94,11 @@ public class DeckPresetController : MonoBehaviour
         {
             int unitId = currentDeckUnits[i];
 
+            bool isEmpty = (unitId == -1);
+
+            _unitSlots[i].SetData(isEmpty, i);
         }
-        UpdateCompleteButtonState();
+        //  UpdateCompleteButtonState(); 테스트 위해 주석
 
         UpdateSynergyUI();
 
@@ -118,7 +123,7 @@ public class DeckPresetController : MonoBehaviour
         // }
     }
 
-        void OnUnitSlotClicked(int slotIndex)
+    void OnUnitSlotClicked(int slotIndex)
     {
         Debug.Log($"{_currentDeckIndex}번 덱의 {slotIndex}번 슬롯 클릭됨");
     }
@@ -203,5 +208,13 @@ public class DeckPresetController : MonoBehaviour
         {
             Debug.LogError("UIManager에서 MainScreenUI를 찾을 수 없습니다!");
         }
+    }
+
+    public void ResetDontAskAgainSetting()//테스트 코드
+    {
+        PlayerPrefs.DeleteKey("DontAskAgain_EmptyDeck");
+        PlayerPrefs.Save(); // 변경사항 저장
+
+        Debug.Log("'다시 묻지 않음' 설정이 초기화되었습니다!");
     }
 }
