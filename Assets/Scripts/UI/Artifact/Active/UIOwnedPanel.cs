@@ -33,8 +33,8 @@ public class UIOwnedPanel : MonoBehaviour
 
     ActiveAfData selectedAfData = null;
     public event Action<ActiveAfData> OnEquipStateChange;
-    public event Func<ActiveAfData, bool> OnEquip;
-    public event Action<ActiveAfData> OnUnEquip;
+    /*public event Func<ActiveAfData, bool> OnEquip;
+    public event Action<ActiveAfData> OnUnEquip;*/
     public event Action<ActiveAfData> OnClickBtn;
     public event Action<List<ActiveAfData>> OnAutoAssign;
     public event Action OnResetEquippedSelectedData;

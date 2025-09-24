@@ -37,8 +37,8 @@ public class UISelectActiveArtifact : BaseUI
         ownedPanel.OnEquipStateChange += equipBtn.SetBtnActive;
         ownedPanel.OnEquipStateChange += unEquipBtn.SetBtnActive;
         // 장착/해제 이벤트 바인드
-        ownedPanel.OnEquip += equippedPanel.EquipActiveArtifact;
-        ownedPanel.OnUnEquip += equippedPanel.UnEquipActiveArtifact;
+        /*ownedPanel.OnEquip += equippedPanel.EquipActiveArtifact;
+        ownedPanel.OnUnEquip += equippedPanel.UnEquipActiveArtifact;*/
         // 리팩토링 해야할 듯 합니다... *********
         // 소유 유물 클릭시 이벤트 바인드, 설명 패널, 장착/해제 버튼, 장착 패널 세팅
         ownedPanel.OnClickBtn += descriptionArtifactPanel.SetDescriptionPanel;
