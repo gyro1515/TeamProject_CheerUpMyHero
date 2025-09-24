@@ -8,6 +8,8 @@ public class SceneLoaderBattle : MonoBehaviour
     private void Awake()
     {
         UIManager.Instance.GetUI<UITest>();
+        UIManager.Instance.GetUI<UIPause>();
+
         //GameManager에게 전투 시작 준비를 명령
         GameManager.Instance.StartBattle(); //배틀씬으로 갔을 때부터 식량 획득 증가 함수
         // 유저가 선택한 맵 소환
