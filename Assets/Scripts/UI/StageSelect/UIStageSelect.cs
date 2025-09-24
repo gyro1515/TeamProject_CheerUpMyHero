@@ -39,13 +39,17 @@ public class UIStageSelect : BaseUI
     int maxSubSlot = 9;
     // 서브 스테이지 선택에서 되돌아가면 스크롤 위치 초기화하는 용
     RectTransform subStageSelRectTransform;
+
     public int SelectedMainSlotIdx { get; set; } = -1;
     public int SelectedSubSlotIdx { get; set; } = -1;
 
     //UISelectCard uiSelectCard;
+    private DeckPresetController _deckPresetController;
+
     private void Awake()
     {
         subStageSelRectTransform = subStageSlotsTransform.GetComponent<RectTransform>();
+        _deckPresetController = UIManager.Instance.GetUI<DeckPresetController>();
 
         // 테스트 용으로 스테이지 데이터 세팅하기
         //TestForStageData();
@@ -95,7 +99,7 @@ public class UIStageSelect : BaseUI
     void MoveToSelDeck()
     {
         Debug.Log("덱 선택으로 이동");
-       // FadeManager.Instance.SwitchGameObjects(gameObject, uiSelectCard.gameObject);
+        FadeManager.Instance.SwitchGameObjects(gameObject, _deckPresetController.gameObject);
     }
     void SetMainSlot()
     {

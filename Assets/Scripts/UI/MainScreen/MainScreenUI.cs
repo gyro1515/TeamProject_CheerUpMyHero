@@ -20,6 +20,8 @@ public class MainScreenUI : BaseUI
 
     //UISelectCard uiSelectCard;
 
+    private DeckPresetController _deckPresetController;
+
 
     private void Awake()
     {
@@ -43,6 +45,7 @@ public class MainScreenUI : BaseUI
         _testPanel.SetActive(false);
         _deckSelectPanel.SetActive(false);*/
         //uiSelectCard = UIManager.Instance.GetUI<UISelectCard>();
+        _deckPresetController = UIManager.Instance.GetUI<DeckPresetController>();
     }
     private void OnEnable()
     {
@@ -68,7 +71,15 @@ public class MainScreenUI : BaseUI
     {
         // "덱 선택" 버튼 클릭 시 실행될 로직
         Debug.Log("덱을 선택하고 다음 단계로 넘어갑니다.");
-      //  FadeManager.Instance.SwitchGameObjects(gameObject, uiSelectCard.gameObject);
+        //  FadeManager.Instance.SwitchGameObjects(gameObject, uiSelectCard.gameObject);
+        if (_deckPresetController != null)
+        {
+            FadeManager.Instance.SwitchGameObjects(gameObject, _deckPresetController.gameObject);
+        }
+        else
+        {
+            Debug.LogError("UIManager에서 DeckPresetController를 찾을 수 없습니다!");
+        }
     }
 
     private void OnNotYetButtonClick()

@@ -14,7 +14,23 @@ public enum ResourceType
     Bm,
     Ticket
 }
+[System.Serializable]
+public class DeckData
+{
+    public string DeckName;
+    public List<int> UnitIds;
 
+    public DeckData(string defaultName)
+    {
+        DeckName = defaultName;
+        // 9개의 빈 슬롯(-1)으로 초기화
+        UnitIds = new List<int>(new int[9]);
+        for (int i = 0; i < 9; i++)
+        {
+            UnitIds[i] = -1;
+        }
+    }
+}
 public class PlayerDataManager : SingletonMono<PlayerDataManager>
 {
     // 선택한 스테이지 선택용
@@ -60,33 +76,29 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
     //덱 편성 관련
     #region Deck
     // Dictionary<덱 번호, 유닛 ID 리스트> 형태로 5개의 덱을 관리합니다.
-    public Dictionary<int, List<int>> DeckPresets { get; private set; } = new Dictionary<int, List<int>>();
+    public Dictionary<int, DeckData> DeckPresets { get; private set; } = new Dictionary<int, DeckData>();
 
     public int ActiveDeckIndex { get; set; } = 1;
 
     private void LoadDecks()
-    {       
+    {
         for (int i = 1; i <= 5; i++)
         {
-            // 각 덱을 9개의 빈 슬롯(-1은 빈 슬롯을 의미)으로 초기화합니다.
             if (!DeckPresets.ContainsKey(i))
             {
-                DeckPresets[i] = new List<int>(new int[9]);
-                for (int j = 0; j < 9; j++)
-                {
-                    DeckPresets[i][j] = -1;
-                }
+                DeckPresets[i] = new DeckData("덱 " + i); // 기본 이름 "덱 1", "덱 2"...
             }
         }
         Debug.Log("덱 프리셋 5개를 초기화했습니다.");
     }
+
 
     // 현재 덱 구성을 딕셔너리에 업데이트합니다.
     public void UpdateDeck(int deckIndex, List<int> unitIds)
     {
         if (DeckPresets.ContainsKey(deckIndex))
         {
-            DeckPresets[deckIndex] = new List<int>(unitIds); // 새로운 리스트로 교체
+            DeckPresets[deckIndex].UnitIds = new List<int>(unitIds);
         }
     }
 
