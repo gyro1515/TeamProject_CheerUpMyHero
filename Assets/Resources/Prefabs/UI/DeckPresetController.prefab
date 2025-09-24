@@ -4349,27 +4349,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   viewModeCanvasGroup: {fileID: 5448391158302850016}
   editNameCanvasGroup: {fileID: 6470513949868776514}
-  deckTabs:
-  - TabButton: {fileID: 7657404483538318113}
-    NameText: {fileID: 8925558700341239499}
-    EditIconObject: {fileID: 556184725296585790}
-  - TabButton: {fileID: 212819977074276202}
-    NameText: {fileID: 810267478215789363}
-    EditIconObject: {fileID: 3952650465439426157}
-  - TabButton: {fileID: 8388685186190357322}
-    NameText: {fileID: 5409111884386074984}
-    EditIconObject: {fileID: 1686159862931798089}
-  - TabButton: {fileID: 6019179620109650812}
-    NameText: {fileID: 3295566806311338033}
-    EditIconObject: {fileID: 2551903774590728887}
-  - TabButton: {fileID: 5551135414596266807}
-    NameText: {fileID: 998711238420784039}
-    EditIconObject: {fileID: 2316166168242862110}
+  deckTabController: {fileID: 3403381807245989579}
   deckNameInputField: {fileID: 1098489959281160988}
   confirmNameButton: {fileID: 3792041414230689208}
   cancelNameButton: {fileID: 7074166256688942274}
   unitSlotPrefab: {fileID: 3339163995015142810, guid: c1e7710636f5e70428f94b10c28b480e, type: 3}
   unitSlotParent: {fileID: 5415926789891594621}
+  synergyIconPrefab: {fileID: 6081471621599446759, guid: d24743a38f576f7498be93f15a57fc8c, type: 3}
+  synergyIconParent: {fileID: 8425344566235840990}
   resetButton: {fileID: 3010279254509419298}
   completeButton: {fileID: 7079873945893544055}
   adviserButton: {fileID: 5058075511981351297}
@@ -6908,6 +6895,7 @@ GameObject:
   - component: {fileID: 726088115907530185}
   - component: {fileID: 8843762763696708650}
   - component: {fileID: 96680416219237621}
+  - component: {fileID: 3403381807245989579}
   m_Layer: 5
   m_Name: DectTabGroup
   m_TagString: Untagged
@@ -7003,6 +6991,34 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
+--- !u!114 &3403381807245989579
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6420702879754737149}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4d5a17409d023414ba79c1f58b6518e9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  deckTabs:
+  - TabButton: {fileID: 7657404483538318113}
+    NameText: {fileID: 8925558700341239499}
+    EditIconObject: {fileID: 556184725296585790}
+  - TabButton: {fileID: 212819977074276202}
+    NameText: {fileID: 810267478215789363}
+    EditIconObject: {fileID: 3952650465439426157}
+  - TabButton: {fileID: 8388685186190357322}
+    NameText: {fileID: 5409111884386074984}
+    EditIconObject: {fileID: 1686159862931798089}
+  - TabButton: {fileID: 6019179620109650812}
+    NameText: {fileID: 3295566806311338033}
+    EditIconObject: {fileID: 2551903774590728887}
+  - TabButton: {fileID: 5551135414596266807}
+    NameText: {fileID: 998711238420784039}
+    EditIconObject: {fileID: 2316166168242862110}
 --- !u!1 &6626650826342105669
 GameObject:
   m_ObjectHideFlags: 0

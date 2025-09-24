@@ -21,29 +21,33 @@ public class DeckPresetController : BaseUI
     [SerializeField] private CanvasGroup viewModeCanvasGroup; // 평상시 UI 그룹
     [SerializeField] private CanvasGroup editNameCanvasGroup; // 이름 수정 UI 그룹
 
-    [Header("--- ViewModeGroup UI 연결 ---")]
-    [SerializeField] private List<DeckTabUI> deckTabs;
+    [Header("--- 하위 컨트롤러 ---")]
+    [SerializeField] private DeckTabController deckTabController;
+
 
     [Header("--- EditNameGroup UI 연결 ---")]
     [SerializeField] private TMP_InputField deckNameInputField;
     [SerializeField] private Button confirmNameButton;
     [SerializeField] private Button cancelNameButton;
 
-    // (기타 유닛 슬롯, 기능 버튼, 외부 패널 연결은 그대로)
     [Header("유닛 슬롯 설정")]
     [SerializeField] private GameObject unitSlotPrefab;
     [SerializeField] private Transform unitSlotParent;
+
+    [Header("시너지 UI 설정")]
+    [SerializeField] private GameObject synergyIconPrefab;
+    [SerializeField] private Transform synergyIconParent;
 
     [Header("기능 버튼")]
     [SerializeField] private Button resetButton;
     [SerializeField] private Button completeButton;
     [SerializeField] private Button adviserButton;
     [SerializeField] private Button relicButton;
-    [SerializeField] private Button autoButton; 
+    [SerializeField] private Button autoButton;
 
     [Header("외부 패널 연결")]
     [SerializeField] private ConfirmationPopup confirmationPopup;
-   // [SerializeField] private UnitSelectPanelController unitSelectPanel; //세웅님꺼 연결 임의로 이름 지음
+    // [SerializeField] private UnitSelectPanelController unitSelectPanel; //임의로 지어 놓은 것
 
     // --- 내부 변수 ---
     private MainScreenUI _mainScreenUI;
@@ -51,28 +55,31 @@ public class DeckPresetController : BaseUI
     private List<DeckUnitSlot> _unitSlots = new List<DeckUnitSlot>();
     private int _currentDeckIndex = 1;
 
-    void Start()
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Space)) //테스트 코드
+        {
+            OnUnitSelected(5, 11);
+        }
+    }
+    private void Start()
     {
         InstantiateUnitSlots();
         _currentDeckIndex = PlayerDataManager.Instance.ActiveDeckIndex;
         _mainScreenUI = UIManager.Instance.GetUI<MainScreenUI>();
         _stageSelectUI = UIManager.Instance.GetUI<UIStageSelect>();
 
-        for (int i = 0; i < deckTabs.Count; i++)
-        {
-            int deckIndex = i + 1;
-            deckTabs[i].TabButton.onClick.AddListener(() => SelectDeck(deckIndex));
-            deckTabs[i].EditIconObject.GetComponent<Button>().onClick.AddListener(EnterEditMode);
-        }
-
+        deckTabController.Initialize();
+        deckTabController.OnTabSelected += SelectDeck;
+        deckTabController.OnEditIconClicked += EnterEditMode;
+        // 나머지 기능 버튼들에 이벤트 연결
         resetButton.onClick.AddListener(OnResetClicked);
         completeButton.onClick.AddListener(OnCompleteClicked);
         adviserButton.onClick.AddListener(GoToMainScene);
         confirmNameButton.onClick.AddListener(OnConfirmNameChange);
         cancelNameButton.onClick.AddListener(ExitEditMode);
-        relicButton.onClick.AddListener(OnRelicButtonClicked);
-        autoButton.onClick.AddListener(OnAutoFormClicked);
 
+        // UI 초기 상태 설정
         editNameCanvasGroup.alpha = 0;
         editNameCanvasGroup.interactable = false;
         editNameCanvasGroup.blocksRaycasts = false;
@@ -80,41 +87,71 @@ public class DeckPresetController : BaseUI
         SelectDeck(_currentDeckIndex);
     }
 
-    private void Update()
+    #region UI 생성 및 업데이트
+    void InstantiateUnitSlots()
     {
-        if(Input.GetKeyDown(KeyCode.Space)) //테스트 코드
+        for (int i = 0; i < 9; i++)
         {
-            OnUnitSelected(5, 11);
+            GameObject slotGO = Instantiate(unitSlotPrefab, unitSlotParent);
+            slotGO.name = $"UnitSlot_{i}";
+            DeckUnitSlot slotScript = slotGO.GetComponent<DeckUnitSlot>();
+            if (slotScript != null)
+            {
+                _unitSlots.Add(slotScript);
+                int slotIndex = i;
+                slotScript.GetComponent<Button>().onClick.AddListener(() => OnUnitSlotClicked(slotIndex));
+            }
         }
     }
+
     public void SelectDeck(int deckIndex)
     {
         _currentDeckIndex = deckIndex;
         PlayerDataManager.Instance.ActiveDeckIndex = deckIndex;
 
-        for (int i = 0; i < deckTabs.Count; i++)
-        {
-            bool isActive = (i + 1 == deckIndex);
-            deckTabs[i].NameText.text = PlayerDataManager.Instance.DeckPresets[i + 1].DeckName;
-            deckTabs[i].TabButton.image.color = isActive ? Color.yellow : Color.white;
-            deckTabs[i].EditIconObject.SetActive(isActive);
-        }
+        deckTabController.UpdateTabs(deckIndex);
 
         UpdateUnitSlotsUI();
     }
+
+    private void UpdateUnitSlotsUI()
+    {
+        List<int> currentDeckUnits = PlayerDataManager.Instance.DeckPresets[_currentDeckIndex].UnitIds;
+        for (int i = 0; i < _unitSlots.Count; i++)
+        {
+            int unitId = currentDeckUnits[i];
+
+            _unitSlots[i].SetData(unitId, i);
+        }
+        UpdateCompleteButtonState();
+        // UpdateSynergyUI();
+    }
+
+    private void UpdateSynergyUI()
+    {
+        foreach (Transform child in synergyIconParent) { Destroy(child.gameObject); }
+    }
+
+    private void UpdateCompleteButtonState()
+    {
+        List<int> currentDeck = PlayerDataManager.Instance.DeckPresets[_currentDeckIndex].UnitIds;
+        bool isDeckEmpty = !currentDeck.Exists(id => id != -1);
+        completeButton.interactable = !isDeckEmpty;
+    }
+    #endregion
 
     #region 이름 수정 모드
     private void EnterEditMode()
     {
         viewModeCanvasGroup.DOFade(0.3f, 0.3f);
         viewModeCanvasGroup.interactable = false;
-
         FadeEffectManager.Instance.FadeInUI(editNameCanvasGroup);
 
         string currentName = PlayerDataManager.Instance.DeckPresets[_currentDeckIndex].DeckName;
         deckNameInputField.text = currentName;
         deckNameInputField.ActivateInputField();
     }
+
     private void OnConfirmNameChange()
     {
         string newName = deckNameInputField.text;
@@ -129,69 +166,27 @@ public class DeckPresetController : BaseUI
     private void ExitEditMode()
     {
         FadeEffectManager.Instance.FadeOutUI(editNameCanvasGroup);
-
         viewModeCanvasGroup.DOFade(1f, 0.3f);
         viewModeCanvasGroup.interactable = true;
-
         SelectDeck(_currentDeckIndex);
     }
     #endregion
 
-    #region 기타 UI 및 버튼 로직
-    void InstantiateUnitSlots()
-    {
-        for (int i = 0; i < 9; i++)
-        {
-            GameObject slotGO = Instantiate(unitSlotPrefab, unitSlotParent);
-            DeckUnitSlot slotScript = slotGO.GetComponent<DeckUnitSlot>();
-            if (slotScript != null)
-            {
-                _unitSlots.Add(slotScript);
-                int slotIndex = i;
-                slotScript.GetComponent<Button>().onClick.AddListener(() => OnUnitSlotClicked(slotIndex));
-            }
-        }
-    }
-
-    private void UpdateUnitSlotsUI()
-    {
-        List<int> currentDeckUnits = PlayerDataManager.Instance.DeckPresets[_currentDeckIndex].UnitIds;
-        for (int i = 0; i < _unitSlots.Count; i++)
-        {
-            int unitId = currentDeckUnits[i];
- 
-            _unitSlots[i].SetData(unitId, i);
-        }
-        UpdateCompleteButtonState();
-        // UpdateSynergyUI(); // 시너지 기능은 나중에 구현
-    }
-
-    private void UpdateCompleteButtonState()
-    {
-        List<int> currentDeck = PlayerDataManager.Instance.DeckPresets[_currentDeckIndex].UnitIds;
-        bool isDeckEmpty = !currentDeck.Exists(id => id != -1);
-        completeButton.interactable = !isDeckEmpty;
-    }
-
+    #region 버튼 클릭 이벤트 함수
     void OnUnitSlotClicked(int slotIndex)
     {
         Debug.Log($"{_currentDeckIndex}번 덱의 {slotIndex + 1}번 슬롯 클릭됨 -> 유닛 선택창 열기");
-
-        //unitSelectPanel.Open(slotIndex, OnUnitSelected); //세웅님꺼 연결
-
+        // unitSelectPanel.Open(slotIndex, OnUnitSelected); //임의로 지어놓은 것 
     }
 
     private void OnUnitSelected(int slotIndex, int unitId)
     {
-        Debug.Log($"{slotIndex}번 슬롯에 {unitId}번 유닛을 배치합니다.");
-
         PlayerDataManager.Instance.DeckPresets[_currentDeckIndex].UnitIds[slotIndex] = unitId;
         UpdateUnitSlotsUI();
     }
 
     private void OnResetClicked()
     {
-        Debug.Log("초기화 버튼 클릭");
         List<int> currentDeckUnitIds = PlayerDataManager.Instance.DeckPresets[_currentDeckIndex].UnitIds;
         for (int i = 0; i < currentDeckUnitIds.Count; i++)
         {
@@ -202,29 +197,24 @@ public class DeckPresetController : BaseUI
 
     private void OnCompleteClicked()
     {
+
         List<int> currentDeck = PlayerDataManager.Instance.DeckPresets[_currentDeckIndex].UnitIds;
         bool hasEmptySlot = currentDeck.Contains(-1);
         bool dontAskAgain = PlayerPrefs.GetInt("DontAskAgain_EmptyDeck", 0) == 1;
 
+
         if (hasEmptySlot && !dontAskAgain)
         {
-            confirmationPopup.Open(() => StartCoroutine(CompleteFormationRoutine()));
+            confirmationPopup.Open(CompleteFormationDirect);
         }
         else
         {
-            StartCoroutine(CompleteFormationRoutine());
+            CompleteFormationDirect();
         }
     }
 
-    private IEnumerator CompleteFormationRoutine()
+    private void CompleteFormationDirect()
     {
-        // 팝업이 활성화되어 있다면, 비활성화될 때까지 매 프레임 기다리기
-        while (confirmationPopup.gameObject.activeInHierarchy)
-        {
-            yield return null; // 다음 프레임까지 대기
-        }
-
-        // 팝업이 완전히 사라진 후에만 실행
         Debug.Log("편성 완료. 모든 덱 정보를 저장하고 다음 화면으로 전환합니다.");
         PlayerDataManager.Instance.SaveDecks();
 
@@ -238,14 +228,9 @@ public class DeckPresetController : BaseUI
         }
     }
 
-    private void OnAutoFormClicked()
-    {
-        Debug.Log("자동 편성 버튼 클릭됨");
-    }
-    private void OnRelicButtonClicked()
-    {
-        Debug.Log("유물 전환 패널 열기 시도");
-    }
+
+    private void OnAutoFormClicked() { Debug.Log("자동 편성 버튼 클릭됨"); }
+    private void OnRelicButtonClicked() { Debug.Log("유물 전환 패널 열기 시도"); }
 
     public void GoToMainScene()
     {
