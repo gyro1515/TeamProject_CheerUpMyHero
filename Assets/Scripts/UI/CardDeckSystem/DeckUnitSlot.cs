@@ -16,7 +16,7 @@ public class DeckUnitSlot : MonoBehaviour
         _defaultSprite = _buttonImage.sprite;
     }
 
-    public void SetData(int unitId, int slotNumber)
+    public void SetData(int slotNumber, int unitId)
     {
         // 슬롯 번호 텍스트는 항상 설정
         NumberText.text = (slotNumber + 1).ToString();
