@@ -14,6 +14,11 @@ public class BaseCharacter : MonoBehaviour
     [field: SerializeField] public Vector2 HpBarSize { get; private set; } // 체력바 사이즈용
     public BaseController BaseController { get; private set; }
 
+    // 데이터 용 변수, 데이터 테이블 완성시 테이블에서 가져오기
+    public float TmpMaxHp { get; protected set; }
+    public float TmpAtkPower { get; protected set; }
+    public Vector3 TmpSize { get; protected set; }
+
     protected Vector3 _moveDir;
     public virtual Vector3 MoveDir
     {
@@ -22,7 +27,7 @@ public class BaseCharacter : MonoBehaviour
     }
     public IDamageable Damageable { get; private set; }
     [SerializeField] protected float curHp;
-    public float CurHp { get { return curHp; }
+    public virtual float CurHp { get { return curHp; }
         set
         {
             curHp = value;
@@ -34,15 +39,21 @@ public class BaseCharacter : MonoBehaviour
     public event Action<float, float> OnCurHpChane;
     public event Action OnDead;
     [field: SerializeField] public int ListIndex { get; set; } = -1; // 자기 리스트 내 인덱스, UnitManager판별용
+
+    public AnimationData AnimationData { get; private set; }
     protected virtual void Awake()
     {
+        TmpMaxHp = MaxHp;
+        TmpAtkPower = AtkPower;
+        TmpSize = gameObject.transform.localScale;
         BaseController = GetComponent<BaseController>();
         Damageable = GetComponent<IDamageable>();
+        AnimationData = AnimationData.Instance;
     }
     protected virtual void OnEnable()
     {
         // 다시 활성화 됐을때
-        curHp = MaxHp;
+        curHp = TmpMaxHp;
         IsDead = false;
     }
     protected virtual void Start()

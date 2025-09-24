@@ -38,9 +38,15 @@ public class EnemyHQ : BaseHQ
     {
         base.Update();
         
+        // CurHp 오버라이드로 바꿀 듯 합니다***********************
         if (!isDefenseWaveSpawned && CurHp / MaxHp <= 0.7f)
         {
             isDefenseWaveSpawned = true;
+            waveSystem.SpawnDefenseWave();
+        }
+        // 테스트 키
+        if(Input.GetKeyDown(KeyCode.Alpha4))
+        {
             waveSystem.SpawnDefenseWave();
         }
     }

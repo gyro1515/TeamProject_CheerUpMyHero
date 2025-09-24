@@ -41,4 +41,9 @@ public abstract class BaseHQ : BaseCharacter, IDamageable
         spawnPos.y += UnityEngine.Random.Range(tmpMinY, tmpMaxY) / 100f;
         return spawnPos;
     }
+
+    bool IDamageable.IsDead()
+    {
+        return IsDead;
+    }
 }

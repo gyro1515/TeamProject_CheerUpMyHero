@@ -149,6 +149,8 @@ public class MainScreenBuildingController : SingletonMono<MainScreenBuildingCont
         PlayerDataManager.Instance.BuildingGridData[tile.X, tile.Y] = level1Data;
         tile.SetBuilding(level1Data);
 
+        PlayerDataManager.Instance.UpdateAllBuildingEffects();
+
         Debug.Log($"{tile.X},{tile.Y}에 {level1Data.buildingName} 건설 완료!");
     }
 
@@ -184,6 +186,8 @@ public class MainScreenBuildingController : SingletonMono<MainScreenBuildingCont
         // 저장 & 반영
         PlayerDataManager.Instance.BuildingGridData[tile.X, tile.Y] = next;
         tile.SetBuilding(next);
+
+        PlayerDataManager.Instance.UpdateAllBuildingEffects(); 
 
         Debug.Log($"{current.buildingName} Lv.{current.level} → Lv.{next.level} 업그레이드 완료!");
     }

@@ -1,8 +1,19 @@
 using System.Collections.Generic;
 
+
+public enum BuildingType
+{
+
+    None,
+    Farm,
+    LumberMill,
+    Mine,
+    Barracks,
+}
 public enum BuildingEffectType
 {
     None,
+    MaximumFood,
     IncreaseFoodGainSpeed,
     BaseWoodProduction,
     AdditionalWoodProduction,
@@ -10,7 +21,7 @@ public enum BuildingEffectType
     AdditionalIronProduction,
     MagicStoneFindChance,
     MagicStoneProduction,
-    MaxPopulation,
+    UnitCoolDown,
     CanSummonRareUnits,
     CanSummonEpicUnits
 }
@@ -36,7 +47,9 @@ public class BuildingUpgradeData : MonoData
     public string buildingName;
     public int level;
     public int nextLevel;
-   // public string spriteName; //이미지
+    // public string spriteName; //이미지
+
+    public BuildingType buildingType = BuildingType.None;
 
     public List<Cost> costs = new List<Cost>();
     public List<BuildingEffect> effects = new List<BuildingEffect>();

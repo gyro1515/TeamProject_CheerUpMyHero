@@ -224,25 +224,28 @@ public class ConstructionUpgradePanel : BaseUI
 // 2) 고정값 효과: Min과 Max가 같으면 단일값 표시
 // 3) 범위 효과: Min과 Max가 다르면 "Min~Max" 형식으로 표시
 
-    private string GetEffectValueString(BuildingEffect effect)
+   private string GetEffectValueString(BuildingEffect effect)
      => effect.effectType switch
      {
          BuildingEffectType.IncreaseFoodGainSpeed or
          BuildingEffectType.AdditionalWoodProduction or
          BuildingEffectType.AdditionalIronProduction or
-         BuildingEffectType.MagicStoneFindChance => $"{effect.effectValueMin}%",
+         BuildingEffectType.MagicStoneFindChance or
+         BuildingEffectType.UnitCoolDown
+         => $"{effect.effectValueMin}%",
          _ => effect.effectValueMin == effect.effectValueMax
-             ? effect.effectValueMin.ToString()
-             : $"{effect.effectValueMin}~{effect.effectValueMax}"
+                 ? effect.effectValueMin.ToString()
+                 : $"{effect.effectValueMin}~{effect.effectValueMax}"
      };
     private static readonly Dictionary<BuildingEffectType, string> EffectNames = new()
 {
+    { BuildingEffectType.MaximumFood, "식량 최대 저장량" },
     { BuildingEffectType.IncreaseFoodGainSpeed, "식량 획득 속도" },
     { BuildingEffectType.BaseWoodProduction, "기본 목재 획득량" },
     { BuildingEffectType.AdditionalWoodProduction, "추가 목재 획득량" },
     { BuildingEffectType.BaseIronProduction, "기본 철괴 획득량" },
     { BuildingEffectType.AdditionalIronProduction, "추가 철괴 획득량" },
-    { BuildingEffectType.MaxPopulation, "최대 인구 수" },
+    { BuildingEffectType.UnitCoolDown, "유닛의 쿨타임 감소" },
     { BuildingEffectType.MagicStoneFindChance, "마력석 발견 확률" },
     { BuildingEffectType.MagicStoneProduction, "마력석 획득량" },
     { BuildingEffectType.CanSummonRareUnits, "레어 유닛 소환 가능" },

@@ -14,7 +14,7 @@ public class GameManager : SingletonMono<GameManager>
     public PlayerHQ PlayerHQ { get; set; }
 
     public Player Player { get; set; }
-
+    public bool IsBattleStarted { get; private set; } = false;
 
 
     protected override void Awake()
@@ -28,12 +28,12 @@ public class GameManager : SingletonMono<GameManager>
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
             Time.timeScale += 0.5f;
-            Debug.Log("AddTimeScale");
+            //Debug.Log("AddTimeScale");
         }
         else if (Input.GetKeyDown(KeyCode.Alpha2))
         {
             Time.timeScale = 1.0f;
-            Debug.Log("ResetTimeScale");
+            //Debug.Log("ResetTimeScale");
         }
         // ***현재는 밸런스 때문에 키를 눌러 클리어/실패 결과를 출력, 추후 각 HQ, Player에 옮겨야 할 내용**********
         //C키 눌러서 적 HQ 파괴
@@ -74,8 +74,7 @@ public class GameManager : SingletonMono<GameManager>
                 ShowResultUI(false);
             }
         }
-
-        if (Input.GetKeyDown(KeyCode.H))
+       if (Input.GetKeyDown(KeyCode.H))
         {
             if (enemyHQ != null && enemyHQ.gameObject.activeInHierarchy)
             {
@@ -83,10 +82,24 @@ public class GameManager : SingletonMono<GameManager>
                 enemyHQ.CurHp = enemyHQ.MaxHp * 0.5f;
             }
         }
+        if (IsBattleStarted)
+        {
+            PlayerDataManager.Instance.AddFoodOverTime(Time.deltaTime);
+        }
+    }
+
+    public void StartBattle()
+    {
+        PlayerDataManager.Instance.ResetFood();
+
+        IsBattleStarted = true;
+
+        Debug.Log($"Battle Started! MaxFood: {PlayerDataManager.Instance.MaxFood}, CurrentFood: {PlayerDataManager.Instance.CurrentFood}");    
     }
 
     public void ShowResultUI(bool isVictory)
     {
+        IsBattleStarted = false;
         Time.timeScale = 0f;
 
         StageRewardData rewardData = DataManager.Instance.RewardData.GetData(currentStageID);

@@ -19,7 +19,7 @@ public class TestSceneSpawnUI : MonoBehaviour
             UISpawnUnitSlot unitSlot = Instantiate(spawnUnitSlotPrefab, spawnUnitSlotContainer).GetComponent<UISpawnUnitSlot>();
             if (i >= playerUnitList.Count)
             {
-                unitSlot.InitSpawnUnitSlot(null, -1, 0);
+                unitSlot.InitSpawnUnitSlot(null, -1, 0, -1);
                 continue;
             }
             // 현재는 이렇게 가져오지만, 나중에는 플레이어 유닛 데이터 베이스에서 가져올 것
@@ -27,7 +27,7 @@ public class TestSceneSpawnUI : MonoBehaviour
 
             PlayerUnit unit = unitPrefab.GetComponent<PlayerUnit>();
             // 변별을 위해 (int)playerUnitList[i] 사용 -> 인덱스화
-            unitSlot.InitSpawnUnitSlot(null, (int)playerUnitList[i], unit.SpawnCooldown);
+            unitSlot.InitSpawnUnitSlot(null, (int)playerUnitList[i], unit.SpawnCooldown, unit.FoodConsumption);//코스트 추가했습니다 빨간줄 뜨길래..
         }
     }
 }

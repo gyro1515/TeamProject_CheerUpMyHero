@@ -26,6 +26,7 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
             InitializeResources();
         }
     }
+
     //빌딩 데이터
     #region Building
     public BuildingUpgradeData[,] BuildingGridData { get; set; } = new BuildingUpgradeData[5, 5];
@@ -98,7 +99,7 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
         _resources[ResourceType.Gold] = 100000;
         _resources[ResourceType.Wood] = 10000;
         _resources[ResourceType.Iron] = 10000;
-        _resources[ResourceType.Food] = 10000;
+        _resources[ResourceType.Food] = CurrentFood;
         _resources[ResourceType.MagicStone] = 10000;
     }
 
@@ -119,7 +120,19 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
         if (_resources.ContainsKey(type))
         {
             _resources[type] += amount;
-            OnResourceChangedEvent?.Invoke(type, _resources[type]); //자원 수량 변경 이벤트
+
+            if (type == ResourceType.Food)
+            {
+                CurrentFood = _resources[type];
+
+                if (amount < 0)
+                {
+                    MaxFood += amount;
+                    if (MaxFood < 0) MaxFood = 0;
+                }
+            }
+
+            OnResourceChangedEvent?.Invoke(type, _resources[type]);
         }
         else
         {
@@ -127,4 +140,165 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
         }
     }
     #endregion
+
+    #region Food
+    //식량에 관련된 변수와 함수
+    public int CurrentFood { get; private set; } = 0;
+    public int MaxFood { get; private set; } = 20000;
+    private int _calculatedMaxFood = 20000;
+    private float foodAccumulator = 0f;
+    public int SupplyLevel { get; private set; } = 1;
+    private float currentFarmGainPercent = 0f;
+
+    //private readonly int[] maxFoodByFarmLevel = { 500, 750, 1000, 1250, 1500, 1750, 2000, 2250, 2500 };
+    //private readonly int[] farmFoodGainPercentByLevel = { 5, 10, 15, 20, 25, 30, 35, 40, 50 };
+    private readonly int[] baseFoodGainBySupplyLevel = { 25, 29, 37, 47, 59, 75, 95, 119, 147 };
+    private readonly int[] supplyUpgradeCosts = { 100, 220, 450, 900, 1800, 3500, 5500, 8000 };
+
+    public void UpgradeSupplyLevel()
+    {
+        if (SupplyLevel >= baseFoodGainBySupplyLevel.Length)
+        {
+            Debug.Log("최대 레벨입니다.");
+            return;
+        }
+        int requiredFood = supplyUpgradeCosts[SupplyLevel - 1];
+        if (CurrentFood >= requiredFood)
+        {
+            AddResource(ResourceType.Food, -requiredFood);
+            SupplyLevel++;
+            Debug.Log($"Supply Level Up! 현재 SupplyLevel: {SupplyLevel}");
+        }
+        else
+        {
+            Debug.Log($"식량이 부족합니다. 필요 식량: {requiredFood}");
+        }
+    }
+
+    public void AddFoodOverTime(float deltaTime)
+    {
+        if (MaxFood <= 0) return;
+        int baseGain = baseFoodGainBySupplyLevel[SupplyLevel - 1];
+        float gainThisFrame = baseGain * (1f + currentFarmGainPercent / 100f) * deltaTime;
+        foodAccumulator += gainThisFrame;
+        int gainInt = Mathf.FloorToInt(foodAccumulator);
+        if (gainInt > 0)
+        {
+            MaxFood -= gainInt;
+            if (MaxFood < 0) MaxFood = 0;
+            CurrentFood += gainInt;
+            if (CurrentFood > MaxFood) CurrentFood = MaxFood;
+            _resources[ResourceType.Food] = CurrentFood;
+            OnResourceChangedEvent?.Invoke(ResourceType.Food, CurrentFood);
+            foodAccumulator -= gainInt;
+        }
+    }
+
+    public void ResetFood()
+    {
+        CurrentFood = 0;
+        foodAccumulator = 0f;
+        MaxFood = _calculatedMaxFood;
+        SupplyLevel = 1;
+        _resources[ResourceType.Food] = CurrentFood;
+        OnResourceChangedEvent?.Invoke(ResourceType.Food, CurrentFood);
+        Debug.Log("현재 식량을 0으로, 최대 식량을 원래 값으로 초기화했습니다.");
+    }
+
+    public bool TryGetUpgradeCost(out int cost)
+    {
+        cost = 0;
+        if (SupplyLevel >= baseFoodGainBySupplyLevel.Length) return false;
+        cost = supplyUpgradeCosts[SupplyLevel - 1];
+        return true;
+    }
+    #endregion
+
+    //건물 효과를 종합적으로 관리하는 영역
+    #region Building Effects 
+    public float TotalUnitCooldownReduction { get; private set; } = 0f;
+    public int RareUnitSlots { get; private set; } = 0;
+    public int EpicUnitSlots { get; private set; } = 0;
+    // 모든 건물의 효과를 한 번에 합산하여 계산하는 범용 함수
+    public void UpdateAllBuildingEffects()
+    {
+        // --- 계산 전, 모든 보너스 값을 초기화 ---
+        int totalCalculatedMax = 20000;
+        float totalGainPercent = 0f;
+        TotalUnitCooldownReduction = 0f;
+        RareUnitSlots = 0;
+        EpicUnitSlots = 0;
+
+        // --- 모든 그리드를 순회하며 건물 효과를 합산 ---
+        for (int y = 0; y < 5; y++)
+        {
+            for (int x = 0; x < 5; x++)
+            {
+                var building = BuildingGridData[x, y];
+                if (building == null) continue;
+
+                foreach (var effect in building.effects)
+                {
+                    switch (effect.effectType)
+                    {
+                        case BuildingEffectType.MaximumFood:
+                            if (building.buildingType == BuildingType.Farm)
+                            {
+                                totalCalculatedMax += (int)effect.effectValueMin;
+                            }
+                            break;
+                        case BuildingEffectType.IncreaseFoodGainSpeed:
+                            if (building.buildingType == BuildingType.Farm)
+                            {
+                                totalGainPercent += effect.effectValueMin;
+                            }
+                            break;
+                        case BuildingEffectType.UnitCoolDown:
+                            if (building.buildingType == BuildingType.Barracks)
+                            {
+                                TotalUnitCooldownReduction += effect.effectValueMin;
+                            }
+                            break;
+                        case BuildingEffectType.CanSummonRareUnits:
+                            if (building.buildingType == BuildingType.Barracks)
+                            {
+                                RareUnitSlots += (int)effect.effectValueMin;
+                            }
+                            break;
+                        case BuildingEffectType.CanSummonEpicUnits:
+                            if (building.buildingType == BuildingType.Barracks)
+                            {
+                                EpicUnitSlots += (int)effect.effectValueMin;
+                            }
+                            break;
+                    }
+                }
+            }
+        }
+
+        // --- 최종 계산된 농장 관련 값들을 업데이트 ---
+        _calculatedMaxFood = totalCalculatedMax;
+        currentFarmGainPercent = totalGainPercent;
+        if (MaxFood > _calculatedMaxFood)
+        {
+            MaxFood = _calculatedMaxFood;
+        }
+
+        OnResourceChangedEvent?.Invoke(ResourceType.Food, CurrentFood);
+        Debug.Log($"모든 건물 효과 계산 완료: 최대 식량={_calculatedMaxFood}, 식량 보너스={currentFarmGainPercent}%, 유닛 쿨감={TotalUnitCooldownReduction}%, 레어 슬롯={RareUnitSlots}, 에픽 슬롯={EpicUnitSlots}");
+    }
+    #endregion
+
+    // 유물 관련
+    #region Artifact
+    public List<ArtifactData> OwnedArtifacts { get; private set; } = new List<ArtifactData>();
+
+    public void AddArtifact(int artifactId)
+    {
+
+    }
+    #endregion
 }
+
+
+

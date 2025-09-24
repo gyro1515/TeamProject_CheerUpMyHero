@@ -17,6 +17,7 @@ MonoBehaviour:
     buildingName: "\uB18D\uC7A5"
     level: 0
     nextLevel: 102
+    buildingType: 1
     costs:
     - resourceType: 0
       amount: 100
@@ -27,11 +28,15 @@ MonoBehaviour:
     buildingName: "\uB18D\uC7A5"
     level: 1
     nextLevel: 103
+    buildingType: 1
     costs:
     - resourceType: 0
       amount: 200
     effects:
     - effectType: 1
+      effectValueMin: 500
+      effectValueMax: 500
+    - effectType: 2
       effectValueMin: 5
       effectValueMax: 5
     description: "\uB18D\uC7A51\uB808\uBCA8\uC785\uB2C8\uB2E4."
@@ -39,11 +44,15 @@ MonoBehaviour:
     buildingName: "\uB18D\uC7A5"
     level: 2
     nextLevel: 104
+    buildingType: 1
     costs:
     - resourceType: 0
       amount: 450
     effects:
     - effectType: 1
+      effectValueMin: 750
+      effectValueMax: 750
+    - effectType: 2
       effectValueMin: 10
       effectValueMax: 10
     description: "\uB18D\uC7A52\uB808\uBCA8\uC785\uB2C8\uB2E4."
@@ -51,6 +60,7 @@ MonoBehaviour:
     buildingName: "\uB18D\uC7A5"
     level: 3
     nextLevel: 105
+    buildingType: 1
     costs:
     - resourceType: 0
       amount: 700
@@ -58,6 +68,9 @@ MonoBehaviour:
       amount: 50
     effects:
     - effectType: 1
+      effectValueMin: 1000
+      effectValueMax: 1000
+    - effectType: 2
       effectValueMin: 15
       effectValueMax: 15
     description: "\uB18D\uC7A53\uB808\uBCA8\uC785\uB2C8\uB2E4."
@@ -65,6 +78,7 @@ MonoBehaviour:
     buildingName: "\uB18D\uC7A5"
     level: 4
     nextLevel: 106
+    buildingType: 1
     costs:
     - resourceType: 0
       amount: 1000
@@ -74,6 +88,9 @@ MonoBehaviour:
       amount: 20
     effects:
     - effectType: 1
+      effectValueMin: 1250
+      effectValueMax: 1250
+    - effectType: 2
       effectValueMin: 20
       effectValueMax: 20
     description: "\uB18D\uC7A54\uB808\uBCA8\uC785\uB2C8\uB2E4."
@@ -81,6 +98,7 @@ MonoBehaviour:
     buildingName: "\uB18D\uC7A5"
     level: 5
     nextLevel: 107
+    buildingType: 1
     costs:
     - resourceType: 0
       amount: 1500
@@ -90,6 +108,9 @@ MonoBehaviour:
       amount: 35
     effects:
     - effectType: 1
+      effectValueMin: 1500
+      effectValueMax: 1500
+    - effectType: 2
       effectValueMin: 25
       effectValueMax: 25
     description: "\uB18D\uC7A55\uB808\uBCA8\uC785\uB2C8\uB2E4."
@@ -97,6 +118,7 @@ MonoBehaviour:
     buildingName: "\uB18D\uC7A5"
     level: 6
     nextLevel: 108
+    buildingType: 1
     costs:
     - resourceType: 0
       amount: 2200
@@ -106,6 +128,9 @@ MonoBehaviour:
       amount: 50
     effects:
     - effectType: 1
+      effectValueMin: 1750
+      effectValueMax: 1750
+    - effectType: 2
       effectValueMin: 30
       effectValueMax: 30
     description: "\uB18D\uC7A56\uB808\uBCA8\uC785\uB2C8\uB2E4."
@@ -113,6 +138,7 @@ MonoBehaviour:
     buildingName: "\uB18D\uC7A5"
     level: 7
     nextLevel: 109
+    buildingType: 1
     costs:
     - resourceType: 0
       amount: 3000
@@ -122,6 +148,9 @@ MonoBehaviour:
       amount: 75
     effects:
     - effectType: 1
+      effectValueMin: 2000
+      effectValueMax: 2000
+    - effectType: 2
       effectValueMin: 35
       effectValueMax: 35
     description: "\uB18D\uC7A57\uB808\uBCA8\uC785\uB2C8\uB2E4."
@@ -129,6 +158,7 @@ MonoBehaviour:
     buildingName: "\uB18D\uC7A5"
     level: 8
     nextLevel: 110
+    buildingType: 1
     costs:
     - resourceType: 0
       amount: 5000
@@ -138,6 +168,9 @@ MonoBehaviour:
       amount: 100
     effects:
     - effectType: 1
+      effectValueMin: 2250
+      effectValueMax: 2250
+    - effectType: 2
       effectValueMin: 40
       effectValueMax: 40
     description: "\uB18D\uC7A58\uB808\uBCA8\uC785\uB2C8\uB2E4."
@@ -145,9 +178,13 @@ MonoBehaviour:
     buildingName: "\uB18D\uC7A5"
     level: 9
     nextLevel: -1
+    buildingType: 1
     costs: []
     effects:
     - effectType: 1
+      effectValueMin: 2500
+      effectValueMax: 2500
+    - effectType: 2
       effectValueMin: 50
       effectValueMax: 50
     description: "\uB18D\uC7A59\uB808\uBCA8\uC785\uB2C8\uB2E4."
@@ -155,6 +192,7 @@ MonoBehaviour:
     buildingName: "\uBC8C\uBAA9\uC7A5"
     level: 0
     nextLevel: 202
+    buildingType: 2
     costs:
     - resourceType: 0
       amount: 150
@@ -165,11 +203,12 @@ MonoBehaviour:
     buildingName: "\uBC8C\uBAA9\uC7A5"
     level: 1
     nextLevel: 203
+    buildingType: 2
     costs:
     - resourceType: 0
       amount: 300
     effects:
-    - effectType: 2
+    - effectType: 3
       effectValueMin: 10
       effectValueMax: 10
     description: "\uBC8C\uBAA9\uC7A51\uB808\uBCA8\uC785\uB2C8\uB2E4."
@@ -177,13 +216,14 @@ MonoBehaviour:
     buildingName: "\uBC8C\uBAA9\uC7A5"
     level: 2
     nextLevel: 204
+    buildingType: 2
     costs:
     - resourceType: 0
       amount: 600
     - resourceType: 1
       amount: 50
     effects:
-    - effectType: 2
+    - effectType: 3
       effectValueMin: 20
       effectValueMax: 20
     description: "\uBC8C\uBAA9\uC7A52\uB808\uBCA8\uC785\uB2C8\uB2E4."
@@ -191,6 +231,7 @@ MonoBehaviour:
     buildingName: "\uBC8C\uBAA9\uC7A5"
     level: 3
     nextLevel: 205
+    buildingType: 2
     costs:
     - resourceType: 0
       amount: 900
@@ -199,10 +240,10 @@ MonoBehaviour:
     - resourceType: 2
       amount: 20
     effects:
-    - effectType: 2
+    - effectType: 3
       effectValueMin: 30
       effectValueMax: 30
-    - effectType: 3
+    - effectType: 4
       effectValueMin: 10
       effectValueMax: 10
     description: "\uBC8C\uBAA9\uC7A53\uB808\uBCA8\uC785\uB2C8\uB2E4."
@@ -210,6 +251,7 @@ MonoBehaviour:
     buildingName: "\uBC8C\uBAA9\uC7A5"
     level: 4
     nextLevel: 206
+    buildingType: 2
     costs:
     - resourceType: 0
       amount: 1400
@@ -218,10 +260,10 @@ MonoBehaviour:
     - resourceType: 2
       amount: 35
     effects:
-    - effectType: 2
+    - effectType: 3
       effectValueMin: 40
       effectValueMax: 40
-    - effectType: 3
+    - effectType: 4
       effectValueMin: 10
       effectValueMax: 10
     description: "\uBC8C\uBAA9\uC7A54\uB808\uBCA8\uC785\uB2C8\uB2E4."
@@ -229,6 +271,7 @@ MonoBehaviour:
     buildingName: "\uBC8C\uBAA9\uC7A5"
     level: 5
     nextLevel: 207
+    buildingType: 2
     costs:
     - resourceType: 0
       amount: 2000
@@ -237,10 +280,10 @@ MonoBehaviour:
     - resourceType: 2
       amount: 50
     effects:
-    - effectType: 2
+    - effectType: 3
       effectValueMin: 50
       effectValueMax: 50
-    - effectType: 3
+    - effectType: 4
       effectValueMin: 10
       effectValueMax: 10
     description: "\uBC8C\uBAA9\uC7A55\uB808\uBCA8\uC785\uB2C8\uB2E4."
@@ -248,6 +291,7 @@ MonoBehaviour:
     buildingName: "\uBC8C\uBAA9\uC7A5"
     level: 6
     nextLevel: 208
+    buildingType: 2
     costs:
     - resourceType: 0
       amount: 2800
@@ -256,10 +300,10 @@ MonoBehaviour:
     - resourceType: 2
       amount: 75
     effects:
-    - effectType: 2
+    - effectType: 3
       effectValueMin: 60
       effectValueMax: 60
-    - effectType: 3
+    - effectType: 4
       effectValueMin: 20
       effectValueMax: 20
     description: "\uBC8C\uBAA9\uC7A56\uB808\uBCA8\uC785\uB2C8\uB2E4."
@@ -267,6 +311,7 @@ MonoBehaviour:
     buildingName: "\uBC8C\uBAA9\uC7A5"
     level: 7
     nextLevel: 209
+    buildingType: 2
     costs:
     - resourceType: 0
       amount: 3800
@@ -275,10 +320,10 @@ MonoBehaviour:
     - resourceType: 2
       amount: 100
     effects:
-    - effectType: 2
+    - effectType: 3
       effectValueMin: 70
       effectValueMax: 70
-    - effectType: 3
+    - effectType: 4
       effectValueMin: 20
       effectValueMax: 20
     description: "\uBC8C\uBAA9\uC7A57\uB808\uBCA8\uC785\uB2C8\uB2E4."
@@ -286,6 +331,7 @@ MonoBehaviour:
     buildingName: "\uBC8C\uBAA9\uC7A5"
     level: 8
     nextLevel: 210
+    buildingType: 2
     costs:
     - resourceType: 0
       amount: 5500
@@ -294,10 +340,10 @@ MonoBehaviour:
     - resourceType: 2
       amount: 150
     effects:
-    - effectType: 2
+    - effectType: 3
       effectValueMin: 80
       effectValueMax: 80
-    - effectType: 3
+    - effectType: 4
       effectValueMin: 20
       effectValueMax: 20
     description: "\uBC8C\uBAA9\uC7A58\uB808\uBCA8\uC785\uB2C8\uB2E4."
@@ -305,12 +351,13 @@ MonoBehaviour:
     buildingName: "\uBC8C\uBAA9\uC7A5"
     level: 9
     nextLevel: -1
+    buildingType: 2
     costs: []
     effects:
-    - effectType: 2
+    - effectType: 3
       effectValueMin: 100
       effectValueMax: 100
-    - effectType: 3
+    - effectType: 4
       effectValueMin: 30
       effectValueMax: 30
     description: "\uBC8C\uBAA9\uC7A59\uB808\uBCA8\uC785\uB2C8\uB2E4."
@@ -318,6 +365,7 @@ MonoBehaviour:
     buildingName: "\uD0C4\uAD11"
     level: 0
     nextLevel: 302
+    buildingType: 3
     costs:
     - resourceType: 0
       amount: 200
@@ -330,13 +378,14 @@ MonoBehaviour:
     buildingName: "\uD0C4\uAD11"
     level: 1
     nextLevel: 303
+    buildingType: 3
     costs:
     - resourceType: 0
       amount: 400
     - resourceType: 1
       amount: 50
     effects:
-    - effectType: 4
+    - effectType: 5
       effectValueMin: 5
       effectValueMax: 5
     description: "\uD0C4\uAD111\uB808\uBCA8\uC785\uB2C8\uB2E4."
@@ -344,6 +393,7 @@ MonoBehaviour:
     buildingName: "\uD0C4\uAD11"
     level: 2
     nextLevel: 304
+    buildingType: 3
     costs:
     - resourceType: 0
       amount: 800
@@ -352,7 +402,7 @@ MonoBehaviour:
     - resourceType: 2
       amount: 30
     effects:
-    - effectType: 4
+    - effectType: 5
       effectValueMin: 10
       effectValueMax: 10
     description: "\uD0C4\uAD112\uB808\uBCA8\uC785\uB2C8\uB2E4."
@@ -360,6 +410,7 @@ MonoBehaviour:
     buildingName: "\uD0C4\uAD11"
     level: 3
     nextLevel: 305
+    buildingType: 3
     costs:
     - resourceType: 0
       amount: 1200
@@ -368,10 +419,10 @@ MonoBehaviour:
     - resourceType: 2
       amount: 60
     effects:
-    - effectType: 4
+    - effectType: 5
       effectValueMin: 15
       effectValueMax: 15
-    - effectType: 5
+    - effectType: 6
       effectValueMin: 5
       effectValueMax: 5
     description: "\uD0C4\uAD113\uB808\uBCA8\uC785\uB2C8\uB2E4."
@@ -379,6 +430,7 @@ MonoBehaviour:
     buildingName: "\uD0C4\uAD11"
     level: 4
     nextLevel: 306
+    buildingType: 3
     costs:
     - resourceType: 0
       amount: 1800
@@ -387,10 +439,10 @@ MonoBehaviour:
     - resourceType: 2
       amount: 100
     effects:
-    - effectType: 4
+    - effectType: 5
       effectValueMin: 20
       effectValueMax: 20
-    - effectType: 5
+    - effectType: 6
       effectValueMin: 5
       effectValueMax: 5
     description: "\uD0C4\uAD114\uB808\uBCA8\uC785\uB2C8\uB2E4."
@@ -398,6 +450,7 @@ MonoBehaviour:
     buildingName: "\uD0C4\uAD11"
     level: 5
     nextLevel: 307
+    buildingType: 3
     costs:
     - resourceType: 0
       amount: 2500
@@ -408,10 +461,10 @@ MonoBehaviour:
     - resourceType: 4
       amount: 1
     effects:
-    - effectType: 4
+    - effectType: 5
       effectValueMin: 25
       effectValueMax: 25
-    - effectType: 5
+    - effectType: 6
       effectValueMin: 5
       effectValueMax: 5
     description: "\uD0C4\uAD115\uB808\uBCA8\uC785\uB2C8\uB2E4."
@@ -419,6 +472,7 @@ MonoBehaviour:
     buildingName: "\uD0C4\uAD11"
     level: 6
     nextLevel: 308
+    buildingType: 3
     costs:
     - resourceType: 0
       amount: 3500
@@ -429,16 +483,16 @@ MonoBehaviour:
     - resourceType: 4
       amount: 10
     effects:
-    - effectType: 4
+    - effectType: 5
       effectValueMin: 30
       effectValueMax: 30
-    - effectType: 5
-      effectValueMin: 10
-      effectValueMax: 10
     - effectType: 6
       effectValueMin: 10
       effectValueMax: 10
     - effectType: 7
+      effectValueMin: 10
+      effectValueMax: 10
+    - effectType: 8
       effectValueMin: 1
       effectValueMax: 5
     description: "\uD0C4\uAD116\uB808\uBCA8\uC785\uB2C8\uB2E4."
@@ -446,6 +500,7 @@ MonoBehaviour:
     buildingName: "\uD0C4\uAD11"
     level: 7
     nextLevel: 309
+    buildingType: 3
     costs:
     - resourceType: 0
       amount: 4800
@@ -456,16 +511,16 @@ MonoBehaviour:
     - resourceType: 4
       amount: 25
     effects:
-    - effectType: 4
+    - effectType: 5
       effectValueMin: 35
       effectValueMax: 35
-    - effectType: 5
+    - effectType: 6
       effectValueMin: 10
       effectValueMax: 10
-    - effectType: 6
+    - effectType: 7
       effectValueMin: 20
       effectValueMax: 20
-    - effectType: 7
+    - effectType: 8
       effectValueMin: 3
       effectValueMax: 8
     description: "\uD0C4\uAD117\uB808\uBCA8\uC785\uB2C8\uB2E4."
@@ -473,6 +528,7 @@ MonoBehaviour:
     buildingName: "\uD0C4\uAD11"
     level: 8
     nextLevel: 310
+    buildingType: 3
     costs:
     - resourceType: 0
       amount: 6500
@@ -483,16 +539,16 @@ MonoBehaviour:
     - resourceType: 4
       amount: 50
     effects:
-    - effectType: 4
+    - effectType: 5
       effectValueMin: 40
       effectValueMax: 40
-    - effectType: 5
+    - effectType: 6
       effectValueMin: 10
       effectValueMax: 10
-    - effectType: 6
+    - effectType: 7
       effectValueMin: 30
       effectValueMax: 30
-    - effectType: 7
+    - effectType: 8
       effectValueMin: 5
       effectValueMax: 10
     description: "\uD0C4\uAD118\uB808\uBCA8\uC785\uB2C8\uB2E4."
@@ -500,18 +556,19 @@ MonoBehaviour:
     buildingName: "\uD0C4\uAD11"
     level: 9
     nextLevel: -1
+    buildingType: 3
     costs: []
     effects:
-    - effectType: 4
+    - effectType: 5
       effectValueMin: 50
       effectValueMax: 50
-    - effectType: 5
+    - effectType: 6
       effectValueMin: 15
       effectValueMax: 15
-    - effectType: 6
+    - effectType: 7
       effectValueMin: 50
       effectValueMax: 50
-    - effectType: 7
+    - effectType: 8
       effectValueMin: 10
       effectValueMax: 15
     description: "\uD0C4\uAD119\uB808\uBCA8\uC785\uB2C8\uB2E4."
@@ -519,6 +576,7 @@ MonoBehaviour:
     buildingName: "\uBCD1\uC601"
     level: 0
     nextLevel: 402
+    buildingType: 4
     costs:
     - resourceType: 0
       amount: 250
@@ -534,6 +592,7 @@ MonoBehaviour:
     buildingName: "\uBCD1\uC601"
     level: 1
     nextLevel: 403
+    buildingType: 4
     costs:
     - resourceType: 0
       amount: 500
@@ -542,14 +601,15 @@ MonoBehaviour:
     - resourceType: 2
       amount: 25
     effects:
-    - effectType: 8
-      effectValueMin: 20
-      effectValueMax: 20
+    - effectType: 9
+      effectValueMin: 5
+      effectValueMax: 5
     description: "\uBCD1\uC6011\uB808\uBCA8\uC785\uB2C8\uB2E4."
   - idNumber: 403
     buildingName: "\uBCD1\uC601"
     level: 2
     nextLevel: 404
+    buildingType: 4
     costs:
     - resourceType: 0
       amount: 1000
@@ -558,14 +618,15 @@ MonoBehaviour:
     - resourceType: 2
       amount: 60
     effects:
-    - effectType: 8
-      effectValueMin: 30
-      effectValueMax: 30
+    - effectType: 9
+      effectValueMin: 5
+      effectValueMax: 5
     description: "\uBCD1\uC6012\uB808\uBCA8\uC785\uB2C8\uB2E4."
   - idNumber: 404
     buildingName: "\uBCD1\uC601"
     level: 3
     nextLevel: 405
+    buildingType: 4
     costs:
     - resourceType: 0
       amount: 1600
@@ -574,10 +635,10 @@ MonoBehaviour:
     - resourceType: 2
       amount: 100
     effects:
-    - effectType: 8
-      effectValueMin: 40
-      effectValueMax: 40
     - effectType: 9
+      effectValueMin: 7.5
+      effectValueMax: 7.5
+    - effectType: 10
       effectValueMin: 1
       effectValueMax: 1
     description: "\uBCD1\uC6013\uB808\uBCA8\uC785\uB2C8\uB2E4."
@@ -585,6 +646,7 @@ MonoBehaviour:
     buildingName: "\uBCD1\uC601"
     level: 4
     nextLevel: 406
+    buildingType: 4
     costs:
     - resourceType: 0
       amount: 2400
@@ -595,10 +657,10 @@ MonoBehaviour:
     - resourceType: 4
       amount: 1
     effects:
-    - effectType: 8
-      effectValueMin: 50
-      effectValueMax: 50
     - effectType: 9
+      effectValueMin: 7.5
+      effectValueMax: 7.5
+    - effectType: 10
       effectValueMin: 1
       effectValueMax: 1
     description: "\uBCD1\uC6014\uB808\uBCA8\uC785\uB2C8\uB2E4."
@@ -606,6 +668,7 @@ MonoBehaviour:
     buildingName: "\uBCD1\uC601"
     level: 5
     nextLevel: 407
+    buildingType: 4
     costs:
     - resourceType: 0
       amount: 3500
@@ -616,10 +679,10 @@ MonoBehaviour:
     - resourceType: 4
       amount: 15
     effects:
-    - effectType: 8
-      effectValueMin: 60
-      effectValueMax: 60
     - effectType: 9
+      effectValueMin: 7.5
+      effectValueMax: 7.5
+    - effectType: 10
       effectValueMin: 1
       effectValueMax: 1
     description: "\uBCD1\uC6015\uB808\uBCA8\uC785\uB2C8\uB2E4."
@@ -627,6 +690,7 @@ MonoBehaviour:
     buildingName: "\uBCD1\uC601"
     level: 6
     nextLevel: 408
+    buildingType: 4
     costs:
     - resourceType: 0
       amount: 5000
@@ -637,10 +701,10 @@ MonoBehaviour:
     - resourceType: 4
       amount: 35
     effects:
-    - effectType: 8
-      effectValueMin: 70
-      effectValueMax: 70
     - effectType: 9
+      effectValueMin: 10
+      effectValueMax: 10
+    - effectType: 10
       effectValueMin: 2
       effectValueMax: 2
     description: "\uBCD1\uC6016\uB808\uBCA8\uC785\uB2C8\uB2E4."
@@ -648,6 +712,7 @@ MonoBehaviour:
     buildingName: "\uBCD1\uC601"
     level: 7
     nextLevel: 409
+    buildingType: 4
     costs:
     - resourceType: 0
       amount: 6500
@@ -658,10 +723,10 @@ MonoBehaviour:
     - resourceType: 4
       amount: 70
     effects:
-    - effectType: 8
-      effectValueMin: 80
-      effectValueMax: 80
     - effectType: 9
+      effectValueMin: 10
+      effectValueMax: 10
+    - effectType: 10
       effectValueMin: 2
       effectValueMax: 2
     description: "\uBCD1\uC6017\uB808\uBCA8\uC785\uB2C8\uB2E4."
@@ -669,6 +734,7 @@ MonoBehaviour:
     buildingName: "\uBCD1\uC601"
     level: 8
     nextLevel: 410
+    buildingType: 4
     costs:
     - resourceType: 0
       amount: 8000
@@ -679,10 +745,10 @@ MonoBehaviour:
     - resourceType: 4
       amount: 120
     effects:
-    - effectType: 8
-      effectValueMin: 90
-      effectValueMax: 90
     - effectType: 9
+      effectValueMin: 10
+      effectValueMax: 10
+    - effectType: 10
       effectValueMin: 2
       effectValueMax: 2
     description: "\uBCD1\uC6018\uB808\uBCA8\uC785\uB2C8\uB2E4."
@@ -690,15 +756,16 @@ MonoBehaviour:
     buildingName: "\uBCD1\uC601"
     level: 9
     nextLevel: -1
+    buildingType: 4
     costs: []
     effects:
-    - effectType: 8
-      effectValueMin: 100
-      effectValueMax: 100
     - effectType: 9
+      effectValueMin: 12.5
+      effectValueMax: 12.5
+    - effectType: 10
       effectValueMin: 3
       effectValueMax: 3
-    - effectType: 10
+    - effectType: 11
       effectValueMin: 1
       effectValueMax: 1
     description: "\uBCD1\uC6019\uB808\uBCA8\uC785\uB2C8\uB2E4."
