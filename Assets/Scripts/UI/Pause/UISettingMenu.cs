@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -60,11 +61,12 @@ public class UISettingMenu : BaseUI
     #region 메인 메뉴 닫기
     [Header("돌아가기 버튼")]
     [SerializeField] private Button _resumeButton;
+    public event Action OnResumeButton;
 
     private void OnResumeButtonClicked()
     {
         FadeEffectManager.Instance.FadeOutUI(_canvasGroup);
-        Time.timeScale = 1.0f;
+        OnResumeButton?.Invoke();
     }
     #endregion
 
