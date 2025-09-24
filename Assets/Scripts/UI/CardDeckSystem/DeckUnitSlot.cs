@@ -16,20 +16,26 @@ public class DeckUnitSlot : MonoBehaviour
         _defaultSprite = _buttonImage.sprite;
     }
 
-    public void SetData(bool unitData, int slotNumber)
+    public void SetData(int unitId, int slotNumber)
     {
         // 슬롯 번호 텍스트는 항상 설정
         NumberText.text = (slotNumber + 1).ToString();
 
-        if (unitData) // 빈 슬롯일 때
+        if (unitId == -1) // 빈 슬롯일 때 (ID가 -1일 때)
         {
+            _buttonImage.color = Color.white;
             _buttonImage.sprite = _defaultSprite;
             NumberText.gameObject.SetActive(true);
+            NumberText.text = (slotNumber + 1).ToString();
+
         }
         else // 유닛이 채워진 슬롯일 때
         {
             // _buttonImage.sprite = unitData.IconSprite; 
-            NumberText.gameObject.SetActive(false);
+            _buttonImage.color = Color.cyan;
+            NumberText.gameObject.SetActive(true);
+            NumberText.text = unitId.ToString();
+
         }
     }
 }

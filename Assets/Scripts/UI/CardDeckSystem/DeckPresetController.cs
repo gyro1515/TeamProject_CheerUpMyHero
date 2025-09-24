@@ -43,6 +43,7 @@ public class DeckPresetController : BaseUI
 
     [Header("외부 패널 연결")]
     [SerializeField] private ConfirmationPopup confirmationPopup;
+   // [SerializeField] private UnitSelectPanelController unitSelectPanel; //세웅님꺼 연결
 
     // --- 내부 변수 ---
     private MainScreenUI _mainScreenUI;
@@ -79,6 +80,13 @@ public class DeckPresetController : BaseUI
         SelectDeck(_currentDeckIndex);
     }
 
+    private void Update()
+    {
+        if(Input.GetKeyDown(KeyCode.Space)) //테스트 코드
+        {
+            OnUnitSelected(5, 11);
+        }
+    }
     public void SelectDeck(int deckIndex)
     {
         _currentDeckIndex = deckIndex;
@@ -151,11 +159,11 @@ public class DeckPresetController : BaseUI
         for (int i = 0; i < _unitSlots.Count; i++)
         {
             int unitId = currentDeckUnits[i];
-            bool isEmpty = (unitId == -1);
-
-            _unitSlots[i].SetData(isEmpty, i);
+ 
+            _unitSlots[i].SetData(unitId, i);
         }
         UpdateCompleteButtonState();
+        // UpdateSynergyUI(); // 시너지 기능은 나중에 구현
     }
 
     private void UpdateCompleteButtonState()
@@ -167,11 +175,16 @@ public class DeckPresetController : BaseUI
 
     void OnUnitSlotClicked(int slotIndex)
     {
-        Debug.Log($"{_currentDeckIndex}번 덱의 {slotIndex + 1}번 슬롯 클릭됨");
+        Debug.Log($"{_currentDeckIndex}번 덱의 {slotIndex + 1}번 슬롯 클릭됨 -> 유닛 선택창 열기");
+
+        //unitSelectPanel.Open(slotIndex, OnUnitSelected); //세웅님꺼 연결
+
     }
 
     private void OnUnitSelected(int slotIndex, int unitId)
     {
+        Debug.Log($"{slotIndex}번 슬롯에 {unitId}번 유닛을 배치합니다.");
+
         PlayerDataManager.Instance.DeckPresets[_currentDeckIndex].UnitIds[slotIndex] = unitId;
         UpdateUnitSlotsUI();
     }
