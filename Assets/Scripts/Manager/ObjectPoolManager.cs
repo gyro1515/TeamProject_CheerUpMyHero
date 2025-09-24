@@ -33,6 +33,11 @@ public enum PoolType
     EnemyUnit5,
     EnemyUnit6,
     UIMinimapIcon,
+    EnemyUnit11,
+    EnemyUnit12,
+    EnemyUnit13,
+    EnemyUnit14,
+    EnemyUnit15,
 }
 
 public class ObjectPoolManager : SingletonMono<ObjectPoolManager>, ISceneResettable
