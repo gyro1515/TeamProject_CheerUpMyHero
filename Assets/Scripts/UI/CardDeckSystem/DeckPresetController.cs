@@ -43,7 +43,7 @@ public class DeckPresetController : BaseUI
 
     [Header("외부 패널 연결")]
     [SerializeField] private ConfirmationPopup confirmationPopup;
-   // [SerializeField] private UnitSelectPanelController unitSelectPanel; //세웅님꺼 연결
+   // [SerializeField] private UnitSelectPanelController unitSelectPanel; //세웅님꺼 연결 임의로 이름 지음
 
     // --- 내부 변수 ---
     private MainScreenUI _mainScreenUI;
@@ -218,11 +218,14 @@ public class DeckPresetController : BaseUI
 
     private IEnumerator CompleteFormationRoutine()
     {
-        if (confirmationPopup.gameObject.activeInHierarchy)
+        // 팝업이 활성화되어 있다면, 비활성화될 때까지 매 프레임 기다리기
+        while (confirmationPopup.gameObject.activeInHierarchy)
         {
-            yield return new WaitForSeconds(0.3f);
+            yield return null; // 다음 프레임까지 대기
         }
 
+        // 팝업이 완전히 사라진 후에만 실행
+        Debug.Log("편성 완료. 모든 덱 정보를 저장하고 다음 화면으로 전환합니다.");
         PlayerDataManager.Instance.SaveDecks();
 
         if (_stageSelectUI != null)
