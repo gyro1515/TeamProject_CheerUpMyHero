@@ -5,6 +5,13 @@ using Unity.Mathematics;
 using Unity.VisualScripting;
 using UnityEngine;
 
+public enum UnitsType //일단 임시로 했습니다
+{
+    None,
+    Tanker,
+    Dealer,
+    Healer
+}
 public abstract class BaseUnit : BaseCharacter
 {
     [field: Header("유닛 세팅")]
@@ -17,6 +24,8 @@ public abstract class BaseUnit : BaseCharacter
     [field: SerializeField] protected int HitBackCount { get; set; } = 3; // 최대 몇 번 히트백될 수 되는지
     public BaseUnitController UnitController { get; private set; }
     [field: SerializeField] public float CognizanceRange { get; private set; } // 인식 범위
+    [field: SerializeField] public UnitsType UnitsType { get; private set; } // 유닛 타입
+
     public IDamageable TargetUnit { get; set; }
 
     public bool IsInvincible { get; private set; } = false; // 무적 여부
