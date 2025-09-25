@@ -122,6 +122,7 @@ public class EnemyWaveSystem : MonoBehaviour
             selectedMainStageIdx = 0;
             waveDataList = waveSO.GetStageWaveDataList(selectedMainStageIdx);
             Debug.LogWarning("웨이브 정보 없어 -> 스테이지1 데이터로 세팅");
+            PlayerDataManager.Instance.SelectedStageIdx = (0 , 0);
             //return; 나중에는 그냥 리턴하기
         }
 
