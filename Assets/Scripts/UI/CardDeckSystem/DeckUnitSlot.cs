@@ -5,7 +5,8 @@ using TMPro;
 public class DeckUnitSlot : MonoBehaviour
 {
     [Header("UI 요소")]
-    [SerializeField] private TextMeshProUGUI NumberText;
+    [SerializeField] private TextMeshProUGUI InfoText;
+   // [SerializeField] private Image unitIconImage;      //유닛 아이콘을 표시할 이미지
 
     private Image _buttonImage;
     private Sprite _defaultSprite;
@@ -16,26 +17,21 @@ public class DeckUnitSlot : MonoBehaviour
         _defaultSprite = _buttonImage.sprite;
     }
 
-    public void SetData(int unitId, int slotNumber)
+    public void SetData(TempCardData unitData, int slotNumber)
     {
-        // 슬롯 번호 텍스트는 항상 설정
-        NumberText.text = (slotNumber + 1).ToString();
-
-        if (unitId == -1) // 빈 슬롯일 때 (ID가 -1일 때)
+        if (unitData == null) // 빈 슬롯일 때
         {
-            _buttonImage.color = Color.white;
-            _buttonImage.sprite = _defaultSprite;
-            NumberText.gameObject.SetActive(true);
-            NumberText.text = (slotNumber + 1).ToString();
-
+           // unitIconImage.gameObject.SetActive(false); // 아이콘 숨기기
+            InfoText.gameObject.SetActive(true);
+            InfoText.text = (slotNumber + 1).ToString(); // 슬롯 번호 표시
         }
         else // 유닛이 채워진 슬롯일 때
         {
-            // _buttonImage.sprite = unitData.IconSprite; 
-            _buttonImage.color = Color.cyan;
-            NumberText.gameObject.SetActive(true);
-            NumberText.text = unitId.ToString();
-
+          //  unitIconImage.gameObject.SetActive(true);
+            // unitIconImage.sprite = unitData.IconSprite; //아이콘 스프라이트 연결
+            InfoText.gameObject.SetActive(true);
+            InfoText.text = unitData.unitName; // 유닛 이름 표시 (또는 ID: unitData.poolType)
         }
     }
+
 }
