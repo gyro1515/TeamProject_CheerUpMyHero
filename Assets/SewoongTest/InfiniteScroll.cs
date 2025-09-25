@@ -20,6 +20,8 @@ public class InfiniteScroll : MonoBehaviour, IBeginDragHandler, IEndDragHandler
 
     private float cardWithSpaceSize;
 
+    private bool isFirstStart = true;
+
     //위치 비교용
     private Vector2 prevContentAnchoredPos;
 
@@ -82,12 +84,15 @@ public class InfiniteScroll : MonoBehaviour, IBeginDragHandler, IEndDragHandler
             float spacing = layoutGroup != null ? layoutGroup.spacing : 0;
             cardWithSpaceSize = cardSize + spacing;
         }
-
+        isFirstStart = false;
         ResetCardData(defaultList);
     }
 
-    void ResetCardData(List<int> newList)
+    public void ResetCardData(List<int> newList)
     {
+        if (isFirstStart)
+            return;
+        
         filteredCardList.Clear();
         filteredCardList.AddRange(newList);
 

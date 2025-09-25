@@ -55,6 +55,8 @@ public class DeckPresetController : BaseUI
     private List<DeckUnitSlot> _unitSlots = new List<DeckUnitSlot>();
     private int _currentDeckIndex = 1;
 
+    UIUnitCardSelect uIUnitCardSelect;
+
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.Space)) //테스트 코드
@@ -85,6 +87,9 @@ public class DeckPresetController : BaseUI
         editNameCanvasGroup.blocksRaycasts = false;
 
         SelectDeck(_currentDeckIndex);
+
+        uIUnitCardSelect = UIManager.Instance.GetUI<UIUnitCardSelect>();
+        uIUnitCardSelect.CloseUI();
     }
 
     #region UI 생성 및 업데이트
@@ -176,10 +181,11 @@ public class DeckPresetController : BaseUI
     void OnUnitSlotClicked(int slotIndex)
     {
         Debug.Log($"{_currentDeckIndex}번 덱의 {slotIndex + 1}번 슬롯 클릭됨 -> 유닛 선택창 열기");
-        // unitSelectPanel.Open(slotIndex, OnUnitSelected); //임의로 지어놓은 것 
+        uIUnitCardSelect.OpenUI();
+        uIUnitCardSelect.SetDeckSlotNum(slotIndex);
     }
 
-    private void OnUnitSelected(int slotIndex, int unitId)
+    public void OnUnitSelected(int slotIndex, int unitId)
     {
         PlayerDataManager.Instance.DeckPresets[_currentDeckIndex].UnitIds[slotIndex] = unitId;
         UpdateUnitSlotsUI();
