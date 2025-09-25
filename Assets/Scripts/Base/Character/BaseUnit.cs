@@ -15,8 +15,10 @@ public abstract class BaseUnit : BaseCharacter
     [field: SerializeField] public float StartAttackTime { get; private set; } = 0.09f; // 애니메이션 기준 공격 시작 시간
     [field: SerializeField] public float StartAttackNormalizedTime { get; private set; } = 0.36f; // 애니메이션 기준 정규화된 공격 시작 시간
     [field: SerializeField] protected int HitBackCount { get; set; } = 3; // 최대 몇 번 히트백될 수 되는지
-    public BaseUnitController UnitController { get; private set; } 
+    public BaseUnitController UnitController { get; private set; }
+    [field: SerializeField] public float CognizanceRange { get; private set; } // 인식 범위
     public IDamageable TargetUnit { get; set; }
+
     public bool IsInvincible { get; private set; } = false; // 무적 여부
     protected float hitbackHp = -1f; // 이 이상 데미지가 누적되면 히트백
     protected int hitbackTriggerCount = 0;
