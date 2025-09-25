@@ -16,6 +16,7 @@ public class TempCardData
     public int cost;
     public float atkPower;
     public float coolTime;
+    public int potential;
     public PoolType poolType;
 
     public TempCardData(string name, PoolType pooltype)
@@ -29,6 +30,8 @@ public class TempCardData
         cost = UnityEngine.Random.Range(50, 300);
         atkPower = UnityEngine.Random.Range(100f, 5000f);
         coolTime = UnityEngine.Random.Range(5f, 60f);
+        //중복 카드 획득에 따른 잠재력 증가, 추후 구현 예정
+        potential = 0;
     }
 }
 
