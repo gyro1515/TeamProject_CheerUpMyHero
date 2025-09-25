@@ -26,7 +26,7 @@ public class TempCardData
         unitName = name;
         description = "설명";
         health = UnityEngine.Random.Range(100f, 5000f);
-        cost = UnityEngine.Random.Range(50, 3000);
+        cost = UnityEngine.Random.Range(50, 300);
         atkPower = UnityEngine.Random.Range(100f, 5000f);
         coolTime = UnityEngine.Random.Range(5f, 60f);
     }

@@ -59,7 +59,13 @@ public class DeckPresetController : BaseUI
     {
         if (Input.GetKeyDown(KeyCode.Space)) //테스트 코드
         {
-            OnUnitSelected(5, 11);
+            OnUnitSelected(0, 100001);
+            Debug.Log("테스트: 1번 슬롯에 100001번 유닛 강제 할당");
+            OnUnitSelected(1, 100002);
+            Debug.Log("테스트: 2번 슬롯에 100002번 유닛 강제 할당");
+            OnUnitSelected(2, 100003);
+            Debug.Log("테스트: 3번 슬롯에 100003번 유닛 강제 할당");
+
         }
     }
     private void Start()
@@ -121,7 +127,8 @@ public class DeckPresetController : BaseUI
         {
             int unitId = currentDeckUnits[i];
 
-            _unitSlots[i].SetData(unitId, i);
+            var unitData = (unitId == -1) ? null : PlayerDataManager.Instance.GetUnitData(unitId);
+            _unitSlots[i].SetData(unitData, i);
         }
         UpdateCompleteButtonState();
         // UpdateSynergyUI();

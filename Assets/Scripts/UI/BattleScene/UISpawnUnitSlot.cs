@@ -29,34 +29,65 @@ public class UISpawnUnitSlot : MonoBehaviour
         unitIconTimer.fillAmount = 1f;
         SetTimerIconActive(false);
     }
-    
-    public void InitSpawnUnitSlot(Sprite sprite, int cardIdx, float cooldown, int foodConsumption)
+
+    public void InitSpawnUnitSlot(Sprite sprite, string unitName, int unitId, PoolType poolType, float cooldown, int foodConsumption)
     {
         _foodConsumption = foodConsumption;
         unitIcon.sprite = sprite;
-        text.text = cardIdx.ToString();
         _cooldown = cooldown;
-        playerUnitType = (PoolType)cardIdx; // 테스트용
-        if (cardIdx == -1) // 빈 슬롯은 클릭 안되도록
+        playerUnitType = poolType; // 소환할 유닛 타입을 직접 받음
+
+        if (unitId == -1) // 빈 슬롯 처리
         {
             text.enabled = false;
             spawnUnitBtn.enabled = false;
             unitIconTimer.fillAmount = 1f;
             return;
         }
+
+        text.text = unitName;
+
         SetTimerIconActive(false);
     }
+
     void OnSpawnUnit()
     {
-        if (GameManager.Instance.PlayerHQ == null) return; // 플레이어 HQ 죽었다면 작동 안하게 하기
+        if (GameManager.Instance.PlayerHQ == null) return;
         if (PlayerDataManager.Instance.CurrentFood < _foodConsumption) return;
 
         PlayerDataManager.Instance.AddResource(ResourceType.Food, -_foodConsumption);
-
         SetTimerIconActive(true);
-        // 여기서 유닛 소환, 테스트 용으로 이렇게 형변환
-        if((int)playerUnitType != -1) GameManager.Instance.PlayerHQ.SpawnUnit(playerUnitType);
+
+        GameManager.Instance.PlayerHQ.SpawnUnit(playerUnitType);
     }
+
+    //public void InitSpawnUnitSlot(Sprite sprite, int cardIdx, float cooldown, int foodConsumption)
+    //{
+    //    _foodConsumption = foodConsumption;
+    //    unitIcon.sprite = sprite;
+    //    text.text = cardIdx.ToString();
+    //    _cooldown = cooldown;
+    //    playerUnitType = (PoolType)cardIdx; // 테스트용
+    //    if (cardIdx == -1) // 빈 슬롯은 클릭 안되도록
+    //    {
+    //        text.enabled = false;
+    //        spawnUnitBtn.enabled = false;
+    //        unitIconTimer.fillAmount = 1f;
+    //        return;
+    //    }
+    //    SetTimerIconActive(false);
+    //}
+    //void OnSpawnUnit()
+    //{
+    //    if (GameManager.Instance.PlayerHQ == null) return; // 플레이어 HQ 죽었다면 작동 안하게 하기
+    //    if (PlayerDataManager.Instance.CurrentFood < _foodConsumption) return;
+
+    //    PlayerDataManager.Instance.AddResource(ResourceType.Food, -_foodConsumption);
+
+    //    SetTimerIconActive(true);
+    //    // 여기서 유닛 소환, 테스트 용으로 이렇게 형변환
+    //    if((int)playerUnitType != -1) GameManager.Instance.PlayerHQ.SpawnUnit(playerUnitType);
+    //}
     void SetTimerIconActive(bool active)
     {
         _cooldownTimer = 0f;

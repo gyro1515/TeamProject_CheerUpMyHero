@@ -70,6 +70,17 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
         };
     }
 
+    public TempCardData GetUnitData(int cardId)
+    {
+        if (cardDic.TryGetValue(cardId, out TempCardData data))
+        {
+            return data;
+        }
+        // 만약 cardDic에 해당 ID가 없으면 null을 반환
+        Debug.LogWarning($"Card ID {cardId}에 해당하는 임시 데이터를 찾을 수 없습니다.");
+        return null;
+    }
+
     //빌딩 데이터
     #region Building
     public BuildingUpgradeData[,] BuildingGridData { get; set; } = new BuildingUpgradeData[5, 5];
