@@ -7,12 +7,22 @@ public class UIUnitCardSelect : BaseUI
 {
     [SerializeField] InfiniteScroll infiniteScroll;
     [SerializeField] Button selectButton;
-    private int deckSlotNum = 1;
+    private CardFilter cardFilter;
+
+    private int deckSlotNum;
+
+    private void Awake()
+    {
+        cardFilter = GetComponent<CardFilter>();
+        infiniteScroll.InitRef(cardFilter);
+    }
+
 
     private void OnEnable()
     {
         selectButton?.onClick.AddListener(onSelectButtonPress);
-        //infiniteScroll.ResetCardData();
+        cardFilter.UpdateUsable();
+        infiniteScroll.ResetCardData(cardFilter.AllCardList);
     }
 
     private void OnDisable()
@@ -20,9 +30,9 @@ public class UIUnitCardSelect : BaseUI
         selectButton?.onClick.RemoveListener(onSelectButtonPress);
     }
 
-    public void SetDeckSlotNum(int num)
+    public void SetDeckSlotNum(int slotNum)
     {
-        deckSlotNum = num;
+        deckSlotNum = slotNum;
     }
 
     void onSelectButtonPress()

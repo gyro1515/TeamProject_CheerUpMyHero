@@ -8,9 +8,9 @@ public class InfiniteScroll : MonoBehaviour, IBeginDragHandler, IEndDragHandler
 {
     private ScrollRect scrollRect;
     private RectTransform contentRect;
+    private CardFilter cardFilter;
 
     private List<UIUnitCardInScroll> cardUIList = new(); 
-    private List<int> allCardList = new();
     private List<int> filteredCardList = new();
 
     private List<int> testEvenList = new();
@@ -41,19 +41,14 @@ public class InfiniteScroll : MonoBehaviour, IBeginDragHandler, IEndDragHandler
         contentRect = scrollRect.content;
     }
 
+    public void InitRef(CardFilter filter)
+    {
+        cardFilter = filter;
+    }
+
     private void Start()
     {
-        //테스트용 카드 int 리스트 생성 
-        for (int i = 0; i < 20; i++)
-        {
-            allCardList.Add(i);
-        }
-        for (int i = 0; i < 0; i += 2)
-        {
-            testEvenList.Add(i);
-        }
-
-        StartCoroutine(Init(allCardList));
+        StartCoroutine(Init(cardFilter.AllCardList));
 
     }
 
@@ -188,7 +183,7 @@ public class InfiniteScroll : MonoBehaviour, IBeginDragHandler, IEndDragHandler
         }
         if (Input.GetKeyDown(KeyCode.LeftShift))
         {
-            ResetCardData(allCardList);
+            ResetCardData(cardFilter.AllCardList);
         }
     }
 
@@ -303,13 +298,13 @@ public class InfiniteScroll : MonoBehaviour, IBeginDragHandler, IEndDragHandler
         if (contentRect.anchoredPosition.x < - indexOffset)
         {
             int fourthIndex = (currentFirstCardIndex + 3) % filteredCardList.Count;
-            selectedIndex = fourthIndex;
+            selectedIndex = filteredCardList[fourthIndex];
         }
         //현재 보고 있는 카드는 3번째 슬롯에 온 카드
         else
         {
             int thirdIndex = (currentFirstCardIndex + 2) % filteredCardList.Count;
-            selectedIndex = thirdIndex;
+            selectedIndex = filteredCardList[thirdIndex];
         }
 
         return selectedIndex;
