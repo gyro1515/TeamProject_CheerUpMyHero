@@ -5,7 +5,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using DG.Tweening;
 
-public class UISwipeArea : MonoBehaviour, IBeginDragHandler, IEndDragHandler
+public class UISwipeArea : MonoBehaviour, IPointerDownHandler, IEndDragHandler, IDragHandler
 {
     [Header("스와이프 UI 세팅")]
     [SerializeField] RectTransform viewport; // 스와이프 영역
@@ -18,7 +18,7 @@ public class UISwipeArea : MonoBehaviour, IBeginDragHandler, IEndDragHandler
     int currentPage = 0; // 0부터 시작
     Coroutine SmoothMoveRoutine;
     List<int> pageToIdx = new List<int>();
-    
+    bool forceEnded = false;
     private void Awake()
     {
         ResizePages();
@@ -42,17 +42,30 @@ public class UISwipeArea : MonoBehaviour, IBeginDragHandler, IEndDragHandler
         // 기기 회전/리사이즈 대응, 테스트때 모든 기종 변화에 대응하도록
         ResizePages();
     }
-    public void OnBeginDrag(PointerEventData eventData)
+    public void OnPointerDown(PointerEventData eventData)
     {
+        forceEnded = false;
+    }
+    public void OnDrag(PointerEventData eventData)
+    {
+        if (forceEnded) return;
         bool inside = RectTransformUtility.RectangleContainsScreenPoint(viewport, eventData.position, eventData.pressEventCamera);
         if (!inside)
         {
             // 뷰포트 밖이면 드래그 무효 처리
-            Debug.Log("나감");
-            
+            forceEnded = true;
+            scrollRect.OnEndDrag(eventData);
+            MoveToNext();
         }
     }
     public void OnEndDrag(PointerEventData eventData)
+    {
+        if (forceEnded) return;
+        Debug.Log("위치 조정");
+
+        MoveToNext();
+    }
+    void MoveToNext()
     {
         float pos = scrollRect.horizontalNormalizedPosition;
         float closest = float.MaxValue;
@@ -67,7 +80,7 @@ public class UISwipeArea : MonoBehaviour, IBeginDragHandler, IEndDragHandler
             }
         }
 
-        if(SmoothMoveRoutine != null) StopCoroutine(SmoothMoveRoutine);
+        if (SmoothMoveRoutine != null) StopCoroutine(SmoothMoveRoutine);
         SmoothMoveRoutine = StartCoroutine(SmoothMoveTo(targetPageIdx));
     }
 
@@ -102,10 +115,8 @@ public class UISwipeArea : MonoBehaviour, IBeginDragHandler, IEndDragHandler
 
         int diff = (nextIdx - currentPage + pageCount) % pageCount;
 
-        //if (!(currentPage == 0 && nextIdx == pageCount - 1) && currentPage < nextIdx || (currentPage == pageCount - 1 && nextIdx == 0))
         if (diff == 1)
             ShiftPageLeft();
-        //else if(currentPage > nextIdx || (currentPage == 0 && nextIdx == pageCount - 1))
         else if (diff == pageCount - 1)
             ShiftPageRight();
 
