@@ -145,7 +145,7 @@ public class DeckPresetController : BaseUI
     {
         viewModeCanvasGroup.DOFade(0.3f, 0.3f);
         viewModeCanvasGroup.interactable = false;
-        FadeEffectManager.Instance.FadeInUI(editNameCanvasGroup);
+        FadeManager.Instance.FadeInUI(editNameCanvasGroup);
 
         string currentName = PlayerDataManager.Instance.DeckPresets[_currentDeckIndex].DeckName;
         deckNameInputField.text = currentName;
@@ -165,7 +165,7 @@ public class DeckPresetController : BaseUI
 
     private void ExitEditMode()
     {
-        FadeEffectManager.Instance.FadeOutUI(editNameCanvasGroup);
+        FadeManager.Instance.FadeOutUI(editNameCanvasGroup);
         viewModeCanvasGroup.DOFade(1f, 0.3f);
         viewModeCanvasGroup.interactable = true;
         SelectDeck(_currentDeckIndex);
