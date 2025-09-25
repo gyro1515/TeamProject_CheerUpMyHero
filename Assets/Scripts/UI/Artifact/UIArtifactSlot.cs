@@ -8,7 +8,6 @@ public class UIArtifactSlot : MonoBehaviour
 {
     [Header("유물 데이터 적용")]
     [SerializeField] private Image _artifactIcon;
-    [SerializeField] private Image _borderImage;
     [SerializeField] private TextMeshProUGUI _nameText;
     [SerializeField] private TextMeshProUGUI _statTypeText;
     [SerializeField] private TextMeshProUGUI _statValueText;
@@ -20,7 +19,13 @@ public class UIArtifactSlot : MonoBehaviour
     [SerializeField] private Color _uniqueBorder = Color.yellow;
     [SerializeField] private Color _legendaryBorder = Color.green;
 
+    private Outline _outline;
     private PassiveArtifactData _data;
+
+    private void Awake()
+    {
+        _outline = GetComponent<Outline>();
+    }
 
     public void Init(PassiveArtifactData data)
     {
@@ -48,27 +53,27 @@ public class UIArtifactSlot : MonoBehaviour
             switch (passiveArtifact.grade)
             {
                 case PassiveArtifactGrade.Common:
-                    _borderImage.color = _commonBorder;
+                    _outline.effectColor = _commonBorder;
                     break;
 
                 case PassiveArtifactGrade.Rare:
-                    _borderImage.color = _rareBorder;
+                    _outline.effectColor = _rareBorder;
                     break;
                 
                 case PassiveArtifactGrade.Epic:
-                    _borderImage.color= _epicBorder;
+                    _outline.effectColor = _epicBorder;
                     break;
 
                 case PassiveArtifactGrade.Unique:
-                    _borderImage.color = _uniqueBorder;
+                    _outline.effectColor = _uniqueBorder;
                     break;
 
                 case PassiveArtifactGrade.Legendary:
-                    _borderImage.color =_legendaryBorder;
+                    _outline.effectColor =_legendaryBorder;
                     break;
 
                 default:
-                    _borderImage.color = Color.black;
+                    _outline.effectColor = Color.black;
                     break;
             }
             #endregion

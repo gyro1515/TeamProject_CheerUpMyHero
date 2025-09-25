@@ -765,7 +765,7 @@ GameObject:
   - component: {fileID: 7754990016108551370}
   - component: {fileID: 4198270917651481631}
   m_Layer: 5
-  m_Name: MeleeSlot
+  m_Name: RangedSlot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -963,7 +963,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8774628737329440270}
-  - component: {fileID: 1305242846744028796}
   m_Layer: 5
   m_Name: PlayerSlotArea
   m_TagString: Untagged
@@ -992,23 +991,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 1}
---- !u!114 &1305242846744028796
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1094857327501319483}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bd052439397d9d54e822982b7183946b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  slot1: {fileID: 7297586796549562771}
-  slot2: {fileID: 2465660527419635637}
-  slot3: {fileID: 4764961060398222419}
-  slot4: {fileID: 7301776641656705783}
-  inventoryPanel: {fileID: 110587959474386143}
 --- !u!1 &1247622184384298134
 GameObject:
   m_ObjectHideFlags: 0
@@ -6136,11 +6118,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _title: {fileID: 4635522227334960261}
   _closeButton: {fileID: 4371923324055443578}
-  _sortButton: {fileID: 0}
-  _equipButton: {fileID: 0}
-  _noEquipButton: {fileID: 0}
-  _slot: {fileID: 0}
-  _slotCreatPosition: {fileID: 0}
+  _sortButton: {fileID: 3161683302113790805}
+  _equipButton: {fileID: 3653357631789961122}
+  _noEquipButton: {fileID: 3105374282082935770}
+  _slotPrefab: {fileID: 2893983578757974476, guid: 86a8559e45d2bd848890c0dc278c83b7, type: 3}
+  _slotCreatPosition: {fileID: 8801068288043805619}
 --- !u!1 &6419472975639549243
 GameObject:
   m_ObjectHideFlags: 0
