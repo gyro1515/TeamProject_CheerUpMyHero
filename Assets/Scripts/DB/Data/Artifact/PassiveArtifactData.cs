@@ -8,13 +8,10 @@ public class PassiveArtifactData : ArtifactData
 {
     public EffectTarget effectTarget;
     public StatType statType;
-    public float commonValue;
-    public float rareValue;
-    public float epicValue;
-    public float uniqueValue;
-    public float legendaryValue;
+    public PassiveArtifactGrade grade;
+    public float value;
 
-    [NonSerialized]
+    /*[NonSerialized]
     public float[] effectValuesByGrade = new float[5];
 
     public void ArtifactGradeProcess()
@@ -24,5 +21,5 @@ public class PassiveArtifactData : ArtifactData
         effectValuesByGrade[2] = epicValue;
         effectValuesByGrade[3] = uniqueValue;
         effectValuesByGrade[4] = legendaryValue;
-    }
+    }*/
 }
