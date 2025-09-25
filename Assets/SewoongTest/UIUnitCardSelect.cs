@@ -7,15 +7,32 @@ public class UIUnitCardSelect : BaseUI
 {
     [SerializeField] InfiniteScroll infiniteScroll;
     [SerializeField] Button selectButton;
+    private CardFilter cardFilter;
+
+    private int deckSlotNum;
+
+    private void Awake()
+    {
+        cardFilter = GetComponent<CardFilter>();
+        infiniteScroll.InitRef(cardFilter);
+    }
+
 
     private void OnEnable()
     {
         selectButton?.onClick.AddListener(onSelectButtonPress);
+        cardFilter.UpdateUsable();
+        infiniteScroll.ResetCardData(cardFilter.AllCardList);
     }
 
     private void OnDisable()
     {
         selectButton?.onClick.RemoveListener(onSelectButtonPress);
+    }
+
+    public void SetDeckSlotNum(int slotNum)
+    {
+        deckSlotNum = slotNum;
     }
 
     void onSelectButtonPress()
@@ -29,6 +46,8 @@ public class UIUnitCardSelect : BaseUI
         else
         {
             Debug.Log($"현재 선택된 카드 {selectedIndex}번");
+            FadeManager.Instance.SwitchGameObjects(UIManager.Instance.GetUI<UIUnitCardSelect>().gameObject, UIManager.Instance.GetUI<DeckPresetController>().gameObject);
+            UIManager.Instance.GetUI<DeckPresetController>().OnUnitSelected(deckSlotNum, selectedIndex);
         }
     }
 }
