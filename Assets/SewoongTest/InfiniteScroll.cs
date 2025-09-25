@@ -48,7 +48,7 @@ public class InfiniteScroll : MonoBehaviour, IBeginDragHandler, IEndDragHandler
 
     private void Start()
     {
-        StartCoroutine(Init(cardFilter.AllCardList));
+        StartCoroutine(Init(cardFilter.ModifiedCardList));
 
     }
 
@@ -175,16 +175,6 @@ public class InfiniteScroll : MonoBehaviour, IBeginDragHandler, IEndDragHandler
         HandleSnap();
 
         prevContentAnchoredPos = contentRect.anchoredPosition;
-
-        //테스트용
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            ResetCardData(testEvenList);
-        }
-        if (Input.GetKeyDown(KeyCode.LeftShift))
-        {
-            ResetCardData(cardFilter.AllCardList);
-        }
     }
 
     void CardSwap()

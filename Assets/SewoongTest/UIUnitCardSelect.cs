@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -7,6 +8,7 @@ public class UIUnitCardSelect : BaseUI
 {
     [SerializeField] InfiniteScroll infiniteScroll;
     [SerializeField] Button selectButton;
+    [SerializeField] TMP_Text desckNumText;
     private CardFilter cardFilter;
 
     private int deckSlotNum;
@@ -22,7 +24,7 @@ public class UIUnitCardSelect : BaseUI
     {
         selectButton?.onClick.AddListener(onSelectButtonPress);
         cardFilter.UpdateUsable();
-        infiniteScroll.ResetCardData(cardFilter.AllCardList);
+        infiniteScroll.ResetCardData(cardFilter.ModifiedCardList);
     }
 
     private void OnDisable()
@@ -33,6 +35,7 @@ public class UIUnitCardSelect : BaseUI
     public void SetDeckSlotNum(int slotNum)
     {
         deckSlotNum = slotNum;
+        desckNumText.text = (deckSlotNum + 1).ToString();
     }
 
     void onSelectButtonPress()
