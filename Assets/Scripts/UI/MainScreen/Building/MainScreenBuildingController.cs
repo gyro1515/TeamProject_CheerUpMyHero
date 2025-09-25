@@ -63,16 +63,16 @@ public class MainScreenBuildingController : SingletonMono<MainScreenBuildingCont
         Debug.Log("타일 그리드 생성 완료!");
     }
 
-    private void OnDisable()
-    {
-        if (_tiles == null) return;
+    //private void OnDisable()
+    //{
+    //    if (_tiles == null) return;
 
-        foreach (var tile in _tiles)
-        {
-            if (tile != null)
-                tile.OnTileClicked -= HandleTileClick;
-        }
-    }
+    //    foreach (var tile in _tiles)
+    //    {
+    //        if (tile != null)
+    //            tile.OnTileClicked -= HandleTileClick;
+    //    }
+    //}
     // ---------------- 타일 선택 ----------------
     private void HandleTileClick(BuildingTile tile)
     {

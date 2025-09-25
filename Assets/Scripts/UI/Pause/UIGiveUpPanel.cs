@@ -24,16 +24,16 @@ public class UIGiveUpPanel : BaseUI
 
     private void OnGiveUpYesButtonClicked()
     {
-        FadeEffectManager.Instance.FadeOutUI(_canvasGroup);
-        FadeEffectManager.Instance.FadeOutUI(_settingMenuPanel);
+        FadeManager.Instance.FadeOutUI(_canvasGroup);
+        FadeManager.Instance.FadeOutUI(_settingMenuPanel);
         Time.timeScale = 1.0f;
         GameManager.Instance.ShowResultUI(false);
     }
 
     private void OnGiveUpNoButtonClicked()
     {
-        FadeEffectManager.Instance.FadeOutUI(_canvasGroup);
-        FadeEffectManager.Instance.FadeOutUI(_settingMenuPanel);
+        FadeManager.Instance.FadeOutUI(_canvasGroup);
+        FadeManager.Instance.FadeOutUI(_settingMenuPanel);
         Time.timeScale = 1.0f;
     }
 }

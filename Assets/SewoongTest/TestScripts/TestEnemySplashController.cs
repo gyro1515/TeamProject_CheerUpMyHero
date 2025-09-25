@@ -194,6 +194,7 @@ public class TestEnemySplashController : BaseController
     #region DrawRangeBox
     private void OnDrawGizmosSelected()
     {
+        if (!Application.isPlaying) return;
         // 기즈모 색상 설정
         Gizmos.color = Color.red;
 

@@ -124,7 +124,7 @@ public class EnemyWaveSystem : MonoBehaviour
             Debug.LogWarning("웨이브 정보 없어 -> 스테이지1 데이터로 세팅");
             //return; 나중에는 그냥 리턴하기
         }
-        
+
         foreach (StageWaveData waveData in waveDataList)
         {
             // 선택한 스테이지가 아니라면 다음

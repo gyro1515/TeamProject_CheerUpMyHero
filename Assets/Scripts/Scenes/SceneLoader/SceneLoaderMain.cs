@@ -7,7 +7,8 @@ public class SceneLoaderMain : MonoBehaviour
     private void Awake()
     {
         UIManager.Instance.GetUI<MainScreenUI>();
-        UIManager.Instance.GetUI<UISelectCard>().CloseUI();
+        UIManager.Instance.GetUI<DeckPresetController>().CloseUI();
         UIManager.Instance.GetUI<UIStageSelect>().CloseUI();
+        //UIManager.Instance.GetUI<UISelectCard>().CloseUI();
     }
 }

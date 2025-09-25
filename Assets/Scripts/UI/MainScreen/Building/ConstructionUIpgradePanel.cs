@@ -260,7 +260,7 @@ public class ConstructionUpgradePanel : BaseUI
     public override void OpenUI()
     {
         base.OpenUI();
-        FadeEffectManager.Instance.FadeInUI(_canvasGroup);
+        FadeManager.Instance.FadeInUI(_canvasGroup);
     }
     public override void CloseUI()
     {
@@ -273,7 +273,7 @@ public class ConstructionUpgradePanel : BaseUI
             _targetTile = null;
         }
 
-        FadeEffectManager.Instance.FadeOutUI(_canvasGroup);
+        FadeManager.Instance.FadeOutUI(_canvasGroup);
         StartCoroutine(CoCloseAfterDelay(0.3f));
     }
 

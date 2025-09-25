@@ -1,3 +1,4 @@
+using DG.Tweening;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -119,5 +120,19 @@ public class FadeManager : SingletonMono<FadeManager>
         isFadeOut = false;
 
     }
+    public void FadeInUI(CanvasGroup target, TweenCallback afterFade = null)
+    {
+        SetInteractable(target, true);
+        target.DOFade(1f, 0.3f).SetUpdate(true).onComplete += afterFade;
+    }
 
+    public void FadeOutUI(CanvasGroup target)
+    {
+        target.DOFade(0f, 0.3f).SetUpdate(true).onComplete += () => SetInteractable(target, false);
+    }
+    void SetInteractable(CanvasGroup target, bool active)
+    {
+        target.interactable = active;
+        target.blocksRaycasts = active;
+    }
 }
