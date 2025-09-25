@@ -38,6 +38,7 @@ public enum PoolType
     EnemyUnit13,
     EnemyUnit14,
     EnemyUnit15,
+    None
 }
 
 public class ObjectPoolManager : SingletonMono<ObjectPoolManager>, ISceneResettable
