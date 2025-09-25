@@ -24,6 +24,6 @@ public class UIArtifactPlayerArea : BaseUI
 
     private void OnArtifactSlotclicked()
     {
-        FadeEffectManager.Instance.FadeInUI(inventoryPanel);
+        FadeManager.Instance.FadeInUI(inventoryPanel);
     }
 }

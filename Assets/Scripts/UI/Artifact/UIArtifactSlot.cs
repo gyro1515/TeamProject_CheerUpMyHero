@@ -22,9 +22,10 @@ public class UIArtifactSlot : MonoBehaviour
 
     private PassiveArtifactData _data;
 
-    private void Init()
+    public void Init(PassiveArtifactData data)
     {
-        
+        _data = data;
+        UpdateUI();
     }
 
     private void UpdateUI()
@@ -67,7 +68,7 @@ public class UIArtifactSlot : MonoBehaviour
                     break;
 
                 default:
-                    _borderImage.color = _commonBorder;
+                    _borderImage.color = Color.black;
                     break;
             }
             #endregion

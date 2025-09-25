@@ -17,6 +17,6 @@ public class UIArtifact : MonoBehaviour
 
     private void OnCloseButtonClicked()
     {
-        FadeEffectManager.Instance.FadeOutUI(_canvasGroup);
+        FadeManager.Instance.FadeOutUI(_canvasGroup);
     }
 }

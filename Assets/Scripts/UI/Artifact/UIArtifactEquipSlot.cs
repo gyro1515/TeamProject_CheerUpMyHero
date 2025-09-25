@@ -16,13 +16,14 @@ public class UIArtifactEquipSlot : MonoBehaviour
     private void Awake()
     {
         _button = GetComponent<Button>();
+        _button.onClick.AddListener(OnSlotClicked);
     }
 
     private void OnSlotClicked()
     {
         if (_inventory != null)
         {
-            // 인벤토리 여는 메서드 로직 들어가야 함
+            _inventory.OpenInventory(_target);
         }
     }
 }
