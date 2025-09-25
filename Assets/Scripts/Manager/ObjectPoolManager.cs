@@ -86,7 +86,6 @@ public class ObjectPoolManager : SingletonMono<ObjectPoolManager>, ISceneResetta
     protected override void Awake()
     {
         base.Awake();
-
         enums = Enum.GetValues(typeof(PoolType));
 
         InitPool();
