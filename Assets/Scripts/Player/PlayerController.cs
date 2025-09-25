@@ -53,8 +53,10 @@ public class PlayerController : BaseController
         SpriteRenderer spritePlayerHQ = playerHQ.GetComponentInChildren<SpriteRenderer>();
         SpriteRenderer spriteEnemyHQ = enemyHQ.GetComponentInChildren<SpriteRenderer>();
 
-        minX = spritePlayerHQ.bounds.max.x;
-        maxX = spriteEnemyHQ.bounds.min.x;
+        /*minX = spritePlayerHQ.bounds.max.x;
+        maxX = spriteEnemyHQ.bounds.min.x;*/
+        minX = playerHQ.gameObject.transform.position.x;
+        maxX = enemyHQ.gameObject.transform.position.x;
     }
 
     protected override void Update()

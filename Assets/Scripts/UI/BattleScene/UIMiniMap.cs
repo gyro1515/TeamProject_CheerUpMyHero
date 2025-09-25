@@ -14,7 +14,7 @@ public class UIMiniMap : MonoBehaviour
     private float playerHQPos;
     private float enemyHQPos;
     //아마 HQ가 좌우대칭이 아니여서 UI가 삐져나오는 것 같은데, 일단 위치수정하기 전까지 보정치 주기
-    private float offsetPlus = 3.5f;
+    //private float offsetPlus = 3.5f;
 
     private Color32 playerColor = new Color32(0, 0, 255, 100);
     private Color32 enemyColor = new Color32(255, 0, 0, 135);
@@ -25,6 +25,8 @@ public class UIMiniMap : MonoBehaviour
     private Dictionary<BaseCharacter, UIMiniMapIcon> enemyUnitIconsPair = new();
     private Dictionary<BaseCharacter, UIMiniMapIcon> playerPair = new();
 
+    // 버그 테스트 용입니다(원진)
+    private float worldCenter;
 
     private void OnEnable()
     {
@@ -45,11 +47,17 @@ public class UIMiniMap : MonoBehaviour
         playerHQPos = GameManager.Instance.PlayerHQ.transform.position.x;
         enemyHQPos = GameManager.Instance.enemyHQ.transform.position.x;
 
-        wordWidth = (enemyHQPos + offsetPlus) - playerHQPos;
+        //wordWidth = (enemyHQPos + offsetPlus) - playerHQPos;
+        wordWidth = enemyHQPos - playerHQPos;
         uIWidth = rectTransform.rect.width;
+        uIWidth *= 0.93f; // 캔버스에 있는 HQ 위치 보정 
 
         Debug.Log($"월드 크기: {wordWidth}");
         Debug.Log($"UI 크기: {uIWidth}");
+        //********
+        worldCenter = enemyHQPos + playerHQPos;
+        worldCenter /= 2;
+
     }
 
     //한박자 늦게 업데이트
@@ -76,7 +84,11 @@ public class UIMiniMap : MonoBehaviour
 
     Vector2 WorldPosToUIPos(float wordXPos)
     {
-        float xRatio = wordXPos / wordWidth;
+        /*float xRatio = wordXPos / wordWidth;
+        float minimapX = xRatio * uIWidth;*/
+        // 수정 버전************
+        float curPos = wordXPos - worldCenter; // 가운데 기준에서 얼마나 떨어져 있는가
+        float xRatio = curPos / wordWidth;
         float minimapX = xRatio * uIWidth;
         Vector2 minmapPos = new Vector2 (minimapX, 0);
         return minmapPos;
@@ -101,6 +113,12 @@ public class UIMiniMap : MonoBehaviour
     {
         Dictionary<BaseCharacter, UIMiniMapIcon> unitPiar = isPlayer ? playerUnitIconsPair : enemyUnitIconsPair;
 
+        if (!unitPiar.ContainsKey(unit))
+        {
+            // 플레이어는 여기에 포함 안돼서 오류 뜹니다. 따라서 일단 이 부분에 플레이어 삭제할게요
+            RemoveFromMinmapPlayer(unit);
+            return;
+        }
         unitPiar[unit].ReleaseSelf();
         unitPiar.Remove(unit);
     }
@@ -110,6 +128,12 @@ public class UIMiniMap : MonoBehaviour
     {
         UIMiniMapIcon playerIcon = Instantiate<UIMiniMapIcon>(playerIconPrefab, playerTransform);
         playerPair.Add(unit, playerIcon);
+    }
+    void RemoveFromMinmapPlayer(BaseCharacter unit)
+    {
+        //playerPair[unit].ReleaseSelf(); 플레이어는 오브젝트 풀링 아님
+        Destroy(playerPair[unit].gameObject);
+        playerPair.Remove(unit);
     }
 }
  
