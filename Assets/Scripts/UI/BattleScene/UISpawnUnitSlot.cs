@@ -11,6 +11,8 @@ public class UISpawnUnitSlot : MonoBehaviour
     [SerializeField] Image unitIconTimer; // 쿨타임 표시, 버튼 클릭 방지용
     [SerializeField] Button spawnUnitBtn;
     [SerializeField] TextMeshProUGUI text; // 추후 아이콘만 설정하면 될 듯 합니다.
+    [SerializeField] TextMeshProUGUI costText;
+
     float _cooldown = -1f;
     float _cooldownTimer = -1f;
     bool isCooldown = false;
@@ -42,10 +44,12 @@ public class UISpawnUnitSlot : MonoBehaviour
             text.enabled = false;
             spawnUnitBtn.enabled = false;
             unitIconTimer.fillAmount = 1f;
+            costText.text = "";
             return;
         }
 
         text.text = unitName;
+        costText.text = _foodConsumption.ToString();
 
         SetTimerIconActive(false);
     }
