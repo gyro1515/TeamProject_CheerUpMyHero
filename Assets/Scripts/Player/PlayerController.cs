@@ -42,8 +42,8 @@ public class PlayerController : BaseController
     {
         base.Start();
 
-        playerHQ = FindObjectOfType<PlayerHQ>();
-        enemyHQ = FindObjectOfType<EnemyHQ>();
+        playerHQ = FindObjectOfType<PlayerHQ>(); // 게임 매니저에서 가져와야 함
+        enemyHQ = FindObjectOfType<EnemyHQ>(); // 게임 매니저에서 가져와야 함
 
         if (playerHQ == null || enemyHQ == null)
         {
@@ -80,7 +80,12 @@ public class PlayerController : BaseController
         playerPosition.x = Mathf.Clamp(playerTransform.position.x, minX, maxX);
         playerTransform.position = playerPosition;
     }
-
+    public override void Attack()
+    {
+        base.Attack();
+        if (animator)
+            animator.SetTrigger(player.AnimationData.AttackParameterHash);
+    }
     void PlayerMoveAnimation(Vector3 newMoveDir)
     {
         if (animator) 

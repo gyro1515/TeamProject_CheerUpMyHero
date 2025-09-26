@@ -29,12 +29,13 @@ public class UISwipeArea : MonoBehaviour, IPointerDownHandler, IEndDragHandler, 
             pagePositions[i] = (float)i / (pageCount - 1); // 0 ~ 1 구간 분할
             pageToIdx.Add(i);
         }
+        // 0이 가운데로 오게 하기
+        ShiftPageRight();
+        
     }
     private void Start()
     {
-        // 0이 가운데로 오게 하기
-        ShiftPageRight();
-        // 가운데에서 시작
+        // 가운데에서 시작, Awake()에서 하면 안먹힘
         scrollRect.horizontalNormalizedPosition = 1f / (pageCount - 1);
     }
     void Update()
@@ -61,7 +62,7 @@ public class UISwipeArea : MonoBehaviour, IPointerDownHandler, IEndDragHandler, 
     public void OnEndDrag(PointerEventData eventData)
     {
         if (forceEnded) return;
-        Debug.Log("위치 조정");
+        //Debug.Log("위치 조정");
 
         MoveToNext();
     }
