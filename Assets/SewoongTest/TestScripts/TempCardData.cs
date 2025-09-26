@@ -8,6 +8,7 @@ using UnityEngine;
 [Serializable]
 public class TempCardData
 {
+    public int id;
     public Rarity rarity;
     public UnitType unitType;
     public string unitName = "";
@@ -19,11 +20,12 @@ public class TempCardData
     public int potential;
     public PoolType poolType;
 
-    public TempCardData(string name, PoolType pooltype)
+    public TempCardData(int id, string name, PoolType pooltype)
     {
+        this.id = id;
         this.poolType = pooltype;
-        rarity = (Rarity)UnityEngine.Random.Range(1, 4);
-        unitType = (UnitType)UnityEngine.Random.Range(1, 4);
+        rarity = (Rarity)UnityEngine.Random.Range(0, 3);
+        unitType = (UnitType)UnityEngine.Random.Range(0, 3);
         unitName = name;
         description = "설명";
         health = UnityEngine.Random.Range(100f, 5000f);

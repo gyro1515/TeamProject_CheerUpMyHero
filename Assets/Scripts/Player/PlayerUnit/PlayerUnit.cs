@@ -25,4 +25,12 @@ public class PlayerUnit : BaseUnit
         UnitManager.Instance.AddUnitList(this, true);
         
     }
+
+    protected override void ApplyArtifactStat()
+    {
+        EffectTarget type = EffectTarget.MeleeUnit;
+
+        Dictionary<StatType, float> unitBonus = PlayerDataManager.Instance.CalculateArtifactTotalBonusStat(type);
+        UpdateBonusStat(unitBonus);
+    }
 }
