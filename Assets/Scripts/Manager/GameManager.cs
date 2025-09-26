@@ -102,6 +102,11 @@ public class GameManager : SingletonMono<GameManager>
         IsBattleStarted = false;
         Time.timeScale = 0f;
 
+        if (RewardPanelUI == null)
+        {
+            RewardPanelUI = UIManager.Instance.GetUI<RewardPanelUI>();
+        }
+
         StageRewardData rewardData = DataManager.Instance.RewardData.GetData(currentStageID);
         if (rewardData == null)
         {
@@ -186,17 +191,20 @@ public class GameManager : SingletonMono<GameManager>
 
 
         // 실패 UI 따로 만들 거면 여기서 조건문 걸어주기
-        if (RewardPanelUI != null && isVictory)
+        if (RewardPanelUI != null)
         {
-            RewardPanelUI.OpenUI(finalGold, finalWood, finalIron, finalMagicStone, true);
-        }
-        else if (RewardPanelUI != null && !isVictory)
-        {
-            RewardPanelUI.OpenUI(finalGold, finalWood, finalIron, finalMagicStone, false);
+            if (isVictory)
+            {
+                RewardPanelUI.OpenUI(finalGold, finalWood, finalIron, finalMagicStone, true);
+            }
+            else
+            {
+                RewardPanelUI.OpenUI(finalGold, finalWood, finalIron, finalMagicStone, false);
+            }
         }
         else
         {
-            Debug.LogError("RewardPanel이 GameManager에 등록되지 않았습니다!");
+            Debug.LogError("RewardPanel이 UIManager에 등록되지 않았거나 찾을 수 없습니다!");
         }
     }
     void ClearStage()
