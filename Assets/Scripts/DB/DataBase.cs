@@ -60,4 +60,9 @@ public class DataBase<T1, T2> where T1 : MonoData where T2 : MonoSO<T1>
     {
         return _DB.Count;
     }
+
+    public bool TryGetValue(int idNumber, out T1 data)      // 각 데이터에 TryGetValue 못 쓰는 거 개빡쳐서 만들었어용
+    {
+        return _DB.TryGetValue(idNumber, out data);
+    }
 }

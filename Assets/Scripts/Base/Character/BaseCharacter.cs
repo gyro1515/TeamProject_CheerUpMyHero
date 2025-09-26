@@ -14,12 +14,19 @@ public class BaseCharacter : MonoBehaviour
     [field: SerializeField] public Vector2 HpBarSize { get; private set; } // 체력바 사이즈용
     public BaseController BaseController { get; private set; }
 
-    // 데이터 용 변수, 데이터 테이블 완성시 테이블에서 가져오기
+    // 데이터 용 변수, 데이터 테이블 완성시 테이블에서 가져오기 
     public float TmpMaxHp { get; protected set; }
     public float TmpAtkPower { get; protected set; }
     public Vector3 TmpSize { get; protected set; }
 
     protected Vector3 _moveDir;
+
+    // 아티팩트 계산용 변수 -> 아티팩트 적용 X 원래 캐릭터 스탯
+    protected Dictionary<StatType, float> _ArtifactStat = new Dictionary<StatType, float>();
+    protected float _baseMaxHP;
+    protected float _baseAtkPower;
+    protected float _baseMoveSpeed;
+
     public virtual Vector3 MoveDir
     {
         get { return _moveDir; }
@@ -49,6 +56,10 @@ public class BaseCharacter : MonoBehaviour
         BaseController = GetComponent<BaseController>();
         Damageable = GetComponent<IDamageable>();
         AnimationData = AnimationData.Instance;
+
+        _baseMaxHP = MaxHp;
+        _baseAtkPower = AtkPower;
+        _baseMoveSpeed = MoveSpeed;
     }
     protected virtual void OnEnable()
     {
@@ -72,5 +83,23 @@ public class BaseCharacter : MonoBehaviour
     protected virtual void OnDisable()
     {
         
+    }
+
+    protected virtual void ApplyArtifactStat()
+    {
+
+    }
+
+    protected void UpdateBonusStat(Dictionary<StatType, float> bonusStat)
+    {
+        bonusStat.TryGetValue(StatType.MaxHp, out float bonusHP);
+        bonusStat.TryGetValue(StatType.AtkPower, out float bonusAtk);
+        bonusStat.TryGetValue(StatType.MoveSpeed, out float bonusMoveSpeed);
+
+        MaxHp = _baseMaxHP * (1f + bonusHP / 100f);
+        AtkPower = _baseAtkPower * (1f + bonusAtk / 100f);
+        MoveSpeed = _baseMoveSpeed * (1f + bonusMoveSpeed / 100f);
+
+        curHp = MaxHp;
     }
 }
