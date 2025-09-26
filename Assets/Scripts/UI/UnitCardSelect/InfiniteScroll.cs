@@ -2,7 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.EventSystems; // 네임스페이스 추가
+using UnityEngine.EventSystems;
+using System; // 네임스페이스 추가
 
 public class InfiniteScroll : MonoBehaviour, IBeginDragHandler, IEndDragHandler
 {
@@ -14,6 +15,22 @@ public class InfiniteScroll : MonoBehaviour, IBeginDragHandler, IEndDragHandler
     private List<int> filteredCardList = new();
 
     private List<int> testEvenList = new();
+
+    //카드 선택 가능 여부를 제어
+    private bool canSelectCard;
+    public bool CanSelectCard
+    {
+        get { return canSelectCard; }
+        private set 
+        { 
+            if (canSelectCard != value)
+            {
+                canSelectCard = value;
+                OnCanSelectCard?.Invoke(canSelectCard);
+            } 
+        }
+    }
+    public event Action<bool> OnCanSelectCard;
 
     private int indexOffset = -2; // 카드 UI의 첫번째 카드와 가운데 카드 사이 간격
     private int currentFirstCardIndex = 0; // 현재 contentRect의 맨 왼쪽 카드에 할당된 데이터의 인덱스
@@ -128,7 +145,7 @@ public class InfiniteScroll : MonoBehaviour, IBeginDragHandler, IEndDragHandler
         {
             int index = (i + indexOffset + filteredCardList.Count) % filteredCardList.Count;
 
-            cardUIList[i].TestUpdateData(filteredCardList[index]);
+            cardUIList[i].UpdateCardData(filteredCardList[index]);
         }
 
         if (filteredCardList.Count == 1)
@@ -152,6 +169,7 @@ public class InfiniteScroll : MonoBehaviour, IBeginDragHandler, IEndDragHandler
         isDragging = true;
         isSnapping = false;
         StopAllCoroutines();
+        CanSelectCard = false;
     }
 
     // 드래그 종료 시 호출
@@ -194,7 +212,7 @@ public class InfiniteScroll : MonoBehaviour, IBeginDragHandler, IEndDragHandler
                 int nextDataIndex = (currentFirstCardIndex + cardUIList.Count) % filteredCardList.Count;
 
                 //데이터 로드 후 뒤로 보내기
-                firstCardUI.TestUpdateData(filteredCardList[nextDataIndex]);
+                firstCardUI.UpdateCardData(filteredCardList[nextDataIndex]);
                 firstCardRect.SetAsLastSibling();
 
                 // Content 위치 보정: 한 카드만큼 오른쪽으로 이동
@@ -216,7 +234,7 @@ public class InfiniteScroll : MonoBehaviour, IBeginDragHandler, IEndDragHandler
                 int nextDataIndex = (currentFirstCardIndex - 1 + filteredCardList.Count) % filteredCardList.Count;
 
                 //데이터 로드 후 뒤로 보내기
-                lastCardUI.TestUpdateData(filteredCardList[nextDataIndex]);
+                lastCardUI.UpdateCardData(filteredCardList[nextDataIndex]);
                 lastCardRect.SetAsFirstSibling();
 
                 // Content 위치 보정: 한 카드만큼 왼쪽으로 이동
@@ -268,6 +286,7 @@ public class InfiniteScroll : MonoBehaviour, IBeginDragHandler, IEndDragHandler
 
         isDragging = false;
         isSnapping = false;
+        CanSelectCard = true;
     }
 
     public int SendSelectedUnit()

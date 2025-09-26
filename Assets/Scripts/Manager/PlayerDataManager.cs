@@ -56,17 +56,17 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
     {
         cardDic = new() 
         {
-            {100001, new TempCardData("유닛1", PoolType.PlayerUnit1)},
-            {100002, new TempCardData("유닛2", PoolType.PlayerUnit2)},
-            {100003, new TempCardData("유닛3", PoolType.PlayerUnit3)},
-            {100004, new TempCardData("유닛4", PoolType.PlayerUnit4)},
-            {100005, new TempCardData("유닛5", PoolType.PlayerUnit5)},
-            {100006, new TempCardData("유닛6", PoolType.PlayerUnit6)},
-            {100007, new TempCardData("유닛7", PoolType.PlayerUnit7)},
-            {100008, new TempCardData("유닛8", PoolType.PlayerUnit8)},
-            {100009, new TempCardData("유닛9", PoolType.PlayerUnit9)},
-            {100010, new TempCardData("유닛10", PoolType.PlayerUnit10)},
-            {100011, new TempCardData("유닛11", PoolType.PlayerUnit11)},
+            {100001, new TempCardData(100001, "유닛1", PoolType.PlayerUnit1)},
+            {100002, new TempCardData(100002, "유닛2", PoolType.PlayerUnit2)},
+            {100003, new TempCardData(100003, "유닛3", PoolType.PlayerUnit3)},
+            {100004, new TempCardData(100004, "유닛4", PoolType.PlayerUnit4)},
+            {100005, new TempCardData(100005, "유닛5", PoolType.PlayerUnit5)},
+            {100006, new TempCardData(100006, "유닛6", PoolType.PlayerUnit6)},
+            {100007, new TempCardData(100007, "유닛7", PoolType.PlayerUnit7)},
+            {100008, new TempCardData(100008, "유닛8", PoolType.PlayerUnit8)},
+            {100009, new TempCardData(100009, "유닛9", PoolType.PlayerUnit9)},
+            {100010, new TempCardData(100010, "유닛10", PoolType.PlayerUnit10)},
+            {100011, new TempCardData(100011, "유닛11", PoolType.PlayerUnit11)},
         };
     }
 

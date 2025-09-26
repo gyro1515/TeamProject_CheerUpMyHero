@@ -7,7 +7,11 @@ using UnityEngine.UI;
 public class UIUnitCardSelect : BaseUI
 {
     [SerializeField] InfiniteScroll infiniteScroll;
+    public InfiniteScroll InfiniteScroll {  get { return infiniteScroll; } }
+
     [SerializeField] Button selectButton;
+    [SerializeField] GameObject SeleckBlocker;
+
     [SerializeField] TMP_Text desckNumText;
     private CardFilter cardFilter;
 
@@ -25,11 +29,13 @@ public class UIUnitCardSelect : BaseUI
         selectButton?.onClick.AddListener(onSelectButtonPress);
         cardFilter.UpdateUsable();
         infiniteScroll.ResetCardData(cardFilter.ModifiedCardList);
+        infiniteScroll.OnCanSelectCard += ControllBlocker;
     }
 
     private void OnDisable()
     {
         selectButton?.onClick.RemoveListener(onSelectButtonPress);
+        infiniteScroll.OnCanSelectCard -= ControllBlocker;
     }
 
     public void SetDeckSlotNum(int slotNum)
@@ -53,4 +59,13 @@ public class UIUnitCardSelect : BaseUI
             UIManager.Instance.GetUI<DeckPresetController>().OnUnitSelected(deckSlotNum, selectedIndex);
         }
     }
+
+    void ControllBlocker(bool canSelect)
+    {
+        if (canSelect)
+            SeleckBlocker.SetActive(false);
+        else
+            SeleckBlocker.SetActive(true);
+    }
+
 }
