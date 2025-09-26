@@ -68,6 +68,16 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
         // ------------------------
     }
 
+    private void OnEnable()
+    {
+        
+    }
+
+    private void OnDisable()
+    {
+        
+    }
+
     //테스트용 카드 생성
     void TestCardGenerate()
     {
@@ -372,18 +382,17 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
     }
     #endregion
 
-    // 유물 관련
-    #region Artifact
+    // 패시브 유물 관련
+    #region PassiveArtifact
 
-    // 장비 장착했을 때 변경사항 반영하는 델리게이트
-    public event Action OnEquipArtifactChanged;  
+    public event Action OnEquipArtifactChanged;
 
     // 플레이어가 보유 중인 유물 리스트
     public List<ArtifactData> OwnedArtifacts { get; private set; } = new List<ArtifactData>();
 
     // 플레이어가 장착한 유물 딕셔너리 -> EffectType이 장착 부위? 처럼 작동하는 것 같아서 딕셔너리로 했어용
     // value는 리스트 말고 배열로 바꿈 -> 몇 번째인 지 알아야 함 + 고정된 슬롯 수가 필요할 것 같아서.
-    public Dictionary<EffectTarget, PassiveArtifactData[]> EquippedArtifacts { get; private set; }
+    public Dictionary<EffectTarget, PassiveArtifactData[]> EquippedPassiveArtifacts { get; private set; }
 
     private const int PlayerArtifactSlotCount = 4;
     private const int MeleeArtifactSlotCount = 2;
@@ -408,7 +417,7 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
 
         EffectTarget target = equipArtifact.effectTarget;
 
-        PassiveArtifactData[] slots = EquippedArtifacts[target];
+        PassiveArtifactData[] slots = EquippedPassiveArtifacts[target];
 
         if (slotIndex >= 0 && slotIndex < slots.Length)
         {
@@ -422,6 +431,26 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
 
             OnEquipArtifactChanged?.Invoke();
         }
+    }
+
+    public Dictionary<StatType, float> CalculateArtifactTotalBonusStat(EffectTarget target)
+    {
+        Dictionary<StatType, float> totalBonuseStat = new Dictionary<StatType, float>();
+        
+        if (!EquippedPassiveArtifacts.ContainsKey(target)) return totalBonuseStat;
+
+        foreach (PassiveArtifactData artifact in EquippedPassiveArtifacts[target])
+        {
+            if (artifact == null) continue;
+
+            if (!totalBonuseStat.ContainsKey(artifact.statType))
+            {
+                totalBonuseStat[artifact.statType] = 0;
+            }
+
+            totalBonuseStat[artifact.statType] += artifact.value;
+        }
+        return totalBonuseStat;
     }
 
     public void LoadArtifactData()
@@ -442,7 +471,7 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
 
     private void InitializeEquippedArtifacts()      // 유물 초기화 메서드 -> 없어도 괜찮은데 나중에 저장 기능 생길까봐
     {
-        EquippedArtifacts = new Dictionary<EffectTarget, PassiveArtifactData[]>
+        EquippedPassiveArtifacts = new Dictionary<EffectTarget, PassiveArtifactData[]>
         {
             {EffectTarget.Player, new PassiveArtifactData[PlayerArtifactSlotCount]},
             {EffectTarget.MeleeUnit, new PassiveArtifactData[MeleeArtifactSlotCount]},

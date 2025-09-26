@@ -49,5 +49,10 @@ public class Player : BaseCharacter
         // 테스트로 플레이어는 계속 정렬해주기
         //InitCharacter();
     }
-    
+
+    protected override void ApplyArtifactStat()
+    {
+        Dictionary<StatType, float> playerBonus = PlayerDataManager.Instance.CalculateArtifactTotalBonusStat(EffectTarget.Player);
+        UpdateBonusStat(playerBonus);
+    }
 }

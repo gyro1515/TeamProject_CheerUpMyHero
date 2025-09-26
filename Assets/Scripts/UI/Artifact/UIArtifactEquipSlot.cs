@@ -41,7 +41,7 @@ public class UIArtifactEquipSlot : MonoBehaviour
 
     private void UpdateUI()
     {
-        PassiveArtifactData equippedArtifact = PlayerDataManager.Instance.EquippedArtifacts[_target][_slotIndex];
+        PassiveArtifactData equippedArtifact = PlayerDataManager.Instance.EquippedPassiveArtifacts[_target][_slotIndex];
 
         if (equippedArtifact != null)
         {
@@ -104,10 +104,5 @@ public class UIArtifactEquipSlot : MonoBehaviour
 
             _statValueText.text = equippedArtifact.value.ToString();
         }
-    }
-
-    private void OnDisable()
-    {
-        PlayerDataManager.Instance.OnEquipArtifactChanged -= UpdateUI;
     }
 }

@@ -49,7 +49,7 @@ public class UIPassiveArtifactInventory : BaseUI
     private void UpdateUI()
     {
         // 지금 열린 슬롯에 어떤 유물이 있는 지 확인함
-        PassiveArtifactData currentSlotEquipped = PlayerDataManager.Instance.EquippedArtifacts[_currentTargetType][_currentSlotIndex];
+        PassiveArtifactData currentSlotEquipped = PlayerDataManager.Instance.EquippedPassiveArtifacts[_currentTargetType][_currentSlotIndex];
 
         // 지금 가진 유물 중에 패시브 아이템임 && 지금 선택된 타겟 타입임 조건을 만족하는 유물만 골라냄
         List<ArtifactData> ownedList = PlayerDataManager.Instance.OwnedArtifacts;
