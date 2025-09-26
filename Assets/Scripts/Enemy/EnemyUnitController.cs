@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 
-public abstract class UnitPatten: MonoBehaviour
+/*public abstract class UnitPatten: MonoBehaviour
 {
     BaseUnit unit;
     public void Init(BaseUnit _unit)
@@ -14,7 +14,7 @@ public abstract class UnitPatten: MonoBehaviour
     public abstract void Attack();
     public abstract void Dead();
     public abstract void HitBack();
-}
+}*/
 
 public class EnemyUnitController : BaseUnitController
 {
@@ -24,7 +24,7 @@ public class EnemyUnitController : BaseUnitController
     Coroutine atkAnimRoutine;
     bool isAttacking = false;
 
-    UnitPatten unitPatten;
+    //UnitPatten unitPatten;
     protected override void Awake()
     {
         enemyUnit = GetComponent<EnemyUnit>();
@@ -36,7 +36,7 @@ public class EnemyUnitController : BaseUnitController
     protected override void OnEnable()
     {
         base.OnEnable();
-        unitPatten?.OnEnable();
+        //unitPatten?.OnEnable();
 
 
         ResetEnemyUnitController();
