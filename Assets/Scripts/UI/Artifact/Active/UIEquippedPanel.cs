@@ -25,9 +25,13 @@ public class UIEquippedPanel : MonoBehaviour
     }
     private void Start()
     {
-        equipData = PlayerDataManager.Instance.EquippedActiveAfData;
         ReSetSlotData();
         isInit = true;
+    }
+    private void OnDisable()
+    {
+        PlayerDataManager.Instance.EquippedActiveAfData.Clear();
+        PlayerDataManager.Instance.EquippedActiveAfData.AddRange(equipData);
     }
     public bool EquipActiveArtifact(ActiveAfData data) // 매개 변수로 유물 데이터 있어야 함
     {

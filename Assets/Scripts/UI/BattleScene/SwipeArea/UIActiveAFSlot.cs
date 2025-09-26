@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -28,6 +29,7 @@ public class UIActiveAFSlot : MonoBehaviour
     private void Start()
     {
         player = GameManager.Instance.Player;
+        SetTimerIconActive(false);
     }
     private void Update()
     {
@@ -40,24 +42,34 @@ public class UIActiveAFSlot : MonoBehaviour
     }
     void OnUseActiveAF()
     {
+        if (afData == null) return;
         if(!player) { Debug.LogWarning("플레이어 정보 없음"); return; } // 오류
         if (player.CurMana < manaCost) { Debug.Log("마나 부족"); return; }
         player.CurMana -= manaCost;
         SetTimerIconActive(true);
         player.PlayerController.Attack();// 테스트로 일단 공격 애니메이션 재생
-        Debug.Log($"{afData.name} 사용!");
+        Debug.Log($"{afData.name} 사용, 남은 마나{player.CurMana}");
     }
     public void InitActiveAFSlot(ActiveAfData data)
     {
         afData = data;
-        afNameText.text = data.name;
-        slotIcon.sprite = data.icon;
-        cooldownIcon.fillAmount = 0f; // 처음엔 쿨타임 없음
-        cooldownText.text = $"{data.cooldown}s";
-        costText.text = $"* {data.cost}";
-        cooldown = data.cooldown;
-        manaCost = data.cost;
-        SetTimerIconActive(false); // 바로 사용 가능하도록
+        if (data != null)
+        {
+            afNameText.text = data.name;
+            slotIcon.sprite = data.icon;
+            cooldownText.text = $"{data.cooldown}s";
+            costText.text = $"* {data.cost}";
+            cooldown = data.cooldown;
+            manaCost = data.cost;
+        }
+        else
+        {
+            afNameText.text = "빈 슬롯";
+            slotIcon.sprite = null;
+            cooldownText.text = "";
+            costText.text = "";
+            slotBtn.enabled = false; // 빈 슬롯은 클릭 불가
+        }
     }
     void SetTimerIconActive(bool active)
     {
@@ -66,5 +78,8 @@ public class UIActiveAFSlot : MonoBehaviour
         enabled = active;
         cooldownIcon.gameObject.SetActive(active);
         cooldownIcon.fillAmount = active ? 1f : 0f;
+        if (afData != null) slotBtn.enabled = !active;
+        else slotBtn.enabled = false;
+
     }
 }
