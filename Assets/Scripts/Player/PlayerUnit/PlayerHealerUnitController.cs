@@ -255,11 +255,11 @@ public class PlayerHealerUnitController : BaseUnitController
         foreach (BaseCharacter ally in allAllies)
         {
             // 자기 자신, 죽었거나 체력이 꽉 찬 유닛, 인식 범위를 벗어난 유닛은 제외
-            if (ally == this.playerUnit || ally == null || ally.IsDead || (ally.CurHp / ally.MaxHp) >= healthThreshold) continue;
+            if (ally == this.playerUnit || ally == null || ally.IsDead || (ally.CurHp / ally.MaxHp) > healthThreshold) continue;
 
 
-            float distance = (player.transform.position.x - transform.position.x);
-            if (distance < -healCognizanceRange || distance < playerUnit.CognizanceRange) continue;
+            float distance = (ally.transform.position.x - transform.position.x);
+            if (distance < -healCognizanceRange || distance > playerUnit.CognizanceRange) continue;
 
                 BaseUnit unit = ally as BaseUnit;
             if (unit != null)
