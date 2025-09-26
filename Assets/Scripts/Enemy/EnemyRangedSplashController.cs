@@ -41,6 +41,7 @@ public class EnemyRangedSplashController : BaseUnitController
         base.Attack();
 
         List<BaseCharacter> allPlayers = UnitManager.Instance.PlayerUnitList;
+        List<IDamageable> takeDamages = new List<IDamageable>();
         int hitCount = 0;
 
         foreach (BaseCharacter player in allPlayers)
@@ -48,13 +49,16 @@ public class EnemyRangedSplashController : BaseUnitController
             if (player == null || player.IsDead) continue;
 
             float distance = Mathf.Abs(targetPos.position.x - player.transform.position.x);
-            if (distance <= enemyUnit.AttackRange / 2) 
+            if (distance <= enemyUnit.AttackRange / 2)
             {
-                player.Damageable.TakeDamage(enemyUnit.AtkPower);
+                takeDamages.Add(player.Damageable);
                 hitCount++;
             }
         }
-
+        foreach (IDamageable player in takeDamages)
+        {
+            player.TakeDamage(enemyUnit.AtkPower);
+        }
         if (hitCount > 0)
         {
             Debug.Log($"{gameObject.name}이(가) {hitCount}명의 아군에게 원거리 범위 공격!");
@@ -94,40 +98,40 @@ public class EnemyRangedSplashController : BaseUnitController
         {
             enemyUnit.TargetUnit = UnitManager.Instance.FindClosestTarget(enemyUnit, false, out targetPos);
 
-            if (enemyUnit.TargetUnit != null)
-            {
-                float distance = Mathf.Abs(transform.position.x - targetPos.position.x);
-                enemyUnit.MoveDir = (distance > enemyUnit.AttackRange) ? Vector3.left : Vector3.zero;
-            }
-            else
-            {
-                enemyUnit.MoveDir = Vector3.left;
-            }
-
-            animator?.SetFloat(enemyUnit.AnimationData.SpeedParameterHash, Mathf.Abs(enemyUnit.MoveDir.x));
+            enemyUnit.MoveDir = enemyUnit.TargetUnit != null ? Vector3.zero : Vector3.left;
+            if (animator) animator.SetFloat(
+                enemyUnit.AnimationData.SpeedParameterHash,
+                Mathf.Abs((float)enemyUnit.MoveDir.x));
             yield return wait;
         }
     }
-
     private IEnumerator AttackRoutine()
     {
         WaitForSeconds wait = new WaitForSeconds(10f / enemyUnit.AttackRate);
         while (true)
         {
+            // 타겟이 있고, 사거리 안에 있을 때만 공격 시도
             if (enemyUnit.TargetUnit != null)
             {
                 if (isAttacking) { yield return null; continue; }
 
-                if (enemyUnit.MoveDir == Vector3.zero)
+                // 현재 스트라이프, 애니메이션 없는 캐릭터도 있으므로
+                if (animator == null)
                 {
-                    animator.SetTrigger(enemyUnit.AnimationData.AttackParameterHash);
-                    if (findTargetRoutine != null) StopCoroutine(findTargetRoutine);
-                    isAttacking = true;
-                    atkAnimRoutine = StartCoroutine(AtkAnimRoutine());
+                    Attack(); // 바로 공격
                     yield return wait;
+                    continue;
                 }
+                // 적 인식했다면 공격 시작
+                animator.SetTrigger(enemyUnit.AnimationData.AttackParameterHash);
+                // 적 인식 루틴 정지(움직임 중지)
+                if (findTargetRoutine != null) StopCoroutine(findTargetRoutine);
+                // 어택 애니메이션 루틴 시작
+                isAttacking = true;
+                atkAnimRoutine = StartCoroutine(AtkAnimRoutine());
+                yield return wait;
             }
-            yield return null;
+            else yield return null;
         }
     }
 
@@ -185,9 +189,7 @@ public class EnemyRangedSplashController : BaseUnitController
         pos.x -= enemyUnit.CognizanceRange / 2; // 적은 왼쪽으로 인식
         pos.y += 0.75f;
         Gizmos.DrawWireCube(pos, new Vector3(enemyUnit.CognizanceRange, 2f));
-
-        if (!isAttacking || enemyUnit.TargetUnit == null) return;
-
+        if (!isAttacking) return;
         Gizmos.color = Color.red;
         pos = targetPos.position;
         pos.y += 0.75f;

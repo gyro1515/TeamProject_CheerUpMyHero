@@ -24,6 +24,10 @@ public class EnemyMeleeSplashController : BaseUnitController
         findTargetRoutine = StartCoroutine(TargetingRoutine());
         attackRoutine = StartCoroutine(AttackRoutine());
     }
+    protected override void Start()
+    {
+        base.Start();
+    }
 
     protected override void FixedUpdate()
     {
@@ -72,7 +76,13 @@ public class EnemyMeleeSplashController : BaseUnitController
         if (attackRoutine != null) StopCoroutine(attackRoutine);
         if (atkAnimRoutine != null) StopCoroutine(atkAnimRoutine);
     }
-
+    protected override void OnDisable()
+    {
+        base.OnDisable();
+        /*
+        if (findTargetRoutine != null) StopCoroutine(findTargetRoutine);
+        if (attackRoutine != null) StopCoroutine(attackRoutine);*/
+    }
     protected override void HitBackActive(bool active)
     {
         if (active)
