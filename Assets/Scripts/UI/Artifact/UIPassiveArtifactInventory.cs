@@ -4,8 +4,9 @@ using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using static UnityEngine.GraphicsBuffer;
 
-public class UIPassiveArtifactInventory : MonoBehaviour
+public class UIPassiveArtifactInventory : BaseUI
 {
     [Header("인벤토리 타이틀")]
     [SerializeField] private TextMeshProUGUI _title;
@@ -24,7 +25,9 @@ public class UIPassiveArtifactInventory : MonoBehaviour
 
     private CanvasGroup _canvasGroup;
 
-    private List<UIArtifactSlot> _slotList = new List<UIArtifactSlot>();
+    private List<UIArtifactInvInventorySlot> _slotList = new List<UIArtifactInvInventorySlot>();        // 인벤토리 안에 생성된 슬롯들 담아두는 리스트
+    private EffectTarget _currentTargetType;
+    private int _currentSlotIndex;
 
     private void Awake()
     {
@@ -33,59 +36,58 @@ public class UIPassiveArtifactInventory : MonoBehaviour
         _closeButton.onClick.AddListener(OnCloseButtonClicked);
     }
 
-    public void OpenInventory(EffectTarget target)
+    public void OpenInventory(EffectTarget target, int slotIndex)
     {
+        _currentTargetType = target;
+        _currentSlotIndex = slotIndex;
+
+        UpdateUI();
+
         FadeManager.Instance.FadeInUI(_canvasGroup);
-        RefreshInventory(target);
     }
 
-    private void OnCloseButtonClicked()
+    private void UpdateUI()
     {
+        // 지금 열린 슬롯에 어떤 유물이 있는 지 확인함
+        PassiveArtifactData currentSlotEquipped = PlayerDataManager.Instance.EquippedArtifacts[_currentTargetType][_currentSlotIndex];
+
+        // 지금 가진 유물 중에 패시브 아이템임 && 지금 선택된 타겟 타입임 조건을 만족하는 유물만 골라냄
+        List<ArtifactData> ownedList = PlayerDataManager.Instance.OwnedArtifacts;
+        List<PassiveArtifactData> filteredData = ownedList.OfType<PassiveArtifactData>()
+                                                          .Where(artifact => artifact.effectTarget == _currentTargetType)
+                                                          .ToList();
+
+        while (_slotList.Count < filteredData.Count)    // 딱 데이터 개수만큼 인벤토리 슬롯을 준비해둠 슬롯마다 눌렀을 때 이벤트 추가
+        {
+            GameObject createdSlot = Instantiate(_slotPrefab, _slotCreatPosition);
+            UIArtifactInvInventorySlot newSlot = createdSlot.GetComponent<UIArtifactInvInventorySlot>();
+            newSlot.OnArtifactInventorySlotClicked += SelectArtifact;
+            _slotList.Add(newSlot);
+        }
+
+        for (int i = 0; i < _slotList.Count; i++)       // 만든 슬롯에 걸러진 데이터 다 넣어주고 + 슬롯 만듦.
+        {
+            if (i < filteredData.Count)        // 어차피 슬롯 개수는 딱 맞춰서 생성되니까 필요 없을 것 같긴 한데....
+            {
+                bool isEquipedThisSlot = (filteredData[i] == currentSlotEquipped);
+                _slotList[i].Init(filteredData[i], isEquipedThisSlot);
+                _slotList[i].gameObject.SetActive(true);
+            }
+            else
+            {
+                _slotList[i].gameObject.SetActive(false);
+            }
+        }
+    }
+
+    private void SelectArtifact(PassiveArtifactData selectArtifact)
+    {
+        PlayerDataManager.Instance.EquipArtifact(selectArtifact, _currentSlotIndex);
         FadeManager.Instance.FadeOutUI(_canvasGroup);
     }
 
-    private void RefreshInventory(EffectTarget target)
+    private void OnCloseButtonClicked()                     // 버튼 눌렀을 때 인벤토리 끄는 메서드
     {
-        List<ArtifactData> ownedList = PlayerDataManager.Instance.OwnedArtifacts;
-
-        List<PassiveArtifactData> filteredData = ownedList.OfType<PassiveArtifactData>()    // 패시브 유물임 && target 타입임 필터링함
-                                                          .Where(artifact => artifact.effectTarget == target)
-                                                          .ToList();
-
-        switch (target)
-        {
-            case EffectTarget.Player:
-                _title.text = "플레이어 패시브 유물";
-                break;
-
-            case EffectTarget.MeleeUnit:
-                _title.text = "근거리 유닛 패시브 유물";
-                break;
-
-            case EffectTarget.RangedUnit:
-                _title.text = "원거리 유닛 패시브 유물";
-                break;
-
-            default:
-                _title.text = "패시브 유물";
-                break;
-        }
-
-        foreach (UIArtifactSlot slot in _slotList)      // 원래 넣어뒀던 슬롯 싹 없애기 -> 다른 종류 유물일 수 있으니까
-        {
-            slot.gameObject.SetActive(false);
-        }
-
-        while (_slotList.Count < filteredData.Count)    // 여기서 딱 걸러낸 개수만큼만 슬롯 만들어둠
-        {
-            GameObject createdSlot = Instantiate(_slotPrefab, _slotCreatPosition);
-            _slotList.Add(createdSlot.GetComponent<UIArtifactSlot>());
-        }
-
-        for (int i = 0; i < filteredData.Count; i++)    // 각 슬롯에 데이터 넣고 
-        {
-            _slotList[i].Init(filteredData[i]);
-            _slotList[i].gameObject.SetActive(true);
-        }
+        FadeManager.Instance.FadeOutUI(_canvasGroup);
     }
 }
