@@ -35,9 +35,5 @@ public abstract class BaseUnitController : BaseController
     }
     protected abstract void HitBackActive(bool active);
 
-    public void Heal(float amount)
-    {
-        if (baseUnit.IsDead) return;
-        baseUnit.CurHp += amount;
-    }
+
 }

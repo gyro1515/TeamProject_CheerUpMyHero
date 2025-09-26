@@ -44,6 +44,7 @@ public class PlayerMeleeSplashController : BaseUnitController
 
         // UnitManager가 관리하는 전체 적 리스트를 가져옴
         List<BaseCharacter> allEnemies = UnitManager.Instance.EnemyUnitList;
+        List<IDamageable> takeDamages = new List<IDamageable>();
         int hitCount = 0;
 
         // 모든 적을 순회하며 거리와 공격 범위를 비교
@@ -53,24 +54,21 @@ public class PlayerMeleeSplashController : BaseUnitController
 
             // 적 사이의 거리를 계산
             float distance = Mathf.Abs(transform.position.x - enemy.transform.position.x);
-            if (distance <= playerUnit.AttackRange)
+            if (distance <= playerUnit.CognizanceRange)
             {
-
-                //적의 컨트롤러를 찾기
-                BaseUnitController targetController = enemy.GetComponent<BaseUnitController>();
-                if (targetController != null)
-                {
-                    //컨트롤러에게 데미지를 입으라고 명령
-                    targetController.TakeDamage(playerUnit.AtkPower);
-                }
-
+                takeDamages.Add(enemy.Damageable);
                 hitCount++;
             }
+        }
 
-            if (hitCount > 0)
-            {
-                Debug.Log($"{gameObject.name}이(가) {hitCount}명의 적에게 범위 공격!");
-            }
+        if (hitCount > 0)
+        {
+            Debug.Log($"{gameObject.name}이(가) {hitCount}명의 적에게 범위 공격!");
+        }
+
+        foreach (IDamageable enemy in takeDamages)
+        {
+            enemy.TakeDamage(playerUnit.AtkPower);
         }
     }
     public override void Dead()
@@ -192,5 +190,16 @@ public class PlayerMeleeSplashController : BaseUnitController
         playerUnit.MoveDir = Vector3.zero;
         if (animator) animator.speed = 1f;
         isAttacking = false;
+    }
+
+    private void OnDrawGizmos()
+    {
+        if (!Application.isPlaying) return;
+
+        Gizmos.color = Color.cyan; // 색상 지정
+        Vector3 pos = transform.position;
+        pos.x += playerUnit.CognizanceRange / 2;
+        pos.y += 0.75f;
+        Gizmos.DrawWireCube(pos, new Vector3(playerUnit.CognizanceRange, 2f));
     }
 }

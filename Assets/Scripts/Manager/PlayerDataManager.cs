@@ -67,6 +67,9 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
             {100009, new TempCardData("유닛9", PoolType.PlayerUnit9)},
             {100010, new TempCardData("유닛10", PoolType.PlayerUnit10)},
             {100011, new TempCardData("유닛11", PoolType.PlayerUnit11)},
+            {100012, new TempCardData("유닛1_1", PoolType.PlayerUnit1_1)},
+            {100013, new TempCardData("유닛2_1", PoolType.PlayerUnit2_1)},
+            {100014, new TempCardData("유닛3_1", PoolType.PlayerUnit3_1)},
         };
     }
 
