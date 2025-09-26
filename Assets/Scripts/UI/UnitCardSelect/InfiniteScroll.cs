@@ -14,8 +14,6 @@ public class InfiniteScroll : MonoBehaviour, IBeginDragHandler, IEndDragHandler
     private List<UIUnitCardInScroll> cardUIList = new(); 
     private List<int> filteredCardList = new();
 
-    private List<int> testEvenList = new();
-
     //카드 선택 가능 여부를 제어
     private bool canSelectCard;
     public bool CanSelectCard
@@ -68,6 +66,17 @@ public class InfiniteScroll : MonoBehaviour, IBeginDragHandler, IEndDragHandler
         StartCoroutine(Init(cardFilter.ModifiedCardList));
 
     }
+
+    //껐다가 켰을때 선택 불가능한데 가능하게 되는거 방지
+    private void OnEnable()
+    {
+        if (!isFirstStart)
+        {
+            cardFilter.ResetFilter();
+            CheckSelectable();
+        }
+    }
+
 
     IEnumerator Init(List<int> defaultList)
     {
@@ -144,8 +153,8 @@ public class InfiniteScroll : MonoBehaviour, IBeginDragHandler, IEndDragHandler
         for (int i = 0; i < cardUIList.Count; i++)
         {
             int index = (i + indexOffset + filteredCardList.Count) % filteredCardList.Count;
-
-            cardUIList[i].UpdateCardData(filteredCardList[index]);
+            bool cantSelect = !cardFilter.greyCardSet.Contains(filteredCardList[index]);
+            cardUIList[i].UpdateCardData(filteredCardList[index], cantSelect);
         }
 
         if (filteredCardList.Count == 1)
@@ -156,6 +165,8 @@ public class InfiniteScroll : MonoBehaviour, IBeginDragHandler, IEndDragHandler
         currentFirstCardIndex = (indexOffset + filteredCardList.Count) % filteredCardList.Count;
         contentRect.anchoredPosition = Vector2.zero;
         prevContentAnchoredPos = contentRect.anchoredPosition;
+
+        CheckSelectable();
     }
 
     void LockScroll()
@@ -212,7 +223,8 @@ public class InfiniteScroll : MonoBehaviour, IBeginDragHandler, IEndDragHandler
                 int nextDataIndex = (currentFirstCardIndex + cardUIList.Count) % filteredCardList.Count;
 
                 //데이터 로드 후 뒤로 보내기
-                firstCardUI.UpdateCardData(filteredCardList[nextDataIndex]);
+                bool cantSelect = !cardFilter.greyCardSet.Contains(filteredCardList[nextDataIndex]);
+                firstCardUI.UpdateCardData(filteredCardList[nextDataIndex], cantSelect);
                 firstCardRect.SetAsLastSibling();
 
                 // Content 위치 보정: 한 카드만큼 오른쪽으로 이동
@@ -234,7 +246,8 @@ public class InfiniteScroll : MonoBehaviour, IBeginDragHandler, IEndDragHandler
                 int nextDataIndex = (currentFirstCardIndex - 1 + filteredCardList.Count) % filteredCardList.Count;
 
                 //데이터 로드 후 뒤로 보내기
-                lastCardUI.UpdateCardData(filteredCardList[nextDataIndex]);
+                bool cantSelect = !cardFilter.greyCardSet.Contains(filteredCardList[nextDataIndex]);
+                lastCardUI.UpdateCardData(filteredCardList[nextDataIndex], cantSelect);
                 lastCardRect.SetAsFirstSibling();
 
                 // Content 위치 보정: 한 카드만큼 왼쪽으로 이동
@@ -286,22 +299,19 @@ public class InfiniteScroll : MonoBehaviour, IBeginDragHandler, IEndDragHandler
 
         isDragging = false;
         isSnapping = false;
-        CanSelectCard = true;
+        if (!cardFilter.greyCardSet.Contains(SendSelectedUnit()))
+            CanSelectCard = true;
+        else
+            CanSelectCard = false;
     }
 
     public int SendSelectedUnit()
     {
         int selectedIndex = -1;
 
-        //오류 방지를 위해 터치 중이나 스냅 중이나 표시 안될 때는 선택 방지
-        if (isDragging || isSnapping || isHidden)
-            return -1;
-
         //현재 구조상 정지 상태에서 contentRect.anchoredPosition는 3번째 슬롯 중앙값(0 고정)이나 4번째 슬롯 중앙값(cardWithSpaceSize) 둘 중 하나
         //일단 귀찮으니까 둘 중에 어디인지 판단하게 하자
         float indexOffset = cardWithSpaceSize / 2;
-
-        Debug.Log(contentRect.anchoredPosition.x);
 
         //현재 보고 있는 카드는 4번째 슬롯에 온 카드
         if (contentRect.anchoredPosition.x < - indexOffset)
@@ -319,6 +329,19 @@ public class InfiniteScroll : MonoBehaviour, IBeginDragHandler, IEndDragHandler
         return selectedIndex;
     }
 
+    public void CheckSelectable()
+    {
+        if (!cardFilter.greyCardSet.Contains(SendSelectedUnit()))
+        {
+            canSelectCard = true;
+            OnCanSelectCard?.Invoke(true);
+        }
+        else
+        {
+            canSelectCard = false;
+            OnCanSelectCard?.Invoke(false);
+        }
 
+    }
 
 }

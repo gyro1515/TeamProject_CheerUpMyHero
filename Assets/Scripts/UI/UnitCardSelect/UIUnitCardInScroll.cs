@@ -16,15 +16,16 @@ public class UIUnitCardInScroll : MonoBehaviour
     [SerializeField] TMP_Text coolTimeText;
     [SerializeField] TMP_Text descriptionText;
 
+    [SerializeField] GameObject GreyBlocker;
+
     private void Start()
     {
         cardData = PlayerDataManager.Instance.cardDic;
     }
 
-    //테스트용, 숫자 업데이트 only
-    public void UpdateCardData(int cardNum)
+    //카드 데이터 갱신
+    public void UpdateCardData(int cardNum, bool canSelect)
     {
-        
         cardNameText.text = $"{cardData[cardNum].unitName}";
         unitType.text = $"{cardData[cardNum].unitType.ToString()}";
         rarity.text = $"{cardData[cardNum].rarity.ToString()}";
@@ -33,6 +34,16 @@ public class UIUnitCardInScroll : MonoBehaviour
         atkPowerText.text = $"공격력\n{cardData[cardNum].atkPower.ToString("F0")}";
         coolTimeText.text = $"쿨타임\n{cardData[cardNum].coolTime.ToString("F0")}";
         descriptionText.text = $"{cardData[cardNum].description}";
+        Grey(!canSelect);
+    }
+
+    void Grey(bool isGrey)
+    {
+        if (isGrey)
+            GreyBlocker.SetActive(true);
+        else
+            GreyBlocker.SetActive(false);
+
     }
 
 }

@@ -1,10 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using TMPro;
+using Unity.VisualScripting;
 using UnityEditor.Search;
 using UnityEngine;
-using System.Linq;
 using UnityEngine.UI;
-using TMPro;
 
 public enum SelectedUnitType
 {
@@ -43,6 +44,17 @@ public class CardFilter : MonoBehaviour
     //수정사항 적용한 최종 출력 카드
     public List<int> ModifiedCardList { get; private set; } = new();
 
+    //현재 덱의 레어, 에픽 수
+    int rareInDeck;
+    int epicInDeck;
+    //편성 가능한 최대 레어, 에픽 수
+    int maxRareInDeck = 1;
+    int maxEpicInDeck = 1;
+
+    //선택 불가 카드
+    public HashSet<int> greyCardSet { get; private set; } = new();
+
+
     //필터 조건
     private bool isAsending = true;
     private SelectedUnitType selectedUnitType = SelectedUnitType.None;
@@ -71,6 +83,16 @@ public class CardFilter : MonoBehaviour
             if (nowDeck[i] == -1)
                 continue;
             UsableCardList.Remove(nowDeck[i]);
+
+            //편성된 레어, 에픽 개수 세기
+            if (PlayerDataManager.Instance.cardDic[nowDeck[i]].rarity == Rarity.rare)
+            {
+                rareInDeck++;
+            }
+            if (PlayerDataManager.Instance.cardDic[nowDeck[i]].rarity == Rarity.epic)
+            {
+                epicInDeck++;
+            }
         }
 
         UsableUnitList.Clear();
@@ -79,6 +101,23 @@ public class CardFilter : MonoBehaviour
             UsableUnitList.Add(PlayerDataManager.Instance.cardDic[UsableCardList[i]]);
         }
 
+        greyCardSet.Clear();
+
+        //레어, 에픽 카드 선택 제한
+        if (rareInDeck >= maxRareInDeck || epicInDeck >= maxEpicInDeck)
+        {
+            for (int i = 0; i < UsableUnitList.Count; i++)
+            {
+                if (UsableUnitList[i].rarity == Rarity.rare && rareInDeck >= maxRareInDeck)
+                {
+                    greyCardSet.Add(UsableUnitList[i].id);
+                }
+                else if (UsableUnitList[i].rarity == Rarity.epic && epicInDeck >= maxEpicInDeck)
+                {
+                    greyCardSet.Add(UsableUnitList[i].id);
+                }
+            }
+        }
 
         ModifiedCardList.Clear();
         ModifiedCardList.AddRange(UsableCardList);
@@ -162,6 +201,8 @@ public class CardFilter : MonoBehaviour
                     query = query.OrderByDescending(unit => unit.id);
                     break;
             }
+
+
         }
 
         List<TempCardData> filteredUnitList = new(query.ToList());
@@ -171,6 +212,8 @@ public class CardFilter : MonoBehaviour
         {
             ModifiedCardList.Add(filteredUnitList[i].id);
         }
+
+
     }
     #endregion 
 
@@ -290,6 +333,18 @@ public class CardFilter : MonoBehaviour
     public void SetSeacrh(string text)
     {
         searchText = text;
+        FilterAndSort();
+        infiniteScroll.ResetCardData(ModifiedCardList);
+    }
+
+    public void ResetFilter()
+    {
+        filterText.text = "필터";
+        changeOrder.isOn = true;
+        isAsending = true;
+        selectedFilter = SelectedFilter.None;
+        selectedUnitType = SelectedUnitType.None;
+        searchText = string.Empty;
         FilterAndSort();
         infiniteScroll.ResetCardData(ModifiedCardList);
     }

@@ -30,6 +30,7 @@ public class UIUnitCardSelect : BaseUI
         cardFilter.UpdateUsable();
         infiniteScroll.ResetCardData(cardFilter.ModifiedCardList);
         infiniteScroll.OnCanSelectCard += ControllBlocker;
+        cardFilter.FilterAndSort();
     }
 
     private void OnDisable()
