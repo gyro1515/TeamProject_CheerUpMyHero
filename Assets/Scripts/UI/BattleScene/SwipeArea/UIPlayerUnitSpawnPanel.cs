@@ -13,9 +13,18 @@ public class UIPlayerUnitSpawnPanel : BaseUI
         if (!spawnUnitSlotPrefab || !spawnUnitSlotContainer) return;
 
         //PlayerDataManager에서 현재 활성화된 덱 정보를 가져옴
+        //테스트 코드**********
+        PlayerDataManager.Instance.DeckPresets[1].UnitIds[0] = 100001;
+        PlayerDataManager.Instance.DeckPresets[1].UnitIds[1] = 100002;
+        PlayerDataManager.Instance.DeckPresets[1].UnitIds[2] = 100003;
+        // PlayerDataManager.Instance.DeckPresets[1].UnitIds[0] = 100012;
+        // PlayerDataManager.Instance.DeckPresets[1].UnitIds[1] = 100013;
+        // PlayerDataManager.Instance.DeckPresets[1].UnitIds[2] = 100014;
+        //********
         int activeDeckIndex = PlayerDataManager.Instance.ActiveDeckIndex;
         List<int> deckUnitIds = PlayerDataManager.Instance.DeckPresets[activeDeckIndex].UnitIds;
-
+        
+        
         // 가져온 덱 정보로 슬롯을 생성
         for (int i = 0; i < deckUnitIds.Count; i++)
         {

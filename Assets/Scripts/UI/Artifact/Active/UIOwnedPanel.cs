@@ -26,7 +26,7 @@ public class UIOwnedPanel : MonoBehaviour
     [SerializeField] Transform slotsTransform;
     [SerializeField] GameObject OwnedArtifactSlotPrefab;
     [SerializeField] Button autoAssignBtn;
-    [SerializeField] List<ActiveAfData> activeAfDatas = new List<ActiveAfData>(); // 테스트용, 추후 데이터 테이블 기준으로 변경해야 함
+    [SerializeField] List<ActiveAfData> activeAfDatas; // 인스펙터 창에서 확인가능하게
     List<UIOwnedArtifactSlot> forReuseSlotList = new List<UIOwnedArtifactSlot>(); // 슬롯 재사용 용도
     // 장착할 시 슬롯 세팅하는 용도
     Dictionary<ActiveAfData, UIOwnedArtifactSlot> dataToSlotDic = new Dictionary<ActiveAfData, UIOwnedArtifactSlot>();
@@ -39,18 +39,24 @@ public class UIOwnedPanel : MonoBehaviour
     public event Action<List<ActiveAfData>> OnAutoAssign;
     public event Action OnResetEquippedSelectedData;
 
+    bool isInit = false; // 초기화 여부 체크용
     private void Awake()
     {
         autoAssignBtn.onClick.AddListener(AutoAssignAf);
-        // 테스트용 데이터 세팅
-        SetAfDataForTest();
+        // 테스트용 데이터 세팅 -> 플레이어 데이터 매니저로 이동
+        //SetAfDataForTest();
     }
     private void OnEnable()
     {
         // 슬롯 리세팅하기
-        ReSetSlotData();
+        if(isInit) ReSetSlotData();
     }
-    
+    private void Start()
+    {
+        activeAfDatas = PlayerDataManager.Instance.OwnedActiveAfData;
+        ReSetSlotData();
+        isInit = true;
+    }
     public void SetOwnedSlotEquipState(ActiveAfData data)
     {
         if (data == null) { Debug.LogWarning("호출 오류"); return; }

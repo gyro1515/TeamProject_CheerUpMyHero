@@ -39,7 +39,6 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
     //테스트용 카드 데이터(유닛 테이블로 교체될 예정
     public Dictionary<int, TempCardData> cardDic;
 
-
     protected override void Awake()
     {
         base.Awake();
@@ -49,6 +48,7 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
             LoadDecks();
         }
         TestCardGenerate();
+        SetAfDataForTest(); // 추후 삭제 예정***********
     }
 
     //테스트용 카드 생성
@@ -67,6 +67,10 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
             {100009, new TempCardData(100009, "유닛9", PoolType.PlayerUnit9)},
             {100010, new TempCardData(100010, "유닛10", PoolType.PlayerUnit10)},
             {100011, new TempCardData(100011, "유닛11", PoolType.PlayerUnit11)},
+
+            {100012, new TempCardData(100012, "유닛1_1", PoolType.PlayerUnit1_1)},
+            {100013, new TempCardData(100013, "유닛2_1", PoolType.PlayerUnit2_1)},
+            {100014, new TempCardData(100014, "유닛3_1", PoolType.PlayerUnit3_1)},
         };
     }
 
@@ -359,6 +363,37 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
     public void AddArtifact(int artifactId)
     {
 
+    }
+    #endregion
+
+    // 액티브 유물
+    #region ActiveArtifact
+    // 소유 액티브 유물 데이터
+    public List<ActiveAfData> OwnedActiveAfData { get; private set; } = new List<ActiveAfData>();
+    // 장착 중인 액티브 유물 데이터
+    public List<ActiveAfData> EquippedActiveAfData { get; private set; } = new List<ActiveAfData>();
+
+    // 장착 액티브 유물 데이터
+    void SetAfDataForTest() // 추후 삭제 예정***********
+    {
+        // 테스트 데이터 세팅, 우선 15개
+        for (int i = 0; i < 15; i++)
+        {
+            ActiveAfData data = new ActiveAfData();
+            data.name = $"데이터{i + 1}";
+            data.lv = UnityEngine.Random.Range(1, 100);
+            int desMul = UnityEngine.Random.Range(3, 31);
+            string description = "";
+            for (int j = 0; j < desMul; j++)
+            {
+                description += "설명 ";
+            }
+            data.description = description;
+            data.cooldown = UnityEngine.Random.Range(30, 251);
+            data.type = UnityEngine.Random.Range(0, 2) > 1 ? "공격" : "디버프";
+            data.cost = UnityEngine.Random.Range(3, 100);
+            OwnedActiveAfData.Add(data);
+        }
     }
     #endregion
 }

@@ -1,6 +1,20 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
+
+public abstract class UnitPatten: MonoBehaviour
+{
+    BaseUnit unit;
+    public void Init(BaseUnit _unit)
+    {
+        unit = _unit;
+    }
+    public abstract void OnEnable();
+    public abstract void Attack();
+    public abstract void Dead();
+    public abstract void HitBack();
+}
 
 public class EnemyUnitController : BaseUnitController
 {
@@ -9,14 +23,21 @@ public class EnemyUnitController : BaseUnitController
     Coroutine attackRoutine;
     Coroutine atkAnimRoutine;
     bool isAttacking = false;
+
+    UnitPatten unitPatten;
     protected override void Awake()
     {
         enemyUnit = GetComponent<EnemyUnit>();
         base.Awake();
+
+        // 데이터에 따라 패턴 달라지게 하기
+        //unitPatten = 팩토리 패턴으로 유닛 타입에 따른 패턴 생성 후 ;
     }
     protected override void OnEnable()
     {
         base.OnEnable();
+        unitPatten?.OnEnable();
+
 
         ResetEnemyUnitController();
 

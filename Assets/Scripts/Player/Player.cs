@@ -9,7 +9,7 @@ public class Player : BaseCharacter
     [field: Header("플레이어 세팅")]
     [field: SerializeField] public float MagicPower { get; private set; }
     [field: SerializeField] public float MaxMana { get; private set; }
-
+    public float CurMana { get; set; }
     //프로퍼티도 버추얼 오버라이드가 되네요??
     public override Vector3 MoveDir
     {
@@ -24,7 +24,7 @@ public class Player : BaseCharacter
     }
 
     public event Action<Vector3> OnMoveDirChanged;
-
+    public PlayerController PlayerController { get; private set; }
     protected override void Awake()
     {
         base.Awake();
@@ -36,6 +36,8 @@ public class Player : BaseCharacter
         };
         //GameManager에게 전투 시작 준비를 명령
         GameManager.Instance.StartBattle(); //배틀씬으로 갔을 때부터 식량 획득 증가 함수
+        CurMana = MaxMana;
+        PlayerController = GetComponent<PlayerController>();
     }
     protected override void Start()
     {
