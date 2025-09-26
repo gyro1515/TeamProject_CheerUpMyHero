@@ -17,6 +17,9 @@ public class UIPlayerUnitSpawnPanel : BaseUI
         PlayerDataManager.Instance.DeckPresets[1].UnitIds[0] = 100001;
         PlayerDataManager.Instance.DeckPresets[1].UnitIds[1] = 100002;
         PlayerDataManager.Instance.DeckPresets[1].UnitIds[2] = 100003;
+        // PlayerDataManager.Instance.DeckPresets[1].UnitIds[0] = 100012;
+        // PlayerDataManager.Instance.DeckPresets[1].UnitIds[1] = 100013;
+        // PlayerDataManager.Instance.DeckPresets[1].UnitIds[2] = 100014;
         //********
         int activeDeckIndex = PlayerDataManager.Instance.ActiveDeckIndex;
         List<int> deckUnitIds = PlayerDataManager.Instance.DeckPresets[activeDeckIndex].UnitIds;

@@ -111,7 +111,7 @@ public class PlayerMeleeSplashController : BaseUnitController
         {
             playerUnit.TargetUnit = UnitManager.Instance.FindClosestTarget(playerUnit, true);
             playerUnit.MoveDir = playerUnit.TargetUnit != null ? Vector3.zero : Vector3.right;
-            animator?.SetFloat(playerUnit.AnimationData.SpeedParameterHash, Mathf.Abs(playerUnit.MoveDir.x));
+            animator.SetFloat(playerUnit.AnimationData.SpeedParameterHash, Mathf.Abs(playerUnit.MoveDir.x));
             yield return wait;
         }
     }
@@ -132,7 +132,7 @@ public class PlayerMeleeSplashController : BaseUnitController
                     continue;
                 }
 
-                animator?.SetTrigger(playerUnit.AnimationData.AttackParameterHash);
+                animator.SetTrigger(playerUnit.AnimationData.AttackParameterHash);
                 if (findTargetRoutine != null) StopCoroutine(findTargetRoutine);
                 isAttacking = true;
                 atkAnimRoutine = StartCoroutine(AtkAnimRoutine());

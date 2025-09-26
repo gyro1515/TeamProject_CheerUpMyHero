@@ -41,6 +41,7 @@ public class EnemyRangedSplashController : BaseUnitController
         base.Attack();
 
         List<BaseCharacter> allPlayers = UnitManager.Instance.PlayerUnitList;
+        List<IDamageable> takeDamages = new List<IDamageable>();
         int hitCount = 0;
 
         foreach (BaseCharacter player in allPlayers)
@@ -48,14 +49,16 @@ public class EnemyRangedSplashController : BaseUnitController
             if (player == null || player.IsDead) continue;
 
             float distance = Mathf.Abs(targetPos.position.x - player.transform.position.x);
-            if (distance <= enemyUnit.AttackRange)
+            if (distance <= enemyUnit.AttackRange / 2)
             {
-                player.Damageable.TakeDamage(enemyUnit.AtkPower);
-
+                takeDamages.Add(player.Damageable);
                 hitCount++;
             }
         }
-
+        foreach (IDamageable player in takeDamages)
+        {
+            player.TakeDamage(enemyUnit.AtkPower);
+        }
         if (hitCount > 0)
         {
             Debug.Log($"{gameObject.name}이(가) {hitCount}명의 아군에게 원거리 범위 공격!");
@@ -93,57 +96,42 @@ public class EnemyRangedSplashController : BaseUnitController
         yield return null;
         while (true)
         {
-            //isPlayerUnit 인자를 false로 하여 아군을 찾기
             enemyUnit.TargetUnit = UnitManager.Instance.FindClosestTarget(enemyUnit, false, out targetPos);
 
-            if (enemyUnit.TargetUnit != null)
-            {
-                BaseCharacter targetCharacter = enemyUnit.TargetUnit as BaseCharacter;
-                if (targetCharacter != null)
-                {
-                    float distance = Mathf.Abs(transform.position.x - targetCharacter.transform.position.x);
-                    //타겟이 없으면 왼쪽으로 이동
-                    enemyUnit.MoveDir = (distance > enemyUnit.AttackRange) ? Vector3.left : Vector3.zero;
-                }
-            }
-            else
-            {
-                enemyUnit.MoveDir = Vector3.left;
-            }
-
-            animator?.SetFloat(enemyUnit.AnimationData.SpeedParameterHash, Mathf.Abs(enemyUnit.MoveDir.x));
+            enemyUnit.MoveDir = enemyUnit.TargetUnit != null ? Vector3.zero : Vector3.left;
+            if (animator) animator.SetFloat(
+                enemyUnit.AnimationData.SpeedParameterHash,
+                Mathf.Abs((float)enemyUnit.MoveDir.x));
             yield return wait;
         }
     }
-
     private IEnumerator AttackRoutine()
     {
         WaitForSeconds wait = new WaitForSeconds(10f / enemyUnit.AttackRate);
         while (true)
         {
+            // 타겟이 있고, 사거리 안에 있을 때만 공격 시도
             if (enemyUnit.TargetUnit != null)
             {
-                BaseCharacter targetCharacter = enemyUnit.TargetUnit as BaseCharacter;
-                if (targetCharacter != null &&
-                    Vector3.Distance(transform.position, targetCharacter.transform.position) <= enemyUnit.AttackRange)
-                {
-                    if (isAttacking) { yield return null; continue; }
+                if (isAttacking) { yield return null; continue; }
 
-                    animator?.SetTrigger(enemyUnit.AnimationData.AttackParameterHash);
-                    if (findTargetRoutine != null) StopCoroutine(findTargetRoutine);
-                    isAttacking = true;
-                    atkAnimRoutine = StartCoroutine(AtkAnimRoutine());
-                    yield return wait;
-                }
-                else
+                // 현재 스트라이프, 애니메이션 없는 캐릭터도 있으므로
+                if (animator == null)
                 {
-                    yield return null;
+                    Attack(); // 바로 공격
+                    yield return wait;
+                    continue;
                 }
+                // 적 인식했다면 공격 시작
+                animator.SetTrigger(enemyUnit.AnimationData.AttackParameterHash);
+                // 적 인식 루틴 정지(움직임 중지)
+                if (findTargetRoutine != null) StopCoroutine(findTargetRoutine);
+                // 어택 애니메이션 루틴 시작
+                isAttacking = true;
+                atkAnimRoutine = StartCoroutine(AtkAnimRoutine());
+                yield return wait;
             }
-            else
-            {
-                yield return null;
-            }
+            else yield return null;
         }
     }
 
@@ -160,7 +148,7 @@ public class EnemyRangedSplashController : BaseUnitController
 
         while (normalizedTime < enemyUnit.StartAttackNormalizedTime)
         {
-            if (enemyUnit.TargetUnit.IsDead())
+            if (enemyUnit.TargetUnit == null || enemyUnit.TargetUnit.IsDead())
             {
                 ResetEnemyUnitController();
                 findTargetRoutine = StartCoroutine(TargetingRoutine());
@@ -173,7 +161,6 @@ public class EnemyRangedSplashController : BaseUnitController
         Attack();
 
         animator.speed = 1f;
-
         while (normalizedTime >= 0f && normalizedTime < 1f)
         {
             normalizedTime = GetNormalizedTime(attackStateHash);
@@ -192,4 +179,20 @@ public class EnemyRangedSplashController : BaseUnitController
         isAttacking = false;
     }
     #endregion
+
+    private void OnDrawGizmos()
+    {
+        if (!Application.isPlaying) return;
+
+        Gizmos.color = Color.cyan;
+        Vector3 pos = transform.position;
+        pos.x -= enemyUnit.CognizanceRange / 2; // 적은 왼쪽으로 인식
+        pos.y += 0.75f;
+        Gizmos.DrawWireCube(pos, new Vector3(enemyUnit.CognizanceRange, 2f));
+        if (!isAttacking) return;
+        Gizmos.color = Color.red;
+        pos = targetPos.position;
+        pos.y += 0.75f;
+        Gizmos.DrawWireCube(pos, new Vector3(enemyUnit.AttackRange, 2f));
+    }
 }
