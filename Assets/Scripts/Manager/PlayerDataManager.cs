@@ -390,7 +390,7 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
             data.description = description;
             data.cooldown = UnityEngine.Random.Range(30, 251);
             data.type = UnityEngine.Random.Range(0, 2) > 1 ? "공격" : "디버프";
-            data.cost = UnityEngine.Random.Range(3, 100);
+            data.cost = UnityEngine.Random.Range(3, 11);
             OwnedActiveAfData.Add(data);
         }
     }

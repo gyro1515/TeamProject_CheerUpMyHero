@@ -9,6 +9,7 @@ public class Player : BaseCharacter
     [field: Header("플레이어 세팅")]
     [field: SerializeField] public float MagicPower { get; private set; }
     [field: SerializeField] public float MaxMana { get; private set; }
+    [field: SerializeField] public float ManaRecoveryTime { get; private set; }
     float curMana;
     public float CurMana { get { return curMana; }  set
         {
@@ -45,7 +46,9 @@ public class Player : BaseCharacter
         //GameManager에게 전투 시작 준비를 명령
         GameManager.Instance.StartBattle(); //배틀씬으로 갔을 때부터 식량 획득 증가 함수
         PlayerController = GetComponent<PlayerController>();
+        // 데이터 테이블 완성시 테이블에서 가져오기
         curMana = MaxMana;
+        ManaRecoveryTime = 15f;
     }
     protected override void Start()
     {
@@ -57,5 +60,4 @@ public class Player : BaseCharacter
         // 테스트로 플레이어는 계속 정렬해주기
         //InitCharacter();
     }
-    
 }
