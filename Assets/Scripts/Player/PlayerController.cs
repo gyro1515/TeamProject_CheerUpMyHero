@@ -18,17 +18,8 @@ public class PlayerController : BaseController
     [Header("플레이어 스프라이트 들")]
     [SerializeField] Transform spriteTransform;
 
-    protected override void OnEnable()
-    {
-        base.OnEnable();
-        player.OnMoveDirChanged += PlayerMoveAnimation;
-    }
-
-    protected override void OnDisable()
-    {
-        base.OnDisable();
-        player.OnMoveDirChanged -= PlayerMoveAnimation;
-    }
+    Coroutine manaRecoveryRoutine;
+    
 
 
     protected override void Awake()
@@ -37,7 +28,12 @@ public class PlayerController : BaseController
         player = GetComponent<Player>();
         playerTransform = GetComponent<Transform>();
     }
-
+    protected override void OnEnable()
+    {
+        base.OnEnable();
+        player.OnMoveDirChanged += PlayerMoveAnimation;
+        manaRecoveryRoutine = StartCoroutine(ManaRecoveryRoutine());
+    }
     protected override void Start()
     {
         base.Start();
@@ -79,6 +75,22 @@ public class PlayerController : BaseController
         Vector3 playerPosition = playerTransform.position;
         playerPosition.x = Mathf.Clamp(playerTransform.position.x, minX, maxX);
         playerTransform.position = playerPosition;
+    }
+    protected override void OnDisable()
+    {
+        base.OnDisable();
+        player.OnMoveDirChanged -= PlayerMoveAnimation;
+        if (manaRecoveryRoutine != null) StopCoroutine(manaRecoveryRoutine);
+
+    }
+    IEnumerator ManaRecoveryRoutine()
+    {
+        WaitForSeconds wait = new WaitForSeconds(player.ManaRecoveryTime);
+        while (true)
+        {
+            yield return wait;
+            player.CurMana += 1;
+        }
     }
     public override void Attack()
     {
