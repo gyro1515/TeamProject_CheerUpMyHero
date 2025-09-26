@@ -50,6 +50,9 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
 
         LoadArtifactData();
 
+        TestCardGenerate();
+        SetAfDataForTest(); // 추후 삭제 예정***********
+
         // 패시브 유물 테스트 -----
         AddArtifact(080200015);
         AddArtifact(080200014);
