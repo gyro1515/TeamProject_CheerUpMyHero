@@ -10,7 +10,7 @@ public class EnemyRangedSplashController : BaseUnitController
     private Coroutine attackRoutine;
     private Coroutine atkAnimRoutine;
     private bool isAttacking = false;
-    Vector2 targetPos = Vector2.zero;
+    Transform targetPos = null;
 
     protected override void Awake()
     {
@@ -47,7 +47,7 @@ public class EnemyRangedSplashController : BaseUnitController
         {
             if (player == null || player.IsDead) continue;
 
-            float distance = Mathf.Abs(targetPos.x - player.transform.position.x);
+            float distance = Mathf.Abs(targetPos.position.x - player.transform.position.x);
             if (distance <= enemyUnit.AttackRange)
             {
                 player.Damageable.TakeDamage(enemyUnit.AtkPower);

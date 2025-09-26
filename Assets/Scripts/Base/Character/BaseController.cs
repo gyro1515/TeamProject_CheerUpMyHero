@@ -95,7 +95,11 @@ public class BaseController : MonoBehaviour, IAttackable, IDamageable
         }
         else return -1f;
     }
-
+    public void TakeHeal(float amount)
+    {
+        if (baseCharacter.IsDead) return;
+        baseCharacter.CurHp += amount;
+    }
     public bool IsDead()
     {
         return baseCharacter.IsDead;

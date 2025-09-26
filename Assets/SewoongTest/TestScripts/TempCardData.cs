@@ -27,9 +27,9 @@ public class TempCardData
         unitName = name;
         description = "설명";
         health = UnityEngine.Random.Range(100f, 5000f);
-        cost = UnityEngine.Random.Range(50, 300);
+        cost = UnityEngine.Random.Range(50, 100);
         atkPower = UnityEngine.Random.Range(100f, 5000f);
-        coolTime = UnityEngine.Random.Range(5f, 60f);
+        coolTime = UnityEngine.Random.Range(5f, 10f);
         //중복 카드 획득에 따른 잠재력 증가, 추후 구현 예정
         potential = 0;
     }
