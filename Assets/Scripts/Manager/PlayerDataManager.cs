@@ -36,6 +36,9 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
     // 선택한 스테이지 선택용
     public (int mainStageIdx, int subStageIdx) SelectedStageIdx { get; set; } = (-1, -1);
 
+    //테스트용 카드 데이터(유닛 테이블로 교체될 예정
+    public Dictionary<int, TempCardData> cardDic;
+
     protected override void Awake()
     {
         base.Awake();
@@ -62,9 +65,37 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
         // ------------------------
     }
 
-    private void Start()
+    //테스트용 카드 생성
+    void TestCardGenerate()
     {
-        
+        cardDic = new() 
+        {
+            {100001, new TempCardData("유닛1", PoolType.PlayerUnit1)},
+            {100002, new TempCardData("유닛2", PoolType.PlayerUnit2)},
+            {100003, new TempCardData("유닛3", PoolType.PlayerUnit3)},
+            {100004, new TempCardData("유닛4", PoolType.PlayerUnit4)},
+            {100005, new TempCardData("유닛5", PoolType.PlayerUnit5)},
+            {100006, new TempCardData("유닛6", PoolType.PlayerUnit6)},
+            {100007, new TempCardData("유닛7", PoolType.PlayerUnit7)},
+            {100008, new TempCardData("유닛8", PoolType.PlayerUnit8)},
+            {100009, new TempCardData("유닛9", PoolType.PlayerUnit9)},
+            {100010, new TempCardData("유닛10", PoolType.PlayerUnit10)},
+            {100011, new TempCardData("유닛11", PoolType.PlayerUnit11)},
+            {100012, new TempCardData("유닛1_1", PoolType.PlayerUnit1_1)},
+            {100013, new TempCardData("유닛2_1", PoolType.PlayerUnit2_1)},
+            {100014, new TempCardData("유닛3_1", PoolType.PlayerUnit3_1)},
+        };
+    }
+
+    public TempCardData GetUnitData(int cardId)
+    {
+        if (cardDic.TryGetValue(cardId, out TempCardData data))
+        {
+            return data;
+        }
+        // 만약 cardDic에 해당 ID가 없으면 null을 반환
+        Debug.LogWarning($"Card ID {cardId}에 해당하는 임시 데이터를 찾을 수 없습니다.");
+        return null;
     }
 
     //빌딩 데이터
@@ -414,6 +445,37 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
             {EffectTarget.MeleeUnit, new PassiveArtifactData[MeleeArtifactSlotCount]},
             {EffectTarget.RangedUnit, new PassiveArtifactData[RangedArtifactSlotCount]}
         };
+    }
+    #endregion
+
+    // 액티브 유물
+    #region ActiveArtifact
+    // 소유 액티브 유물 데이터
+    public List<ActiveAfData> OwnedActiveAfData { get; private set; } = new List<ActiveAfData>();
+    // 장착 중인 액티브 유물 데이터
+    public List<ActiveAfData> EquippedActiveAfData { get; private set; } = new List<ActiveAfData>();
+
+    // 장착 액티브 유물 데이터
+    void SetAfDataForTest() // 추후 삭제 예정***********
+    {
+        // 테스트 데이터 세팅, 우선 15개
+        for (int i = 0; i < 15; i++)
+        {
+            ActiveAfData data = new ActiveAfData();
+            data.name = $"데이터{i + 1}";
+            data.lv = UnityEngine.Random.Range(1, 100);
+            int desMul = UnityEngine.Random.Range(3, 31);
+            string description = "";
+            for (int j = 0; j < desMul; j++)
+            {
+                description += "설명 ";
+            }
+            data.description = description;
+            data.cooldown = UnityEngine.Random.Range(30, 251);
+            data.type = UnityEngine.Random.Range(0, 2) > 1 ? "공격" : "디버프";
+            data.cost = UnityEngine.Random.Range(3, 100);
+            OwnedActiveAfData.Add(data);
+        }
     }
     #endregion
 }

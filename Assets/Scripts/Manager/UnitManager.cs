@@ -56,9 +56,9 @@ public class UnitManager : SingletonMono<UnitManager>
         unitList.RemoveAt(last);
     }
 
-    public IDamageable FindClosestTarget(BaseUnit target, bool isPlayer, out Vector2 targetPos)
+    public IDamageable FindClosestTarget(BaseUnit target, bool isPlayer, out Transform targetPos)
     {
-        targetPos = Vector2.zero; // NaN: 유효하지 않은 숫자
+        targetPos = null; // NaN: 유효하지 않은 숫자
 
         if (target == null || target.gameObject == null) return null;
 
@@ -77,13 +77,13 @@ public class UnitManager : SingletonMono<UnitManager>
             //float dist = Mathf.Abs(unitPos.x - callerPos.x);
             float dist = isPlayer ? unitPos.x - callerPos.x : callerPos.x - unitPos.x;
             if (dist < 0f) continue; // 반대 방향 공격 x
-            if (dist > target.AttackRange) continue; // 공격 범위 초과하면 다음
+            if (dist > target.CognizanceRange) continue; // 공격 범위 초과하면 다음
             if (dist > minDist) continue; // 최소 거리보다 멀다면 다음
             IDamageable tmp = unit.Damageable;
             if (tmp == null) continue;
             minDist = dist;
             minDistUnit = tmp;
-            targetPos = new Vector2(unitPos.x, unitPos.y);
+            targetPos = unit.gameObject.transform;
         }
         return minDistUnit;
     }

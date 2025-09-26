@@ -31,13 +31,22 @@ public enum PoolType
     EnemyUnit3,
     EnemyUnit4,
     EnemyUnit5,
-    EnemyUnit6,
+    EnemyUnit99,
     UIMinimapIcon,
+    EnemyUnit6,
+    EnemyUnit7,
+    EnemyUnit8,
+    EnemyUnit9,
+    EnemyUnit10,
     EnemyUnit11,
     EnemyUnit12,
     EnemyUnit13,
     EnemyUnit14,
     EnemyUnit15,
+    PlayerUnit1_1,
+    PlayerUnit2_1,
+    PlayerUnit3_1,
+    None
 }
 
 public class ObjectPoolManager : SingletonMono<ObjectPoolManager>, ISceneResettable
@@ -81,7 +90,6 @@ public class ObjectPoolManager : SingletonMono<ObjectPoolManager>, ISceneResetta
     protected override void Awake()
     {
         base.Awake();
-
         enums = Enum.GetValues(typeof(PoolType));
 
         InitPool();

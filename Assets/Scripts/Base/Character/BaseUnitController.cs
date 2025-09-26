@@ -34,5 +34,6 @@ public abstract class BaseUnitController : BaseController
         base.TakeDamage(damage);
     }
     protected abstract void HitBackActive(bool active);
-    
+
+
 }

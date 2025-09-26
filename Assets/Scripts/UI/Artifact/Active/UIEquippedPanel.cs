@@ -8,7 +8,7 @@ public class UIEquippedPanel : MonoBehaviour
     [Header("장착 패널 세팅")]
     [SerializeField] List<UIEquippedArtifactSlot> equippedArtifactSlots = new List<UIEquippedArtifactSlot>();
     int maxCnt = 3;
-    [SerializeField] List<ActiveAfData> equipData = new List<ActiveAfData>(); // 장착 데이터, 현재 확인용
+    [SerializeField] List<ActiveAfData> equipData; // 장착 데이터, 현재 확인용
     ActiveAfData selectedAfData = null;
     // 장착할 시 슬롯 세팅하는 용도
     Dictionary<ActiveAfData, UIEquippedArtifactSlot> dataToSlotDic = new Dictionary<ActiveAfData, UIEquippedArtifactSlot>();
@@ -17,10 +17,21 @@ public class UIEquippedPanel : MonoBehaviour
     public event Action<ActiveAfData> OnClickBtn;
     public event Action OnResetOwnedSelectedData;
 
+    bool isInit = false;
     private void OnEnable()
     {
         // 필요없을 거 같지만, 일단은 활성화 될때마다 리셋
+        if(isInit) ReSetSlotData();
+    }
+    private void Start()
+    {
         ReSetSlotData();
+        isInit = true;
+    }
+    private void OnDisable()
+    {
+        PlayerDataManager.Instance.EquippedActiveAfData.Clear();
+        PlayerDataManager.Instance.EquippedActiveAfData.AddRange(equipData);
     }
     public bool EquipActiveArtifact(ActiveAfData data) // 매개 변수로 유물 데이터 있어야 함
     {

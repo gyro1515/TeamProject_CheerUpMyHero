@@ -42,8 +42,8 @@ public class PlayerController : BaseController
     {
         base.Start();
 
-        playerHQ = GameManager.Instance.PlayerHQ;
-        enemyHQ = GameManager.Instance.enemyHQ;
+        playerHQ = FindObjectOfType<PlayerHQ>(); // 게임 매니저에서 가져와야 함
+        enemyHQ = FindObjectOfType<EnemyHQ>(); // 게임 매니저에서 가져와야 함
 
         if (playerHQ == null || enemyHQ == null)
         {
@@ -53,8 +53,10 @@ public class PlayerController : BaseController
         SpriteRenderer spritePlayerHQ = playerHQ.GetComponentInChildren<SpriteRenderer>();
         SpriteRenderer spriteEnemyHQ = enemyHQ.GetComponentInChildren<SpriteRenderer>();
 
-        minX = spritePlayerHQ.bounds.max.x;
-        maxX = spriteEnemyHQ.bounds.min.x;
+        /*minX = spritePlayerHQ.bounds.max.x;
+        maxX = spriteEnemyHQ.bounds.min.x;*/
+        minX = playerHQ.gameObject.transform.position.x;
+        maxX = enemyHQ.gameObject.transform.position.x;
     }
 
     protected override void Update()
@@ -78,7 +80,12 @@ public class PlayerController : BaseController
         playerPosition.x = Mathf.Clamp(playerTransform.position.x, minX, maxX);
         playerTransform.position = playerPosition;
     }
-
+    public override void Attack()
+    {
+        base.Attack();
+        if (animator)
+            animator.SetTrigger(player.AnimationData.AttackParameterHash);
+    }
     void PlayerMoveAnimation(Vector3 newMoveDir)
     {
         if (animator) 
