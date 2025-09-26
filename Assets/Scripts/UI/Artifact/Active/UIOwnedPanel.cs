@@ -27,6 +27,8 @@ public class UIOwnedPanel : MonoBehaviour
     [SerializeField] GameObject OwnedArtifactSlotPrefab;
     [SerializeField] Button autoAssignBtn;
     [SerializeField] List<ActiveAfData> activeAfDatas; // 인스펙터 창에서 확인가능하게
+    [SerializeField] List<Sprite> afSprite; // 테스트용 스프라이트 세팅
+
     List<UIOwnedArtifactSlot> forReuseSlotList = new List<UIOwnedArtifactSlot>(); // 슬롯 재사용 용도
     // 장착할 시 슬롯 세팅하는 용도
     Dictionary<ActiveAfData, UIOwnedArtifactSlot> dataToSlotDic = new Dictionary<ActiveAfData, UIOwnedArtifactSlot>();
@@ -54,6 +56,7 @@ public class UIOwnedPanel : MonoBehaviour
     private void Start()
     {
         activeAfDatas = PlayerDataManager.Instance.OwnedActiveAfData;
+        SetAfDataForTest(); // 테스트로 스프라이트 세팅
         ReSetSlotData();
         isInit = true;
     }
@@ -135,22 +138,10 @@ public class UIOwnedPanel : MonoBehaviour
     void SetAfDataForTest()
     {
         // 테스트 데이터 세팅, 우선 15개
-        for (int i = 0; i < 15; i++)
+        for (int i = 0; i < activeAfDatas.Count; i++)
         {
-            ActiveAfData data = new ActiveAfData();
-            data.name = $"데이터{i + 1}";
-            data.lv = UnityEngine.Random.Range(1, 100);
-            int desMul = UnityEngine.Random.Range(3, 31);
-            string description = "";
-            for (int j = 0; j < desMul; j++)
-            {
-                description += "설명 ";
-            }
-            data.description = description;
-            data.cooldown = UnityEngine.Random.Range(30, 251);
-            data.type = UnityEngine.Random.Range(0, 2) > 1 ? "공격" : "디버프";
-            data.cost = UnityEngine.Random.Range(3, 100);
-            activeAfDatas.Add(data);
+            int rnd = UnityEngine.Random.Range(1, afSprite.Count);
+            activeAfDatas[i].icon = afSprite[rnd];
         }
     }
     /*public void SetEquip(bool isEquipped)

@@ -5,7 +5,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using DG.Tweening;
 
-public class UISwipeArea : MonoBehaviour, IPointerDownHandler, IEndDragHandler, IDragHandler
+public class UISwipeArea : MonoBehaviour, IEndDragHandler, IDragHandler
 {
     [Header("스와이프 UI 세팅")]
     [SerializeField] RectTransform viewport; // 스와이프 영역
@@ -35,26 +35,22 @@ public class UISwipeArea : MonoBehaviour, IPointerDownHandler, IEndDragHandler, 
     }
     private void Start()
     {
-        // 가운데에서 시작, Awake()에서 하면 안먹힘
-        scrollRect.horizontalNormalizedPosition = 1f / (pageCount - 1);
+        //scrollRect.horizontalNormalizedPosition = 1f / (pageCount - 1);
+        //StartCoroutine(SetScrollPositionToCenter());
     }
-    void Update()
+    void LateUpdate()
     {
         // 기기 회전/리사이즈 대응, 테스트때 모든 기종 변화에 대응하도록
         ResizePages();
     }
-    public void OnPointerDown(PointerEventData eventData)
-    {
-        forceEnded = false;
-    }
+    
     public void OnDrag(PointerEventData eventData)
     {
-        if (forceEnded) return;
+        if (forceEnded) { scrollRect.OnEndDrag(eventData); return; }
         bool inside = RectTransformUtility.RectangleContainsScreenPoint(viewport, eventData.position, eventData.pressEventCamera);
         if (!inside)
         {
             // 뷰포트 밖이면 드래그 무효 처리
-            forceEnded = true;
             scrollRect.OnEndDrag(eventData);
             MoveToNext();
         }
@@ -68,6 +64,8 @@ public class UISwipeArea : MonoBehaviour, IPointerDownHandler, IEndDragHandler, 
     }
     void MoveToNext()
     {
+        forceEnded = true;
+
         float pos = scrollRect.horizontalNormalizedPosition;
         float closest = float.MaxValue;
         int targetPageIdx = -1;
@@ -91,7 +89,7 @@ public class UISwipeArea : MonoBehaviour, IPointerDownHandler, IEndDragHandler, 
 
         float elapsed = 0f;
         float start = scrollRect.horizontalNormalizedPosition;
-        float duration = 0.3f;
+        float duration = 0.2f;
         float targetPagePos = pagePositions[targetIdx];
         int nextIdx = pageToIdx[targetIdx];
 
@@ -109,10 +107,11 @@ public class UISwipeArea : MonoBehaviour, IPointerDownHandler, IEndDragHandler, 
         // 이 값이하라면 바로 세팅하기
         
         scrollRect.horizontalNormalizedPosition = targetPagePos;
+        forceEnded = false;
 
         //Debug.Log($"move: {currentPage}->{pageToIdx[targetIdx]}");
         // 무한 스와이프 처리
-        if(currentPage == nextIdx) yield break; // 바뀐게 없다면 그대로
+        if (currentPage == nextIdx) yield break; // 바뀐게 없다면 그대로
 
         int diff = (nextIdx - currentPage + pageCount) % pageCount;
 
@@ -126,6 +125,11 @@ public class UISwipeArea : MonoBehaviour, IPointerDownHandler, IEndDragHandler, 
 
         scrollRect.horizontalNormalizedPosition = 1f / (pageCount - 1); // 중앙으로 리셋
     }
+    IEnumerator SetScrollPositionToCenter()
+    {
+        yield return null; // 다음 프레임까지 기다림
+        scrollRect.horizontalNormalizedPosition = 1f / (pageCount - 1);
+    }
     void ResizePages()
     {
         Vector2 curSize = viewport.rect.size;
@@ -134,6 +138,7 @@ public class UISwipeArea : MonoBehaviour, IPointerDownHandler, IEndDragHandler, 
         {
             page.sizeDelta = curSize;
         }
+
     }
     void ShiftPageLeft()
     {

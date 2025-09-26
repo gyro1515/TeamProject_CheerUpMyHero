@@ -47,8 +47,35 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
             InitializeResources();
             LoadDecks();
         }
+
+        LoadArtifactData();
+
         TestCardGenerate();
         SetAfDataForTest(); // 추후 삭제 예정***********
+
+        // 패시브 유물 테스트 -----
+        AddArtifact(080200015);
+        AddArtifact(080200014);
+        AddArtifact(080200025);
+        AddArtifact(080200024);
+        AddArtifact(080200035);
+        AddArtifact(080200034);
+        AddArtifact(080200055);
+        AddArtifact(080200054);
+        AddArtifact(080200054);
+        AddArtifact(080200085);
+        AddArtifact(080200084);
+        // ------------------------
+    }
+
+    private void OnEnable()
+    {
+        
+    }
+
+    private void OnDisable()
+    {
+        
     }
 
     //테스트용 카드 생성
@@ -356,13 +383,101 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
     }
     #endregion
 
-    // 유물 관련
-    #region Artifact
+    // 패시브 유물 관련
+    #region PassiveArtifact
+
+    public event Action OnEquipArtifactChanged;
+
+    // 플레이어가 보유 중인 유물 리스트
     public List<ArtifactData> OwnedArtifacts { get; private set; } = new List<ArtifactData>();
 
-    public void AddArtifact(int artifactId)
-    {
+    // 플레이어가 장착한 유물 딕셔너리 -> EffectType이 장착 부위? 처럼 작동하는 것 같아서 딕셔너리로 했어용
+    // value는 리스트 말고 배열로 바꿈 -> 몇 번째인 지 알아야 함 + 고정된 슬롯 수가 필요할 것 같아서.
+    public Dictionary<EffectTarget, PassiveArtifactData[]> EquippedPassiveArtifacts { get; private set; }
 
+    private const int PlayerArtifactSlotCount = 4;
+    private const int MeleeArtifactSlotCount = 2;
+    private const int RangedArtifactSlotCount = 2;
+
+    public void AddArtifact(int artifactId)     // 특정 유물을 플레이어가 보유 중인 유물 리스트에 추가하는 메서드
+    {
+        if (DataManager.Instance.ArtifactData.TryGetValue(artifactId, out ArtifactData data))
+        {
+            OwnedArtifacts.Add(data);
+        }
+        else
+        {
+            Debug.Log("유물 id null이거나 뭔가 문제 있어요 점검하기");
+        }
+    }
+
+    // 유물장착하는 메서드인데 아직 유물 장착, 해제 로직이 분리가 안 됨 분리 해야 함
+    public void EquipArtifact(PassiveArtifactData equipArtifact, int slotIndex)     
+    {
+        if (equipArtifact == null) return;
+
+        EffectTarget target = equipArtifact.effectTarget;
+
+        PassiveArtifactData[] slots = EquippedPassiveArtifacts[target];
+
+        if (slotIndex >= 0 && slotIndex < slots.Length)
+        {
+            if (slots[slotIndex] != null)
+            {
+                Debug.Log($"{slots[slotIndex]} 장착 해제하고 유물 갈아끼움");
+            }
+
+            slots[slotIndex] = equipArtifact;
+            Debug.Log($"{target}의 {slotIndex}번 슬롯에 {equipArtifact.name} 유물 정상 장착함");
+
+            OnEquipArtifactChanged?.Invoke();
+        }
+    }
+
+    public Dictionary<StatType, float> CalculateArtifactTotalBonusStat(EffectTarget target)
+    {
+        Dictionary<StatType, float> totalBonuseStat = new Dictionary<StatType, float>();
+        
+        if (!EquippedPassiveArtifacts.ContainsKey(target)) return totalBonuseStat;
+
+        foreach (PassiveArtifactData artifact in EquippedPassiveArtifacts[target])
+        {
+            if (artifact == null) continue;
+
+            if (!totalBonuseStat.ContainsKey(artifact.statType))
+            {
+                totalBonuseStat[artifact.statType] = 0;
+            }
+
+            totalBonuseStat[artifact.statType] += artifact.value;
+        }
+        return totalBonuseStat;
+    }
+
+    public void LoadArtifactData()
+    {
+        // 저장된 데이터 불러오는 로직 넣기~~~~ 지금은 못 넣음~~~~~
+
+        bool hasSaveData = false;
+
+        if (hasSaveData)
+        {
+            // 저장 데이터 불러오는 거 넣기~~~
+        }
+        else    // 아예 게임 처음이면 초기화 메서드 
+        {
+            InitializeEquippedArtifacts();
+        }
+    }
+
+    private void InitializeEquippedArtifacts()      // 유물 초기화 메서드 -> 없어도 괜찮은데 나중에 저장 기능 생길까봐
+    {
+        EquippedPassiveArtifacts = new Dictionary<EffectTarget, PassiveArtifactData[]>
+        {
+            {EffectTarget.Player, new PassiveArtifactData[PlayerArtifactSlotCount]},
+            {EffectTarget.MeleeUnit, new PassiveArtifactData[MeleeArtifactSlotCount]},
+            {EffectTarget.RangedUnit, new PassiveArtifactData[RangedArtifactSlotCount]}
+        };
     }
     #endregion
 
@@ -391,7 +506,7 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
             data.description = description;
             data.cooldown = UnityEngine.Random.Range(30, 251);
             data.type = UnityEngine.Random.Range(0, 2) > 1 ? "공격" : "디버프";
-            data.cost = UnityEngine.Random.Range(3, 100);
+            data.cost = UnityEngine.Random.Range(3, 11);
             OwnedActiveAfData.Add(data);
         }
     }

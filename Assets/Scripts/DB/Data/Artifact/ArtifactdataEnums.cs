@@ -13,14 +13,10 @@ public enum EffectTarget            // 어떤 유닛에게 영향 미치는가 -
 
 public enum StatType                // 패시브 유물 스탯 타입
 {
-    PlayerAttackPower,
-    PlayerHealth,
-    PlayerMoveSpeed,
-    PlayerAuraRange,
-    MeleeUnitAttackPower,
-    MeleeUnitHealth,
-    RangedUnitAttackPower,
-    RangedUnitHealth
+    MaxHp,
+    AtkPower,
+    MoveSpeed,
+    AuraRange
 }
 
 public enum PassiveArtifactGrade    // 유물 등급을 들고 있으려면 필요함
