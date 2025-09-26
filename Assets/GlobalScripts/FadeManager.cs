@@ -83,7 +83,7 @@ public class FadeManager : SingletonMono<FadeManager>
         {
             // 렉 걸렸을때 값 튐 방지
             float tmpDelta = Time.unscaledDeltaTime;
-            tmpDelta = Mathf.Min(tmpDelta, 0.015f);
+            tmpDelta = Mathf.Min(tmpDelta, 0.03f);
             time += tmpDelta;
             //Debug.Log($"Out :{time}");
             c.a = Mathf.Lerp(0f, 1f, time / fadeDuration);
