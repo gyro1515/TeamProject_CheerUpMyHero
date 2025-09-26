@@ -25,11 +25,6 @@ public class EnemyMeleeSplashController : BaseUnitController
         attackRoutine = StartCoroutine(AttackRoutine());
     }
 
-    protected override void Start()
-    {
-        base.Start();
-    }
-
     protected override void FixedUpdate()
     {
         base.FixedUpdate();
@@ -43,25 +38,18 @@ public class EnemyMeleeSplashController : BaseUnitController
     {
         base.Attack();
 
-        // UnitManager가 관리하는 전체 '아군' 리스트를 가져옴
         List<BaseCharacter> allPlayers = UnitManager.Instance.PlayerUnitList;
+        List<IDamageable> takeDamages = new List<IDamageable>();
         int hitCount = 0;
 
-        // 모든 아군을 순회하며 거리와 공격 범위를 비교
         foreach (BaseCharacter player in allPlayers)
         {
             if (player == null || player.IsDead) continue;
 
             float distance = Mathf.Abs(transform.position.x - player.transform.position.x);
-
-            if (distance <= enemyUnit.AttackRange)
+            if (distance <= enemyUnit.CognizanceRange)
             {
-                // 아군의 컨트롤러를 찾아 데미지를 입힘
-                BaseUnitController targetController = player.GetComponent<BaseUnitController>();
-                if (targetController != null)
-                {
-                    targetController.TakeDamage(enemyUnit.AtkPower);
-                }
+                takeDamages.Add(player.Damageable);
                 hitCount++;
             }
         }
@@ -69,6 +57,11 @@ public class EnemyMeleeSplashController : BaseUnitController
         if (hitCount > 0)
         {
             Debug.Log($"{gameObject.name}이(가) {hitCount}명의 아군에게 범위 공격!");
+        }
+
+        foreach (IDamageable player in takeDamages)
+        {
+            player.TakeDamage(enemyUnit.AtkPower);
         }
     }
 
@@ -97,7 +90,6 @@ public class EnemyMeleeSplashController : BaseUnitController
     }
 
     #region Coroutines
-    // 타겟을 찾는 코루틴
     private IEnumerator TargetingRoutine()
     {
         WaitForSeconds wait = new WaitForSeconds(0.2f);
@@ -108,12 +100,11 @@ public class EnemyMeleeSplashController : BaseUnitController
 
             enemyUnit.MoveDir = enemyUnit.TargetUnit != null ? Vector3.zero : Vector3.left;
 
-            animator?.SetFloat(enemyUnit.AnimationData.SpeedParameterHash, Mathf.Abs(enemyUnit.MoveDir.x));
+            animator.SetFloat(enemyUnit.AnimationData.SpeedParameterHash, Mathf.Abs(enemyUnit.MoveDir.x));
             yield return wait;
         }
     }
 
-    // 공격을 시작하는 코루틴
     private IEnumerator AttackRoutine()
     {
         WaitForSeconds wait = new WaitForSeconds(10f / enemyUnit.AttackRate);
@@ -123,7 +114,14 @@ public class EnemyMeleeSplashController : BaseUnitController
             {
                 if (isAttacking) { yield return null; continue; }
 
-                animator?.SetTrigger(enemyUnit.AnimationData.AttackParameterHash);
+                if (animator == null)
+                {
+                    Attack();
+                    yield return wait;
+                    continue;
+                }
+
+                animator.SetTrigger(enemyUnit.AnimationData.AttackParameterHash);
                 if (findTargetRoutine != null) StopCoroutine(findTargetRoutine);
                 isAttacking = true;
                 atkAnimRoutine = StartCoroutine(AtkAnimRoutine());
@@ -136,7 +134,6 @@ public class EnemyMeleeSplashController : BaseUnitController
         }
     }
 
-    // 공격 애니메이션을 제어하는 코루틴
     private IEnumerator AtkAnimRoutine()
     {
         float normalizedTime = -1f;
@@ -150,7 +147,7 @@ public class EnemyMeleeSplashController : BaseUnitController
 
         while (normalizedTime < enemyUnit.StartAttackNormalizedTime)
         {
-            if (enemyUnit.TargetUnit.IsDead())
+            if (enemyUnit.TargetUnit == null || enemyUnit.TargetUnit.IsDead())
             {
                 ResetEnemyUnitController();
                 findTargetRoutine = StartCoroutine(TargetingRoutine());
@@ -163,7 +160,6 @@ public class EnemyMeleeSplashController : BaseUnitController
         Attack();
 
         animator.speed = 1f;
-
         while (normalizedTime >= 0f && normalizedTime < 1f)
         {
             normalizedTime = GetNormalizedTime(attackStateHash);
@@ -181,5 +177,16 @@ public class EnemyMeleeSplashController : BaseUnitController
         enemyUnit.MoveDir = Vector3.zero;
         if (animator) animator.speed = 1f;
         isAttacking = false;
+    }
+
+    private void OnDrawGizmos()
+    {
+        if (!Application.isPlaying) return;
+
+        Gizmos.color = Color.cyan;
+        Vector3 pos = transform.position;
+        pos.x -= enemyUnit.CognizanceRange / 2; // 적은 왼쪽으로 인식
+        pos.y += 0.75f;
+        Gizmos.DrawWireCube(pos, new Vector3(enemyUnit.CognizanceRange, 2f));
     }
 }

@@ -48,10 +48,9 @@ public class EnemyRangedSplashController : BaseUnitController
             if (player == null || player.IsDead) continue;
 
             float distance = Mathf.Abs(targetPos.position.x - player.transform.position.x);
-            if (distance <= enemyUnit.AttackRange)
+            if (distance <= enemyUnit.AttackRange / 2) 
             {
                 player.Damageable.TakeDamage(enemyUnit.AtkPower);
-
                 hitCount++;
             }
         }
@@ -93,18 +92,12 @@ public class EnemyRangedSplashController : BaseUnitController
         yield return null;
         while (true)
         {
-            //isPlayerUnit 인자를 false로 하여 아군을 찾기
             enemyUnit.TargetUnit = UnitManager.Instance.FindClosestTarget(enemyUnit, false, out targetPos);
 
             if (enemyUnit.TargetUnit != null)
             {
-                BaseCharacter targetCharacter = enemyUnit.TargetUnit as BaseCharacter;
-                if (targetCharacter != null)
-                {
-                    float distance = Mathf.Abs(transform.position.x - targetCharacter.transform.position.x);
-                    //타겟이 없으면 왼쪽으로 이동
-                    enemyUnit.MoveDir = (distance > enemyUnit.AttackRange) ? Vector3.left : Vector3.zero;
-                }
+                float distance = Mathf.Abs(transform.position.x - targetPos.position.x);
+                enemyUnit.MoveDir = (distance > enemyUnit.AttackRange) ? Vector3.left : Vector3.zero;
             }
             else
             {
@@ -123,27 +116,18 @@ public class EnemyRangedSplashController : BaseUnitController
         {
             if (enemyUnit.TargetUnit != null)
             {
-                BaseCharacter targetCharacter = enemyUnit.TargetUnit as BaseCharacter;
-                if (targetCharacter != null &&
-                    Vector3.Distance(transform.position, targetCharacter.transform.position) <= enemyUnit.AttackRange)
-                {
-                    if (isAttacking) { yield return null; continue; }
+                if (isAttacking) { yield return null; continue; }
 
-                    animator?.SetTrigger(enemyUnit.AnimationData.AttackParameterHash);
+                if (enemyUnit.MoveDir == Vector3.zero)
+                {
+                    animator.SetTrigger(enemyUnit.AnimationData.AttackParameterHash);
                     if (findTargetRoutine != null) StopCoroutine(findTargetRoutine);
                     isAttacking = true;
                     atkAnimRoutine = StartCoroutine(AtkAnimRoutine());
                     yield return wait;
                 }
-                else
-                {
-                    yield return null;
-                }
             }
-            else
-            {
-                yield return null;
-            }
+            yield return null;
         }
     }
 
@@ -160,7 +144,7 @@ public class EnemyRangedSplashController : BaseUnitController
 
         while (normalizedTime < enemyUnit.StartAttackNormalizedTime)
         {
-            if (enemyUnit.TargetUnit.IsDead())
+            if (enemyUnit.TargetUnit == null || enemyUnit.TargetUnit.IsDead())
             {
                 ResetEnemyUnitController();
                 findTargetRoutine = StartCoroutine(TargetingRoutine());
@@ -173,7 +157,6 @@ public class EnemyRangedSplashController : BaseUnitController
         Attack();
 
         animator.speed = 1f;
-
         while (normalizedTime >= 0f && normalizedTime < 1f)
         {
             normalizedTime = GetNormalizedTime(attackStateHash);
@@ -192,4 +175,22 @@ public class EnemyRangedSplashController : BaseUnitController
         isAttacking = false;
     }
     #endregion
+
+    private void OnDrawGizmos()
+    {
+        if (!Application.isPlaying) return;
+
+        Gizmos.color = Color.cyan;
+        Vector3 pos = transform.position;
+        pos.x -= enemyUnit.CognizanceRange / 2; // 적은 왼쪽으로 인식
+        pos.y += 0.75f;
+        Gizmos.DrawWireCube(pos, new Vector3(enemyUnit.CognizanceRange, 2f));
+
+        if (!isAttacking || enemyUnit.TargetUnit == null) return;
+
+        Gizmos.color = Color.red;
+        pos = targetPos.position;
+        pos.y += 0.75f;
+        Gizmos.DrawWireCube(pos, new Vector3(enemyUnit.AttackRange, 2f));
+    }
 }
