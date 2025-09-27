@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
@@ -5,6 +6,9 @@ using UnityEngine;
 
 public class PlayerController : BaseController
 {
+
+    public static event Action OnPlayerAction; //행동을 외부에 알리는 이벤트
+
     Player player;
     
     private Transform playerTransform;
@@ -63,6 +67,9 @@ public class PlayerController : BaseController
             Debug.Log("N");
             if (animator)
                 animator.SetTrigger(player.AnimationData.AttackParameterHash);
+
+            Attack();
+            OnPlayerAction?.Invoke();
         }
     }
 
@@ -70,8 +77,11 @@ public class PlayerController : BaseController
     {
         base.FixedUpdate();
         if (!player) return;
+        if (player.MoveDir != Vector3.zero)
+        {
+            OnPlayerAction?.Invoke();
+        }
         gameObject.transform.position += player.MoveDir * player.MoveSpeed * Time.fixedDeltaTime;
-
         Vector3 playerPosition = playerTransform.position;
         playerPosition.x = Mathf.Clamp(playerTransform.position.x, minX, maxX);
         playerTransform.position = playerPosition;
