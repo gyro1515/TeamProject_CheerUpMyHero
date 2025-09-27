@@ -68,8 +68,8 @@ public class PlayerController : BaseController
             if (animator)
                 animator.SetTrigger(player.AnimationData.AttackParameterHash);
 
-            Attack();
-            OnPlayerAction?.Invoke();
+            Attack();//추가한 부분
+            OnPlayerAction?.Invoke();//추가한 부분
         }
     }
 
@@ -77,7 +77,7 @@ public class PlayerController : BaseController
     {
         base.FixedUpdate();
         if (!player) return;
-        if (player.MoveDir != Vector3.zero)
+        if (player.MoveDir != Vector3.zero) //추가한 부분
         {
             OnPlayerAction?.Invoke();
         }

@@ -140,4 +140,18 @@ public class CameraController : MonoBehaviour
         return frontMostUnit;
     }
 }
+//이전꺼 카메라 컨트롤러
+//[SerializeField] GameObject playerGO;
 
+//private void Start()
+//{
+//    playerGO = GameManager.Instance.Player.gameObject;
+//}
+//private void FixedUpdate()
+//{
+//    if (playerGO == null) return;
+//    Vector3 camPos = gameObject.transform.position;
+//    camPos.x = playerGO.transform.position.x;
+//    gameObject.transform.position = camPos;
+//}
+//}
