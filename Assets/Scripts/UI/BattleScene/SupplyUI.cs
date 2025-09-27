@@ -49,6 +49,7 @@ public class SupplyUI : BaseUI
     {
         int supplyLevel = PlayerDataManager.Instance.SupplyLevel;
         int currentFood = PlayerDataManager.Instance.CurrentFood;
+        int maxFood = PlayerDataManager.Instance.MaxFood;
         supplyLevelText.text = $"Supply Lv. {supplyLevel}";
 
         bool canLevelUp = PlayerDataManager.Instance.TryGetUpgradeCost(out int cost);
@@ -57,7 +58,7 @@ public class SupplyUI : BaseUI
         {
             supplyCostText.text = cost.ToString();
 
-            if (currentFood >= cost)
+            if (currentFood >= cost && maxFood >= cost)
             {
                 supplyCostText.color = affordableColor;
                 supplyLvUpButton.interactable = true;

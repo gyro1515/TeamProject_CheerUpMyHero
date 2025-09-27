@@ -218,12 +218,6 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
             if (type == ResourceType.Food)
             {
                 CurrentFood = _resources[type];
-
-                if (amount < 0)
-                {
-                    MaxFood += amount;
-                    if (MaxFood < 0) MaxFood = 0;
-                }
             }
 
             OnResourceChangedEvent?.Invoke(type, _resources[type]);
@@ -238,8 +232,8 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
     #region Food
     //식량에 관련된 변수와 함수
     public int CurrentFood { get; private set; } = 0;
-    public int MaxFood { get; private set; } = 20000;
-    private int _calculatedMaxFood = 20000;
+    public int MaxFood { get; private set; } = 2000;
+    private int _calculatedMaxFood = 2000;
     private float foodAccumulator = 0f;
     public int SupplyLevel { get; private set; } = 1;
     private float currentFarmGainPercent = 0f;
@@ -257,31 +251,43 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
             return;
         }
         int requiredFood = supplyUpgradeCosts[SupplyLevel - 1];
-        if (CurrentFood >= requiredFood)
+        if (CurrentFood >= requiredFood && MaxFood >= requiredFood)
         {
-            AddResource(ResourceType.Food, -requiredFood);
+            CurrentFood -= requiredFood;
+            MaxFood -= requiredFood;
+
+            _resources[ResourceType.Food] = CurrentFood;
+            OnResourceChangedEvent?.Invoke(ResourceType.Food, CurrentFood);
+
             SupplyLevel++;
             Debug.Log($"Supply Level Up! 현재 SupplyLevel: {SupplyLevel}");
         }
         else
         {
-            Debug.Log($"식량이 부족합니다. 필요 식량: {requiredFood}");
+            Debug.Log($"보급품 또는 최대 보급품이 부족하여 레벨업할 수 없습니다. 필요량: {requiredFood}");
         }
     }
 
     public void AddFoodOverTime(float deltaTime)
     {
         if (MaxFood <= 0) return;
+
         int baseGain = baseFoodGainBySupplyLevel[SupplyLevel - 1];
         float gainThisFrame = baseGain * (1f + currentFarmGainPercent / 100f) * deltaTime;
         foodAccumulator += gainThisFrame;
+
         int gainInt = Mathf.FloorToInt(foodAccumulator);
+
         if (gainInt > 0)
         {
-            MaxFood -= gainInt;
-            if (MaxFood < 0) MaxFood = 0;
+            if (gainInt > MaxFood)
+            {
+                gainInt = MaxFood;
+            }
+
             CurrentFood += gainInt;
-            if (CurrentFood > MaxFood) CurrentFood = MaxFood;
+            MaxFood -= gainInt;
+
             _resources[ResourceType.Food] = CurrentFood;
             OnResourceChangedEvent?.Invoke(ResourceType.Food, CurrentFood);
             foodAccumulator -= gainInt;
