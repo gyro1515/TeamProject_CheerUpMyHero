@@ -232,8 +232,8 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
     #region Food
     //식량에 관련된 변수와 함수
     public int CurrentFood { get; private set; } = 0;
-    public int MaxFood { get; private set; } = 2000;
-    private int _calculatedMaxFood = 2000;
+    public int MaxFood { get; private set; } = 20000;
+    private int _calculatedMaxFood = 20000;
     private float foodAccumulator = 0f;
     public int SupplyLevel { get; private set; } = 1;
     private float currentFarmGainPercent = 0f;
