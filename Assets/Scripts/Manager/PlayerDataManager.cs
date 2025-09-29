@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using UnityEngine;
 
@@ -54,17 +55,17 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
         SetAfDataForTest(); // 추후 삭제 예정***********
 
         // 패시브 유물 테스트 -----
-        AddArtifact(080200015);
-        AddArtifact(080200014);
-        AddArtifact(080200025);
-        AddArtifact(080200024);
-        AddArtifact(080200035);
-        AddArtifact(080200034);
-        AddArtifact(080200055);
-        AddArtifact(080200054);
-        AddArtifact(080200054);
-        AddArtifact(080200085);
-        AddArtifact(080200084);
+        AddPassiveArtifact(080200015);
+        AddPassiveArtifact(080200014);
+        AddPassiveArtifact(080200025);
+        AddPassiveArtifact(080200024);
+        AddPassiveArtifact(080200035);
+        AddPassiveArtifact(080200034);
+        AddPassiveArtifact(080200055);
+        AddPassiveArtifact(080200054);
+        AddPassiveArtifact(080200054);
+        AddPassiveArtifact(080200085);
+        AddPassiveArtifact(080200084);
         // ------------------------
     }
 
@@ -386,24 +387,26 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
     // 패시브 유물 관련
     #region PassiveArtifact
 
-    public event Action OnEquipArtifactChanged;
+    public event Action OnEquipPassiveArtifactChanged;
 
     // 플레이어가 보유 중인 유물 리스트
-    public List<ArtifactData> OwnedArtifacts { get; private set; } = new List<ArtifactData>();
+    public List<PassiveArtifactData> OwnedPassiveArtifacts { get; private set; } = new List<PassiveArtifactData>();
 
-    // 플레이어가 장착한 유물 딕셔너리 -> EffectType이 장착 부위? 처럼 작동하는 것 같아서 딕셔너리로 했어용
-    // value는 리스트 말고 배열로 바꿈 -> 몇 번째인 지 알아야 함 + 고정된 슬롯 수가 필요할 것 같아서.
+    // 플레이어가 장착한 유물 딕셔너리
     public Dictionary<EffectTarget, PassiveArtifactData[]> EquippedPassiveArtifacts { get; private set; }
 
-    private const int PlayerArtifactSlotCount = 4;
-    private const int MeleeArtifactSlotCount = 2;
-    private const int RangedArtifactSlotCount = 2;
+    private const int PlayerPassiveArtifactSlotCount = 4;
+    private const int MeleePassiveArtifactSlotCount = 2;
+    private const int RangedPassiveArtifactSlotCount = 2;
 
-    public void AddArtifact(int artifactId)     // 특정 유물을 플레이어가 보유 중인 유물 리스트에 추가하는 메서드
+    public void AddPassiveArtifact(int idNumber)     // 특정 유물을 플레이어가 보유 중인 유물 리스트에 추가하는 메서드
     {
-        if (DataManager.Instance.ArtifactData.TryGetValue(artifactId, out ArtifactData data))
+        if (DataManager.Instance.ArtifactData.TryGetValue(idNumber, out ArtifactData data))
         {
-            OwnedArtifacts.Add(data);
+            if (data is PassiveArtifactData passiveArtifactData)
+            {
+                OwnedPassiveArtifacts.Add(passiveArtifactData);
+            }
         }
         else
         {
@@ -411,34 +414,56 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
         }
     }
 
-    // 유물장착하는 메서드인데 아직 유물 장착, 해제 로직이 분리가 안 됨 분리 해야 함
-    public void EquipArtifact(PassiveArtifactData equipArtifact, int slotIndex)     
+    // 패시브 유물 장착하는 메서드 -> 슬롯에 이미 장착된 거 있어도 덮어씀
+    public void EquipPassiveArtifact(PassiveArtifactData equipArtifact, int slotIndex)
     {
-        if (equipArtifact == null) return;
-
         EffectTarget target = equipArtifact.effectTarget;
-
         PassiveArtifactData[] slots = EquippedPassiveArtifacts[target];
 
-        if (slotIndex >= 0 && slotIndex < slots.Length)
-        {
-            if (slots[slotIndex] != null)
-            {
-                Debug.Log($"{slots[slotIndex]} 장착 해제하고 유물 갈아끼움");
-            }
+        if (equipArtifact == null) return;
+        if (slotIndex < 0 || slotIndex >= slots.Length) return;
+        if (slots.Where((slots, index) => index != slotIndex)
+                 .Any(slot => slot != null && slot.name == equipArtifact.name)) return;     // 중복 체크 로직 -> 중복 유물 착용 시도할 때 뭔가 처리 필요하면 여기에 추가
 
-            slots[slotIndex] = equipArtifact;
-            Debug.Log($"{target}의 {slotIndex}번 슬롯에 {equipArtifact.name} 유물 정상 장착함");
-
-            OnEquipArtifactChanged?.Invoke();
-        }
+        slots[slotIndex] = equipArtifact;
+        OnEquipPassiveArtifactChanged?.Invoke();
+        return;
     }
 
+    // 패시브 유물 장착 해제하는 메서드
+    public void UnEquipPassiveArtifact(EffectTarget target, int slotIndex)
+    {
+        PassiveArtifactData[] slots = EquippedPassiveArtifacts[target];
+
+        if (!EquippedPassiveArtifacts.ContainsKey(target)) return;
+        if (slotIndex < 0 || slotIndex >= slots.Length) return;
+        if (slots[slotIndex] == null) return;   // 빈 슬롯인 지 체크 -> 빈 슬롯일 때 시도하면 어떤 추가 반응 필요하면 여기에 추가
+
+        slots[slotIndex] = null;
+        OnEquipPassiveArtifactChanged?.Invoke();
+    }
+
+    // 장착한 유물의 특정 스탯 타입 값 도출하는 메서드
+    public float GetPassiveArtifactStatBonus(EffectTarget target, StatType statType)
+    {
+        if (EquippedPassiveArtifacts.TryGetValue(target, out PassiveArtifactData[] slots))
+        {
+            foreach (PassiveArtifactData artifact in slots)
+            {
+                if (artifact != null && artifact.statType == statType)
+                {
+                    return artifact.value;
+                }
+            }
+        }
+        return 0f;
+    }
+
+    // 장착된 패시브 아티팩트의 능력치 받아와서 스탯 종류별로 상승 값 합쳐주는 메서드
+    // -> 중복 아티팩트 착용 가능하던 거 고쳐서 이제 쓸 일이 없어져버림.....
     public Dictionary<StatType, float> CalculateArtifactTotalBonusStat(EffectTarget target)
     {
         Dictionary<StatType, float> totalBonuseStat = new Dictionary<StatType, float>();
-        
-        if (!EquippedPassiveArtifacts.ContainsKey(target)) return totalBonuseStat;
 
         foreach (PassiveArtifactData artifact in EquippedPassiveArtifacts[target])
         {
@@ -452,6 +477,19 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
             totalBonuseStat[artifact.statType] += artifact.value;
         }
         return totalBonuseStat;
+    }
+
+    // 특정 패시브 아티팩트 id로 값 얻어오는 메서드
+    public float GetPassiveArtifactDataValue(int idNumber)
+    {
+        if (DataManager.Instance.ArtifactData.TryGetValue(idNumber, out ArtifactData data))
+        {
+            if (data is PassiveArtifactData passiveArtifactData)
+            {
+                return passiveArtifactData.value;
+            }
+        }
+        return 0f;
     }
 
     public void LoadArtifactData()
@@ -474,9 +512,9 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
     {
         EquippedPassiveArtifacts = new Dictionary<EffectTarget, PassiveArtifactData[]>
         {
-            {EffectTarget.Player, new PassiveArtifactData[PlayerArtifactSlotCount]},
-            {EffectTarget.MeleeUnit, new PassiveArtifactData[MeleeArtifactSlotCount]},
-            {EffectTarget.RangedUnit, new PassiveArtifactData[RangedArtifactSlotCount]}
+            {EffectTarget.Player, new PassiveArtifactData[PlayerPassiveArtifactSlotCount]},
+            {EffectTarget.MeleeUnit, new PassiveArtifactData[MeleePassiveArtifactSlotCount]},
+            {EffectTarget.RangedUnit, new PassiveArtifactData[RangedPassiveArtifactSlotCount]}
         };
     }
     #endregion

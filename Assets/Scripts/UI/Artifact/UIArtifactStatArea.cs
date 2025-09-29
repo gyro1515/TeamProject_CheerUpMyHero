@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 [System.Serializable]
 public class StatDisplay
@@ -11,46 +12,54 @@ public class StatDisplay
     public TextMeshProUGUI statText;
 }
 
-public class UIArtifactStatArea : MonoBehaviour
+public class UIArtifactStatArea : BaseUI
 {
     [Header("플레이어 스탯 UI")]
-    [SerializeField] private List<StatDisplay> _playerStatDisplays;
+    [SerializeField] private Image _playerHpBonusBar;
+    [SerializeField] private Image _playerAtkBonusBar;
+    [SerializeField] private Image _playerSpdBonusBar;
 
-    [Header("근거리 유닛 스탯 UI")]
-    [SerializeField] private List<StatDisplay> _meleeStatDisplays;
+    private float _playerHpBonus;
+    private float _playerHpBonusMax;
+    private const int _playerHpLegendary = 80200025;
 
-    [Header("원거리 유닛 스탯 UI")]
-    [SerializeField] private List<StatDisplay> _rangedStatDisplays;
+    private float _playerAtkBonus;
+    private float _playerAtkBonusMax;
+    private const int _playerAtkLegendary = 80200015;
+
+    private float _playerSpdBonus;
+    private float _playerSpdBonusMax;
+    private const int _playerSpdLegendary = 80200035;
+
+    // 근거리 원거리 유닛 로직 추가해야 함
+
+    private const float LegendaryArtifactValue = 25f;
 
     private void OnEnable()
     {
-        PlayerDataManager.Instance.OnEquipArtifactChanged += UpdateAllDisplay;
-        UpdateAllDisplay();
+        UpdateStatUI();
+        PlayerDataManager.Instance.OnEquipPassiveArtifactChanged += UpdateStatUI;
     }
 
     private void OnDisable()
     {
-        PlayerDataManager.Instance.OnEquipArtifactChanged -= UpdateAllDisplay;
+        PlayerDataManager.Instance.OnEquipPassiveArtifactChanged -= UpdateStatUI;
     }
 
-    private void UpdateAllDisplay()
+    private void UpdateStatUI()     // ㅋㅋ 이게 최선인가.... 개선해야 할 듯
     {
-        UpdateDisplay(EffectTarget.Player, _playerStatDisplays);
-        UpdateDisplay(EffectTarget.MeleeUnit, _meleeStatDisplays);
-        UpdateDisplay(EffectTarget.RangedUnit, _rangedStatDisplays);
-    }
+        _playerHpBonus = PlayerDataManager.Instance.GetPassiveArtifactStatBonus(EffectTarget.Player, StatType.MaxHp);
+        _playerHpBonusMax = PlayerDataManager.Instance.GetPassiveArtifactDataValue(_playerHpLegendary);
+        _playerHpBonusBar.fillAmount = _playerHpBonus / _playerHpBonusMax;
 
-    private void UpdateDisplay(EffectTarget target, List<StatDisplay> statDisplay)
-    {
-        var bonuseStat = PlayerDataManager.Instance.CalculateArtifactTotalBonusStat(target);
+        _playerAtkBonus = PlayerDataManager.Instance.GetPassiveArtifactStatBonus(EffectTarget.Player, StatType.AtkPower);
+        _playerAtkBonusMax = PlayerDataManager.Instance.GetPassiveArtifactDataValue(_playerAtkLegendary);
+        _playerAtkBonusBar.fillAmount = _playerAtkBonus / _playerAtkBonusMax;
 
-        foreach (var display in statDisplay)
-        {
-            if (display.statText == null) continue;
+        _playerSpdBonus = PlayerDataManager.Instance.GetPassiveArtifactStatBonus(EffectTarget.Player, StatType.MoveSpeed);
+        _playerSpdBonusMax = PlayerDataManager.Instance.GetPassiveArtifactDataValue(_playerSpdLegendary);
+        _playerSpdBonusBar.fillAmount = _playerSpdBonus / _playerSpdBonusMax;
 
-            bonuseStat.TryGetValue(display.statType, out float value);
-
-            display.statText.text = $"+ {value}%";
-        }
+        // 로직 추가되면 스탯 추가해야 함
     }
 }

@@ -50,9 +50,8 @@ public class Player : BaseCharacter
         //InitCharacter();
     }
 
-    protected override void ApplyArtifactStat()
+    protected override float GetStatBonus(StatType type)
     {
-        Dictionary<StatType, float> playerBonus = PlayerDataManager.Instance.CalculateArtifactTotalBonusStat(EffectTarget.Player);
-        UpdateBonusStat(playerBonus);
+        return PlayerDataManager.Instance.GetPassiveArtifactStatBonus(EffectTarget.Player, type);
     }
 }
