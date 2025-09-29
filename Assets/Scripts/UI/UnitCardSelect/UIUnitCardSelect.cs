@@ -4,7 +4,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UIUnitCardSelect : BaseUI
+public class UIUnitCardSelect : MonoBehaviour
 {
     [SerializeField] InfiniteScroll infiniteScroll;
     public InfiniteScroll InfiniteScroll {  get { return infiniteScroll; } }
@@ -56,7 +56,7 @@ public class UIUnitCardSelect : BaseUI
         else
         {
             Debug.Log($"현재 선택된 카드 {selectedIndex}번");
-            FadeManager.Instance.SwitchGameObjects(UIManager.Instance.GetUI<UIUnitCardSelect>().gameObject, UIManager.Instance.GetUI<DeckPresetController>().gameObject);
+            this.gameObject.SetActive(false);
             UIManager.Instance.GetUI<DeckPresetController>().OnUnitSelected(deckSlotNum, selectedIndex);
         }
     }
