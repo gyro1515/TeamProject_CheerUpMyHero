@@ -52,7 +52,7 @@ public class UIPassiveArtifactInventory : BaseUI
         PassiveArtifactData currentSlotEquipped = PlayerDataManager.Instance.EquippedPassiveArtifacts[_currentTargetType][_currentSlotIndex];
 
         // 지금 가진 유물 중에 패시브 아이템임 && 지금 선택된 타겟 타입임 조건을 만족하는 유물만 골라냄
-        List<ArtifactData> ownedList = PlayerDataManager.Instance.OwnedArtifacts;
+        List<PassiveArtifactData> ownedList = PlayerDataManager.Instance.OwnedPassiveArtifacts;
         List<PassiveArtifactData> filteredData = ownedList.OfType<PassiveArtifactData>()
                                                           .Where(artifact => artifact.effectTarget == _currentTargetType)
                                                           .ToList();
@@ -82,7 +82,7 @@ public class UIPassiveArtifactInventory : BaseUI
 
     private void SelectArtifact(PassiveArtifactData selectArtifact)
     {
-        PlayerDataManager.Instance.EquipArtifact(selectArtifact, _currentSlotIndex);
+        PlayerDataManager.Instance.EquipPassiveArtifact(selectArtifact, _currentSlotIndex);
         FadeManager.Instance.FadeOutUI(_canvasGroup);
     }
 

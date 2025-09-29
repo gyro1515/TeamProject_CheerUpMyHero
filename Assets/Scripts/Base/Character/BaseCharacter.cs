@@ -60,12 +60,16 @@ public class BaseCharacter : MonoBehaviour
         _baseMaxHP = MaxHp;
         _baseAtkPower = AtkPower;
         _baseMoveSpeed = MoveSpeed;
+
+        UpdateStat();
     }
     protected virtual void OnEnable()
     {
         // 다시 활성화 됐을때
         curHp = TmpMaxHp;
         IsDead = false;
+
+        PlayerDataManager.Instance.OnEquipPassiveArtifactChanged += UpdateStat;
     }
     protected virtual void Start()
     {
@@ -82,24 +86,24 @@ public class BaseCharacter : MonoBehaviour
     }
     protected virtual void OnDisable()
     {
-        
+        PlayerDataManager.Instance.OnEquipPassiveArtifactChanged -= UpdateStat;
     }
 
-    protected virtual void ApplyArtifactStat()
+    protected virtual void UpdateStat()
     {
+        float bonusHp = GetStatBonus(StatType.MaxHp);
+        float bonusAtk = GetStatBonus(StatType.AtkPower);
+        float bonusSpd = GetStatBonus(StatType.MoveSpeed);
 
-    }
-
-    protected void UpdateBonusStat(Dictionary<StatType, float> bonusStat)
-    {
-        bonusStat.TryGetValue(StatType.MaxHp, out float bonusHP);
-        bonusStat.TryGetValue(StatType.AtkPower, out float bonusAtk);
-        bonusStat.TryGetValue(StatType.MoveSpeed, out float bonusMoveSpeed);
-
-        MaxHp = _baseMaxHP * (1f + bonusHP / 100f);
+        MaxHp = _baseMaxHP * (1f + bonusHp / 100f);
         AtkPower = _baseAtkPower * (1f + bonusAtk / 100f);
-        MoveSpeed = _baseMoveSpeed * (1f + bonusMoveSpeed / 100f);
+        MoveSpeed = _baseMoveSpeed * (1f + bonusSpd / 100f);
 
         curHp = MaxHp;
+    }
+
+    protected virtual float GetStatBonus(StatType type)
+    {
+        return 0f;
     }
 }
