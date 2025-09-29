@@ -38,26 +38,26 @@ public class UIArtifactStatArea : BaseUI
     private void OnEnable()
     {
         UpdateStatUI();
-        PlayerDataManager.Instance.OnEquipPassiveArtifactChanged += UpdateStatUI;
+        ArtifactManager.Instance.OnEquippedArtifactChanged += UpdateStatUI;
     }
 
     private void OnDisable()
     {
-        PlayerDataManager.Instance.OnEquipPassiveArtifactChanged -= UpdateStatUI;
+        ArtifactManager.Instance.OnEquippedArtifactChanged -= UpdateStatUI;
     }
 
     private void UpdateStatUI()     // ㅋㅋ 이게 최선인가.... 개선해야 할 듯
     {
-        _playerHpBonus = PlayerDataManager.Instance.GetPassiveArtifactStatBonus(EffectTarget.Player, StatType.MaxHp);
-        _playerHpBonusMax = PlayerDataManager.Instance.GetPassiveArtifactDataValue(_playerHpLegendary);
+        _playerHpBonus = ArtifactManager.Instance.GetPassiveArtifactStatBonus(EffectTarget.Player, StatType.MaxHp);
+        _playerHpBonusMax = ArtifactManager.Instance.GetPassiveArtifactDataValue(_playerHpLegendary);
         _playerHpBonusBar.fillAmount = _playerHpBonus / _playerHpBonusMax;
 
-        _playerAtkBonus = PlayerDataManager.Instance.GetPassiveArtifactStatBonus(EffectTarget.Player, StatType.AtkPower);
-        _playerAtkBonusMax = PlayerDataManager.Instance.GetPassiveArtifactDataValue(_playerAtkLegendary);
+        _playerAtkBonus = ArtifactManager.Instance.GetPassiveArtifactStatBonus(EffectTarget.Player, StatType.AtkPower);
+        _playerAtkBonusMax = ArtifactManager.Instance.GetPassiveArtifactDataValue(_playerAtkLegendary);
         _playerAtkBonusBar.fillAmount = _playerAtkBonus / _playerAtkBonusMax;
 
-        _playerSpdBonus = PlayerDataManager.Instance.GetPassiveArtifactStatBonus(EffectTarget.Player, StatType.MoveSpeed);
-        _playerSpdBonusMax = PlayerDataManager.Instance.GetPassiveArtifactDataValue(_playerSpdLegendary);
+        _playerSpdBonus = ArtifactManager.Instance.GetPassiveArtifactStatBonus(EffectTarget.Player, StatType.MoveSpeed);
+        _playerSpdBonusMax = ArtifactManager.Instance.GetPassiveArtifactDataValue(_playerSpdLegendary);
         _playerSpdBonusBar.fillAmount = _playerSpdBonus / _playerSpdBonusMax;
 
         // 로직 추가되면 스탯 추가해야 함
