@@ -24,6 +24,7 @@ public class UIActiveAFSlot : MonoBehaviour
     float manaCost = -1f;
     private void Awake()
     {
+        slotIcon.fillAmount = 1f;
         slotBtn.onClick.AddListener(OnUseActiveAF);
     }
     private void Start()

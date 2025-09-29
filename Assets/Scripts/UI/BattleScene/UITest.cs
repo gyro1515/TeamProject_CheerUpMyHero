@@ -15,17 +15,17 @@ public class UITest : BaseUI
 
     private void OnEnable()
     {
-        SettingDataManager.OnControlLayoutChanged += UpdateLayout;
+        //SettingDataManager.OnControlLayoutChanged += UpdateLayout;
     }
 
     private void Start()
     {
-        UpdateLayout();
+        //UpdateLayout();
     }
 
     private void OnDisable()
     {
-        SettingDataManager.OnControlLayoutChanged -= UpdateLayout;
+        //SettingDataManager.OnControlLayoutChanged -= UpdateLayout;
     }
 
     private void UpdateLayout()

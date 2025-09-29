@@ -47,15 +47,13 @@ public class DeckPresetController : BaseUI
 
     [Header("외부 패널 연결")]
     [SerializeField] private ConfirmationPopup confirmationPopup;
-    // [SerializeField] private UnitSelectPanelController unitSelectPanel; //임의로 지어 놓은 것
+    [SerializeField] private UIUnitCardSelect unitCardSelectPanel; //임의로 지어 놓은 것
 
     // --- 내부 변수 ---
     private MainScreenUI _mainScreenUI;
     private UIStageSelect _stageSelectUI;
     private List<DeckUnitSlot> _unitSlots = new List<DeckUnitSlot>();
     private int _currentDeckIndex = 1;
-
-    UIUnitCardSelect uIUnitCardSelect;
 
     private void Update()
     {
@@ -90,9 +88,6 @@ public class DeckPresetController : BaseUI
         editNameCanvasGroup.blocksRaycasts = false;
 
         SelectDeck(_currentDeckIndex);
-
-        uIUnitCardSelect = UIManager.Instance.GetUI<UIUnitCardSelect>();
-        uIUnitCardSelect.CloseUI();
     }
 
     #region UI 생성 및 업데이트
@@ -185,8 +180,8 @@ public class DeckPresetController : BaseUI
     void OnUnitSlotClicked(int slotIndex)
     {
         Debug.Log($"{_currentDeckIndex}번 덱의 {slotIndex + 1}번 슬롯 클릭됨 -> 유닛 선택창 열기");
-        uIUnitCardSelect.OpenUI();
-        uIUnitCardSelect.SetDeckSlotNum(slotIndex);
+        unitCardSelectPanel.gameObject.SetActive(true);
+        unitCardSelectPanel.SetDeckSlotNum(slotIndex);
     }
 
     public void OnUnitSelected(int slotIndex, int unitId)

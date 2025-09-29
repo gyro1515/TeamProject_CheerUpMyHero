@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
@@ -5,6 +6,9 @@ using UnityEngine;
 
 public class PlayerController : BaseController
 {
+
+    public static event Action OnPlayerAction; //행동을 외부에 알리는 이벤트
+
     Player player;
     
     private Transform playerTransform;
@@ -18,17 +22,8 @@ public class PlayerController : BaseController
     [Header("플레이어 스프라이트 들")]
     [SerializeField] Transform spriteTransform;
 
-    protected override void OnEnable()
-    {
-        base.OnEnable();
-        player.OnMoveDirChanged += PlayerMoveAnimation;
-    }
-
-    protected override void OnDisable()
-    {
-        base.OnDisable();
-        player.OnMoveDirChanged -= PlayerMoveAnimation;
-    }
+    Coroutine manaRecoveryRoutine;
+    
 
 
     protected override void Awake()
@@ -37,7 +32,12 @@ public class PlayerController : BaseController
         player = GetComponent<Player>();
         playerTransform = GetComponent<Transform>();
     }
-
+    protected override void OnEnable()
+    {
+        base.OnEnable();
+        player.OnMoveDirChanged += PlayerMoveAnimation;
+        manaRecoveryRoutine = StartCoroutine(ManaRecoveryRoutine());
+    }
     protected override void Start()
     {
         base.Start();
@@ -67,6 +67,9 @@ public class PlayerController : BaseController
             Debug.Log("N");
             if (animator)
                 animator.SetTrigger(player.AnimationData.AttackParameterHash);
+
+            Attack();//추가한 부분
+            OnPlayerAction?.Invoke();//추가한 부분
         }
     }
 
@@ -74,11 +77,30 @@ public class PlayerController : BaseController
     {
         base.FixedUpdate();
         if (!player) return;
+        if (player.MoveDir != Vector3.zero) //추가한 부분
+        {
+            OnPlayerAction?.Invoke();
+        }
         gameObject.transform.position += player.MoveDir * player.MoveSpeed * Time.fixedDeltaTime;
-
         Vector3 playerPosition = playerTransform.position;
         playerPosition.x = Mathf.Clamp(playerTransform.position.x, minX, maxX);
         playerTransform.position = playerPosition;
+    }
+    protected override void OnDisable()
+    {
+        base.OnDisable();
+        player.OnMoveDirChanged -= PlayerMoveAnimation;
+        if (manaRecoveryRoutine != null) StopCoroutine(manaRecoveryRoutine);
+
+    }
+    IEnumerator ManaRecoveryRoutine()
+    {
+        WaitForSeconds wait = new WaitForSeconds(player.ManaRecoveryTime);
+        while (true)
+        {
+            yield return wait;
+            player.CurMana += 1;
+        }
     }
     public override void Attack()
     {
