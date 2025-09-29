@@ -4,14 +4,11 @@ using UnityEngine;
 
 public class UIEquipGroupSlot : MonoBehaviour
 {
-    [Header("슬롯 정보")]
-    [SerializeField] private EffectTarget _targerType;
-
     [Header("슬롯 리스트")]
     [SerializeField] private List<UIArtifactEquipSlot> _slots;
 
     [Header("인벤토리")]
-    [SerializeField] private UIPassiveArtifactInventory _inventory;
+    [SerializeField] private UIArtifactInventory _inventory;
 
     private void Awake()
     {
@@ -22,7 +19,7 @@ public class UIEquipGroupSlot : MonoBehaviour
     {
         for (int i = 0; i < _slots.Count; i++)
         {
-            _slots[i].Init(_targerType, i, _inventory);
+            _slots[i].Init(i, _inventory);
         }
     }
 }

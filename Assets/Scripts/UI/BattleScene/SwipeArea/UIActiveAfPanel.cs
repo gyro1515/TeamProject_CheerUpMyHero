@@ -11,7 +11,7 @@ public class UIActiveAfPanel : MonoBehaviour
     private void Awake()
     {
         // 플레이어 데이터에 따라 슬롯 초기화
-        equippedActiveAfData = PlayerDataManager.Instance.EquippedActiveAfData;
+        equippedActiveAfData = ArtifactManager.Instance.EquippedActiveAfData;
         for (int i = 0; i < afSlotList.Count; i++)
         {
             if (i < equippedActiveAfData.Count)
