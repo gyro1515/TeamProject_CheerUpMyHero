@@ -5,6 +5,8 @@ using TMPro;
 
 public class UIUnitCardInScroll : MonoBehaviour
 {
+    private CanvasGroup _canvasGroup;
+    
     private Dictionary<int, TempCardData> cardData;
     
     [SerializeField] TMP_Text cardNameText;
@@ -17,6 +19,11 @@ public class UIUnitCardInScroll : MonoBehaviour
     [SerializeField] TMP_Text descriptionText;
 
     [SerializeField] GameObject GreyBlocker;
+
+    private void Awake()
+    {
+        _canvasGroup = GetComponent<CanvasGroup>();
+    }
 
     private void Start()
     {
@@ -43,7 +50,11 @@ public class UIUnitCardInScroll : MonoBehaviour
             GreyBlocker.SetActive(true);
         else
             GreyBlocker.SetActive(false);
+    }
 
+    public void SetAlpha(float alpha)
+    {
+        _canvasGroup.alpha = alpha;
     }
 
 }

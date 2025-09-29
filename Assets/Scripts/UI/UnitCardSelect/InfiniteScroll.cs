@@ -48,7 +48,10 @@ public class InfiniteScroll : MonoBehaviour, IBeginDragHandler, IEndDragHandler
     //Snap 시작되는 속도
     private float snapVelocityThreshold = 400f;
 
+    //현재 선택가능한 카드 0개
     private bool isHidden = false;
+    //현재 선택가능한 카드 1개
+    private bool isSoloCard = false;
 
     private void Awake()
     {
@@ -139,6 +142,17 @@ public class InfiniteScroll : MonoBehaviour, IBeginDragHandler, IEndDragHandler
             }
         }
 
+        //혹시 방금 카드 1개였는데 지금 2개 이상이면 다른 카드 보이게 하기
+        if (isSoloCard &&  cardUIList.Count > 1)
+        {
+            isSoloCard = false;
+            foreach (UIUnitCardInScroll card in cardUIList)
+            {
+                card.SetAlpha(1);
+            }
+        }
+
+
         scrollRect.enabled = true;
 
         //CardUI 순서 초기화
@@ -159,7 +173,14 @@ public class InfiniteScroll : MonoBehaviour, IBeginDragHandler, IEndDragHandler
 
         if (filteredCardList.Count == 1)
         {
-            LockScroll();
+            //가운데 빼고 나머지 카드UI 투명화(그냥 끄면 레이아웃 그룹이 인식 못함
+            foreach (UIUnitCardInScroll card in cardUIList)
+            {
+                card.SetAlpha(0);
+            }
+            cardUIList[2].SetAlpha(1);
+
+            isSoloCard = true;
         }
 
         currentFirstCardIndex = (indexOffset + filteredCardList.Count) % filteredCardList.Count;
@@ -169,10 +190,6 @@ public class InfiniteScroll : MonoBehaviour, IBeginDragHandler, IEndDragHandler
         CheckSelectable();
     }
 
-    void LockScroll()
-    {
-        scrollRect.enabled = false;
-    }
     
     // 드래그 시작 시 호출
     public void OnBeginDrag(PointerEventData eventData)
@@ -187,6 +204,11 @@ public class InfiniteScroll : MonoBehaviour, IBeginDragHandler, IEndDragHandler
     public void OnEndDrag(PointerEventData eventData)
     {
         isDragging = false;
+
+        if (filteredCardList.Count == 1)
+        {
+            StartCoroutine(ForceSnapToCenter());
+        }
     }
 
     void Update()
@@ -199,9 +221,13 @@ public class InfiniteScroll : MonoBehaviour, IBeginDragHandler, IEndDragHandler
             return;
         }
 
-        CardSwap();
+        //카드 개수가 2개 이상일때만 인피니트 스크롤
+        if (filteredCardList.Count > 1)
+        {
+            CardSwap();
 
-        HandleSnap();
+            HandleSnap();
+        }
 
         prevContentAnchoredPos = contentRect.anchoredPosition;
     }
@@ -344,4 +370,24 @@ public class InfiniteScroll : MonoBehaviour, IBeginDragHandler, IEndDragHandler
 
     }
 
+    IEnumerator ForceSnapToCenter()
+    {
+        isSnapping = true;
+        scrollRect.velocity = Vector2.zero;
+
+        float duration = 0.2f; // 스냅에 걸리는 시간
+        float timer = 0f;
+        Vector2 startPos = contentRect.anchoredPosition;
+        Vector2 targetPos = Vector2.zero; // 목표는 무조건 중앙
+
+        while (timer < duration)
+        {
+            timer += Time.deltaTime;
+            contentRect.anchoredPosition = Vector2.Lerp(startPos, targetPos, timer / duration);
+            yield return null;
+        }
+
+        contentRect.anchoredPosition = targetPos;
+        isSnapping = false;
+    }
 }
