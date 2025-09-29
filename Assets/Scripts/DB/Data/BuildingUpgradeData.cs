@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using UnityEngine;
 
 
 public enum BuildingType
@@ -47,7 +48,7 @@ public class BuildingUpgradeData : MonoData
     public string buildingName;
     public int level;
     public int nextLevel;
-    // public string spriteName; //이미지
+    public Sprite buildingSprite; //이미지
 
     public BuildingType buildingType = BuildingType.None;
 

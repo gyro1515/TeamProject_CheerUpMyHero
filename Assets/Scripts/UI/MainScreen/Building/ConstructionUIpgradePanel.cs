@@ -67,7 +67,7 @@ public class ConstructionUpgradePanel : BaseUI
         _mode = PanelMode.Construction;
 
         _constructionData = DataManager.Instance.BuildingUpgradeData.GetData(buildingBaseID);
-
+        currentImage.sprite = tile.emptyTileSprite;
         UpdatePanelContents();
     }
 
@@ -90,7 +90,7 @@ public class ConstructionUpgradePanel : BaseUI
             currentLevelText.text = "빈 땅";
             nextLevelText.text = FormatBuildingName(level1Data);
             actionButtonText.text = "건설";
-
+            nextImage.sprite = level1Data.buildingSprite; // 다음 이미지는 1레벨 건물 이미지
             UpdateCostText(_constructionData.costs);
             UpdateEffectText(null, level1Data);
         }
@@ -107,6 +107,8 @@ public class ConstructionUpgradePanel : BaseUI
                 actionButton.gameObject.SetActive(false);
                 costText.text = "더 이상 업그레이드할 수 없습니다.";
                 UpdateEffectText(currentData, null); // 현재 효과만 표시
+                currentImage.sprite = currentData.buildingSprite; // 현재 건물 이미지만 표시
+                nextImage.gameObject.SetActive(false); // 다음 이미지 UI는 숨김
             }
             else // 업그레이드 가능
             {
@@ -119,6 +121,9 @@ public class ConstructionUpgradePanel : BaseUI
                 currentLevelText.text = FormatBuildingName(currentData);
                 nextLevelText.text = FormatBuildingName(_upgradeData);
                 actionButtonText.text = "업그레이드";
+
+                currentImage.sprite = currentData.buildingSprite; // 현재 레벨 건물 이미지
+                nextImage.sprite = _upgradeData.buildingSprite; // 다음 레벨 건물 
 
                 UpdateCostText(currentData.costs);
                 UpdateEffectText(currentData, _upgradeData);

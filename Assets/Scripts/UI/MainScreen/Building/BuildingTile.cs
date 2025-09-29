@@ -19,12 +19,10 @@ public class BuildingTile : MonoBehaviour
     public event System.Action<BuildingTile> OnTileClicked;
 
     private BuildingUpgradeData _buildingData;
-    private Image _image;
-
-    private Color _emptyColor = Color.white;      // 빈 땅일 때의 기본 색상
-    private Color _builtColor = Color.cyan;       // 건물이 지어졌을 때의 색상
-    private Color _selectedColor = Color.yellow;  // 선택됐을 때의 색상
-
+    [Header("타일 이미지 설정")]
+    [SerializeField] private Image tileImage; // 타일의 이미지를 표시할 Image 컴포넌트
+    [SerializeField] public Sprite emptyTileSprite; // 건물이 없을 때 표시할 기본 빈 타일 이미지
+   
 
 
     // BuildingManager가 타일을 생성할 때 호출해 줄 초기화 함수
@@ -34,6 +32,7 @@ public class BuildingTile : MonoBehaviour
         Y = y;
 
         MyTileType = TileType.Normal;
+        tileImage.sprite = emptyTileSprite;
 
 
         if (x == 4 && (y == 0 || y == 1 || y == 2 || y == 3))
@@ -49,10 +48,7 @@ public class BuildingTile : MonoBehaviour
         {
             GetComponent<Image>().color = Color.gray;
         }
-
-        _image = GetComponent<Image>();
         GetComponent<Button>().onClick.AddListener(OnTileClick);
-        _image.color = _emptyColor;
 
     }
 
@@ -67,28 +63,27 @@ public class BuildingTile : MonoBehaviour
     {
         _buildingData = buildingData;
 
-        _image.color = (buildingData != null) ? _builtColor : _emptyColor;
-
-
-        // _image.sprite = ... // 데이터에 있는 건물 이미지로 교체하는 로직
-    }
-
-    public BuildingUpgradeData GetBuildingData()
-    {
-        return _buildingData;
-    }
-    public void SetSelected(bool isSelected)
-    {
-        if (isSelected)
+        if (buildingData == null)
         {
-            // 선택되면 무조건 선택 색상으로 변경
-            _image.color = _selectedColor;
+            // 데이터가 null이면, 빈 타일 이미지로 되돌립니다.
+            tileImage.sprite = emptyTileSprite;
         }
         else
         {
-            // 선택이 해제되면, 건물이 있는지 없는지에 따라 원래 색으로 복원
-            _image.color = (_buildingData != null) ? _builtColor : _emptyColor;
+            if (buildingData.buildingSprite != null)
+            {
+                tileImage.sprite = buildingData.buildingSprite;
+            }
+            else
+            {
+                // 만약 데이터에 이미지가 없다면, 기본 빈 타일로 표시
+                tileImage.sprite = emptyTileSprite;
+                Debug.LogWarning($"{buildingData.buildingName} Lv.{buildingData.level} 데이터에 이미지가 없습니다.");
+            }
         }
-
+    }
+    public BuildingUpgradeData GetBuildingData()
+    {
+        return _buildingData;
     }
 }
