@@ -46,7 +46,7 @@ public class CameraController : MonoBehaviour
         }
         else
         {
-            _idleTimer += Time.deltaTime;
+            _idleTimer += Time.unscaledDeltaTime;
         }
 
         if (_idleTimer >= IDLE_THRESHOLD && !_isAutoFollowing)
@@ -101,7 +101,7 @@ public class CameraController : MonoBehaviour
         else
         {
             // 이후에는 부드럽게 이동
-            transform.position = Vector3.Lerp(currentCamPos, targetCamPos, Time.deltaTime * _cameraMoveSpeed);
+            transform.position = Vector3.Lerp(currentCamPos, targetCamPos, Time.unscaledDeltaTime * _cameraMoveSpeed);
         }
     }
 
