@@ -49,7 +49,7 @@ public class UIArtifactEquipSlot : BaseUI
             _outline.effectColor = Color.black;
         }
 
-        _nameText.text = equippedArtifact.name;
+        if (equippedArtifact != null) _nameText.text = equippedArtifact.name;
         // 아이콘 처리 로직
 
         if (equippedArtifact is PassiveArtifactData passiveAf)
@@ -112,7 +112,7 @@ public class UIArtifactEquipSlot : BaseUI
         }
         else if (equippedArtifact is ActiveArtifactData activeAf)
         {
-            _statTypeText.text = "Active";
+            _statTypeText.text = $"Lv.{activeAf.levelData[activeAf.curLevel].level}";
             _statValueText.text = $"Cost : {activeAf.cost}";
             _outline.effectColor = _legendaryBorder;
         }

@@ -116,7 +116,7 @@ public class UIArtifactInvInventorySlot : BaseUI
         }
         else if (_data is ActiveArtifactData activeAf)
         {
-            _statTypeText.text = "Active";
+            _statTypeText.text = $"Lv.{activeAf.levelData[activeAf.curLevel].level}";
             _statValueText.text = $"Cost : {activeAf.cost}";
             _outline.effectColor = _legendaryBorder;
         }

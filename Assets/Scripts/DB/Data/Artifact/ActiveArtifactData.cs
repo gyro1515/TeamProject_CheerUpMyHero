@@ -8,4 +8,6 @@ public class ActiveArtifactData : ArtifactData
 {
     public string type;
     public int cost;
+    public List<ActiveArtifactLevelData> levelData;
+    public int curLevel;
 }

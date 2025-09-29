@@ -32,6 +32,8 @@ public class ArtifactManager : SingletonMono<ArtifactManager>
         AddArtifact(080200054);
         AddArtifact(080200085);
         AddArtifact(080200084);
+        AddArtifact(08010001);
+        AddArtifact(08010002);
         // ------------------------
     }
 
