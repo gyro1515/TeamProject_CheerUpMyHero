@@ -8,8 +8,8 @@ public class MainScreenUI : BaseUI
 {
     [Header("버튼 세팅")]
     [SerializeField] private Button _adviserButton;
-    [SerializeField] private Button _battleButton;
-    [SerializeField] private Button _testButton;
+    //[SerializeField] private Button _battleButton;
+    //[SerializeField] private Button _testButton;
     [SerializeField] private Button _deckSelectButton;
     [SerializeField] private Button _notYetButton;
 
@@ -25,8 +25,8 @@ public class MainScreenUI : BaseUI
 
     private void Awake()
     {
-        if (_adviserButton == null || _battleButton == null
-            || _battlePanelCanvasGroup == null /*|| _testPanelCanvasGroup == null*/ || _testButton == null
+        if (_adviserButton == null /*|| _battleButton == null*/
+            || _battlePanelCanvasGroup == null /*|| _testPanelCanvasGroup == null*/ /*|| _testButton == null*/
             || _deckSelectPanelCanvasGroup == null || _deckSelectButton == null || _notYetButton == null)
         {
             Debug.LogError("MainSceneUI: 모든 UI 컴포넌트가 인스펙터에 연결되지 않았습니다.");
@@ -35,8 +35,8 @@ public class MainScreenUI : BaseUI
 
         _adviserButton.onClick.AddListener(OnAdviserButtonClck);
         // 전투 버튼을 클릭했을 때 OnBattleButtonClick 메서드를 실행하도록 연결합니다.
-        _battleButton.onClick.AddListener(OnBattleButtonClick);
-        _testButton.onClick.AddListener(OnTestButtonClick);
+        //_battleButton.onClick.AddListener(OnBattleButtonClick);
+        //_testButton.onClick.AddListener(OnTestButtonClick);
         _deckSelectButton.onClick.AddListener(OnDeckSelectButtonClick);
         _notYetButton.onClick.AddListener(OnNotYetButtonClick);
 
@@ -55,17 +55,18 @@ public class MainScreenUI : BaseUI
     }
     private void OnAdviserButtonClck()
     {
-        OpenPanel(_battlePanelCanvasGroup);
+        //OpenPanel(_battlePanelCanvasGroup);
+        OpenPanel(_deckSelectPanelCanvasGroup);
         //OpenPanel(_testPanelCanvasGroup);
     }
 
-    private void OnBattleButtonClick()
-    {
-        Debug.Log("덱 선택 패널을 엽니다.");
-        OpenPanel(_deckSelectPanelCanvasGroup);
-        ClosePanel(_battlePanelCanvasGroup);
-        //ClosePanel(_testPanelCanvasGroup);
-    }
+    //private void OnBattleButtonClick()
+    //{
+    //    Debug.Log("덱 선택 패널을 엽니다.");
+    //    OpenPanel(_deckSelectPanelCanvasGroup);
+    //    ClosePanel(_battlePanelCanvasGroup);
+    //    //ClosePanel(_testPanelCanvasGroup);
+    //}
 
     private void OnDeckSelectButtonClick()
     {
@@ -89,10 +90,10 @@ public class MainScreenUI : BaseUI
         ClosePanel(_deckSelectPanelCanvasGroup);
     }
 
-    private void OnTestButtonClick()
-    {
-        Debug.Log("테스트 버튼입니다.");
-    }
+    //private void OnTestButtonClick()
+    //{
+    //    Debug.Log("테스트 버튼입니다.");
+    //}
 
 
     private void OpenPanel(CanvasGroup canvasGroup)
