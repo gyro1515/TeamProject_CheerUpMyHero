@@ -151,7 +151,7 @@ public class ConstructionUpgradePanel : BaseUI
     private void UpdateActionButtonState(bool canAfford)
     {
         actionButton.interactable = canAfford;
-        actionButtonText.color = canAfford ? Color.black : Color.red;
+        actionButtonText.color = canAfford ? Color.white : Color.red;
     }
 
     // --- 효과 텍스트 ---
