@@ -63,6 +63,6 @@ public class Player : BaseCharacter
 
     protected override float GetStatBonus(StatType type)
     {
-        return PlayerDataManager.Instance.GetPassiveArtifactStatBonus(EffectTarget.Player, type);
+        return ArtifactManager.Instance.GetPassiveArtifactStatBonus(EffectTarget.Player, type);
     }
 }

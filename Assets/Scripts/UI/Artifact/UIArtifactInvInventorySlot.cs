@@ -23,10 +23,10 @@ public class UIArtifactInvInventorySlot : BaseUI
     [SerializeField] private Color _legendaryBorder = Color.green;
 
     private Outline _outline;
-    private PassiveArtifactData _data;
+    private ArtifactData _data;
     private Button _button;
 
-    public event Action<PassiveArtifactData> OnArtifactInventorySlotClicked;
+    public event Action<ArtifactData> OnArtifactInventorySlotClicked;
 
     private void Awake()
     {
@@ -36,7 +36,7 @@ public class UIArtifactInvInventorySlot : BaseUI
         _button.onClick.AddListener(OnButtonClicked);
     }
 
-    public void Init(PassiveArtifactData data, bool isEquipedThisSlot)
+    public void Init(ArtifactData data, bool isEquipedThisSlot)
     {
         _data = data;
         _equippedImage.SetActive(isEquipedThisSlot);
@@ -56,10 +56,10 @@ public class UIArtifactInvInventorySlot : BaseUI
 
         // 나중에 유물 이미지 넣는 로직 추가해야 함
         
-        if (_data is PassiveArtifactData passiveArtifact)
+        if (_data is PassiveArtifactData passiveAf)
         {
             #region 테두리 색깔 결정하기
-            switch (passiveArtifact.grade)
+            switch (passiveAf.grade)
             {
                 case PassiveArtifactGrade.Common:
                     _outline.effectColor = _commonBorder;
@@ -88,7 +88,7 @@ public class UIArtifactInvInventorySlot : BaseUI
             #endregion
 
             #region 스탯 타입 출력하기
-            switch (passiveArtifact.statType)
+            switch (passiveAf.statType)
             {
                 case StatType.MaxHp:
                     _statTypeText.text = "HP";
@@ -112,7 +112,13 @@ public class UIArtifactInvInventorySlot : BaseUI
             }
             #endregion
 
-            _statValueText.text = passiveArtifact.value.ToString();
+            _statValueText.text = passiveAf.value.ToString();
+        }
+        else if (_data is ActiveArtifactData activeAf)
+        {
+            _statTypeText.text = $"Lv.{activeAf.levelData[activeAf.curLevel].level}";
+            _statValueText.text = $"Cost : {activeAf.cost}";
+            _outline.effectColor = _legendaryBorder;
         }
     }
 

@@ -5,7 +5,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UIArtifactEquipSlot : MonoBehaviour
+public class UIArtifactEquipSlot : BaseUI
 {
     [Header("유물 데이터 적용")]
     [SerializeField] private Image _artifactIcon;
@@ -22,34 +22,40 @@ public class UIArtifactEquipSlot : MonoBehaviour
 
     private Button _button;
     private Outline _outline;
-
-    private EffectTarget _target;
     private int _slotIndex;
 
-    public void Init(EffectTarget target, int slotIndex, UIPassiveArtifactInventory inventory)
+    public void Init(int slotIndex, UIArtifactInventory inventory)
     {
-        _target = target;
         _slotIndex = slotIndex;
         
         _outline = GetComponent<Outline>();
         _button = GetComponent<Button>();
-        _button.onClick.AddListener(() => inventory.OpenInventory(_target, _slotIndex));
+        _button.onClick.AddListener(() => inventory.OpenInventory(_slotIndex));
 
-        PlayerDataManager.Instance.OnEquipPassiveArtifactChanged += UpdateUI;
+        ArtifactManager.Instance.OnEquippedArtifactChanged += UpdateUI;
         UpdateUI();
     }
 
     private void UpdateUI()
     {
-        PassiveArtifactData equippedArtifact = PlayerDataManager.Instance.EquippedPassiveArtifacts[_target][_slotIndex];
+        ArtifactData equippedArtifact = ArtifactManager.Instance.EquippedArtifacts[_slotIndex];
 
-        if (equippedArtifact != null)
+        if (equippedArtifact == null)
         {
-            // 유물 아이콘 넣기
-            _nameText.text = equippedArtifact.name;
+            _artifactIcon.sprite = null;
+            _nameText.text = "";
+            _statTypeText.text = "";
+            _statValueText.text = "";
+            _outline.effectColor = Color.black;
+        }
 
+        if (equippedArtifact != null) _nameText.text = equippedArtifact.name;
+        // 아이콘 처리 로직
+
+        if (equippedArtifact is PassiveArtifactData passiveAf)
+        {
             #region 테두리 색깔 결정하기
-            switch (equippedArtifact.grade)
+            switch (passiveAf.grade)
             {
                 case PassiveArtifactGrade.Common:
                     _outline.effectColor = _commonBorder;
@@ -78,7 +84,7 @@ public class UIArtifactEquipSlot : MonoBehaviour
             #endregion
 
             #region 스탯 타입 출력하기
-            switch (equippedArtifact.statType)
+            switch (passiveAf.statType)
             {
                 case StatType.MaxHp:
                     _statTypeText.text = "HP";
@@ -102,7 +108,13 @@ public class UIArtifactEquipSlot : MonoBehaviour
             }
             #endregion
 
-            _statValueText.text = equippedArtifact.value.ToString();
+            _statValueText.text = passiveAf.value.ToString();
+        }
+        else if (equippedArtifact is ActiveArtifactData activeAf)
+        {
+            _statTypeText.text = $"Lv.{activeAf.levelData[activeAf.curLevel].level}";
+            _statValueText.text = $"Cost : {activeAf.cost}";
+            _outline.effectColor = _legendaryBorder;
         }
     }
 }

@@ -6,7 +6,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using static UnityEngine.GraphicsBuffer;
 
-public class UIPassiveArtifactInventory : BaseUI
+public class UIArtifactInventory : BaseUI
 {
     [Header("인벤토리 타이틀")]
     [SerializeField] private TextMeshProUGUI _title;
@@ -36,9 +36,8 @@ public class UIPassiveArtifactInventory : BaseUI
         _closeButton.onClick.AddListener(OnCloseButtonClicked);
     }
 
-    public void OpenInventory(EffectTarget target, int slotIndex)
+    public void OpenInventory(int slotIndex)
     {
-        _currentTargetType = target;
         _currentSlotIndex = slotIndex;
 
         UpdateUI();
@@ -49,15 +48,11 @@ public class UIPassiveArtifactInventory : BaseUI
     private void UpdateUI()
     {
         // 지금 열린 슬롯에 어떤 유물이 있는 지 확인함
-        PassiveArtifactData currentSlotEquipped = PlayerDataManager.Instance.EquippedPassiveArtifacts[_currentTargetType][_currentSlotIndex];
+        ArtifactData currentSlotEquipped = ArtifactManager.Instance.EquippedArtifacts[_currentSlotIndex];
 
-        // 지금 가진 유물 중에 패시브 아이템임 && 지금 선택된 타겟 타입임 조건을 만족하는 유물만 골라냄
-        List<PassiveArtifactData> ownedList = PlayerDataManager.Instance.OwnedPassiveArtifacts;
-        List<PassiveArtifactData> filteredData = ownedList.OfType<PassiveArtifactData>()
-                                                          .Where(artifact => artifact.effectTarget == _currentTargetType)
-                                                          .ToList();
+        List<ArtifactData> ownedList = ArtifactManager.Instance.OwnedArtifacts;
 
-        while (_slotList.Count < filteredData.Count)    // 딱 데이터 개수만큼 인벤토리 슬롯을 준비해둠 슬롯마다 눌렀을 때 이벤트 추가
+        while (_slotList.Count < ownedList.Count)    // 딱 데이터 개수만큼 인벤토리 슬롯을 준비해둠 슬롯마다 눌렀을 때 이벤트 추가
         {
             GameObject createdSlot = Instantiate(_slotPrefab, _slotCreatPosition);
             UIArtifactInvInventorySlot newSlot = createdSlot.GetComponent<UIArtifactInvInventorySlot>();
@@ -67,10 +62,10 @@ public class UIPassiveArtifactInventory : BaseUI
 
         for (int i = 0; i < _slotList.Count; i++)       // 만든 슬롯에 걸러진 데이터 다 넣어주고 + 슬롯 만듦.
         {
-            if (i < filteredData.Count)        // 어차피 슬롯 개수는 딱 맞춰서 생성되니까 필요 없을 것 같긴 한데....
+            if (i < ownedList.Count)        // 어차피 슬롯 개수는 딱 맞춰서 생성되니까 필요 없을 것 같긴 한데....
             {
-                bool isEquipedThisSlot = (filteredData[i] == currentSlotEquipped);
-                _slotList[i].Init(filteredData[i], isEquipedThisSlot);
+                bool isEquipedThisSlot = (ownedList[i] == currentSlotEquipped);
+                _slotList[i].Init(ownedList[i], isEquipedThisSlot);
                 _slotList[i].gameObject.SetActive(true);
             }
             else
@@ -80,9 +75,9 @@ public class UIPassiveArtifactInventory : BaseUI
         }
     }
 
-    private void SelectArtifact(PassiveArtifactData selectArtifact)
+    private void SelectArtifact(ArtifactData selectArtifact)
     {
-        PlayerDataManager.Instance.EquipPassiveArtifact(selectArtifact, _currentSlotIndex);
+        ArtifactManager.Instance.EquipArtifact(selectArtifact, _currentSlotIndex);
         FadeManager.Instance.FadeOutUI(_canvasGroup);
     }
 

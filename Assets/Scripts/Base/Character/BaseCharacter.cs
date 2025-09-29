@@ -69,7 +69,7 @@ public class BaseCharacter : MonoBehaviour
         curHp = TmpMaxHp;
         IsDead = false;
 
-        PlayerDataManager.Instance.OnEquipPassiveArtifactChanged += UpdateStat;
+        ArtifactManager.Instance.OnEquippedArtifactChanged += UpdateStat;
     }
     protected virtual void Start()
     {
@@ -86,7 +86,7 @@ public class BaseCharacter : MonoBehaviour
     }
     protected virtual void OnDisable()
     {
-        PlayerDataManager.Instance.OnEquipPassiveArtifactChanged -= UpdateStat;
+        ArtifactManager.Instance.OnEquippedArtifactChanged -= UpdateStat;
     }
 
     protected virtual void UpdateStat()

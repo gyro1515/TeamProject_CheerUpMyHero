@@ -28,7 +28,7 @@ public class PlayerUnit : BaseUnit
 
     protected override float GetStatBonus(StatType type)
     {
-        return PlayerDataManager.Instance.GetPassiveArtifactStatBonus(EffectTarget.MeleeUnit, type);
+        return ArtifactManager.Instance.GetPassiveArtifactStatBonus(EffectTarget.MeleeUnit, type);
         // 이거 일단 임시로 Melee 유닛으로 만들어두긴 했는데 유닛을 어떻게 구분할 지에 대한 것도 생각해봐야 함
     }
 }

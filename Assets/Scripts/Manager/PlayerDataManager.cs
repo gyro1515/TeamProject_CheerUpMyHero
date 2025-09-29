@@ -48,25 +48,7 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
             InitializeResources();
             LoadDecks();
         }
-
-        LoadArtifactData();
-
         TestCardGenerate();
-        SetAfDataForTest(); // 추후 삭제 예정***********
-
-        // 패시브 유물 테스트 -----
-        AddPassiveArtifact(080200015);
-        AddPassiveArtifact(080200014);
-        AddPassiveArtifact(080200025);
-        AddPassiveArtifact(080200024);
-        AddPassiveArtifact(080200035);
-        AddPassiveArtifact(080200034);
-        AddPassiveArtifact(080200055);
-        AddPassiveArtifact(080200054);
-        AddPassiveArtifact(080200054);
-        AddPassiveArtifact(080200085);
-        AddPassiveArtifact(080200084);
-        // ------------------------
     }
 
     private void OnEnable()
@@ -189,11 +171,11 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
     private void InitializeResources()
     {
         // 5가지 자원을 모두 딕셔너리에 추가하고 초기 수량을 설정.
-        _resources[ResourceType.Gold] = 10000;
-        _resources[ResourceType.Wood] = 10000;
-        _resources[ResourceType.Iron] = 10000;
+        _resources[ResourceType.Gold] = 100000;
+        _resources[ResourceType.Wood] = 100000;
+        _resources[ResourceType.Iron] = 100000;
         _resources[ResourceType.Food] = CurrentFood;
-        _resources[ResourceType.MagicStone] = 10000;
+        _resources[ResourceType.MagicStone] = 100000;
         _resources[ResourceType.Bm] = 0; 
         _resources[ResourceType.Ticket] = 0;
     }
@@ -387,172 +369,6 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
 
         OnResourceChangedEvent?.Invoke(ResourceType.Food, CurrentFood);
         Debug.Log($"모든 건물 효과 계산 완료: 최대 식량={_calculatedMaxFood}, 식량 보너스={currentFarmGainPercent}%, 유닛 쿨감={TotalUnitCooldownReduction}%, 레어 슬롯={RareUnitSlots}, 에픽 슬롯={EpicUnitSlots}");
-    }
-    #endregion
-
-    // 패시브 유물 관련
-    #region PassiveArtifact
-
-    public event Action OnEquipPassiveArtifactChanged;
-
-    // 플레이어가 보유 중인 유물 리스트
-    public List<PassiveArtifactData> OwnedPassiveArtifacts { get; private set; } = new List<PassiveArtifactData>();
-
-    // 플레이어가 장착한 유물 딕셔너리
-    public Dictionary<EffectTarget, PassiveArtifactData[]> EquippedPassiveArtifacts { get; private set; }
-
-    private const int PlayerPassiveArtifactSlotCount = 4;
-    private const int MeleePassiveArtifactSlotCount = 2;
-    private const int RangedPassiveArtifactSlotCount = 2;
-
-    public void AddPassiveArtifact(int idNumber)     // 특정 유물을 플레이어가 보유 중인 유물 리스트에 추가하는 메서드
-    {
-        if (DataManager.Instance.ArtifactData.TryGetValue(idNumber, out ArtifactData data))
-        {
-            if (data is PassiveArtifactData passiveArtifactData)
-            {
-                OwnedPassiveArtifacts.Add(passiveArtifactData);
-            }
-        }
-        else
-        {
-            Debug.Log("유물 id null이거나 뭔가 문제 있어요 점검하기");
-        }
-    }
-
-    // 패시브 유물 장착하는 메서드 -> 슬롯에 이미 장착된 거 있어도 덮어씀
-    public void EquipPassiveArtifact(PassiveArtifactData equipArtifact, int slotIndex)
-    {
-        EffectTarget target = equipArtifact.effectTarget;
-        PassiveArtifactData[] slots = EquippedPassiveArtifacts[target];
-
-        if (equipArtifact == null) return;
-        if (slotIndex < 0 || slotIndex >= slots.Length) return;
-        if (slots.Where((slots, index) => index != slotIndex)
-                 .Any(slot => slot != null && slot.name == equipArtifact.name)) return;     // 중복 체크 로직 -> 중복 유물 착용 시도할 때 뭔가 처리 필요하면 여기에 추가
-
-        slots[slotIndex] = equipArtifact;
-        OnEquipPassiveArtifactChanged?.Invoke();
-        return;
-    }
-
-    // 패시브 유물 장착 해제하는 메서드
-    public void UnEquipPassiveArtifact(EffectTarget target, int slotIndex)
-    {
-        PassiveArtifactData[] slots = EquippedPassiveArtifacts[target];
-
-        if (!EquippedPassiveArtifacts.ContainsKey(target)) return;
-        if (slotIndex < 0 || slotIndex >= slots.Length) return;
-        if (slots[slotIndex] == null) return;   // 빈 슬롯인 지 체크 -> 빈 슬롯일 때 시도하면 어떤 추가 반응 필요하면 여기에 추가
-
-        slots[slotIndex] = null;
-        OnEquipPassiveArtifactChanged?.Invoke();
-    }
-
-    // 장착한 유물의 특정 스탯 타입 값 도출하는 메서드
-    public float GetPassiveArtifactStatBonus(EffectTarget target, StatType statType)
-    {
-        if (EquippedPassiveArtifacts.TryGetValue(target, out PassiveArtifactData[] slots))
-        {
-            foreach (PassiveArtifactData artifact in slots)
-            {
-                if (artifact != null && artifact.statType == statType)
-                {
-                    return artifact.value;
-                }
-            }
-        }
-        return 0f;
-    }
-
-    // 장착된 패시브 아티팩트의 능력치 받아와서 스탯 종류별로 상승 값 합쳐주는 메서드
-    // -> 중복 아티팩트 착용 가능하던 거 고쳐서 이제 쓸 일이 없어져버림.....
-    public Dictionary<StatType, float> CalculateArtifactTotalBonusStat(EffectTarget target)
-    {
-        Dictionary<StatType, float> totalBonuseStat = new Dictionary<StatType, float>();
-
-        foreach (PassiveArtifactData artifact in EquippedPassiveArtifacts[target])
-        {
-            if (artifact == null) continue;
-
-            if (!totalBonuseStat.ContainsKey(artifact.statType))
-            {
-                totalBonuseStat[artifact.statType] = 0;
-            }
-
-            totalBonuseStat[artifact.statType] += artifact.value;
-        }
-        return totalBonuseStat;
-    }
-
-    // 특정 패시브 아티팩트 id로 값 얻어오는 메서드
-    public float GetPassiveArtifactDataValue(int idNumber)
-    {
-        if (DataManager.Instance.ArtifactData.TryGetValue(idNumber, out ArtifactData data))
-        {
-            if (data is PassiveArtifactData passiveArtifactData)
-            {
-                return passiveArtifactData.value;
-            }
-        }
-        return 0f;
-    }
-
-    public void LoadArtifactData()
-    {
-        // 저장된 데이터 불러오는 로직 넣기~~~~ 지금은 못 넣음~~~~~
-
-        bool hasSaveData = false;
-
-        if (hasSaveData)
-        {
-            // 저장 데이터 불러오는 거 넣기~~~
-        }
-        else    // 아예 게임 처음이면 초기화 메서드 
-        {
-            InitializeEquippedArtifacts();
-        }
-    }
-
-    private void InitializeEquippedArtifacts()      // 유물 초기화 메서드 -> 없어도 괜찮은데 나중에 저장 기능 생길까봐
-    {
-        EquippedPassiveArtifacts = new Dictionary<EffectTarget, PassiveArtifactData[]>
-        {
-            {EffectTarget.Player, new PassiveArtifactData[PlayerPassiveArtifactSlotCount]},
-            {EffectTarget.MeleeUnit, new PassiveArtifactData[MeleePassiveArtifactSlotCount]},
-            {EffectTarget.RangedUnit, new PassiveArtifactData[RangedPassiveArtifactSlotCount]}
-        };
-    }
-    #endregion
-
-    // 액티브 유물
-    #region ActiveArtifact
-    // 소유 액티브 유물 데이터
-    public List<ActiveAfData> OwnedActiveAfData { get; private set; } = new List<ActiveAfData>();
-    // 장착 중인 액티브 유물 데이터
-    public List<ActiveAfData> EquippedActiveAfData { get; private set; } = new List<ActiveAfData>();
-
-    // 장착 액티브 유물 데이터
-    void SetAfDataForTest() // 추후 삭제 예정***********
-    {
-        // 테스트 데이터 세팅, 우선 15개
-        for (int i = 0; i < 15; i++)
-        {
-            ActiveAfData data = new ActiveAfData();
-            data.name = $"데이터{i + 1}";
-            data.lv = UnityEngine.Random.Range(1, 100);
-            int desMul = UnityEngine.Random.Range(3, 31);
-            string description = "";
-            for (int j = 0; j < desMul; j++)
-            {
-                description += "설명 ";
-            }
-            data.description = description;
-            data.cooldown = UnityEngine.Random.Range(30, 251);
-            data.type = UnityEngine.Random.Range(0, 2) > 1 ? "공격" : "디버프";
-            data.cost = UnityEngine.Random.Range(3, 11);
-            OwnedActiveAfData.Add(data);
-        }
     }
     #endregion
 }

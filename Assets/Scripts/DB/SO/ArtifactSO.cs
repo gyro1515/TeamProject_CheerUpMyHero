@@ -39,8 +39,14 @@ public class ArtifactSO : MonoSO<ArtifactData>
         {
             var data = activeArtifactLevels[i];
             if (data == null) continue;
+            if (DB[data.idNumber] is ActiveArtifactData activeAf)
+            {
+                activeAf.levelData.Add(data);
 
-            DB[data.idNumber] = data;
+                // activeArtifacts.Find(x => x == activeAf).levelData.Add(data);
+            }
+            
+
         }
     }
 
