@@ -35,7 +35,7 @@ public class UIArtifactEquipSlot : MonoBehaviour
         _button = GetComponent<Button>();
         _button.onClick.AddListener(() => inventory.OpenInventory(_target, _slotIndex));
 
-        PlayerDataManager.Instance.OnEquipArtifactChanged += UpdateUI;
+        PlayerDataManager.Instance.OnEquipPassiveArtifactChanged += UpdateUI;
         UpdateUI();
     }
 
