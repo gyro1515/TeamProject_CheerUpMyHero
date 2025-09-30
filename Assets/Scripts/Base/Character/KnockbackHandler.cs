@@ -92,7 +92,10 @@ public class KnockbackHandler : MonoBehaviour
         {
             Debug.Log("죽음");
             OnHitBackActive?.Invoke(false);
-            baseUnit.UnitController.SetDead();
+            if (baseUnit.TryGetComponent<Player>(out Player player))
+                Debug.Log("플레이어 넉백 후 사망");
+            else
+                baseUnit.UnitController.SetDead();
             yield break;
         }
         // 죽지 않았다면
