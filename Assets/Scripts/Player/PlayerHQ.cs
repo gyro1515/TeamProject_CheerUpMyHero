@@ -14,6 +14,13 @@ public class PlayerHQ : BaseHQ
         UnitManager.Instance.AddUnitList(this, true);
         GameManager.Instance.PlayerHQ = this;
     }
+    public override void Dead()
+    {
+        base.Dead();
+
+        GameManager.Instance.ShowResultUI(false);
+        Debug.Log("아군 HQ 파괴! 패배!");
+    }
     protected override void SpawnUnit() // 현재 사용 안함
     {
         if (playerUnits.Count == 0) return;

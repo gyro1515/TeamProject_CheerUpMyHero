@@ -53,6 +53,10 @@ public class EnemyHQ : BaseHQ
     public override void Dead()
     {
         base.Dead();
+
+        GameManager.Instance.ShowResultUI(true);
+        GameManager.Instance.ClearStage();
+        Debug.Log("적군 HQ 파괴! 승리!");
     }
     protected override void SpawnUnit()
     {

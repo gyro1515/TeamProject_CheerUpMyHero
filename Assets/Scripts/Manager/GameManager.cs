@@ -211,7 +211,7 @@ public class GameManager : SingletonMono<GameManager>
             Debug.LogError("RewardPanel이 UIManager에 등록되지 않았거나 찾을 수 없습니다!");
         }
     }
-    void ClearStage()
+    public void ClearStage()
     {
         // 플레이어 선택 스테이지 데이터 기반으로 세팅
         (int mainIdx, int subIdx) = PlayerDataManager.Instance.SelectedStageIdx;

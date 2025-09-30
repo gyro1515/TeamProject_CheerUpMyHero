@@ -143,7 +143,7 @@ public class UIStageSelect : BaseUI
 
         // PlayerDataManager에 선택된 스테이지 정보를 저장
         PlayerDataManager.Instance.SelectedStageIdx = (mainIdx, subIdx);
-
+ 
         // 전투 씬을 로드
         SceneLoader.Instance.StartLoadScene(SceneState.BattleScene);
     }
@@ -151,6 +151,13 @@ public class UIStageSelect : BaseUI
     void MoveToSelDeck()
     {
         Debug.Log("덱 선택으로 이동");
-        FadeManager.Instance.SwitchGameObjects(gameObject, _deckPresetController.gameObject);
+        if (_deckPresetController != null)
+        {
+            FadeManager.Instance.SwitchGameObjects(gameObject, _deckPresetController.gameObject);
+        }
+        else
+        {
+            Debug.LogError("UIManager에서 DeckPresetController를 찾을 수 없습니다!");
+        }
     }
 }
