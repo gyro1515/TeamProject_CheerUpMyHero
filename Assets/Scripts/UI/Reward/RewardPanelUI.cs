@@ -19,6 +19,7 @@ public class RewardPanelUI : BaseUI
     [SerializeField] private GameObject magicStoneRewardGroup;
     [SerializeField] private TMP_Text magicStoneText;
     [SerializeField] private TMP_Text resultText;           // 승리 실패 뜨는 텍스트. 결과창 분리되면 없애기
+    [SerializeField] private TMP_Text penaltyInfoText;
 
     [Header("버튼 그룹")]
     [SerializeField] private GameObject victoryButtonGroup;
@@ -35,12 +36,10 @@ public class RewardPanelUI : BaseUI
     [SerializeField] private Button returnButton_Defeat;
 
     private CanvasGroup canvasGroup;
-    private DeckPresetController _deckPresetController; // 덱 재편성을 위해 추가
 
     private void Awake()
     {
         canvasGroup = GetComponent<CanvasGroup>();
-        _deckPresetController = UIManager.Instance.GetUI<DeckPresetController>();
 
 
         if (GameManager.Instance != null)
@@ -63,68 +62,56 @@ public class RewardPanelUI : BaseUI
         //woodText.text = $"목재 + {wood}";
         //ironText.text = $"철괴 + {iron}";
         //magicStoneText.text = $"마력석 + {magicStone}";
-        if (gold > 0)
+        // 골드 보상/페널티
+        victoryButtonGroup.SetActive(isVictory);
+        defeatButtonGroup.SetActive(!isVictory);
+        penaltyInfoText.gameObject.SetActive(!isVictory);
+     
+        if (!isVictory)
         {
-            goldRewardGroup.SetActive(true);
-            goldText.text = $"골드 + {gold}";
-        }
-        else
-        {
-            goldRewardGroup.SetActive(false);
-        }
-
-        // 목재 보상
-        if (wood > 0)
-        {
-            woodRewardGroup.SetActive(true);
-            woodText.text = $"목재 + {wood}";
-        }
-        else
-        {
-            woodRewardGroup.SetActive(false);
+            penaltyInfoText.text = "랜덤한 영지가 황폐화되었습니다.";
+            penaltyInfoText.color = Color.red;
         }
 
-        // 철괴 보상
-        if (iron > 0)
+
+        // 골드
+        goldRewardGroup.SetActive(gold != 0);
+        if (gold != 0)
         {
-            ironRewardGroup.SetActive(true);
-            ironText.text = $"철괴 + {iron}";
-        }
-        else
-        {
-            ironRewardGroup.SetActive(false);
+            goldText.richText = true; // 리치 텍스트 기능 활성화
+            goldText.text = isVictory ? $"골드 +{gold}" : $"골드 <color=red>{gold}</color> 감소";
         }
 
-        // 마력석 보상
-        if (magicStone > 0)
+        // 목재
+        woodRewardGroup.SetActive(wood != 0);
+        if (wood != 0)
         {
-            magicStoneRewardGroup.SetActive(true);
-            magicStoneText.text = $"마력석 + {magicStone}";
-        }
-        else
-        {
-            magicStoneRewardGroup.SetActive(false);
+            woodText.richText = true;
+            woodText.text = isVictory ? $"목재 +{wood}" : $"목재 <color=red>{wood}</color> 감소";
         }
 
-        resultText.text = isVictory ? "스테이지 클리어" : "스테이지 실패";   // 승리, 실패 텍스트 조건문. 결과창 분리되면 삭제하기
-
-        if (isVictory)
+        // 철괴
+        ironRewardGroup.SetActive(iron != 0);
+        if (iron != 0)
         {
-            victoryButtonGroup.SetActive(true);
-            defeatButtonGroup.SetActive(false);
-        }
-        else
-        {
-            victoryButtonGroup.SetActive(false);
-            defeatButtonGroup.SetActive(true);
+            ironText.richText = true;
+            ironText.text = isVictory ? $"철괴 +{iron}" : $"철괴 <color=red>{iron}</color> 감소";
         }
 
-        // BaseUI의 OpenUI를 호출하여 페이드인 등 처리
+        // 마력석
+        magicStoneRewardGroup.SetActive(magicStone != 0);
+        if (magicStone != 0)
+        {
+            magicStoneText.richText = true;
+            magicStoneText.text = isVictory ? $"마력석 +{magicStone}" : $"마력석 <color=red>{magicStone}</color> 감소";
+        }
+
         base.OpenUI();
     
+
     //패널을 끄고 실행을 하면 Awake에서 게임매니저에 자기 자신을 넣을 수 없어서 패널을 켜두고 알파값을 0으로 만든 상태에서
     //스테이지 클리어 함수가 실행이 되면 다시 알파값을 1로 만들고 보여지게
-        canvasGroup.alpha = 1f; // 다시 보이게
+    canvasGroup.alpha = 1f; // 다시 보이게
         canvasGroup.interactable = true; // 다시 상호작용 가능하게
         canvasGroup.blocksRaycasts = true; // 다시 클릭을 막도록
     }
@@ -132,6 +119,7 @@ public class RewardPanelUI : BaseUI
     {
         // 덱 재편성 화면으로 돌아가는 로직
         Time.timeScale = 1f;
+        GameManager.Instance.LoadMain = LoadMain.DeckPresetController;
         SceneLoader.Instance.StartLoadScene(SceneState.MainScene);
     }
     private void OnNextStageButton()

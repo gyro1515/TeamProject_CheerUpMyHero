@@ -3,6 +3,11 @@ using System.Collections.Generic;
 using System.Resources;
 using UnityEngine;
 
+public enum LoadMain
+{
+    None,
+    DeckPresetController
+}
 public class GameManager : SingletonMono<GameManager>
 {
 
@@ -16,8 +21,9 @@ public class GameManager : SingletonMono<GameManager>
     public Player Player { get; set; }
     public bool IsBattleStarted { get; private set; } = false;
 
-    public float StartTime { get; private set; }  
+    public float StartTime { get; private set; }
 
+    public LoadMain LoadMain { get; set; } = LoadMain.None;
 
     protected override void Awake()
     {
@@ -103,6 +109,8 @@ public class GameManager : SingletonMono<GameManager>
 
     public void ShowResultUI(bool isVictory)
     {
+        if (!IsBattleStarted) return; 
+
         IsBattleStarted = false;
         Time.timeScale = 0f;
 
@@ -111,104 +119,83 @@ public class GameManager : SingletonMono<GameManager>
             RewardPanelUI = UIManager.Instance.GetUI<RewardPanelUI>();
         }
 
-        StageRewardData rewardData = DataManager.Instance.RewardData.GetData(currentStageID);
-        if (rewardData == null)
-        {
-            Debug.LogError($"ID: {currentStageID}에 해당하는 보상 데이터를 DataManager에서 찾을 수 없습니다!");
-            return;
-        }
+        int finalGold = 0;
+        int finalWood = 0;
+        int finalIron = 0;
+        int finalMagicStone = 0;
 
-        int totalBaseWood = 0;
-        float totalBonusWoodPercent = 0f;
-        int totalBaseIron = 0;
-        float totalBonusIronPercent = 0f;
-        float totalMagicStoneChance = 0f;
-        int totalMagicStoneMin = 0;
-        int totalMagicStoneMax = 0;
-
-        for (int y = 0; y < 5; y++)
+        if (isVictory) // =============== 승리했을 경우 ===============
         {
-            for (int x = 0; x < 5; x++)
+            StageRewardData rewardData = DataManager.Instance.RewardData.GetData(currentStageID);
+            if (rewardData == null)
             {
-                BuildingUpgradeData building = PlayerDataManager.Instance.BuildingGridData[x, y];
-                if (building != null)
+                Debug.LogError($"ID: {currentStageID}에 해당하는 보상 데이터를 찾을 수 없습니다!");
+                return; // 보상 데이터가 없으면 함수 종료
+            }
+
+            // 건물 효과를 합산하여 추가 보너스를 계산
+            int totalBaseWood = 0;
+            float totalBonusWoodPercent = 0f;
+            int totalBaseIron = 0;
+            float totalBonusIronPercent = 0f;
+            float totalMagicStoneChance = 0f;
+            int totalMagicStoneMin = 0;
+            int totalMagicStoneMax = 0;
+
+            for (int y = 0; y < 5; y++)
+            {
+                for (int x = 0; x < 5; x++)
                 {
-                    foreach (BuildingEffect effect in building.effects)
+                    BuildingUpgradeData building = PlayerDataManager.Instance.BuildingGridData[x, y];
+                    if (building != null)
                     {
-                        switch (effect.effectType)
+                        foreach (BuildingEffect effect in building.effects)
                         {
-                            case BuildingEffectType.BaseWoodProduction:
-                                totalBaseWood += (int)effect.effectValueMin;
-                                break;
-                            case BuildingEffectType.AdditionalWoodProduction:
-                                totalBonusWoodPercent += effect.effectValueMin;
-                                break;
-                            case BuildingEffectType.BaseIronProduction:
-                                totalBaseIron += (int)effect.effectValueMin;
-                                break;
-                            case BuildingEffectType.AdditionalIronProduction:
-                                totalBonusIronPercent += effect.effectValueMin;
-                                break;
-                            case BuildingEffectType.MagicStoneFindChance:
-                                totalMagicStoneChance += effect.effectValueMin;
-                                break;
-                            case BuildingEffectType.MagicStoneProduction:
-                                totalMagicStoneMin += (int)effect.effectValueMin;
-                                totalMagicStoneMax += (int)effect.effectValueMax;
-                                break;
+                            switch (effect.effectType)
+                            {
+                                case BuildingEffectType.BaseWoodProduction: totalBaseWood += (int)effect.effectValueMin; break;
+                                case BuildingEffectType.AdditionalWoodProduction: totalBonusWoodPercent += effect.effectValueMin; break;
+                                case BuildingEffectType.BaseIronProduction: totalBaseIron += (int)effect.effectValueMin; break;
+                                case BuildingEffectType.AdditionalIronProduction: totalBonusIronPercent += effect.effectValueMin; break;
+                                case BuildingEffectType.MagicStoneFindChance: totalMagicStoneChance += effect.effectValueMin; break;
+                                case BuildingEffectType.MagicStoneProduction:
+                                    totalMagicStoneMin += (int)effect.effectValueMin;
+                                    totalMagicStoneMax += (int)effect.effectValueMax;
+                                    break;
+                            }
                         }
                     }
                 }
             }
-        }
 
-        int finalGold = rewardData.rewardGold;
-        int finalWood = rewardData.rewardWood + (int)(totalBaseWood * (1 + totalBonusWoodPercent / 100f));
-        int finalIron = rewardData.rewardIron + (int)(totalBaseIron * (1 + totalBonusIronPercent / 100f));
-        int finalMagicStone = rewardData.rewardMagicStone;
+            //최종 보상을 계산
+            finalGold = rewardData.rewardGold;
+            finalWood = rewardData.rewardWood + (int)(totalBaseWood * (1 + totalBonusWoodPercent / 100f));
+            finalIron = rewardData.rewardIron + (int)(totalBaseIron * (1 + totalBonusIronPercent / 100f));
+            finalMagicStone = rewardData.rewardMagicStone;
 
-        if (Random.Range(0, 100) < totalMagicStoneChance)
-        {
-            finalMagicStone += Random.Range(totalMagicStoneMin, totalMagicStoneMax + 1);
-        }
-
-
-        //float rewardMultiplier = isVictory ? 1.0f : 0.2f;
-        //int goldReward = Mathf.CeilToInt(rewardData.rewardGold * rewardMultiplier);
-        //int woodReward = Mathf.CeilToInt(rewardData.rewardWood * rewardMultiplier);
-        //int ironReward = Mathf.CeilToInt(rewardData.rewardIron * rewardMultiplier);
-        //int magicStoneReward = Mathf.CeilToInt(rewardData.rewardMagicStone * rewardMultiplier);
-
-        float rewardMultiplier = isVictory ? 1.0f : 0.2f;
-
-        finalGold = Mathf.CeilToInt(finalGold * rewardMultiplier);
-        finalWood = Mathf.CeilToInt(finalWood * rewardMultiplier);
-        finalIron = Mathf.CeilToInt(finalIron * rewardMultiplier);
-        finalMagicStone = Mathf.CeilToInt(finalMagicStone * rewardMultiplier);
-
-        PlayerDataManager.Instance.AddResource(ResourceType.Gold, finalGold);
-        PlayerDataManager.Instance.AddResource(ResourceType.Wood, finalWood);
-        PlayerDataManager.Instance.AddResource(ResourceType.Iron, finalIron);
-        PlayerDataManager.Instance.AddResource(ResourceType.MagicStone, finalMagicStone);
-
-
-
-
-        // 실패 UI 따로 만들 거면 여기서 조건문 걸어주기
-        if (RewardPanelUI != null)
-        {
-            if (isVictory)
+            if (Random.Range(0, 100) < totalMagicStoneChance)
             {
-                RewardPanelUI.OpenUI(finalGold, finalWood, finalIron, finalMagicStone, true);
+                finalMagicStone += Random.Range(totalMagicStoneMin, totalMagicStoneMax + 1);
             }
-            else
-            {
-                RewardPanelUI.OpenUI(finalGold, finalWood, finalIron, finalMagicStone, false);
-            }
+
+            //계산된 보상을 PlayerDataManager에 추가
+            PlayerDataManager.Instance.AddResource(ResourceType.Gold, finalGold);
+            PlayerDataManager.Instance.AddResource(ResourceType.Wood, finalWood);
+            PlayerDataManager.Instance.AddResource(ResourceType.Iron, finalIron);
+            PlayerDataManager.Instance.AddResource(ResourceType.MagicStone, finalMagicStone);
+
+            RewardPanelUI?.OpenUI(finalGold, finalWood, finalIron, finalMagicStone, true);
+
         }
-        else
+        else // =============== 패배했을 경우 ===============
         {
-            Debug.LogError("RewardPanel이 UIManager에 등록되지 않았거나 찾을 수 없습니다!");
+            Debug.Log("패배 페널티를 적용합니다.");
+
+            var penalties = PlayerDataManager.Instance.ApplyResourcePenalty();
+
+            // 결과창 UI 열기 (차감된 값이므로 음수로 전달)
+            RewardPanelUI?.OpenUI(-penalties.gold, -penalties.wood, -penalties.iron, -penalties.magicStone, false);
         }
     }
     public void ClearStage()
