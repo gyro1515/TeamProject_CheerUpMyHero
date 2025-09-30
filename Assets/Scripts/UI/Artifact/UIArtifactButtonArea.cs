@@ -8,31 +8,28 @@ public class UIArtifactButtonArea : MonoBehaviour
     [Header("버튼")]
     [SerializeField] private Button _passiveEquipButton;
     [SerializeField] private Button _activeEquipButton;
-    [SerializeField] private Button _allUnEquipButton;
+    [SerializeField] private Button _ConfirmEquipButton;
+
+    private ArtifactType _selectedType;
 
     private void Awake()
     {
-        
+        _passiveEquipButton.onClick.AddListener(OnPassiveEquipButtonClicked);
+        _activeEquipButton.onClick.AddListener(OnActiveEquipButtonClicked);
     }
 
     private void Start()
     {
-        _passiveEquipButton.onClick.AddListener(() => ArtifactManager.Instance.AutoEquipArtifacts(ArtifactType.Passive));
-        _activeEquipButton.onClick.AddListener(() => ArtifactManager.Instance.AutoEquipArtifacts(ArtifactType.Active));
+        _ConfirmEquipButton.onClick.AddListener(() => ArtifactManager.Instance.AutoEquipArtifacts(_selectedType));
     }
 
-    private void OnPassiveShowButtonClicked()
+    private void OnPassiveEquipButtonClicked()
     {
-
+        _selectedType = ArtifactType.Passive;
     }   
     
-    private void OnActivaShowButtonClicked()
+    private void OnActiveEquipButtonClicked()
     {
-
-    }
-
-    private void OnAutoEquipButtonClicked()
-    {
-
+        _selectedType = ArtifactType.Active;
     }
 }
