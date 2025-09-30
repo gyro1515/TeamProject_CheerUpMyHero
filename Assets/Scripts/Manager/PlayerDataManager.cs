@@ -217,6 +217,7 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
     public int CurrentFood { get; private set; } = 0;
     public int MaxFood { get; private set; } = 20000;
     private int _calculatedMaxFood = 20000;
+    public int CalculatedMaxFood { get { return _calculatedMaxFood; } }
     private float foodAccumulator = 0f;
     public int SupplyLevel { get; private set; } = 1;
     private float currentFarmGainPercent = 0f;
