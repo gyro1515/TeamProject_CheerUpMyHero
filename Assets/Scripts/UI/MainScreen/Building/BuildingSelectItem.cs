@@ -6,7 +6,7 @@ public class BuildingSelectItem : BaseUI
 {
     [SerializeField] private Button selectButton;
     [SerializeField] private Image buildingImage;
-    [SerializeField] private TextMeshProUGUI buildingNameText;
+    //[SerializeField] private TextMeshProUGUI buildingNameText;
     [SerializeField] private TextMeshProUGUI costText;
     [SerializeField] private TextMeshProUGUI descriptionText;
     private ConstructionSelectPanel _parentPanel;
@@ -28,7 +28,7 @@ public class BuildingSelectItem : BaseUI
 
         BuildingUpgradeData level1Data = DataManager.Instance.BuildingUpgradeData.GetData(constructionData.nextLevel);
 
-        buildingNameText.text = constructionData.buildingName;
+        //buildingNameText.text = constructionData.buildingName;
         descriptionText.text = constructionData.description;
 
         string costStr = "";
