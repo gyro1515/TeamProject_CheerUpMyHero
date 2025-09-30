@@ -47,7 +47,8 @@ public class SupplyUI : BaseUI
         int maxFood = PlayerDataManager.Instance.MaxFood;
         foodInfoText.text = $"{currentFood} / {maxFood}";
         int calMaxFood = PlayerDataManager.Instance.CalculatedMaxFood;
-        foodCurGaugeImage.fillAmount = (float)currentFood / calMaxFood;
+        //foodCurGaugeImage.fillAmount = (float)currentFood / calMaxFood;
+        foodCurGaugeImage.fillAmount = maxFood != 0 ? (float)currentFood / maxFood : (float)currentFood / 1;
         foodMaxGaugeImage.fillAmount = (float)maxFood / calMaxFood;
     }
 
