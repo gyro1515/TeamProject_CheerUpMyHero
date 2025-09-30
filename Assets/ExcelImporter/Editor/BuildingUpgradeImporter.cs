@@ -94,10 +94,20 @@ public class BuildingUpgradeImporter : Editor
                 }
                 else
                 {
-                    // 만약 셀이 비어있다면 기본값(None)으로 설정
                     data.buildingType = BuildingType.None;
                 }
+                int spritePathColIndex = 26; 
+                string spritePath = GetSafeString(currentRow, spritePathColIndex);
+                if (!string.IsNullOrEmpty(spritePath))
+                {
+                    // Resources.Load<Sprite>()를 사용하여 경로의 스프라이트를 불러옵니다.
+                    data.buildingSprite = Resources.Load<Sprite>(spritePath);
 
+                    if (data.buildingSprite == null)
+                    {
+                        Debug.LogWarning($"행 {row + 1}: 스프라이트 로드 실패! 경로를 확인하세요: Resources/{spritePath}");
+                    }
+                }
                 so.BuildingUpgrade.Add(data);
             }
         }

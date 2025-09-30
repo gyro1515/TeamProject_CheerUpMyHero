@@ -24,20 +24,29 @@ public class BuildingSelectItem : BaseUI
         _parentPanel = parent;
         _upgradePanel = upgradePanel;
 
+        BuildingUpgradeData constructionData = DataManager.Instance.BuildingUpgradeData.GetData(buildingID);
 
-        // DataManager에서 건물 정보를 가져와 UI를 채웁니다.
-        BuildingUpgradeData data = DataManager.Instance.BuildingUpgradeData.GetData(buildingID);
-        // buildingImage.sprite = ... 건물 이미지
-        buildingNameText.text = data.buildingName;
+        BuildingUpgradeData level1Data = DataManager.Instance.BuildingUpgradeData.GetData(constructionData.nextLevel);
+
+        buildingNameText.text = constructionData.buildingName;
+        descriptionText.text = constructionData.description;
 
         string costStr = "";
-        foreach (Cost cost in data.costs)
+        foreach (Cost cost in constructionData.costs)
         {
             costStr += $"{cost.resourceType}: {cost.amount} ";
         }
         costText.text = costStr;
 
-        descriptionText.text = data.description;
+        if (level1Data != null && level1Data.buildingSprite != null)
+        {
+            buildingImage.sprite = level1Data.buildingSprite;
+        }
+        else
+        {
+            // 1레벨 데이터나 이미지가 없을 경우를 대비한 예외 처리
+            buildingImage.gameObject.SetActive(false);
+        }
 
         selectButton.onClick.AddListener(OnSelect);
     }

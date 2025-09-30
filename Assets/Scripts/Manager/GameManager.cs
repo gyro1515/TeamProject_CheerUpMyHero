@@ -16,6 +16,8 @@ public class GameManager : SingletonMono<GameManager>
     public Player Player { get; set; }
     public bool IsBattleStarted { get; private set; } = false;
 
+    public float StartTime { get; private set; }  
+
 
     protected override void Awake()
     {
@@ -93,6 +95,8 @@ public class GameManager : SingletonMono<GameManager>
         PlayerDataManager.Instance.ResetFood();
 
         IsBattleStarted = true;
+
+        StartTime = Time.time;
 
         Debug.Log($"Battle Started! MaxFood: {PlayerDataManager.Instance.MaxFood}, CurrentFood: {PlayerDataManager.Instance.CurrentFood}");    
     }

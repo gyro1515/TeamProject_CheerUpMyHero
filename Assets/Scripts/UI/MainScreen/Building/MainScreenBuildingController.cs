@@ -11,6 +11,7 @@ public class MainScreenBuildingController : SingletonMono<MainScreenBuildingCont
     private BuildingTile[,] _tiles = new BuildingTile[5, 5];
     private BuildingTile _selectedTile;
 
+    [SerializeField] private GameObject selectedFrameObject;
 
     protected override void Awake() //돈디스트로이 온 로드 에러가 떠서 추가했습니다
     {
@@ -76,11 +77,10 @@ public class MainScreenBuildingController : SingletonMono<MainScreenBuildingCont
     // ---------------- 타일 선택 ----------------
     private void HandleTileClick(BuildingTile tile)
     {
-        if (_selectedTile != null)
-            _selectedTile.SetSelected(false);
-
         _selectedTile = tile;
-        _selectedTile.SetSelected(true);
+
+        selectedFrameObject.SetActive(true);
+        selectedFrameObject.transform.position = tile.transform.position;
 
         var currentBuilding = PlayerDataManager.Instance.BuildingGridData[tile.X, tile.Y];
 
@@ -106,8 +106,8 @@ public class MainScreenBuildingController : SingletonMono<MainScreenBuildingCont
     {
         if (_selectedTile != null)
         {
-            _selectedTile.SetSelected(false);
             _selectedTile = null;
+            selectedFrameObject.SetActive(false);
         }
     }
 
