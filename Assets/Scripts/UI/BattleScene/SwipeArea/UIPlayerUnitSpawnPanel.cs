@@ -5,12 +5,13 @@ using UnityEngine;
 public class UIPlayerUnitSpawnPanel : BaseUI
 {
     [Header("유닛 소환 패널 설정")]
-    [SerializeField] GameObject spawnUnitSlotPrefab;
-    [SerializeField] Transform spawnUnitSlotContainer;
+    /*[SerializeField] GameObject spawnUnitSlotPrefab;
+    [SerializeField] Transform spawnUnitSlotContainer;*/
+    [SerializeField] List<UISpawnUnitSlot> spawnUnitSlotList;
 
     private void Awake()
     {
-        if (!spawnUnitSlotPrefab || !spawnUnitSlotContainer) return;
+        /*if (!spawnUnitSlotPrefab || !spawnUnitSlotContainer) return;*/
 
         //PlayerDataManager에서 현재 활성화된 덱 정보를 가져옴
         ////테스트 코드**********
@@ -23,12 +24,14 @@ public class UIPlayerUnitSpawnPanel : BaseUI
         //********
         int activeDeckIndex = PlayerDataManager.Instance.ActiveDeckIndex;
         List<int> deckUnitIds = PlayerDataManager.Instance.DeckPresets[activeDeckIndex].UnitIds;
-        
-        
-        // 가져온 덱 정보로 슬롯을 생성
-        for (int i = 0; i < deckUnitIds.Count; i++)
+
+
+        // 가져온 덱 정보로 슬롯을 세팅: 250930 변경
+        //for (int i = 0; i < deckUnitIds.Count; i++)
+        for (int i = 0; i < spawnUnitSlotList.Count; i++)
         {
-            UISpawnUnitSlot unitSlot = Instantiate(spawnUnitSlotPrefab, spawnUnitSlotContainer).GetComponent<UISpawnUnitSlot>();
+            //UISpawnUnitSlot unitSlot = Instantiate(spawnUnitSlotPrefab, spawnUnitSlotContainer).GetComponent<UISpawnUnitSlot>();
+            UISpawnUnitSlot unitSlot = spawnUnitSlotList[i];
 
             int unitId = deckUnitIds[i];
 

@@ -77,6 +77,7 @@ public class UIManager : SingletonMono<UIManager>, ISceneResettable
 
         // 1. 프리팹 로드
         string path = GetPath<T>();
+        Debug.Log(path);
         GameObject prefab = Resources.Load<GameObject>(path);
         if (prefab == null)
         {

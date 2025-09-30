@@ -22,9 +22,13 @@ public class UIArtifactInvInventorySlot : BaseUI
     [SerializeField] private Color _uniqueBorder = Color.yellow;
     [SerializeField] private Color _legendaryBorder = Color.green;
 
+    [Header("인벤토리")]
+    [SerializeField] private GameObject _inventory;
+
     private Outline _outline;
     private ArtifactData _data;
     private Button _button;
+    
 
     public event Action<ArtifactData> OnArtifactInventorySlotClicked;
 
