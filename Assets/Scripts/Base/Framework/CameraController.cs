@@ -46,7 +46,7 @@ public class CameraController : MonoBehaviour
         }
         else
         {
-            _idleTimer += Time.unscaledDeltaTime;
+            _idleTimer += Time.deltaTime;
         }
 
         if (_idleTimer >= IDLE_THRESHOLD && !_isAutoFollowing)
