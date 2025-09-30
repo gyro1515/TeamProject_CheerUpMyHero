@@ -12,7 +12,7 @@ public class UIActiveAFSlot : MonoBehaviour
     [SerializeField] TextMeshProUGUI afNameText;
     [SerializeField] Image slotIcon;
     [SerializeField] Image cooldownIcon;
-    [SerializeField] TextMeshProUGUI cooldownText;
+    //[SerializeField] TextMeshProUGUI cooldownText;
     [SerializeField] TextMeshProUGUI costText;
     [SerializeField] Button slotBtn;
 
@@ -58,16 +58,18 @@ public class UIActiveAFSlot : MonoBehaviour
         {
             afNameText.text = data.name;
             slotIcon.sprite = data.icon;
-            cooldownText.text = $"{data.cooldown}s";
+            //cooldownText.text = $"{data.cooldown}s";
             costText.text = $"* {data.cost}";
+            // ToDo 쿨타임/마나 코스트은 액티브 유물인 경우만 세팅
             cooldown = data.cooldown;
             manaCost = data.cost;
+            // ToDo 패시브 유물은 버튼 비활성화
         }
         else
         {
             afNameText.text = "빈 슬롯";
             slotIcon.sprite = null;
-            cooldownText.text = "";
+            //cooldownText.text = "";
             costText.text = "";
             slotBtn.enabled = false; // 빈 슬롯은 클릭 불가
         }
