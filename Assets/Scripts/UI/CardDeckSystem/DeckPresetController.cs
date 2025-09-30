@@ -36,8 +36,8 @@ public class DeckPresetController : BaseUI
 
     [Header("기능 버튼")]
     [SerializeField] private Button resetButton;
-    [SerializeField] private Button completeButton;
-    [SerializeField] private Button adviserButton;
+    [SerializeField] private Button completeButton; //adviserbtn
+    [SerializeField] private Button adviserButton; //backbtn
     [SerializeField] private Button relicButton;
     [SerializeField] private Button autoButton;
 
@@ -83,6 +83,7 @@ public class DeckPresetController : BaseUI
         adviserButton.onClick.AddListener(GoToMainScene);
         confirmNameButton.onClick.AddListener(OnConfirmNameChange);
         cancelNameButton.onClick.AddListener(ExitEditMode);
+        autoButton.onClick.AddListener(OnAutoFormClicked);
 
         // UI 초기 상태 설정
         editNameCanvasGroup.alpha = 0;
@@ -222,9 +223,54 @@ public class DeckPresetController : BaseUI
             Debug.LogError("UIManager에서 UIStageSelect를 찾을 수 없습니다!");
         }
     }
+    private void OnAutoFormClicked()
+    {
+        Debug.Log("자동 편성 시작");
 
+        //현재 덱의 빈 슬롯이 몇 개인지, 어느 위치인지 확인함
+        List<int> currentUnitIds = PlayerDataManager.Instance.DeckPresets[_currentDeckIndex].UnitIds;
+        List<int> emptySlotIndexes = new List<int>();
+        for (int i = 0; i < currentUnitIds.Count; i++)
+        {
+            if (currentUnitIds[i] == -1)
+            {
+                emptySlotIndexes.Add(i);
+            }
+        }
 
-    private void OnAutoFormClicked() { Debug.Log("자동 편성 버튼 클릭됨"); }
+        if (emptySlotIndexes.Count == 0)
+        {
+            Debug.Log("빈 슬롯이 없어 자동 편성을 할 수 없습니다.");
+            return;
+        }
+
+        // 플레이어가 보유한 모든 유닛 ID 목록
+        List<int> ownedUnitIds = new List<int>(PlayerDataManager.Instance.cardDic.Keys);
+
+        //이미 현재 덱에 편성된 유닛은 후보에서 제외
+        ownedUnitIds.RemoveAll(id => currentUnitIds.Contains(id));
+
+        //남은 후보 유닛들을 무작위로 섞기
+        for (int i = 0; i < ownedUnitIds.Count; i++)
+        {
+            int randomIndex = UnityEngine.Random.Range(i, ownedUnitIds.Count);
+            int temp = ownedUnitIds[i];
+            ownedUnitIds[i] = ownedUnitIds[randomIndex];
+            ownedUnitIds[randomIndex] = temp;
+        }
+
+        //빈 슬롯에 섞인 유닛들을 순서대로 채워 넣기
+        int unitsToFill = Mathf.Min(emptySlotIndexes.Count, ownedUnitIds.Count);
+        for (int i = 0; i < unitsToFill; i++)
+        {
+            int slotIndexToFill = emptySlotIndexes[i];
+            int unitIdToPlace = ownedUnitIds[i];
+            currentUnitIds[slotIndexToFill] = unitIdToPlace;
+        }
+
+        //변경된 덱 정보로 UI를 새로고침
+        UpdateUnitSlotsUI();
+    }
     private void OnRelicButtonClicked() { Debug.Log("유물 전환 패널 열기 시도"); }
 
     public void GoToMainScene()
