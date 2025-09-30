@@ -21,7 +21,7 @@ public class PlayerHQ : BaseHQ
         GameManager.Instance.ShowResultUI(false);
         Debug.Log("아군 HQ 파괴! 패배!");
     }
-    protected override void SpawnUnit() // 현재 사용 안함
+    /*protected override void SpawnUnit() // 현재 사용 안함
     {
         if (playerUnits.Count == 0) return;
         
@@ -30,7 +30,7 @@ public class PlayerHQ : BaseHQ
         playerUnitGO.transform.position = GetRandomSpawnPos();
         //playerUnitGO.transform.SetParent(gameObject.transform);
         //PlayerUnit playerUnit = playerUnitGO.GetComponent<PlayerUnit>();
-    }
+    }*/
     public void SpawnUnit(PoolType poolType)
     {
         GameObject playerUnitGO = ObjectPoolManager.Instance.Get(poolType);

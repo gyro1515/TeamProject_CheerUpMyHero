@@ -52,8 +52,8 @@ public class UIMiniMap : MonoBehaviour
         uIWidth = rectTransform.rect.width;
         uIWidth *= 0.93f; // 캔버스에 있는 HQ 위치 보정 
 
-        Debug.Log($"월드 크기: {wordWidth}");
-        Debug.Log($"UI 크기: {uIWidth}");
+        //Debug.Log($"월드 크기: {wordWidth}");
+        //Debug.Log($"UI 크기: {uIWidth}");
         //********
         worldCenter = enemyHQPos + playerHQPos;
         worldCenter /= 2;
