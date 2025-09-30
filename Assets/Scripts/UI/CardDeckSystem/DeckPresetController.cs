@@ -17,7 +17,7 @@ public class DeckPresetController : BaseUI
         public GameObject EditIconObject; // 각 탭에 속한 수정 아이콘
     }
 
-    [Header("--- UI 그룹 (Canvas Group 필요!) ---")]
+    [Header("--- UI 그룹 ---")]
     [SerializeField] private CanvasGroup viewModeCanvasGroup; // 평상시 UI 그룹
     [SerializeField] private CanvasGroup editNameCanvasGroup; // 이름 수정 UI 그룹
 
@@ -29,10 +29,6 @@ public class DeckPresetController : BaseUI
     [SerializeField] private TMP_InputField deckNameInputField;
     [SerializeField] private Button confirmNameButton;
     [SerializeField] private Button cancelNameButton;
-
-    [Header("유닛 슬롯 설정")]
-    [SerializeField] private GameObject unitSlotPrefab;
-    [SerializeField] private Transform unitSlotParent;
 
     [Header("시너지 UI 설정")]
     [SerializeField] private GameObject synergyIconPrefab;
@@ -48,11 +44,12 @@ public class DeckPresetController : BaseUI
     [Header("외부 패널 연결")]
     [SerializeField] private ConfirmationPopup confirmationPopup;
     [SerializeField] private UIUnitCardSelect unitCardSelectPanel; //임의로 지어 놓은 것
-
+  
+    [Header("유닛 슬롯 설정")]
+    [SerializeField] private List<DeckUnitSlot> unitSlots;
     // --- 내부 변수 ---
     private MainScreenUI _mainScreenUI;
     private UIStageSelect _stageSelectUI;
-    private List<DeckUnitSlot> _unitSlots = new List<DeckUnitSlot>();
     private int _currentDeckIndex = 1;
 
     private void Update()
@@ -67,10 +64,15 @@ public class DeckPresetController : BaseUI
     }
     private void Start()
     {
-        InstantiateUnitSlots();
         _currentDeckIndex = PlayerDataManager.Instance.ActiveDeckIndex;
         _mainScreenUI = UIManager.Instance.GetUI<MainScreenUI>();
         _stageSelectUI = UIManager.Instance.GetUI<UIStageSelect>();
+
+        for (int i = 0; i < unitSlots.Count; i++)
+        {
+            int slotIndex = i;
+            unitSlots[i].GetComponent<Button>().onClick.AddListener(() => OnUnitSlotClicked(slotIndex));
+        }
 
         deckTabController.Initialize();
         deckTabController.OnTabSelected += SelectDeck;
@@ -91,21 +93,6 @@ public class DeckPresetController : BaseUI
     }
 
     #region UI 생성 및 업데이트
-    void InstantiateUnitSlots()
-    {
-        for (int i = 0; i < 9; i++)
-        {
-            GameObject slotGO = Instantiate(unitSlotPrefab, unitSlotParent);
-            slotGO.name = $"UnitSlot_{i}";
-            DeckUnitSlot slotScript = slotGO.GetComponent<DeckUnitSlot>();
-            if (slotScript != null)
-            {
-                _unitSlots.Add(slotScript);
-                int slotIndex = i;
-                slotScript.GetComponent<Button>().onClick.AddListener(() => OnUnitSlotClicked(slotIndex));
-            }
-        }
-    }
 
     public void SelectDeck(int deckIndex)
     {
@@ -120,12 +107,15 @@ public class DeckPresetController : BaseUI
     private void UpdateUnitSlotsUI()
     {
         List<int> currentDeckUnits = PlayerDataManager.Instance.DeckPresets[_currentDeckIndex].UnitIds;
-        for (int i = 0; i < _unitSlots.Count; i++)
+        for (int i = 0; i < unitSlots.Count; i++)
         {
             int unitId = currentDeckUnits[i];
 
+            //PlayerDataManager에서 TempCardData를 가져옵니다
             var unitData = (unitId == -1) ? null : PlayerDataManager.Instance.GetUnitData(unitId);
-            _unitSlots[i].SetData(unitData, i);
+
+            //DeckUnitSlot의 SetData 함수에 unitData와 슬롯 번호를 전달
+            unitSlots[i].SetData(unitData, i);
         }
         UpdateCompleteButtonState();
         // UpdateSynergyUI();
