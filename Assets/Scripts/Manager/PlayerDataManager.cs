@@ -210,6 +210,26 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
             Debug.LogWarning($"ResourceManager: 존재하지 않는 자원 타입입니다. ({type})");
         }
     }
+
+    public (int gold, int wood, int iron, int magicStone) ApplyResourcePenalty()
+    {
+        // Food를 제외한 재화에 대해 5% 페널티 계산
+        int goldPenalty = Mathf.CeilToInt(GetResourceAmount(ResourceType.Gold) * 0.05f);
+        AddResource(ResourceType.Gold, -goldPenalty);
+
+        int woodPenalty = Mathf.CeilToInt(GetResourceAmount(ResourceType.Wood) * 0.05f);
+        AddResource(ResourceType.Wood, -woodPenalty);
+
+        int ironPenalty = Mathf.CeilToInt(GetResourceAmount(ResourceType.Iron) * 0.05f);
+        AddResource(ResourceType.Iron, -ironPenalty);
+
+        int magicStonePenalty = Mathf.CeilToInt(GetResourceAmount(ResourceType.MagicStone) * 0.05f);
+        AddResource(ResourceType.MagicStone, -magicStonePenalty);
+
+        Debug.Log($"패배 페널티: 골드 -{goldPenalty}, 목재 -{woodPenalty}, 철 -{ironPenalty}, 마력석 -{magicStonePenalty}");
+
+        return (goldPenalty, woodPenalty, ironPenalty, magicStonePenalty);
+    }
     #endregion
 
     #region Food
