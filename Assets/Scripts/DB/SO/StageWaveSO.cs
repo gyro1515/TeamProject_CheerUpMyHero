@@ -6,11 +6,11 @@ using UnityEngine;
 [ExcelAsset(AssetPath = "Resources/DB")]
 public class StageWaveSO : MonoSO<StageWaveData>
 {
-	public List<StageWaveData> stageWaveData;
+	public List<StageWaveData> stageWaveData1;
 	public List<StageWaveData> stageWaveData2;
     public override List<StageWaveData> GetList()
     {
-        return stageWaveData;
+        return stageWaveData1;
     }
 
     public List<StageWaveData> GetStageWaveDataList(int mainStageIdx)
@@ -18,7 +18,7 @@ public class StageWaveSO : MonoSO<StageWaveData>
         switch (mainStageIdx)
         {
             case 0:
-                return stageWaveData;
+                return stageWaveData1;
             case 1:
                 return stageWaveData2;
             default:
@@ -30,9 +30,9 @@ public class StageWaveSO : MonoSO<StageWaveData>
 
     public override void SetData(Dictionary<int, StageWaveData> DB)
     {
-        for (int i = 0; i < stageWaveData.Count; i++)
+        for (int i = 0; i < stageWaveData1.Count; i++)
         {
-            var data = stageWaveData[i];             
+            var data = stageWaveData1[i];             
             if (data == null) continue;
 
             DB[data.idNumber] = data;                

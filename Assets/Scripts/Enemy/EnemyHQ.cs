@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public class EnemyHQ : BaseHQ
 {
@@ -9,7 +10,7 @@ public class EnemyHQ : BaseHQ
 
     public Coroutine spawnUnitRoutine; // 웨이브시 스폰은 일시 정지용
 
-    private EnemyWaveSystem waveSystem;
+    public EnemyWaveSystem WaveSystem { get; private set; }
     private bool isDefenseWaveSpawned = false;
     // 적 유닛 스폰 쿨타임 실행용
     Dictionary<PoolType, bool> enemyUnitCanSpawn = new Dictionary<PoolType, bool>();
@@ -26,10 +27,10 @@ public class EnemyHQ : BaseHQ
         UIManager.Instance.GetUI<UIHpBarContainer>().AddHpBar(this, EUIHpBarType.EnemyUnit, new Vector2(300f, 16.5f));
         // 적 유닛 리스트에 추가
         UnitManager.Instance.AddUnitList(this, false);
-        
+
         //InvokeRepeating("SpawnUnit", 0f, spawnInterval);
 
-        waveSystem = GetComponent<EnemyWaveSystem>();
+        WaveSystem = GetComponent<EnemyWaveSystem>();
     }
     protected override void Start()
     {
@@ -45,12 +46,12 @@ public class EnemyHQ : BaseHQ
         if (!isDefenseWaveSpawned && CurHp / MaxHp <= 0.7f)
         {
             isDefenseWaveSpawned = true;
-            waveSystem.SpawnDefenseWave();
+            WaveSystem.SpawnDefenseWave();
         }
         // 테스트 키
         if(Input.GetKeyDown(KeyCode.Alpha4))
         {
-            waveSystem.SpawnDefenseWave();
+            WaveSystem.SpawnDefenseWave();
         }
     }
     public override void Dead()
