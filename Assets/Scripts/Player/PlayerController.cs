@@ -10,7 +10,11 @@ public class PlayerController : BaseController
     public static event Action OnPlayerAction; //행동을 외부에 알리는 이벤트
 
     Player player;
-    
+    Coroutine findTargetRoutine;
+    Coroutine attackRoutine;
+    Coroutine atkAnimRoutine;
+    bool isAttacking = false;
+
     private Transform playerTransform;
 
     private PlayerHQ playerHQ;
@@ -23,7 +27,7 @@ public class PlayerController : BaseController
     [SerializeField] Transform spriteTransform;
 
     Coroutine manaRecoveryRoutine;
-    
+
 
 
     protected override void Awake()
@@ -37,6 +41,9 @@ public class PlayerController : BaseController
         base.OnEnable();
         player.OnMoveDirChanged += PlayerMoveAnimation;
         manaRecoveryRoutine = StartCoroutine(ManaRecoveryRoutine());
+
+        findTargetRoutine = StartCoroutine(TargetingRoutine());
+        attackRoutine = StartCoroutine(AttackRoutine());
     }
     protected override void Start()
     {
@@ -62,15 +69,16 @@ public class PlayerController : BaseController
     protected override void Update()
     {
         base.Update();
-        if (Input.GetKeyDown(KeyCode.N))
-        {
-            Debug.Log("N");
-            if (animator)
-                animator.SetTrigger(player.AnimationData.AttackParameterHash);
+        //if (Input.GetKeyDown(KeyCode.N))
+        //{
+        //    Debug.Log("N");
+        //    if (animator)
+        //        animator.SetTrigger(player.AnimationData.AttackParameterHash);
 
-            Attack();//추가한 부분
-            OnPlayerAction?.Invoke();//추가한 부분
-        }
+        //    Attack();//추가한 부분
+        //    OnPlayerAction?.Invoke();//추가한 부분
+        //}
+
     }
 
     protected override void FixedUpdate()
@@ -105,12 +113,19 @@ public class PlayerController : BaseController
     public override void Attack()
     {
         base.Attack();
-        if (animator)
-            animator.SetTrigger(player.AnimationData.AttackParameterHash);
+        player.TargetUnit.TakeDamage(player.AtkPower);
     }
     void PlayerMoveAnimation(Vector3 newMoveDir)
     {
-        if (animator) 
+        if (isAttacking)
+        {
+            ResetPlayerUnitController();
+            if (atkAnimRoutine != null)
+                StopCoroutine(atkAnimRoutine);
+            findTargetRoutine = StartCoroutine(TargetingRoutine());
+        }
+
+        if (animator)
             animator.SetFloat(player.AnimationData.SpeedParameterHash, Mathf.Abs((float)player.MoveDir.x));
         if (player.MoveDir.x < 0)
             spriteTransform.rotation = Quaternion.Euler(0, 0, 0);
@@ -118,4 +133,108 @@ public class PlayerController : BaseController
             spriteTransform.rotation = Quaternion.Euler(0, 180, 0);
     }
 
+
+    //일단 PlayerUnitController에서 그대로 가져옴
+    IEnumerator TargetingRoutine()
+    {
+        // 0.2초마다 타겟 갱신
+        WaitForSeconds wait = new WaitForSeconds(0.2f);
+        yield return null;
+        while (true)
+        {
+            //player.TargetUnit = UnitManager.Instance.FindClosestTarget(player, true);
+            player.TargetUnit = UnitManager.Instance.FindClosestTarget(player, true, out Transform targetPos);
+            if (targetPos != null)
+                Debug.Log($"타겟위치: {targetPos.position.x}");
+            yield return wait;
+        }
+    }
+    IEnumerator AttackRoutine()
+    {
+        // 0.2초마다 타겟 갱신
+        WaitForSeconds wait = new WaitForSeconds(10f / player.AttackRate);
+        while (true)
+        {
+            if (player.TargetUnit != null && player.MoveDir == Vector3.zero)
+            {
+                if (isAttacking) { yield return null; continue; }
+
+                // 현재 스트라이프, 애니메이션 없는 캐릭터도 있으므로
+                if (animator == null)
+                {
+                    Attack(); // 바로 공격
+                    yield return wait;
+                    continue;
+                }
+                // 적 인식했다면 공격 시작
+                animator?.SetTrigger(player.AnimationData.AttackParameterHash);
+                // 적 인식 루틴 정지(움직임 중지)
+                if (findTargetRoutine != null) StopCoroutine(findTargetRoutine);
+                // 어택 애니메이션 루틴 시작
+                isAttacking = true;
+                atkAnimRoutine = StartCoroutine(AtkAnimRoutine());
+                yield return wait;
+            }
+            else yield return null;
+
+        }
+    }
+    IEnumerator AtkAnimRoutine()
+    {
+        // Attack 상태 진입 대기
+        float normalizedTime = -1f;
+        do
+        {
+            if (!isAttacking)
+                yield break;
+
+            normalizedTime = GetNormalizedTime(attackStateHash);
+            yield return null;
+        } while (normalizedTime < 0f);
+        // 현재 기준 예시:
+        // 공격 애니메이션 총 길이 0.25초
+        // 0.36지점까지 = 0.09초에 해당
+        // 0.09초를 딜레이 초로 늘리려면
+        animator.speed = player.StartAttackTime / player.AttackDelayTime;
+        float animatorSpeed = animator.speed;
+
+        while (normalizedTime < player.StartAttackNormalizedTime)
+        {
+            if (!isAttacking)
+                yield break;
+
+            if (player.TargetUnit == null || player.TargetUnit.IsDead()) // 공격 중에 죽었다면 브레이크
+            {
+                ResetPlayerUnitController();
+                findTargetRoutine = StartCoroutine(TargetingRoutine());
+                yield break;
+            }
+            normalizedTime = GetNormalizedTime(attackStateHash);
+            yield return null;
+        }
+
+        Attack();
+        animator.speed = 1f;
+
+        while (normalizedTime >= 0f && normalizedTime < 1f)
+        {
+            if (!isAttacking)
+                yield break;
+            normalizedTime = GetNormalizedTime(attackStateHash);
+            yield return null;
+        }
+        // 공격 재생이 끝났다면 다시 적 찾기
+        findTargetRoutine = StartCoroutine(TargetingRoutine());
+        isAttacking = false;
+
+        player.TargetUnit = null;
+    }
+
+    void ResetPlayerUnitController()
+    {
+        player.TargetUnit = null;
+        if (animator) animator.speed = 1f;
+        isAttacking = false;
+        animator.SetTrigger(player.AnimationData.StopAttackParameterHash);
+    }
 }

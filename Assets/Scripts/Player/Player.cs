@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Player : BaseCharacter
+public class Player : BaseUnit
 {
 
     [field: Header("플레이어 세팅")]
@@ -42,6 +42,7 @@ public class Player : BaseCharacter
         OnDead += () =>
         {
             UnitManager.Instance.RemoveUnitFromList(this, true);
+            GameManager.Instance.ShowResultUI(false);
         };
         //GameManager에게 전투 시작 준비를 명령
         GameManager.Instance.StartBattle(); //배틀씬으로 갔을 때부터 식량 획득 증가 함수

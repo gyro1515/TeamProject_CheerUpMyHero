@@ -248,14 +248,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: Player
       objectReference: {fileID: 0}
-    - target: {fileID: 7275744959245793722, guid: 6142c93da59ac3146becd053b6dc87dc, type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 8229437873389692543, guid: 6142c93da59ac3146becd053b6dc87dc, type: 3}
-      propertyPath: m_SortAtRoot
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 9081392006896655399, guid: 6142c93da59ac3146becd053b6dc87dc, type: 3}
       propertyPath: m_LocalPosition.x
       value: -30
@@ -368,7 +360,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6214211965214239402, guid: 3466134d531231444a6cc7fcce8bbc4c, type: 3}
       propertyPath: spawnInterval
-      value: 3
+      value: 0.2
       objectReference: {fileID: 0}
     - target: {fileID: 6214211965214239402, guid: 3466134d531231444a6cc7fcce8bbc4c, type: 3}
       propertyPath: spawnWaveInterval
@@ -376,15 +368,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6214211965214239402, guid: 3466134d531231444a6cc7fcce8bbc4c, type: 3}
       propertyPath: enemyUnits.Array.size
-      value: 1
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 6214211965214239402, guid: 3466134d531231444a6cc7fcce8bbc4c, type: 3}
       propertyPath: enemyUnits.Array.data[0]
-      value: 1
+      value: 18
       objectReference: {fileID: 0}
     - target: {fileID: 6214211965214239402, guid: 3466134d531231444a6cc7fcce8bbc4c, type: 3}
       propertyPath: enemyUnits.Array.data[1]
-      value: 2
+      value: 19
+      objectReference: {fileID: 0}
+    - target: {fileID: 6214211965214239402, guid: 3466134d531231444a6cc7fcce8bbc4c, type: 3}
+      propertyPath: enemyUnits.Array.data[2]
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8258439228759316766, guid: 3466134d531231444a6cc7fcce8bbc4c, type: 3}
       propertyPath: m_Enabled
@@ -575,18 +571,6 @@ PrefabInstance:
     - target: {fileID: 2839723401308841165, guid: ed2d1107c2f10524fa453716cd4880ea, type: 3}
       propertyPath: m_Name
       value: PlayerHQ
-      objectReference: {fileID: 0}
-    - target: {fileID: 2839723401308841165, guid: ed2d1107c2f10524fa453716cd4880ea, type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 9005117637283811161, guid: ed2d1107c2f10524fa453716cd4880ea, type: 3}
-      propertyPath: maxY
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 9005117637283811161, guid: ed2d1107c2f10524fa453716cd4880ea, type: 3}
-      propertyPath: spawnInterval
-      value: 5.94
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

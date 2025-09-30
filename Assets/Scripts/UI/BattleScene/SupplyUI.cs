@@ -11,6 +11,9 @@ public class SupplyUI : BaseUI
 
     [SerializeField] private Color affordableColor = Color.black; 
     [SerializeField] private Color unaffordableColor = Color.red;
+    [Header("식량 게이지")]
+    [SerializeField] Image foodCurGaugeImage;
+    [SerializeField] Image foodMaxGaugeImage;
     private void OnEnable()
     {
         PlayerDataManager.Instance.OnResourceChangedEvent += OnResourceChanged;
@@ -43,6 +46,10 @@ public class SupplyUI : BaseUI
         int currentFood = PlayerDataManager.Instance.CurrentFood;
         int maxFood = PlayerDataManager.Instance.MaxFood;
         foodInfoText.text = $"{currentFood} / {maxFood}";
+        int calMaxFood = PlayerDataManager.Instance.CalculatedMaxFood;
+        foodCurGaugeImage.fillAmount = (float)currentFood / calMaxFood;
+        //foodCurGaugeImage.fillAmount = maxFood != 0 ? (float)currentFood / maxFood : (float)currentFood / 1;
+        foodMaxGaugeImage.fillAmount = (float)maxFood / calMaxFood;
     }
 
     private void UpdateSupplyLevelUI()
