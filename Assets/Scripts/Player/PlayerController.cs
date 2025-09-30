@@ -79,8 +79,6 @@ public class PlayerController : BaseController
         //    OnPlayerAction?.Invoke();//추가한 부분
         //}
 
-        if (player.TargetUnit == null && isAttacking)
-            Debug.LogWarning("널!!!!!!!");
     }
 
     protected override void FixedUpdate()
