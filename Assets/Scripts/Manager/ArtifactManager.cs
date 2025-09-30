@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class ArtifactManager : SingletonMono<ArtifactManager>
@@ -135,6 +136,76 @@ public class ArtifactManager : SingletonMono<ArtifactManager>
     private void InitializeEquippedArtifacts()      // 유물 초기화 메서드 -> 없으면 NullReference 생기더라구요
     {
         EquippedArtifacts = new List<ArtifactData>(new ArtifactData[ArtifactSlotCount]);
+    }
+
+    public void AutoEquipArtifacts(ArtifactType type)
+    {
+        var sortedPAf = OwnedArtifacts.OfType<PassiveArtifactData>()
+                                                     .OrderByDescending(p => p.grade)
+                                                     .ThenBy(p => p.idNumber)
+                                                     .ToList();
+
+        var sortedAAf = OwnedArtifacts.OfType<ActiveArtifactData>()
+                                                     .OrderBy(a => a.cost)
+                                                     .ToList();
+
+        List<ArtifactData> primaryList;
+        List<ArtifactData> subList;
+
+        if (type == ArtifactType.Passive)
+        {
+            primaryList = sortedPAf.Cast<ArtifactData>().ToList();
+            subList = sortedAAf.Cast<ArtifactData>().ToList();
+        }
+        else
+        {
+            primaryList = sortedAAf.Cast<ArtifactData>().ToList();
+            subList = sortedPAf.Cast<ArtifactData>().ToList();
+        }
+
+        for (int i = 0; i < ArtifactSlotCount; i++)
+        {
+            EquippedArtifacts[i] = null;
+        }
+
+        int slotIndex = 0;
+        HashSet<(EffectTarget, StatType)> equippedPassiveTypes = new HashSet<(EffectTarget, StatType)>();
+
+        foreach (ArtifactData artifact in primaryList)
+        {
+            if (artifact is PassiveArtifactData passive)
+            {
+                if (equippedPassiveTypes.Contains((passive.effectTarget, passive.statType)))
+                {
+                    continue;
+                }
+                equippedPassiveTypes.Add((passive.effectTarget, passive.statType));
+            }
+
+            EquippedArtifacts[slotIndex] = artifact;
+            slotIndex++;
+        }
+
+        if (slotIndex < 8)
+        {
+            foreach (ArtifactData artifact in subList)
+            {
+                if (artifact is PassiveArtifactData passive)
+                {
+                    if (equippedPassiveTypes.Contains((passive.effectTarget, passive.statType)))
+                    {
+                        continue;
+                    }
+                    equippedPassiveTypes.Add((passive.effectTarget, passive.statType));
+                }
+                
+                EquippedArtifacts[slotIndex] = artifact;
+                slotIndex++;
+            }
+        }
+        
+
+        OnEquippedArtifactChanged?.Invoke();
     }
 
     // 소유 액티브 유물 데이터

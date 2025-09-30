@@ -6,17 +6,19 @@ using UnityEngine.UI;
 public class UIArtifactButtonArea : MonoBehaviour
 {
     [Header("버튼")]
-    [SerializeField] private Button _passiveShowButton;
-    [SerializeField] private Button _activaShowButton;
-    [SerializeField] private Button _autoEquipButton;
-
-    [Header("패널")]
-    [SerializeField] private GameObject _passiveArtifactPanel;
-    [SerializeField] private GameObject _activaArtifactPanel;
+    [SerializeField] private Button _passiveEquipButton;
+    [SerializeField] private Button _activeEquipButton;
+    [SerializeField] private Button _allUnEquipButton;
 
     private void Awake()
     {
         
+    }
+
+    private void Start()
+    {
+        _passiveEquipButton.onClick.AddListener(() => ArtifactManager.Instance.AutoEquipArtifacts(ArtifactType.Passive));
+        _activeEquipButton.onClick.AddListener(() => ArtifactManager.Instance.AutoEquipArtifacts(ArtifactType.Active));
     }
 
     private void OnPassiveShowButtonClicked()
