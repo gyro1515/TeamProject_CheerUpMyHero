@@ -55,8 +55,9 @@ public class UISwipeAreaVer2 : MonoBehaviour
             elapsed += Time.deltaTime;
             float t = Mathf.Clamp01(elapsed / duration);
             //t *= t; // 점점 빨라지도록
-            t = 1f - Mathf.Pow((1f - t), 2); // 점점 느려지도록
-            // 3가지 버전: 등속, 점점 빨라짐, 점점 느려짐
+            //t = 1f - Mathf.Pow((1f - t), 2); // 점점 느려지도록
+            t = t * t * (3 - 2 * t); // 빨라졌다 느려짐
+            // 4가지 버전: 등속, 점점 빨라짐, 점점 느려짐, 빨라졌다 느려짐
             scrollRect.horizontalNormalizedPosition = Mathf.Lerp(start, end, t);
             yield return null;
         }
