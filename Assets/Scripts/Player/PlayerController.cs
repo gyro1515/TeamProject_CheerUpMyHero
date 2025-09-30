@@ -79,7 +79,8 @@ public class PlayerController : BaseController
         //    OnPlayerAction?.Invoke();//추가한 부분
         //}
 
-        Debug.Log($"공격 중: {isAttacking}");
+        if (player.TargetUnit == null && isAttacking)
+            Debug.LogWarning("널!!!!!!!");
     }
 
     protected override void FixedUpdate()
@@ -204,7 +205,7 @@ public class PlayerController : BaseController
             if (!isAttacking)
                 yield break;
 
-            if (player.TargetUnit.IsDead()) // 공격 중에 죽었다면 브레이크
+            if (player.TargetUnit == null || player.TargetUnit.IsDead()) // 공격 중에 죽었다면 브레이크
             {
                 ResetPlayerUnitController();
                 findTargetRoutine = StartCoroutine(TargetingRoutine());
@@ -217,9 +218,6 @@ public class PlayerController : BaseController
         Attack();
         animator.speed = 1f;
 
-        // 공격 직후에 찾는게 낫지 않을까?
-        findTargetRoutine = StartCoroutine(TargetingRoutine());
-
         while (normalizedTime >= 0f && normalizedTime < 1f)
         {
             if (!isAttacking)
@@ -228,9 +226,12 @@ public class PlayerController : BaseController
             yield return null;
         }
         // 공격 재생이 끝났다면 다시 적 찾기
-        //findTargetRoutine = StartCoroutine(TargetingRoutine());
+        findTargetRoutine = StartCoroutine(TargetingRoutine());
         isAttacking = false;
+
+        player.TargetUnit = null;
     }
+
     void ResetPlayerUnitController()
     {
         player.TargetUnit = null;
