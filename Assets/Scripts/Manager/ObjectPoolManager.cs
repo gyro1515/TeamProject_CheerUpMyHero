@@ -46,6 +46,13 @@ public enum PoolType
     PlayerUnit1_1,
     PlayerUnit2_1,
     PlayerUnit3_1,
+    EnemyUnit10_1,
+    EnemyUnit16,
+    EnemyUnit17,
+    EnemyUnit18,
+    EnemyUnit19,
+    EnemyUnit20,
+    EnemyUnit20_1,
     None
 }
 

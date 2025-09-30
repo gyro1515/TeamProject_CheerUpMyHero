@@ -3888,6 +3888,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5107177345501136599}
+  - component: {fileID: 839835476674486736}
   m_Layer: 0
   m_Name: P_LClose
   m_TagString: Untagged
@@ -3911,6 +3912,18 @@ Transform:
   - {fileID: 7349169707656736447}
   m_Father: {fileID: 3579889776924353491}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &839835476674486736
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5763580952226405031}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9975f43bd66fb7d45b1bbea27d938a7c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &6289415098193377337
 GameObject:
   m_ObjectHideFlags: 0
@@ -4254,21 +4267,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 808adad36016f064c86076c50b68208f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  <MaxHp>k__BackingField: 20
-  <AtkPower>k__BackingField: 3
-  <MoveSpeed>k__BackingField: 1.5
+  <MaxHp>k__BackingField: 90
+  <AtkPower>k__BackingField: 8
+  <MoveSpeed>k__BackingField: 0.5
   <HpBarPosByCharacter>k__BackingField: {x: 0, y: 2.3, z: 0}
   <HpBarSize>k__BackingField: {x: 0, y: 0}
   curHp: 0
   <ListIndex>k__BackingField: -1
-  <AttackRate>k__BackingField: 3
-  <AttackRange>k__BackingField: 0
-  <CognizanceRange>k__BackingField: 2
+  <AttackRate>k__BackingField: 2.35
+  <AttackRange>k__BackingField: 0.6
+  <CognizanceRange>k__BackingField: 0.6
   <FoodConsumption>k__BackingField: 0
-  <AttackDelayTime>k__BackingField: 1
+  <AttackDelayTime>k__BackingField: 0.8
   <StartAttackTime>k__BackingField: 0.09
   <StartAttackNormalizedTime>k__BackingField: 0.36
-  <HitBackCount>k__BackingField: 3
+  <HitBackCount>k__BackingField: 1
   <UnitType>k__BackingField: 0
 --- !u!114 &3663210988550714101
 MonoBehaviour:
@@ -4314,7 +4327,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 421c4e88b566f5e4cb1d1787024563e4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  animator: {fileID: 0}
+  animator: {fileID: 2303876953932125633}
 --- !u!70 &-7307097619041437047
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
@@ -4813,6 +4826,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8841191158114652250}
+  - component: {fileID: 8686324590099679369}
   m_Layer: 0
   m_Name: P_RClose
   m_TagString: Untagged
@@ -4836,6 +4850,18 @@ Transform:
   - {fileID: 7258234238770158616}
   m_Father: {fileID: 3579889776924353491}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &8686324590099679369
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8380134335314219609}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9975f43bd66fb7d45b1bbea27d938a7c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &8535530360447392897
 GameObject:
   m_ObjectHideFlags: 0
