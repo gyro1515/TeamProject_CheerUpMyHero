@@ -22,7 +22,11 @@ public class UIPause : BaseUI
         _pauseButton.onClick.AddListener(OnPauseButtonClicked);
 
         _settingPanelCanvasGroup = _settingPanel.GetComponent<CanvasGroup>();
-        
+        _settingPanel.GetComponent<Button>().onClick.AddListener(() => 
+        { 
+            ApplySpeed(CurrentSpeed);
+            _settingMenuScript.showPanel(null);
+        }); 
         InitSpeedBtn();
     }
     private void Start()

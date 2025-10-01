@@ -103,7 +103,7 @@ public class UISettingMenu : BaseUI
         }
     }
 
-    private void showPanel(CanvasGroup target)
+    public void showPanel(CanvasGroup target)
     {
         foreach (CanvasGroup panel in _allPanels )
         {
@@ -118,6 +118,6 @@ public class UISettingMenu : BaseUI
             }
         }
 
-        FadeManager.FadeInUI(target);
+        if(target != null) FadeManager.FadeInUI(target);
     }
 }
