@@ -118,7 +118,7 @@ public class GameManager : SingletonMono<GameManager>
         (int mainIdx, int subIdx) = PlayerDataManager.Instance.SelectedStageIdx;
         if (subIdx + 1 == 9)
         {
-            UIStageClearArtifactSelect.OpenSelectUI(ArtifactType.Active);
+            UIStageClearArtifactSelect.OpenSelectUI(ArtifactType.Passive, true);
         }
         else
         {

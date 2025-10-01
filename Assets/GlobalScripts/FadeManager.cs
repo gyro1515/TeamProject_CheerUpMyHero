@@ -126,9 +126,9 @@ public class FadeManager : SingletonMono<FadeManager>
         target.DOFade(1f, 0.3f).SetUpdate(true).onComplete += afterFade;
     }
 
-    public static void FadeOutUI(CanvasGroup target)
+    public static void FadeOutUI(CanvasGroup target, TweenCallback afterFade = null)
     {
-        target.DOFade(0f, 0.3f).SetUpdate(true).onComplete += () => Instance.SetInteractable(target, false);
+        target.DOFade(0f, 0.3f).SetUpdate(true).onComplete += () => { Instance.SetInteractable(target, false); afterFade?.Invoke(); }; 
     }
     void SetInteractable(CanvasGroup target, bool active)
     {
