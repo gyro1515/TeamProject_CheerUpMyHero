@@ -72,7 +72,11 @@ public class RewardPanelUI : BaseUI
             penaltyInfoText.text = "랜덤한 영지가 황폐화되었습니다.";
             penaltyInfoText.color = Color.red;
         }
-
+        if (resultText != null)
+        {
+            resultText.text = isVictory ? "스테이지 승리" : "스테이지 패배";
+            resultText.color = isVictory ? Color.black : Color.red;
+        }
 
         // 골드
         goldRewardGroup.SetActive(gold != 0);

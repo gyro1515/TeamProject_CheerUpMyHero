@@ -30,6 +30,7 @@ public class UIStageClearArtifactSelect : BaseUI
     private ArtifactType _type = ArtifactType.Passive;
 
     private bool isRerolled = false;
+    private UIRandomArtifactSlot _currentlySelectedSlot = null;
 
     private void Awake()
     {
@@ -94,6 +95,17 @@ public class UIStageClearArtifactSelect : BaseUI
     {
         selectedArtifact = data;
         _selectButton.interactable = true;
+        if (_currentlySelectedSlot != null)
+        {
+            _currentlySelectedSlot.SetSelected(false);
+        }
+
+        _currentlySelectedSlot = _slots.FirstOrDefault(slot => slot.GetData() == data);
+
+        if (_currentlySelectedSlot != null)
+        {
+            _currentlySelectedSlot.SetSelected(true);
+        }
     }
 
     private void OnRerollButtonClicked()
