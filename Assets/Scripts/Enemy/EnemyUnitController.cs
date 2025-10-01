@@ -110,7 +110,7 @@ public class EnemyUnitController : BaseUnitController
     IEnumerator AttackRoutine()
     {
         // 공격 간격 계산
-        WaitForSeconds wait = new WaitForSeconds(10f / enemyUnit.AttackRate);
+        WaitForSeconds wait = new WaitForSeconds(enemyUnit.AttackRate);
         while (true)
         {
             if (enemyUnit.TargetUnit != null)

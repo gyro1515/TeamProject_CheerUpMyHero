@@ -152,7 +152,7 @@ public class PlayerController : BaseController
     IEnumerator AttackRoutine()
     {
         // 0.2초마다 타겟 갱신
-        WaitForSeconds wait = new WaitForSeconds(10f / player.AttackRate);
+        WaitForSeconds wait = new WaitForSeconds(player.AttackRate);
         while (true)
         {
             if (player.TargetUnit != null && player.MoveDir == Vector3.zero)

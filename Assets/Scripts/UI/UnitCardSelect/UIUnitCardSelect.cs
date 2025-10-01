@@ -11,6 +11,8 @@ public class UIUnitCardSelect : MonoBehaviour
 
     [SerializeField] Button selectButton;
     [SerializeField] GameObject SeleckBlocker;
+    [SerializeField] Button closeButton;
+    [SerializeField] Button emptySpaceButton;
 
     [SerializeField] TMP_Text desckNumText;
     private CardFilter cardFilter;
@@ -26,7 +28,9 @@ public class UIUnitCardSelect : MonoBehaviour
 
     private void OnEnable()
     {
-        selectButton?.onClick.AddListener(onSelectButtonPress);
+        selectButton?.onClick.AddListener(OnSelectButtonPress);
+        closeButton?.onClick.AddListener(OnCloseButtonPress);
+        emptySpaceButton?.onClick.AddListener(OnCloseButtonPress);
         cardFilter.UpdateUsable();
         infiniteScroll.ResetCardData(cardFilter.ModifiedCardList);
         infiniteScroll.OnCanSelectCard += ControllBlocker;
@@ -35,7 +39,9 @@ public class UIUnitCardSelect : MonoBehaviour
 
     private void OnDisable()
     {
-        selectButton?.onClick.RemoveListener(onSelectButtonPress);
+        selectButton?.onClick.RemoveListener(OnSelectButtonPress);
+        closeButton?.onClick.RemoveListener(OnCloseButtonPress);
+        emptySpaceButton?.onClick.RemoveListener(OnCloseButtonPress);
         infiniteScroll.OnCanSelectCard -= ControllBlocker;
     }
 
@@ -45,7 +51,7 @@ public class UIUnitCardSelect : MonoBehaviour
         desckNumText.text = (deckSlotNum + 1).ToString();
     }
 
-    void onSelectButtonPress()
+    void OnSelectButtonPress()
     {
         int selectedIndex = infiniteScroll.SendSelectedUnit();
 
@@ -69,4 +75,8 @@ public class UIUnitCardSelect : MonoBehaviour
             SeleckBlocker.SetActive(true);
     }
 
+    void OnCloseButtonPress()
+    {
+        this.gameObject.SetActive(false);
+    }
 }
