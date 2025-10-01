@@ -112,7 +112,7 @@ public class PlayerRangedSplashController : BaseUnitController
 
     private IEnumerator AttackRoutine()
     {
-        WaitForSeconds wait = new WaitForSeconds(10f / playerUnit.AttackRate);
+        WaitForSeconds wait = new WaitForSeconds(playerUnit.AttackRate);
         while (true)
         {
             // 타겟이 있고, 사거리 안에 있을 때만 공격 시도
