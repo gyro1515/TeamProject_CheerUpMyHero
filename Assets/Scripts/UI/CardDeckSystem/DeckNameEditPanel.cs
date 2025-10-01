@@ -13,12 +13,12 @@ public class DeckNameEditPanel : BaseUI
     public override void OpenUI()
     {
         base.OpenUI();
-        FadeManager.Instance.FadeInUI(_canvasGroup);
+        FadeManager.FadeInUI(_canvasGroup);
     }
 
     public override void CloseUI()
     {
-        FadeManager.Instance.FadeOutUI(_canvasGroup);
+        FadeManager.FadeOutUI(_canvasGroup);
         _controller.ExitEditMode();
     }
 
