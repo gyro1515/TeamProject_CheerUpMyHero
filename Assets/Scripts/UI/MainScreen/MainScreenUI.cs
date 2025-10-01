@@ -53,10 +53,11 @@ public class MainScreenUI : BaseUI
     {
         ClosePanel(_battlePanelCanvasGroup, true);
         //ClosePanel(_testPanelCanvasGroup, true);
-        if (_deckSelectPopup != null)
+       /* if (_deckSelectPopup != null)
         {
-            _deckSelectPopup.CloseUI();
-        }
+            // _deckSelectPopup이 보통 Awake()되기 전에 OnEnable()이 호출되므로
+            _deckSelectPopup.CloseUI(); 
+        }*/
     }
     private void OnAdviserButtonClck()
     {
