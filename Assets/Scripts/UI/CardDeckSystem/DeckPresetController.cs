@@ -162,7 +162,7 @@ public class DeckPresetController : BaseUI
         ExitEditMode();
     }
 
-    private void ExitEditMode()
+    public void ExitEditMode()
     {
         FadeManager.FadeOutUI(editNameCanvasGroup);
         viewModeCanvasGroup.DOFade(1f, 0.3f);

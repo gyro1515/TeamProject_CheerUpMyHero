@@ -178,5 +178,6 @@ public class RewardPanelUI : BaseUI
         canvasGroup.alpha = 0f;
         canvasGroup.interactable = false;
         canvasGroup.blocksRaycasts = false;
+        OnReturnToMainButton();
     }
 }
