@@ -2632,7 +2632,7 @@ MonoBehaviour:
   _deckSelectButton: {fileID: 8898197706442941932}
   _notYetButton: {fileID: 676721878424054089}
   _battlePanelCanvasGroup: {fileID: 9106925679941192794}
-  _deckSelectPanelCanvasGroup: {fileID: 3365485551149533420}
+  _deckSelectPopup: {fileID: 6031802554250977257}
 --- !u!223 &8913035135817364730
 Canvas:
   m_ObjectHideFlags: 0
@@ -4050,6 +4050,7 @@ GameObject:
   - component: {fileID: 3365485551149533420}
   - component: {fileID: 5807240786054902406}
   - component: {fileID: 1950829793006664698}
+  - component: {fileID: 6031802554250977257}
   m_Layer: 0
   m_Name: DeckSelectPanel
   m_TagString: Untagged
@@ -4127,6 +4128,18 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &6031802554250977257
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5192887702342752991}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2bf6ced681307ba42a0d032df61f5307, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &5645370723171070843
 GameObject:
   m_ObjectHideFlags: 0

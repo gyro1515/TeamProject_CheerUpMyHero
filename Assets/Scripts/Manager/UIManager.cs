@@ -10,6 +10,8 @@ public class UIManager : SingletonMono<UIManager>, ISceneResettable
 
     private bool _isCleaning;
     private Dictionary<string, BaseUI> _uiDictionary = new Dictionary<string, BaseUI>();
+    private BaseUI _currentOpenedPopup = null;
+
     protected override void Awake()
     {
         base.Awake();
@@ -19,7 +21,31 @@ public class UIManager : SingletonMono<UIManager>, ISceneResettable
         // 씬 언로드 이벤트 구독
         SceneManager.sceneUnloaded += OnSceneUnloaded;
     }*/
-
+    private void Update()
+    {
+        // 뒤로가기 버튼(Escape 키)이 눌렸는지 확인
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            // 현재 열려있는 팝업이 있다면 닫음
+            if (_currentOpenedPopup != null)
+            {
+                _currentOpenedPopup.CloseUI();
+                _currentOpenedPopup = null;
+            }
+        }
+    }
+    public void SetCurrentPopup(BaseUI ui)
+    {
+        _currentOpenedPopup = ui;
+    }
+    public void ClearCurrentPopup(BaseUI ui)
+    {
+        // 닫으려는 UI가 현재 열려있는 UI가 맞는지 확인 후 비움
+        if (_currentOpenedPopup == ui)
+        {
+            _currentOpenedPopup = null;
+        }
+    }
     private void Start()
     {
         // *** 씬 전환마다 리소스 정리하려면 추가 필요***
