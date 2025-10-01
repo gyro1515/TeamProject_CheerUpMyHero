@@ -5,7 +5,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UIStageClearArtifactSelect : MonoBehaviour
+public class UIStageClearArtifactSelect : BaseUI
 {
     [Header("재생성 버튼")]
     [SerializeField] private Button _rerollButton;
@@ -44,7 +44,9 @@ public class UIStageClearArtifactSelect : MonoBehaviour
         _type = type;
         FadeManager.Instance.FadeInUI(_canvasGroup);
         RandomCreate(type);
-        isRerolled = false ;
+
+        _selectButton.interactable = false;
+        isRerolled = false;
     }
 
     private void RandomCreate(ArtifactType type)
@@ -96,11 +98,12 @@ public class UIStageClearArtifactSelect : MonoBehaviour
 
     private void OnRerollButtonClicked()
     {
-            Debug.Log("광고 관련 로직 넣어야 함");
-            RandomCreate(_type);
+        selectedArtifact = null;
+        Debug.Log("광고 관련 로직 넣어야 함");
+        RandomCreate(_type);
 
-            isRerolled = true;
-            //_rerollButton.interactable = false;
+        isRerolled = true;
+        //_rerollButton.interactable = false;
     }
 
     private void OnSelectButtonClicked()
@@ -109,6 +112,7 @@ public class UIStageClearArtifactSelect : MonoBehaviour
         {
             ArtifactManager.Instance.AddArtifact(selectedArtifact.idNumber);
             FadeManager.Instance.FadeOutUI(_canvasGroup);
+            GameManager.Instance.ShowResultUI(true);
         }
     }
 }

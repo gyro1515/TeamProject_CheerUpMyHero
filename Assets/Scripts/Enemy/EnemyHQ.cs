@@ -58,7 +58,7 @@ public class EnemyHQ : BaseHQ
     {
         base.Dead();
 
-        GameManager.Instance.ShowResultUI(true);
+        GameManager.Instance.OpenSelectArtifactUI();
         GameManager.Instance.ClearStage();
         Debug.Log("적군 HQ 파괴! 승리!");
     }
