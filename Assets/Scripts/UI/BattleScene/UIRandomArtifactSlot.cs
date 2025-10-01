@@ -44,6 +44,7 @@ public class UIRandomArtifactSlot : BaseUI
         if (_data == null)
         {
             gameObject.SetActive(false);
+            Debug.LogWarning($"UIRandomArtifactSlot: 유물 데이터가 없습니다.Active: {gameObject.activeSelf}");
             return;
         }
 
