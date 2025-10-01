@@ -24,6 +24,9 @@ public class EnemyWaveSystem : MonoBehaviour
     float timeUntilWave = -1f; // 경고 시간 후 소환까지 걸리는 시간
     int waveIdx = -1;
     public int WaveIdx { get { return waveIdx; } }
+
+    public event Action OnWarningDisplayed; // 웨이브 경고가 화면에 표시될 때 발생하는 이벤트
+
     private void Awake()
     {
         enemyHQ = GetComponent<EnemyHQ>();
@@ -44,6 +47,7 @@ public class EnemyWaveSystem : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Alpha3))
         {
             warningUI.OpenUI();
+            OnWarningDisplayed?.Invoke();
         }
     }
     IEnumerator WaveTimeRoutine()
@@ -57,7 +61,7 @@ public class EnemyWaveSystem : MonoBehaviour
 
             // 경고 표시 (한 번만)
             warningUI.OpenUI();
-
+            OnWarningDisplayed?.Invoke();
             // timeUntilWave 동안 대기
             yield return new WaitForSeconds(timeUntilWave);
 
@@ -111,7 +115,7 @@ public class EnemyWaveSystem : MonoBehaviour
         // 빈 리스트로 시작
         WaveData.Clear();
         // 가져올 스테이지 정보 세팅
-        int selectedMainStageIdx = PlayerDataManager.Instance.SelectedStageIdx.mainStageIdx;
+        (int selectedMainStageIdx, int selectedSubStageIdx ) = PlayerDataManager.Instance.SelectedStageIdx;
         // 웨이브 데이터SO 가져오기
         StageWaveSO waveSO = DataManager.Instance.StageWaveData.SO;
         List<StageWaveData> waveDataList = waveSO.GetStageWaveDataList(selectedMainStageIdx);
@@ -129,7 +133,7 @@ public class EnemyWaveSystem : MonoBehaviour
         foreach (StageWaveData waveData in waveDataList)
         {
             // 선택한 스테이지가 아니라면 다음
-            if (waveData.stage - 1 != selectedMainStageIdx) continue;
+            if (waveData.stage - 1 != selectedSubStageIdx) continue;
             // 웨이브Idx마다 WaveData.Add
             if(waveIdx < waveData.wave - 1)
             {
@@ -142,6 +146,10 @@ public class EnemyWaveSystem : MonoBehaviour
                 WaveData[waveIdx].unitList.Add(waveData.poolType);
             }
         }
+    }
+    public void SetOnWarningEnd(Action onWarningEndEvent)
+    {
+        warningUI.OnWarningEnd += onWarningEndEvent;
     }
     // 데이터 테이블에 따라 아래 형식 사용할 수 있어서 일단 주석처리
     /*void TestWaveDateInit()

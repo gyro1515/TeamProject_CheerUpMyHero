@@ -15,6 +15,8 @@ public class GameManager : SingletonMono<GameManager>
     public int currentStageID = 1001;
 
     public RewardPanelUI RewardPanelUI { get; set; }
+    public UIStageClearArtifactSelect UIStageClearArtifactSelect { get; set; }
+
     public EnemyHQ enemyHQ { get; set; }
     public PlayerHQ PlayerHQ { get; set; }
 
@@ -29,6 +31,7 @@ public class GameManager : SingletonMono<GameManager>
     {
         base.Awake();
         RewardPanelUI = UIManager.Instance.GetUI<RewardPanelUI>();
+        UIStageClearArtifactSelect = UIManager.Instance.GetUI<UIStageClearArtifactSelect>();
     }
     private void Update()
     {
@@ -54,10 +57,7 @@ public class GameManager : SingletonMono<GameManager>
             {
                 Debug.Log("'C'키 입력! 적 HQ를 강제 파괴합니다.");
 
-                enemyHQ.Dead();
-
-                ShowResultUI(true);
-                ClearStage();
+                enemyHQ.CurHp = 0;
             }
         }
 
@@ -68,7 +68,6 @@ public class GameManager : SingletonMono<GameManager>
             {
                 Debug.Log("V키 눌려서 아군 HQ 터뜨림");
                 PlayerHQ.CurHp = 0;
-                ShowResultUI(false);
             }
         }
 
@@ -79,10 +78,9 @@ public class GameManager : SingletonMono<GameManager>
             {
                 Debug.Log("B키 눌려서 플레이어 개체 즉시 죽임");
                 Player.CurHp = 0;
-                ShowResultUI(false);
             }
         }
-       if (Input.GetKeyDown(KeyCode.H))
+        if (Input.GetKeyDown(KeyCode.H))
         {
             if (enemyHQ != null && enemyHQ.gameObject.activeInHierarchy)
             {
@@ -107,11 +105,29 @@ public class GameManager : SingletonMono<GameManager>
         Debug.Log($"Battle Started! MaxFood: {PlayerDataManager.Instance.MaxFood}, CurrentFood: {PlayerDataManager.Instance.CurrentFood}");    
     }
 
-    public void ShowResultUI(bool isVictory)
+    public void OpenSelectArtifactUI()
     {
-        if (!IsBattleStarted) return; 
+        if (!IsBattleStarted) return;
 
         IsBattleStarted = false;
+        Time.timeScale = 0f;
+
+        if (UIStageClearArtifactSelect == null)
+            UIStageClearArtifactSelect = UIManager.Instance.GetUI<UIStageClearArtifactSelect>();
+
+        (int mainIdx, int subIdx) = PlayerDataManager.Instance.SelectedStageIdx;
+        if (subIdx + 2 == 9)
+        {
+            UIStageClearArtifactSelect.OpenSelectUI(ArtifactType.Active);
+        }
+        else
+        {
+            UIStageClearArtifactSelect.OpenSelectUI(ArtifactType.Passive);
+        }
+    }
+
+    public void ShowResultUI(bool isVictory)
+    {
         Time.timeScale = 0f;
 
         if (RewardPanelUI == null)

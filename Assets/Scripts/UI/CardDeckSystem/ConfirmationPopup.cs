@@ -55,7 +55,7 @@ public class ConfirmationPopup : BaseUI
     {
         if (_isClosing) return;
         base.OpenUI();
-        FadeManager.Instance.FadeInUI(_canvasGroup);
+        FadeManager.FadeInUI(_canvasGroup);
     }
  
     public override void CloseUI()
@@ -63,7 +63,7 @@ public class ConfirmationPopup : BaseUI
         if (_isClosing) return;
         _isClosing = true;
 
-        FadeManager.Instance.FadeOutUI(_canvasGroup);
+        FadeManager.FadeOutUI(_canvasGroup);
         StartCoroutine(CoCloseAfterDelay(0.3f));
     }
 

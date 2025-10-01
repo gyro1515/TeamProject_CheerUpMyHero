@@ -27,6 +27,10 @@ public class UIArtifactInventory : BaseUI
     [SerializeField] private TextMeshProUGUI descriptionValue;
     [SerializeField] private TextMeshProUGUI description;
 
+    [Header("유물 설명창 비활성화 버튼")]
+    [SerializeField] private Button _outerButton;
+    [SerializeField] private Button _InnerButton;
+
     [Header("인벤토리 슬롯")]
     [SerializeField] private GameObject _slotPrefab;
     [SerializeField] private Transform _slotCreatPosition;
@@ -49,6 +53,9 @@ public class UIArtifactInventory : BaseUI
         _equipButton.onClick.AddListener(OnEquipButtonClicked);
         _unEquipButton.onClick.AddListener(OnUnEquipButtonClicked);
         _sortButton.onClick.AddListener(OnSortButtonClicked);
+
+        _outerButton.onClick.AddListener(CloseDescriptionPanel);
+        _InnerButton.onClick.AddListener(CloseDescriptionPanel);
     }
 
     public void OpenInventory(int slotIndex)        // 인벤토리 열기 + 지금 선택된 슬롯 어디인지 전달해주는 역할
@@ -58,7 +65,7 @@ public class UIArtifactInventory : BaseUI
 
         UpdateInventory();
         UpdateDescriptionPanel();
-        FadeManager.Instance.FadeInUI(_canvasGroup);
+        FadeManager.FadeInUI(_canvasGroup);
     }
 
     private void SelectArtifact(ArtifactData selectArtifact)
@@ -124,11 +131,22 @@ public class UIArtifactInventory : BaseUI
         isEquipped = ArtifactManager.Instance.EquippedArtifacts.Contains(_selectedArtifact);
         _equipButton.gameObject.SetActive(!isEquipped);
         _unEquipButton.gameObject.SetActive(isEquipped);
+
+        _outerButton.gameObject.SetActive(true);
+        _InnerButton.gameObject.SetActive(true);
+    }
+
+    private void CloseDescriptionPanel()
+    {
+        _selectedArtifact = null;
+        descriptionPanel.SetActive(false);
+        _outerButton.gameObject.SetActive(false);
+        _InnerButton.gameObject.SetActive(false);
     }
 
     private void OnCloseButtonClicked()                     // 버튼 눌렀을 때 인벤토리 끄는 메서드
     {
-        FadeManager.Instance.FadeOutUI(_canvasGroup);
+        FadeManager.FadeOutUI(_canvasGroup);
     }
 
     private void OnEquipButtonClicked()
@@ -137,7 +155,7 @@ public class UIArtifactInventory : BaseUI
         {
             ArtifactManager.Instance.EquipArtifact(_selectedArtifact, _currentSlotIndex);
             _selectedArtifact = null;
-            FadeManager.Instance.FadeOutUI( _canvasGroup);
+            FadeManager.FadeOutUI( _canvasGroup);
         }
     }
 

@@ -28,7 +28,6 @@ public class UIArtifactInvInventorySlot : BaseUI
     private Outline _outline;
     private ArtifactData _data;
     private Button _button;
-    
 
     public event Action<ArtifactData> OnArtifactInventorySlotClicked;
 

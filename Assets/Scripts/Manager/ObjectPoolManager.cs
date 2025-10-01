@@ -14,8 +14,8 @@ using UnityEngine.SceneManagement;
 
 public enum PoolType
 {
+    None,
     TestBulletV2,
-    EnemyUnit1,
     PlayerUnit1,
     PlayerUnit2,
     PlayerUnit3,
@@ -27,26 +27,27 @@ public enum PoolType
     PlayerUnit9,
     PlayerUnit10,
     PlayerUnit11,
+    PlayerUnit1_1,
+    PlayerUnit2_1,
+    PlayerUnit3_1,
+    EnemyUnit99,
+    UIMinimapIcon,
+    EnemyUnit1,
     EnemyUnit2,
     EnemyUnit3,
     EnemyUnit4,
     EnemyUnit5,
-    EnemyUnit99,
-    UIMinimapIcon,
     EnemyUnit6,
     EnemyUnit7,
     EnemyUnit8,
     EnemyUnit9,
     EnemyUnit10,
+    EnemyUnit10_1,
     EnemyUnit11,
     EnemyUnit12,
     EnemyUnit13,
     EnemyUnit14,
     EnemyUnit15,
-    PlayerUnit1_1,
-    PlayerUnit2_1,
-    PlayerUnit3_1,
-    EnemyUnit10_1,
     EnemyUnit16,
     EnemyUnit17,
     EnemyUnit18,
@@ -73,7 +74,7 @@ public enum PoolType
     Allies_Unit18,
     Allies_Unit19,
     Allies_Unit20,
-    None
+
 }
 
 public class ObjectPoolManager : SingletonMono<ObjectPoolManager>, ISceneResettable
