@@ -35,6 +35,7 @@ public class PlayerController : BaseController
         base.Awake();
         player = GetComponent<Player>();
         playerTransform = GetComponent<Transform>();
+        spriteTransform.rotation = Quaternion.Euler(0, 180, 0);
     }
     protected override void OnEnable()
     {
