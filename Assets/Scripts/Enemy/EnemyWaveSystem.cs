@@ -75,7 +75,7 @@ public class EnemyWaveSystem : MonoBehaviour
 
     public void SpawnDefenseWave()
     {
-        if (WaveData.Count <= 2) return;
+        if (WaveData.Count <= 2 ) return;
 
         StartCoroutine(WaveRoutine(2));
         Debug.Log("체력 70퍼 이하라서 방어 웨이브 스폰함");
