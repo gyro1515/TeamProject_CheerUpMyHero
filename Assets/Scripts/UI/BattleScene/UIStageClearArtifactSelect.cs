@@ -32,6 +32,8 @@ public class UIStageClearArtifactSelect : BaseUI
     private bool isRerolled = false;
     private UIRandomArtifactSlot _currentlySelectedSlot = null;
 
+    private bool is9StageAndFirst;
+
     private void Awake()
     {
         _canvasGroup = GetComponent<CanvasGroup>();
@@ -49,6 +51,19 @@ public class UIStageClearArtifactSelect : BaseUI
         _selectButton.interactable = false;
         isRerolled = false;
     }
+
+    //스테이지 9 끝났을때 전용
+    public void OpenSelectUI(ArtifactType type, bool isSub9)
+    {
+        is9StageAndFirst = isSub9;
+        _type = type;
+        FadeManager.FadeInUI(_canvasGroup);
+        RandomCreate(type);
+
+        _selectButton.interactable = false;
+        isRerolled = false;
+    }
+
 
     private void RandomCreate(ArtifactType type)
     {
@@ -123,8 +138,20 @@ public class UIStageClearArtifactSelect : BaseUI
         if (selectedArtifact != null)
         {
             ArtifactManager.Instance.AddArtifact(selectedArtifact.idNumber);
-            FadeManager.FadeOutUI(_canvasGroup);
-            GameManager.Instance.ShowResultUI(true);
+
+            //9번 스테이지 깨고 첫번째 유물 선택에서만 나옴, 두번째는 안나옴
+            if (is9StageAndFirst)
+            {
+                is9StageAndFirst = false;
+                _type = ArtifactType.Active;
+                RandomCreate(_type);
+                selectedArtifact = null;
+                _selectButton.interactable = false;
+                return;
+            }
+
+            FadeManager.FadeOutUI(_canvasGroup, () => GameManager.Instance.ShowResultUI(true));
+
         }
     }
 }
