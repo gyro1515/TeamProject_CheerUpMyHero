@@ -42,7 +42,7 @@ public class UIStageClearArtifactSelect : BaseUI
     public void OpenSelectUI(ArtifactType type)
     {
         _type = type;
-        FadeManager.Instance.FadeInUI(_canvasGroup);
+        FadeManager.FadeInUI(_canvasGroup);
         RandomCreate(type);
 
         _selectButton.interactable = false;

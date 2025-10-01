@@ -50,6 +50,7 @@ public class DeckPresetController : BaseUI
     // --- 내부 변수 ---
     private MainScreenUI _mainScreenUI;
     private UIStageSelect _stageSelectUI;
+    private UIArtifact _uIArtifact;
     private int _currentDeckIndex = 1;
 
     private void Update()
@@ -67,6 +68,8 @@ public class DeckPresetController : BaseUI
         _currentDeckIndex = PlayerDataManager.Instance.ActiveDeckIndex;
         _mainScreenUI = UIManager.Instance.GetUI<MainScreenUI>();
         _stageSelectUI = UIManager.Instance.GetUI<UIStageSelect>();
+        _uIArtifact = UIManager.Instance.GetUI<UIArtifact>();
+        _uIArtifact.CloseUI();
 
         for (int i = 0; i < unitSlots.Count; i++)
         {
@@ -84,6 +87,7 @@ public class DeckPresetController : BaseUI
         confirmNameButton.onClick.AddListener(OnConfirmNameChange);
         cancelNameButton.onClick.AddListener(ExitEditMode);
         autoButton.onClick.AddListener(OnAutoFormClicked);
+        relicButton.onClick.AddListener(OnRelicButtonClicked);
 
         // UI 초기 상태 설정
         editNameCanvasGroup.alpha = 0;
@@ -140,7 +144,7 @@ public class DeckPresetController : BaseUI
     {
         viewModeCanvasGroup.DOFade(0.3f, 0.3f);
         viewModeCanvasGroup.interactable = false;
-        FadeManager.Instance.FadeInUI(editNameCanvasGroup);
+        FadeManager.FadeInUI(editNameCanvasGroup);
 
         string currentName = PlayerDataManager.Instance.DeckPresets[_currentDeckIndex].DeckName;
         deckNameInputField.text = currentName;
@@ -160,7 +164,7 @@ public class DeckPresetController : BaseUI
 
     private void ExitEditMode()
     {
-        FadeManager.Instance.FadeOutUI(editNameCanvasGroup);
+        FadeManager.FadeOutUI(editNameCanvasGroup);
         viewModeCanvasGroup.DOFade(1f, 0.3f);
         viewModeCanvasGroup.interactable = true;
         SelectDeck(_currentDeckIndex);
@@ -271,7 +275,12 @@ public class DeckPresetController : BaseUI
         //변경된 덱 정보로 UI를 새로고침
         UpdateUnitSlotsUI();
     }
-    private void OnRelicButtonClicked() { Debug.Log("유물 전환 패널 열기 시도"); }
+    private void OnRelicButtonClicked() 
+    {
+
+        FadeManager.Instance.SwitchGameObjects(gameObject, _uIArtifact.gameObject);
+
+    }
 
     public void GoToMainScene()
     {

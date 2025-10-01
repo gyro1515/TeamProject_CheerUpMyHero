@@ -17,7 +17,7 @@ public class UIActiveAFSlot : MonoBehaviour
     [SerializeField] Button slotBtn;
 
     Player player;
-    ActiveAfData afData;
+    ArtifactData afData;
     float cooldown = -1f;
     float cooldownTimer = -1f;
     bool isCooldown = false;
@@ -30,7 +30,8 @@ public class UIActiveAFSlot : MonoBehaviour
     private void Start()
     {
         player = GameManager.Instance.Player;
-        SetTimerIconActive(false);
+        //SetTimerIconActive(false);
+        enabled = false;
     }
     private void Update()
     {
@@ -43,27 +44,29 @@ public class UIActiveAFSlot : MonoBehaviour
     }
     void OnUseActiveAF()
     {
+        //Debug.Log("액티브 유물 사용 시도");
         if (afData == null) return;
         if(!player) { Debug.LogWarning("플레이어 정보 없음"); return; } // 오류
         if (player.CurMana < manaCost) { Debug.Log("마나 부족"); return; }
         player.CurMana -= manaCost;
         SetTimerIconActive(true);
-        player.PlayerController.Attack();// 테스트로 일단 공격 애니메이션 재생
+        player.PlayerController.TestForUseActiveArtifact();// 테스트로 일단 공격 애니메이션 재생
         Debug.Log($"{afData.name} 사용, 남은 마나{player.CurMana}");
     }
-    public void InitActiveAFSlot(ActiveAfData data)
+    public void InitAfSlot(ArtifactData data)
     {
         afData = data;
         if (data != null)
         {
-            afNameText.text = data.name;
+            SetSlotByType(data);
+            /*afNameText.text = data.name;
             slotIcon.sprite = data.icon;
             //cooldownText.text = $"{data.cooldown}s";
             costText.text = $"* {data.cost}";
             // ToDo 쿨타임/마나 코스트은 액티브 유물인 경우만 세팅
             cooldown = data.cooldown;
             manaCost = data.cost;
-            // ToDo 패시브 유물은 버튼 비활성화
+            // ToDo 패시브 유물은 버튼 비활성화*/
         }
         else
         {
@@ -72,6 +75,29 @@ public class UIActiveAFSlot : MonoBehaviour
             //cooldownText.text = "";
             costText.text = "";
             slotBtn.enabled = false; // 빈 슬롯은 클릭 불가
+        }
+    }
+    void SetSlotByType(ArtifactData data)
+    {
+        afNameText.text = data.name;
+        slotIcon.sprite = data.icon;
+        switch (data.artifactType)
+        {
+            case ArtifactType.Active:
+                ActiveArtifactData acAfData = data as ActiveArtifactData;
+                costText.text = $"* {acAfData.cost}";
+                cooldown = acAfData.levelData[acAfData.curLevel].coolTime;
+                manaCost = acAfData.cost;
+                SetTimerIconActive(false);
+                enabled = true;
+                break;
+            case ArtifactType.Passive:
+                // 클릭 안되고 표시만 되게
+                costText.text = "";
+                cooldownIcon.gameObject.SetActive(true);
+                cooldownIcon.fillAmount = 1f;
+                slotBtn.enabled = false;
+                break;
         }
     }
     void SetTimerIconActive(bool active)

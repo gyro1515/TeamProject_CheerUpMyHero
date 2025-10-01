@@ -65,11 +65,11 @@ public class EnemyHQ : BaseHQ
     bool SpawnUnit() // 소환했으면 리턴 트루
     {
         if (enemyUnits.Count == 0) return false;
-        Debug.Log($"적 유닛 스폰 가능 수{enemyUnits.Count}");
+        //Debug.Log($"적 유닛 스폰 가능 수{enemyUnits.Count}");
         // 여기서 오브젝트 풀에서 가져오기
         for (int i = 0; i < enemyUnits.Count; i++)
         {
-            Debug.Log(enemyUnits[i] + " 스폰 시도");
+            //Debug.Log(enemyUnits[i] + " 스폰 시도");
             // 처음 추가하는 거라면 바로 스폰
             if (!enemyUnitCoolTimes.ContainsKey(enemyUnits[i]))
             {
@@ -108,11 +108,11 @@ public class EnemyHQ : BaseHQ
     }
     IEnumerator EnemyCoolTimeRoutin(PoolType type, float coolTime)
     {
-        Debug.Log(type + " 쿨타임 시작");
+        //Debug.Log(type + " 쿨타임 시작");
         enemyUnitCanSpawn[type] = false;
         yield return new WaitForSeconds(coolTime);
         enemyUnitCanSpawn[type] = true;
-        Debug.Log(type + " 쿨타임 끝");
+        //Debug.Log(type + " 쿨타임 끝");
 
     }
     public void SetSpawnEnemyActive(bool active)
@@ -128,4 +128,5 @@ public class EnemyHQ : BaseHQ
             spawnUnitRoutine = null;
         }
     }
+    
 }

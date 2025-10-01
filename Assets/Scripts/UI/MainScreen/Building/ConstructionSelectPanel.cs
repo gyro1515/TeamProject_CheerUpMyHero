@@ -49,7 +49,7 @@ public class ConstructionSelectPanel : BaseUI
         if (_isClosing) return; //중복 호출 방지
         _isClosing = true;
         base.OpenUI();
-        FadeManager.Instance.FadeInUI(_canvasGroup);
+        FadeManager.FadeInUI(_canvasGroup);
     }
 
     public override void CloseUI()
@@ -59,7 +59,7 @@ public class ConstructionSelectPanel : BaseUI
             MainScreenBuildingController.Instance.DeselectTile();
             _targetTile = null; 
         }
-        FadeManager.Instance.FadeOutUI(_canvasGroup);
+        FadeManager.FadeOutUI(_canvasGroup);
         StartCoroutine(CoCloseAfterDelay(0.3f));
     }
 
