@@ -66,21 +66,26 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
     {
         cardDic = new() 
         {
-            {100001, new TempCardData(100001, "유닛1", PoolType.PlayerUnit1)},
-            {100002, new TempCardData(100002, "유닛2", PoolType.PlayerUnit2)},
-            {100003, new TempCardData(100003, "유닛3", PoolType.PlayerUnit3)},
-            {100004, new TempCardData(100004, "유닛4", PoolType.PlayerUnit4)},
-            {100005, new TempCardData(100005, "유닛5", PoolType.PlayerUnit5)},
-            {100006, new TempCardData(100006, "유닛6", PoolType.PlayerUnit6)},
-            {100007, new TempCardData(100007, "유닛7", PoolType.PlayerUnit7)},
-            {100008, new TempCardData(100008, "유닛8", PoolType.PlayerUnit8)},
-            {100009, new TempCardData(100009, "유닛9", PoolType.PlayerUnit9)},
-            {100010, new TempCardData(100010, "유닛10", PoolType.PlayerUnit10)},
-            {100011, new TempCardData(100011, "유닛11", PoolType.PlayerUnit11)},
-
-            {100012, new TempCardData(100012, "유닛1_1", PoolType.PlayerUnit1_1)},
-            {100013, new TempCardData(100013, "유닛2_1", PoolType.PlayerUnit2_1)},
-            {100014, new TempCardData(100014, "유닛3_1", PoolType.PlayerUnit3_1)},
+            {100001, new TempCardData(100001, "징집병", UnitType.Dealer, 250f, 75, 20f, 6f, PoolType.Allies_Unit1)},
+            {100002, new TempCardData(100002, "방패병", UnitType.Tanker, 1000f, 150, 5f, 6f, PoolType.Allies_Unit2)},
+            {100003, new TempCardData(100003, "도끼병", UnitType.Dealer, 500f, 300, 62f, 6f, PoolType.Allies_Unit3)},
+            {100004, new TempCardData(100004, "궁수", UnitType.Dealer, 1000f, 600, 250f, 6.6f, PoolType.Allies_Unit4)},
+            {100005, new TempCardData(100005, "기마병", UnitType.Dealer, 1250f, 750, 32f, 6f, PoolType.Allies_Unit5)},
+            {100006, new TempCardData(100006, "견습 마법사", UnitType.Dealer, 750f, 975, 350f, 6f, PoolType.Allies_Unit6)},
+            {100007, new TempCardData(100007, "중갑 보병", UnitType.Tanker, 1750f, 1200, 450f, 12.6f, PoolType.Allies_Unit7)},
+            {100008, new TempCardData(100008, "궁병", UnitType.Dealer, 2000f, 1500, 875f, 30.6f, PoolType.Allies_Unit8)},
+            {100009, new TempCardData(100009, "수도승", UnitType.Healer, 1000f, 900, 250f, 6.6f, PoolType.Allies_Unit11)},
+            {100010, new TempCardData(100010, "왕국 기마병", UnitType.Dealer, 1750f, 2400, 1050f, 58.6f, PoolType.Allies_Unit10)},
+            {105001, new TempCardData(105001, "왕국 근위대장", UnitType.Tanker, 2500f, 1950, 700f, 54.6f, PoolType.Allies_Unit9)},
+            {105002, new TempCardData(105002, "애쉬", UnitType.Dealer, 2250f, 2250, 2750f, 59.6f, PoolType.Allies_Unit12)},
+            {105003, new TempCardData(105003, "사냥꾼", UnitType.Dealer, 1250f, 825, 87f, 21.6f, PoolType.Allies_Unit13)},
+            {105004, new TempCardData(105004, "검투사", UnitType.Tanker, 1750f, 1035, 250f, 17.6f, PoolType.Allies_Unit14)},
+            {105005, new TempCardData(105005, "광전사", UnitType.Tanker, 1750f, 1440, 330f, 17.6f, PoolType.Allies_Unit15)},
+            {105006, new TempCardData(105006, "황국 기마병", UnitType.Dealer, 2000f, 1125, 750f, 19.6f, PoolType.Allies_Unit16)},
+            {105007, new TempCardData(105007, "견습 사제", UnitType.Healer, 1000f, 525, 250f, 6.6f, PoolType.Allies_Unit17)},
+            {105008, new TempCardData(105008, "큰 도끼 광전사", UnitType.Dealer, 1500f, 1490, 1000f, 17.3f, PoolType.Allies_Unit18)},
+            {105009, new TempCardData(105009, "마법사", UnitType.Dealer, 1000f, 1050, 450f, 6f, PoolType.Allies_Unit19)},
+            {105010, new TempCardData(105010, "자경단원", UnitType.Dealer, 600f, 300, 35f, 6f, PoolType.Allies_Unit20)},
         };
     }
 
