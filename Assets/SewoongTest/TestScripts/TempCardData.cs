@@ -25,7 +25,7 @@ public class TempCardData
         this.id = id;
         //rarity = (Rarity)UnityEngine.Random.Range(0, 3);
         rarity = Rarity.common;
-        unitType = (UnitType)UnityEngine.Random.Range(0, 3);
+        this.unitType = unitType;
         unitName = name;
         description = "설명";
         this.health  = health;
