@@ -12,6 +12,7 @@ public class UIWaveWarning : BaseUI
     [SerializeField] float displayTime = 3f;
     [SerializeField] float warningPanelWidth = 1626f; // 만약 이 값으로 세팅이 안된다면 연산 없애고 넓이 값 가져오기
     float displayTimer = 0f;
+    public event Action OnWarningEnd; // 웨이브 경고가 끝날 때 발생하는 이벤트
     private void Awake()
     {
         CloseUI();
@@ -39,6 +40,7 @@ public class UIWaveWarning : BaseUI
         if (displayTimer < displayTime) return;
         displayTimer = 0f;
         CloseUI();
+        OnWarningEnd?.Invoke();
     }
 
     public override void OpenUI()
