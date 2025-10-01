@@ -224,12 +224,26 @@ public class ArtifactManager : SingletonMono<ArtifactManager>
         List<PassiveArtifactData> source = new List<PassiveArtifactData>(artifactSO.passiveArtifacts);
         List<PassiveArtifactData> result = new List<PassiveArtifactData>();
 
-        for (int i = 0; i < count; i++)
+        int tmpIdx = 0;
+        HashSet<int> usedIdx = new HashSet<int>();
+        while (tmpIdx < count)
         {
             int randomNum = Random.Range(0, source.Count);
+            if (usedIdx.Contains(randomNum)) continue;
+            usedIdx.Add(randomNum);
+            result.Add(source[randomNum]);
+            tmpIdx++;
+        }
+        /*for (int i = 0; i < count; i++)
+        {
+            int randomNum = Random.Range(0, source.Count);
+            if(source[randomNum] == null)
+            {
+                Debug.Log("중복 발생 다시 뽑기");
+            }
             result.Add(source[randomNum]);
             source[randomNum] = null;
-        }
+        }*/
         return result;
     }
 
@@ -238,12 +252,23 @@ public class ArtifactManager : SingletonMono<ArtifactManager>
         List<ActiveArtifactData> source = new List<ActiveArtifactData>(artifactSO.activeArtifacts);
         List<ActiveArtifactData> result = new List<ActiveArtifactData>();
 
-        for (int i = 0; i < count; i++)
+        int tmpIdx = 0;
+        HashSet<int> usedIdx = new HashSet<int>();
+        while (tmpIdx < count)
+        {
+            int randomNum = Random.Range(0, source.Count);
+            if (usedIdx.Contains(randomNum)) continue;
+            usedIdx.Add(randomNum);
+            result.Add(source[randomNum]);
+            tmpIdx++;
+        }
+
+        /*for (int i = 0; i < count; i++)
         {
             int randomNum = Random.Range(0, source.Count);
             result.Add(source[randomNum]);
             source[randomNum] = null;
-        }
+        }*/
         return result ;
     }
 

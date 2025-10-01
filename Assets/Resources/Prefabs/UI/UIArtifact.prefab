@@ -1926,6 +1926,7 @@ GameObject:
   - component: {fileID: 4463322031434328249}
   - component: {fileID: 5591530855172323715}
   - component: {fileID: 4564815574465468518}
+  - component: {fileID: 4818096789397041092}
   m_Layer: 5
   m_Name: ToSelActiveBtn
   m_TagString: Untagged
@@ -2035,6 +2036,21 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &4818096789397041092
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1131143076926965063}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_EffectColor: {r: 1, g: 0, b: 0, a: 0.5}
+  m_EffectDistance: {x: 10, y: 10}
+  m_UseGraphicAlpha: 1
 --- !u!1 &1134233030928332591
 GameObject:
   m_ObjectHideFlags: 0
@@ -6128,6 +6144,7 @@ GameObject:
   - component: {fileID: 4332400891199654085}
   - component: {fileID: 5646842882358450514}
   - component: {fileID: 3101750137362569300}
+  - component: {fileID: 8586475217929782092}
   m_Layer: 5
   m_Name: ToSelPassiveBtn
   m_TagString: Untagged
@@ -6237,6 +6254,21 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &8586475217929782092
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4908837505592531343}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_EffectColor: {r: 1, g: 0, b: 0, a: 0.5}
+  m_EffectDistance: {x: 10, y: 10}
+  m_UseGraphicAlpha: 1
 --- !u!1 &5061005849437362490
 GameObject:
   m_ObjectHideFlags: 0
@@ -7743,6 +7775,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2bf6ced681307ba42a0d032df61f5307, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _canvasGroup: {fileID: 0}
 --- !u!114 &7610921972121177434
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12339,6 +12372,8 @@ MonoBehaviour:
   _passiveEquipButton: {fileID: 3101750137362569300}
   _activeEquipButton: {fileID: 4564815574465468518}
   _ConfirmEquipButton: {fileID: 8697307291792607420}
+  _passiveOutline: {fileID: 8586475217929782092}
+  _activeOutline: {fileID: 4818096789397041092}
 --- !u!1 &8787397748671119633
 GameObject:
   m_ObjectHideFlags: 0

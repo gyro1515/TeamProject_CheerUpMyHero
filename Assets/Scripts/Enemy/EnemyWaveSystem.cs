@@ -7,7 +7,7 @@ using UnityEngine;
 [System.Serializable]
 public class EnemyWave
 {
-    [SerializeField] public List<PoolType> unitList = new List<PoolType>();
+    [SerializeField] public List<(PoolType poolType, float statMultiplier)> unitList = new List<(PoolType poolType, float statMultiplier)>();
 }
 public class EnemyWaveSystem : MonoBehaviour
 {
@@ -75,7 +75,7 @@ public class EnemyWaveSystem : MonoBehaviour
 
     public void SpawnDefenseWave()
     {
-        if (WaveData.Count <= 2) return;
+        if (WaveData.Count <= 2 ) return;
 
         StartCoroutine(WaveRoutine(2));
         Debug.Log("체력 70퍼 이하라서 방어 웨이브 스폰함");
@@ -96,14 +96,14 @@ public class EnemyWaveSystem : MonoBehaviour
         if (waveDataIdx >= WaveData.Count) yield break;
         // 캐싱하기
         WaitForSeconds wait = new WaitForSeconds(spawnWaveInterval);
-        List<PoolType> unitList = WaveData[waveDataIdx].unitList;
+        List<(PoolType poolType, float statMultiplier)> unitList = WaveData[waveDataIdx].unitList;
         int unitCnt = unitList.Count;
         for (int i = 0; i < unitCnt; i++)
         {
             // 여기서 오브젝트 풀에서 가져오기
-            GameObject enemyUnitGO = ObjectPoolManager.Instance.Get(unitList[i]);
+            GameObject enemyUnitGO = ObjectPoolManager.Instance.Get(unitList[i].poolType);
             enemyUnitGO.transform.position = enemyHQ.GetRandomSpawnPos();
-            enemyUnitGO.GetComponent<EnemyUnit>().SetStatMultiplierByWave(waveDataIdx);
+            enemyUnitGO.GetComponent<EnemyUnit>().SetStatMultiplierByWave(unitList[i].statMultiplier);
             yield return wait;
         }
         // 웨이브 끝나면 기존 유닛 스폰 루틴 다시 활성화
@@ -143,7 +143,7 @@ public class EnemyWaveSystem : MonoBehaviour
             // 해당 유닛 수만큼 wave.unitList에 추가
             for (int j = 0; j < waveData.unitCount; j++)
             {
-                WaveData[waveIdx].unitList.Add(waveData.poolType);
+                WaveData[waveIdx].unitList.Add((waveData.poolType, waveData.spawnProbability / (float)100));
             }
         }
     }
