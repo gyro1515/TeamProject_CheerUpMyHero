@@ -89,6 +89,10 @@ public class MainScreenUI : BaseUI
         {
             Debug.LogError("UIManager에서 DeckPresetController를 찾을 수 없습니다!");
         }
+        if (_deckSelectPopup != null)
+        {
+            _deckSelectPopup.CloseUI();
+        }
     }
 
     private void OnNotYetButtonClick()

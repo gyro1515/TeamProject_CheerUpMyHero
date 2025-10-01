@@ -1615,10 +1615,10 @@ GameObject:
   - component: {fileID: 5312263999510728548}
   - component: {fileID: 4217657084037550196}
   - component: {fileID: 19672643739679724}
-  - component: {fileID: 6470513949868776514}
   - component: {fileID: 4761951927166992907}
   - component: {fileID: 5955650029471385912}
   - component: {fileID: 793084585377859599}
+  - component: {fileID: 5467821320860284028}
   m_Layer: 5
   m_Name: EditNameGroup
   m_TagString: Untagged
@@ -1684,18 +1684,6 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!225 &6470513949868776514
-CanvasGroup:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1143589005073417284}
-  m_Enabled: 1
-  m_Alpha: 0
-  m_Interactable: 0
-  m_BlocksRaycasts: 0
-  m_IgnoreParentGroups: 0
 --- !u!114 &4761951927166992907
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1752,6 +1740,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ca00478d8ae65bb49a1777b7a4d6db8a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _controller: {fileID: 2936666479723136508}
 --- !u!114 &793084585377859599
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1764,6 +1753,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 37080d9e81405a945b1105d5a405f9d9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _parentUI: {fileID: 5955650029471385912}
+--- !u!225 &5467821320860284028
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1143589005073417284}
+  m_Enabled: 1
+  m_Alpha: 0
+  m_Interactable: 0
+  m_BlocksRaycasts: 0
+  m_IgnoreParentGroups: 0
 --- !u!1 &1166559919443565754
 GameObject:
   m_ObjectHideFlags: 0
@@ -4249,7 +4251,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   viewModeCanvasGroup: {fileID: 5448391158302850016}
-  editNameCanvasGroup: {fileID: 6470513949868776514}
+  editNameCanvasGroup: {fileID: 5467821320860284028}
   deckTabController: {fileID: 3403381807245989579}
   deckNameInputField: {fileID: 1098489959281160988}
   confirmNameButton: {fileID: 3792041414230689208}

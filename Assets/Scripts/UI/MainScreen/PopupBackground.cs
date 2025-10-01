@@ -5,16 +5,17 @@ using UnityEngine.UI;
 public class PopupBackground : MonoBehaviour
 {
     private BaseUI _parentPopup;
+    [SerializeField] BaseUI _parentUI;
 
     private void Awake()
     {
-        _parentPopup = GetComponentInParent<BaseUI>();
 
         GetComponent<Button>().onClick.AddListener(CloseParentPopup);
     }
 
     private void CloseParentPopup()
     {
+        Debug.Log("꺼짐");
         if (_parentPopup != null)
         {
             _parentPopup.CloseUI();
