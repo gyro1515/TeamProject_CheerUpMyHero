@@ -15,6 +15,9 @@ public class UIRandomArtifactSlot : BaseUI
     [SerializeField] private Outline _iconOutline;
     [SerializeField] private Outline _textBgOutline;
 
+    [Header("선택 효과")]
+    [SerializeField] private GameObject _selectionEffectObject;
+
     [Header("등급별 테두리 색상")]
     [SerializeField] private Color _commonBorder = Color.gray;
     [SerializeField] private Color _rareBorder = Color.blue;
@@ -31,14 +34,26 @@ public class UIRandomArtifactSlot : BaseUI
     {
         _button = GetComponent<Button>();
         _button.onClick.AddListener(OnButtonClicked);
+        if (_selectionEffectObject != null)
+        {
+            _selectionEffectObject.SetActive(false);
+        }
     }
 
     public void Init(ArtifactData data)
     {
         _data = data;
         UpdateSlot();
-    }
+        SetSelected(false);
 
+    }
+    public void SetSelected(bool isSelected)
+    {
+        if (_selectionEffectObject != null)
+        {
+            _selectionEffectObject.SetActive(isSelected);
+        }
+    }
     private void UpdateSlot()
     {
         if (_data == null)
@@ -96,7 +111,10 @@ public class UIRandomArtifactSlot : BaseUI
             _textBgOutline.effectColor = _legendaryBorder;
         }
     }
-
+    public ArtifactData GetData()
+    {
+        return _data;
+    }
     private void OnButtonClicked()
     {
         OnStageClearArtifactSlotClicked?.Invoke(_data);
