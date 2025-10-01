@@ -111,7 +111,7 @@ public class UIStageClearArtifactSelect : BaseUI
         if (selectedArtifact != null)
         {
             ArtifactManager.Instance.AddArtifact(selectedArtifact.idNumber);
-            FadeManager.Instance.FadeOutUI(_canvasGroup);
+            FadeManager.FadeOutUI(_canvasGroup);
             GameManager.Instance.ShowResultUI(true);
         }
     }
