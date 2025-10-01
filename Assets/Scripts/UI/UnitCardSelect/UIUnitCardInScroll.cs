@@ -39,7 +39,7 @@ public class UIUnitCardInScroll : MonoBehaviour
         costText.text = $"코스트\n{cardData[cardNum].cost.ToString("F0")}";
         healthText.text = $"체력\n{cardData[cardNum].health.ToString("F0")}";
         atkPowerText.text = $"공격력\n{cardData[cardNum].atkPower.ToString("F0")}";
-        coolTimeText.text = $"쿨타임\n{cardData[cardNum].coolTime.ToString("F0")}";
+        coolTimeText.text = $"쿨타임\n{cardData[cardNum].coolTime.ToString("N1")}";
         descriptionText.text = $"{cardData[cardNum].description}";
         Grey(!canSelect);
     }

@@ -20,18 +20,19 @@ public class TempCardData
     public int potential;
     public PoolType poolType;
 
-    public TempCardData(int id, string name, PoolType pooltype)
+    public TempCardData(int id, string name, UnitType unitType, float health, int cost, float atkPower, float coolTime, PoolType pooltype)
     {
         this.id = id;
-        this.poolType = pooltype;
-        rarity = (Rarity)UnityEngine.Random.Range(0, 3);
+        //rarity = (Rarity)UnityEngine.Random.Range(0, 3);
+        rarity = Rarity.common;
         unitType = (UnitType)UnityEngine.Random.Range(0, 3);
         unitName = name;
         description = "설명";
-        health = UnityEngine.Random.Range(100f, 5000f);
-        cost = UnityEngine.Random.Range(50, 100);
-        atkPower = UnityEngine.Random.Range(100f, 5000f);
-        coolTime = UnityEngine.Random.Range(5f, 10f);
+        this.health  = health;
+        this.cost = cost;
+        this.atkPower = atkPower;
+        this.coolTime = coolTime;
+        this.poolType = pooltype;
         //중복 카드 획득에 따른 잠재력 증가, 추후 구현 예정
         potential = 0;
     }
