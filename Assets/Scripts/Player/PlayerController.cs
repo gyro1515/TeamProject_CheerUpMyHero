@@ -237,4 +237,8 @@ public class PlayerController : BaseController
         isAttacking = false;
         animator.SetTrigger(player.AnimationData.StopAttackParameterHash);
     }
+    public void TestForUseActiveArtifact()
+    {
+        animator.SetTrigger(player.AnimationData.AttackParameterHash);
+    }
 }

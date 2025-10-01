@@ -31,6 +31,7 @@ public class UIPause : BaseUI
         {
             ApplySpeed(SpeedState.X1); // 웨이브 경고 시 배속 초기화
         };
+        GameManager.Instance.enemyHQ.WaveSystem.SetOnWarningEnd(() => ApplySpeed(CurrentSpeed));
     }
     private void OnPauseButtonClicked()
     {

@@ -147,6 +147,10 @@ public class EnemyWaveSystem : MonoBehaviour
             }
         }
     }
+    public void SetOnWarningEnd(Action onWarningEndEvent)
+    {
+        warningUI.OnWarningEnd += onWarningEndEvent;
+    }
     // 데이터 테이블에 따라 아래 형식 사용할 수 있어서 일단 주석처리
     /*void TestWaveDateInit()
     {

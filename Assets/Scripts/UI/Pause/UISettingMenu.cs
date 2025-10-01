@@ -65,7 +65,7 @@ public class UISettingMenu : BaseUI
 
     private void OnResumeButtonClicked()
     {
-        FadeManager.Instance.FadeOutUI(_canvasGroup);
+        FadeManager.FadeOutUI(_canvasGroup);
         OnResumeButton?.Invoke();
     }
     #endregion
@@ -113,11 +113,11 @@ public class UISettingMenu : BaseUI
             {
                 if (panel.alpha > 0.0f)
                 {
-                    FadeManager.Instance.FadeOutUI(panel);
+                    FadeManager.FadeOutUI(panel);
                 }
             }
         }
 
-        FadeManager.Instance.FadeInUI(target);
+        FadeManager.FadeInUI(target);
     }
 }
