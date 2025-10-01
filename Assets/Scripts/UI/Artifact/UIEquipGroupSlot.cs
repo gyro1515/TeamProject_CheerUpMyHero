@@ -15,6 +15,11 @@ public class UIEquipGroupSlot : MonoBehaviour
         InitializeSlots();
     }
 
+    private void OnDisable()
+    {
+        
+    }
+
     private void InitializeSlots()
     {
         for (int i = 0; i < _slots.Count; i++)
@@ -22,4 +27,6 @@ public class UIEquipGroupSlot : MonoBehaviour
             _slots[i].Init(i, _inventory);
         }
     }
+
+    
 }

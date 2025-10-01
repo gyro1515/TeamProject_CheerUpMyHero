@@ -23,14 +23,16 @@ public class UIArtifactEquipSlot : BaseUI
     private Button _button;
     private Outline _outline;
     private int _slotIndex;
+    private UIArtifactInventory _inventory;
 
     public void Init(int slotIndex, UIArtifactInventory inventory)
     {
         _slotIndex = slotIndex;
+        _inventory = inventory;
         
         _outline = GetComponent<Outline>();
         _button = GetComponent<Button>();
-        _button.onClick.AddListener(() => inventory.OpenInventory(_slotIndex));
+        _button.onClick.AddListener(OnButtonClicked);
 
         ArtifactManager.Instance.OnEquippedArtifactChanged += UpdateUI;
         UpdateUI();
@@ -116,5 +118,16 @@ public class UIArtifactEquipSlot : BaseUI
             _statValueText.text = $"Cost : {activeAf.cost}";
             _outline.effectColor = _legendaryBorder;
         }
+    }
+
+    private void OnButtonClicked()
+    {
+        _inventory.OpenInventory(_slotIndex);
+    }
+
+    private void OnDestroy()
+    {
+        _button.onClick.RemoveListener(OnButtonClicked);
+        ArtifactManager.Instance.OnEquippedArtifactChanged -= UpdateUI;
     }
 }

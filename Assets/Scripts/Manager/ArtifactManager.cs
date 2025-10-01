@@ -159,7 +159,7 @@ public class ArtifactManager : SingletonMono<ArtifactManager>
                                                      .ToList();
 
         var sortedAAf = OwnedArtifacts.OfType<ActiveArtifactData>()
-                                                     .OrderBy(a => a.cost)
+                                                     .OrderBy(a => a.levelData[a.curLevel].coolTime)
                                                      .ToList();
 
         List<ArtifactData> primaryList;
