@@ -42,7 +42,7 @@ public class UIStageClearArtifactSelect : MonoBehaviour
     public void OpenSelectUI(ArtifactType type)
     {
         _type = type;
-        FadeManager.Instance.FadeInUI(_canvasGroup);
+        FadeManager.FadeInUI(_canvasGroup);
         RandomCreate(type);
         isRerolled = false ;
     }
@@ -108,7 +108,7 @@ public class UIStageClearArtifactSelect : MonoBehaviour
         if (selectedArtifact != null)
         {
             ArtifactManager.Instance.AddArtifact(selectedArtifact.idNumber);
-            FadeManager.Instance.FadeOutUI(_canvasGroup);
+            FadeManager.FadeOutUI(_canvasGroup);
         }
     }
 }

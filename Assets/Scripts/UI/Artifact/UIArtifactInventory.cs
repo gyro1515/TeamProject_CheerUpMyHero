@@ -65,7 +65,7 @@ public class UIArtifactInventory : BaseUI
 
         UpdateInventory();
         UpdateDescriptionPanel();
-        FadeManager.Instance.FadeInUI(_canvasGroup);
+        FadeManager.FadeInUI(_canvasGroup);
     }
 
     private void SelectArtifact(ArtifactData selectArtifact)
@@ -146,7 +146,7 @@ public class UIArtifactInventory : BaseUI
 
     private void OnCloseButtonClicked()                     // 버튼 눌렀을 때 인벤토리 끄는 메서드
     {
-        FadeManager.Instance.FadeOutUI(_canvasGroup);
+        FadeManager.FadeOutUI(_canvasGroup);
     }
 
     private void OnEquipButtonClicked()
@@ -155,7 +155,7 @@ public class UIArtifactInventory : BaseUI
         {
             ArtifactManager.Instance.EquipArtifact(_selectedArtifact, _currentSlotIndex);
             _selectedArtifact = null;
-            FadeManager.Instance.FadeOutUI( _canvasGroup);
+            FadeManager.FadeOutUI( _canvasGroup);
         }
     }
 

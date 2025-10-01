@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UIArtifact : MonoBehaviour
+public class UIArtifact : BaseUI
 {
     [Header("돌아가기 버튼")]
     [SerializeField] private Button _closeButton;
@@ -13,10 +13,11 @@ public class UIArtifact : MonoBehaviour
     private void Awake()
     {
         _canvasGroup = GetComponent<CanvasGroup>();
+        _closeButton.onClick.AddListener(() => SceneLoader.Instance.StartLoadScene(SceneState.BattleScene));
     }
 
     private void OnCloseButtonClicked()
     {
-        FadeManager.Instance.FadeOutUI(_canvasGroup);
+        FadeManager.FadeOutUI(_canvasGroup);
     }
 }
