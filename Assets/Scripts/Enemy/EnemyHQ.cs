@@ -22,7 +22,7 @@ public class EnemyHQ : BaseHQ
         set
         {
             base.CurHp = value;
-            if (!isDefenseWaveSpawned && curHp / MaxHp <= 0.7f)
+            if (curHp != 0 && !isDefenseWaveSpawned && curHp / MaxHp <= 0.7f)
             {
                 isDefenseWaveSpawned = true;
                 WaveSystem.SpawnDefenseWave();
