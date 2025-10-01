@@ -2,14 +2,15 @@ using UnityEngine;
 using UnityEngine.UI;
 
 [RequireComponent(typeof(Button))]
+[RequireComponent(typeof(Image))]
+[RequireComponent(typeof(CanvasRenderer))]
 public class PopupBackground : MonoBehaviour
 {
-    private BaseUI _parentPopup;
-    [SerializeField] BaseUI _parentUI;
+    [SerializeField] private BaseUI _parentPopup;
 
     private void Awake()
     {
-
+        GetComponent<Image>().color = new Color(1, 1, 1, 0); 
         GetComponent<Button>().onClick.AddListener(CloseParentPopup);
     }
 
