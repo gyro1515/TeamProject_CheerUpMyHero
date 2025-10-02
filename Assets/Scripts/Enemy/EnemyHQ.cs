@@ -37,9 +37,9 @@ public class EnemyHQ : BaseHQ
             GameManager.Instance.enemyHQ = this;
         }
         // HQ 체력바가 제일 위에 표시 될 수 있도록 UI로 표현
-        UIManager.Instance.GetUI<UIHpBarContainer>().AddHpBar(this, EUIHpBarType.EnemyUnit, new Vector2(300f, 16.5f));
+        //UIManager.Instance.GetUI<UIHpBarContainer>().AddHpBar(this, EUIHpBarType.EnemyUnit, new Vector2(300f, 16.5f));
         // 적 유닛 리스트에 추가
-        UnitManager.Instance.AddUnitList(this, false);
+        //UnitManager.Instance.AddUnitList(this, false);
 
         //InvokeRepeating("SpawnUnit", 0f, spawnInterval);
 
@@ -48,6 +48,8 @@ public class EnemyHQ : BaseHQ
     protected override void Start()
     {
         base.Start();
+        EventManager.Instance.Publish(new SpawnHQEvent { baseHQ = this, type = EUIHpBarType.EnemyUnit, hpBarSize = new Vector2(300f, 16.5f), isPlayer = false });
+
         // 계속해서 유닛을 스폰하도록
         SetSpawnEnemyActive(true);
     }

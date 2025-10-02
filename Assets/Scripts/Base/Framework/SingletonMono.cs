@@ -5,6 +5,8 @@ using UnityEngine;
 public class SingletonMono<T> : MonoBehaviour where T : MonoBehaviour
 {
     private static T instance;
+    // 기본값 true → 파괴 불능
+    protected virtual bool IsPersistent => true;
     public static T Instance
     {
         get
@@ -24,7 +26,8 @@ public class SingletonMono<T> : MonoBehaviour where T : MonoBehaviour
         if (instance == null)
         {
             instance = this as T;
-            DontDestroyOnLoad(gameObject); // 씬 전환에도 유지
+            if (IsPersistent) // 파괴 불능이면
+                DontDestroyOnLoad(gameObject); // 씬 전환에도 유지
         }
         else if (instance != this)
         {

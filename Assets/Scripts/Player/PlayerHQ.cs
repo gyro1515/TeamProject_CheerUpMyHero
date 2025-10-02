@@ -10,9 +10,15 @@ public class PlayerHQ : BaseHQ
     protected override void Awake()
     {
         base.Awake();
-        UIManager.Instance.GetUI<UIHpBarContainer>().AddHpBar(this, EUIHpBarType.PlayerUnit, new Vector2(300f, 16.5f));
-        UnitManager.Instance.AddUnitList(this, true);
+
+        //UIManager.Instance.GetUI<UIHpBarContainer>().AddHpBar(this, EUIHpBarType.PlayerUnit, new Vector2(300f, 16.5f));
+        //UnitManager.Instance.AddUnitList(this, true);
         GameManager.Instance.PlayerHQ = this;
+    }
+    protected override void Start()
+    {
+        EventManager.Instance.Publish(new SpawnHQEvent { baseHQ = this, type = EUIHpBarType.PlayerUnit, hpBarSize = new Vector2(300f, 16.5f), isPlayer = true });
+        base.Start();
     }
     public override void Dead()
     {

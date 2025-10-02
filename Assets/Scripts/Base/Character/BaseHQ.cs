@@ -6,6 +6,13 @@ using UnityEngine;
 
 public abstract class BaseHQ : BaseCharacter, IDamageable
 {
+    public struct SpawnHQEvent
+    {
+        public BaseHQ baseHQ;
+        public EUIHpBarType type;
+        public Vector2? hpBarSize;
+        public bool isPlayer;
+    }
     [Header("본부 세팅")]
     [SerializeField] protected float minY = 0; // 스폰 위치 최소값
     [SerializeField] protected float maxY = 0; // 스폰 위치 최대값

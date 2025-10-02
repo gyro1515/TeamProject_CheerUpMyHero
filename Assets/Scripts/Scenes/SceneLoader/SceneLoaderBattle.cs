@@ -9,6 +9,8 @@ public class SceneLoaderBattle : MonoBehaviour
     {
         UIManager.Instance.GetUI<UITest>();
         UIManager.Instance.GetUI<UIPause>();
+        UIManager.Instance.GetUI<UIHpBarContainer>();
+        UnitManager.Instance.gameObject.SetActive(true);// 유닛 매니저는 싱글톤이지만, 씬 전환 시 파괴됨
 
         /*//GameManager에게 전투 시작 준비를 명령
         GameManager.Instance.StartBattle(); //배틀씬으로 갔을 때부터 식량 획득 증가 함수*/
