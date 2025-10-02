@@ -29,6 +29,7 @@
 
 ## 3.  시연 영상
 
+[CheerUpMYHero 시연 영상](https://www.youtube.com/watch?v=lv_Q6r9qyG8)
 
 ----------
 
