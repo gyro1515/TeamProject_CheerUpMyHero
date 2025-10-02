@@ -29,7 +29,7 @@
 
 ## 3.  시연 영상
 
-[CheerUpMYHero 시연 영상](https://www.youtube.com/watch?v=lv_Q6r9qyG8)
+[![Cheer Up My Hero 시연 영상](https://img.youtube.com/vi/lv_Q6r9qyG8/0.jpg)](https://www.youtube.com/watch?v=lv_Q6r9qyG8)
 
 ----------
 
@@ -102,17 +102,7 @@
 -   Inspector에서 손쉽게 수정/확장 가능, 데이터와 로직 분리로 유지보수 용이
 ----------
 
-## 6. 전투 씬 구조
-
--   **데이터(`BaseCharacter`)**와 **행동(`BaseUnitController`)**을 분리한 아키텍처
-    
--   `PlayerHQ`에서 덱 기반 유닛 소환 → `EnemyHQ`/`WaveSystem`에서 적 생성
-    
--   `UIPlayerUnitSpawnPanel`, `SupplyUI`, `UIMiniMap`, `CameraController` 등 UI와 유닛 시스템이 긴밀하게 연결
-----------
-
-
-## 7.  핵심 특징 요약
+## 6.  핵심 특징 요약
 
 -   **영지 경영 + 전투**의 이중 구조
     
@@ -126,7 +116,7 @@
 
 
 ----------
-## 8. 기술적 의사결정
+## 7. 기술적 의사결정
 
 -   **리스트 기반 유닛 탐색 및 타겟 선정**
     
@@ -186,7 +176,7 @@
 
 ----------
 
-## 9. 트러블슈팅
+## 8. 트러블슈팅
 
 -   **원거리 범위 공격 정의 문제**
     
@@ -218,7 +208,7 @@
 
 ----------
 
-## 10. 추후 개선 사항
+## 9. 추후 개선 사항
 
 -   **플레이어 데이터 매니저 구조 개선**
     
