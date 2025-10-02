@@ -32,6 +32,9 @@
 <a href="https://www.youtube.com/watch?v=lv_Q6r9qyG8">
   <img src= https://i.imgur.com/ll7cBzg.gif" alt="프로젝트 시연 GIF" width="250px">
 </a>
+<br>
+
+👆 **클릭해서 시연 영상 보러가기**
 
 ----------
 
