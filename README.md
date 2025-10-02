@@ -29,7 +29,9 @@
 
 ## 3.  시연 영상
 
-[![Cheer Up My Hero 시연 영상](https://img.youtube.com/vi/lv_Q6r9qyG8/0.jpg)](https://www.youtube.com/watch?v=lv_Q6r9qyG8)
+<a href="https://www.youtube.com/watch?v=lv_Q6r9qyG8">
+  <img src= https://i.imgur.com/ll7cBzg.gif" alt="프로젝트 시연 GIF" width="250px">
+</a>
 
 ----------
 
