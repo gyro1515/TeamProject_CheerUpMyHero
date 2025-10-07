@@ -13,24 +13,18 @@ public class UIHpBarContainer : BaseUI
     [SerializeField] GameObject uiHpBarPrefab;
     private void Awake()
     {
-        EventManager.Instance.Subscribe<SpawnHQEvent>((spawnHQEvent)=> AddHpBar(spawnHQEvent.baseHQ, spawnHQEvent.type, spawnHQEvent.hpBarSize));
+        // 구독하고 해제할 필요가 없는 이유:
+        // 이 오브젝트는 배틀씬 시작과 동시에 생성되고, 배틀씬이 끝나면 파괴됨
+        // 씬 중간에 오브젝트가 활성화/비활성화 되는 것이 아니므로, 구독과 해제를 OnEnable/OnDisable에서 할 필요가 없음
+        EventManager.Subscribe<SpawnHQEvent>(AddHpBar);
     }
-    private void OnEnable()
-    {
-        EventManager.Instance.Subscribe<SpawnHQEvent>(AddHpBar);
-    }
-    private void OnDisable()
-    {
-        EventManager.Instance.Unsubscribe<SpawnHQEvent>(AddHpBar);
-
-    }
-    public UIHpbar AddHpBar(BaseCharacter character, EUIHpBarType type, Vector2? hpBarSize = null)
+    /*public UIHpbar AddHpBar(BaseCharacter character, EUIHpBarType type, Vector2? hpBarSize = null)
     {
         // 여기서 오브젝트 풀에서 가져오기
         UIHpbar hpBar = Instantiate(uiHpBarPrefab,gameObject.transform).GetComponent<UIHpbar>();
         hpBar.HpBarInit(character, type, hpBarSize);
         return hpBar;
-    }
+    }*/
     void AddHpBar(SpawnHQEvent e)
     {
         UIHpbar hpBar = Instantiate(uiHpBarPrefab, gameObject.transform).GetComponent<UIHpbar>();

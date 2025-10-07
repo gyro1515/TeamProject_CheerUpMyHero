@@ -34,8 +34,7 @@ public class UnitManager : SingletonMono<UnitManager>
         playerLayerMask = LayerMask.GetMask("Player");
         enemyLayerMask = LayerMask.GetMask("Enemy");
         // 한 번 생성되고 씬이 끝날 때 파괴되므로, 람다식으로 구독
-        EventManager.Instance.Subscribe<SpawnHQEvent>((spawnHQEvent) => AddUnitList(spawnHQEvent.baseHQ, spawnHQEvent.isPlayer));
-        //EventManager.Instance.Subscribe<SpawnUnitEvent>((spawnUnitEvent) => AddUnitList(spawnUnitEvent.baseUnit, spawnUnitEvent.isPlayer));
+        EventManager.Subscribe<SpawnHQEvent>((spawnHQEvent) => AddUnitList(spawnHQEvent.baseHQ, spawnHQEvent.isPlayer));
     }
     
     public void AddUnitList(BaseCharacter unit, bool isPlayer)

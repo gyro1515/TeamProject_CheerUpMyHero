@@ -32,6 +32,7 @@ public class GameManager : SingletonMono<GameManager>
         base.Awake();
         RewardPanelUI = UIManager.Instance.GetUI<RewardPanelUI>();
         UIStageClearArtifactSelect = UIManager.Instance.GetUI<UIStageClearArtifactSelect>();
+        
     }
     private void Update()
     {
