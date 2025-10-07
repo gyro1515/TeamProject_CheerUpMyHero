@@ -47,8 +47,9 @@ public class EnemyHQ : BaseHQ
     }
     protected override void Start()
     {
-        base.Start();
         EventManager.Instance.Publish(new SpawnHQEvent { baseHQ = this, type = EUIHpBarType.EnemyUnit, hpBarSize = new Vector2(300f, 16.5f), isPlayer = false });
+
+        base.Start();
 
         // 계속해서 유닛을 스폰하도록
         SetSpawnEnemyActive(true);
