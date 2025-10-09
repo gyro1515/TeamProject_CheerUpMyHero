@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -7,6 +8,8 @@ public class PlayerHQ : BaseHQ
     [Header("아군 본부 세팅")]
     [SerializeField] List<PoolType> playerUnits = new List<PoolType>();
 
+    // 미리 캐싱하고 사용하는 방식 => 업데이트 같은 곳에서 사용할 때 성능 향상
+    EventChannel<SpawnHQEvent> onSpawn;
     protected override void Awake()
     {
         base.Awake();
@@ -16,10 +19,11 @@ public class PlayerHQ : BaseHQ
         // 위와 다르게 아래는 바로 매니저를 호출한 이유는 다른 클래스의 start에서 GameManager.Instance.PlayerHQ를 사용하기 때문
         // 만약 이것도 이벤트로 바꾸면 start 실행 순서에 따라 null 참조가 발생할 수 있음
         GameManager.Instance.PlayerHQ = this;
+        onSpawn = EventManager.GetPublisher<SpawnHQEvent>();
     }
     protected override void Start()
     {
-        EventManager.Publish(new SpawnHQEvent { baseHQ = this, type = EUIHpBarType.PlayerUnit, hpBarSize = new Vector2(300f, 16.5f), isPlayer = true });
+        onSpawn.Publish(new SpawnHQEvent { baseHQ = this, type = EUIHpBarType.PlayerUnit, hpBarSize = new Vector2(300f, 16.5f), isPlayer = true });
         base.Start();
     }
     public override void Dead()
