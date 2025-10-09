@@ -19,10 +19,12 @@ public class PlayerHQ : BaseHQ
         // 위와 다르게 아래는 바로 매니저를 호출한 이유는 다른 클래스의 start에서 GameManager.Instance.PlayerHQ를 사용하기 때문
         // 만약 이것도 이벤트로 바꾸면 start 실행 순서에 따라 null 참조가 발생할 수 있음
         GameManager.Instance.PlayerHQ = this;
+        // 이벤트 채널 캐싱
         onSpawn = EventManager.GetPublisher<SpawnHQEvent>();
     }
     protected override void Start()
     {
+        // EnemyHQ와 달리 PlayerHQ는 캐싱된 이벤트 채널로 발행
         onSpawn.Publish(new SpawnHQEvent { baseHQ = this, type = EUIHpBarType.PlayerUnit, hpBarSize = new Vector2(300f, 16.5f), isPlayer = true });
         base.Start();
     }
