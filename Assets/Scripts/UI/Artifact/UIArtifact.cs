@@ -12,28 +12,11 @@ public class UIArtifact : BaseUI
     [SerializeField] private UIArtifactInventoryPanel _inventoryPanel;
     [SerializeField] private UIArtifactStatPanel _statPanel;
 
-    [Header("자동 장착 버튼")]
-    [SerializeField] private Button _passiveButton;
-    [SerializeField] private Button _activeButton;
-    [SerializeField] private Button _confirmButton;
-
     [Header("UI간 이동 버튼")]
     [SerializeField] private Button _closeButton;   //지금 비활성화 되어있음
     [SerializeField] private Button _gotoCardDeckButton;
 
     private CanvasGroup _canvasGroup;
-
-    public ArtifactData SelectedArtifact { get; private set; }
-    public int CurrentEquipSlotIndex { get; private set; } = -1;
-    #endregion
-
-    #region Artifact 이벤트
-    public event Action<int> OnEquipSlotClicked;        // 장착 슬롯 클릭했을 때
-    public event Action OnEquippedArtifactChanged;      // 장착 슬롯 변경했을 때
-
-    public event Action<ArtifactData> OnInventorySlotClicked;   // 인벤토리 슬롯 클릭했을 때
-    public event Action<ArtifactData> OnArtifactSelected;       // 인벤토리 유물 선택했을 때
-    public event Action OnInventoryClosed;                      // 인벤토리 닫혔을 때
     #endregion
 
     #region 생명주기
@@ -43,11 +26,28 @@ public class UIArtifact : BaseUI
         _closeButton.onClick.AddListener(() => SceneLoader.Instance.StartLoadScene(SceneState.BattleScene));
     }
 
+    private void OnEnable()
+    {
+        ArtifactManager.Instance.OnEquippedArtifactChanged += RefreshAllArtifactDisplay;
+    }
+
     private void Start()
     {
         _gotoCardDeckButton.onClick.AddListener(OnCardDeckClicked);
+        RefreshAllArtifactDisplay();
+    }
+
+    private void OnDisable()
+    {
+        ArtifactManager.Instance.OnEquippedArtifactChanged -= RefreshAllArtifactDisplay;
     }
     #endregion
+
+    private void RefreshAllArtifactDisplay()
+    {
+        _statPanel.RefreshArtifactStatDisplay();
+        _equipPanel.RefreshAllArtifactEquipSlotDisplay();
+    }
 
     #region 버튼
     private void OnCloseButtonClicked()
@@ -60,4 +60,5 @@ public class UIArtifact : BaseUI
         FadeManager.Instance.SwitchGameObjects(gameObject, UIManager.Instance.GetUI<DeckPresetController>().gameObject);
     }
     #endregion
+
 }

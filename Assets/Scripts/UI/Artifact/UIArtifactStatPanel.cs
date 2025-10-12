@@ -35,18 +35,18 @@ public class UIArtifactStatPanel : BaseUI
 
     private const float LegendaryArtifactValue = 25f;
 
-    private void OnEnable()
-    {
-        UpdateStatUI();
-        ArtifactManager.Instance.OnEquippedArtifactChanged += UpdateStatUI;
-    }
+    //private void OnEnable()
+    //{
+    //    UpdateStatUI();
+    //    ArtifactManager.Instance.OnEquippedArtifactChanged += UpdateStatUI;
+    //}
 
-    private void OnDisable()
-    {
-        ArtifactManager.Instance.OnEquippedArtifactChanged -= UpdateStatUI;
-    }
+    //private void OnDisable()
+    //{
+    //    ArtifactManager.Instance.OnEquippedArtifactChanged -= UpdateStatUI;
+    //}
 
-    private void UpdateStatUI()     // ㅋㅋ 이게 최선인가.... 개선해야 할 듯
+    public void RefreshArtifactStatDisplay()     // ㅋㅋ 이게 최선인가.... 개선해야 할 듯
     {
         _playerHpBonus = ArtifactManager.Instance.GetPassiveArtifactStatBonus(EffectTarget.Player, StatType.MaxHp);
         _playerHpBonusMax = ArtifactManager.Instance.GetPassiveArtifactDataValue(_playerHpLegendary);

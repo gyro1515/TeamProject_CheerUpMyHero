@@ -34,11 +34,11 @@ public class UIArtifactEquipSlot : BaseUI
         _button = GetComponent<Button>();
         _button.onClick.AddListener(OnButtonClicked);
 
-        ArtifactManager.Instance.OnEquippedArtifactChanged += UpdateUI;
-        UpdateUI();
+        // ArtifactManager.Instance.OnEquippedArtifactChanged += UpdateUI;
+        RefreshArtifactEquipSlotDisplay();
     }
 
-    private void UpdateUI()
+    public void RefreshArtifactEquipSlotDisplay()
     {
         ArtifactData equippedArtifact = ArtifactManager.Instance.EquippedArtifacts[_slotIndex];
 
@@ -128,6 +128,6 @@ public class UIArtifactEquipSlot : BaseUI
     private void OnDestroy()
     {
         _button.onClick.RemoveListener(OnButtonClicked);
-        ArtifactManager.Instance.OnEquippedArtifactChanged -= UpdateUI;
+        // ArtifactManager.Instance.OnEquippedArtifactChanged -= RefreshArtifactEquipSlotDisplay;
     }
 }

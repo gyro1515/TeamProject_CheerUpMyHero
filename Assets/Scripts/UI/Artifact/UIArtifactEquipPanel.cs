@@ -28,5 +28,11 @@ public class UIArtifactEquipPanel : MonoBehaviour
         }
     }
 
-    
+    public void RefreshAllArtifactEquipSlotDisplay()
+    {
+        foreach (var slot in _slots)
+        {
+            slot.RefreshArtifactEquipSlotDisplay();
+        }
+    }
 }

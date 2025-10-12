@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,6 +9,7 @@ using static UnityEngine.GraphicsBuffer;
 
 public class UIArtifactInventoryPanel : BaseUI
 {
+    #region UI 참조 변수
     [Header("인벤토리 타이틀")]
     [SerializeField] private TextMeshProUGUI _title;
 
@@ -40,10 +42,17 @@ public class UIArtifactInventoryPanel : BaseUI
     private List<UIArtifactInvInventorySlot> _slotList = new List<UIArtifactInvInventorySlot>();        // 인벤토리 안에 생성된 슬롯들 담아두는 리스트
     private EffectTarget _currentTargetType;
     
+    public ArtifactData _selectedArtifact;
     private int _currentSlotIndex;
     private bool isEquipped;
+    #endregion
 
-    public ArtifactData _selectedArtifact;
+    #region 이벤트 시스템
+    public event Action OnRequestClose;
+    public event Action OnRequestSort;
+    public event Action<ArtifactData, int> OnRequestEquip;
+    public event Action<ArtifactData> OnRequestUnEquip;
+    #endregion
 
     private void Awake()
     {
@@ -144,18 +153,17 @@ public class UIArtifactInventoryPanel : BaseUI
         _InnerButton.gameObject.SetActive(false);
     }
 
-    private void OnCloseButtonClicked()                     // 버튼 눌렀을 때 인벤토리 끄는 메서드
+    #region 버튼 메서드
+    private void OnCloseButtonClicked()
     {
-        FadeManager.FadeOutUI(_canvasGroup);
+        OnRequestClose?.Invoke();
     }
 
     private void OnEquipButtonClicked()
     {
         if (_selectedArtifact != null)
         {
-            ArtifactManager.Instance.EquipArtifact(_selectedArtifact, _currentSlotIndex);
-            _selectedArtifact = null;
-            FadeManager.FadeOutUI( _canvasGroup);
+            OnRequestEquip?.Invoke(_selectedArtifact, _currentSlotIndex);
         }
     }
 
@@ -163,47 +171,13 @@ public class UIArtifactInventoryPanel : BaseUI
     {
         if ( _selectedArtifact != null )
         {
-            for (int i = 0; i < ArtifactManager.Instance.EquippedArtifacts.Count; i++)
-            {
-                if (ArtifactManager.Instance.EquippedArtifacts[i] == _selectedArtifact)
-                {
-                    ArtifactManager.Instance.UnEquipArtifact(i);
-                    break;
-                }
-            }
-            _selectedArtifact = null;
-            UpdateDescriptionPanel();
+            OnRequestUnEquip?.Invoke(_selectedArtifact);
         }
     }
 
     private void OnSortButtonClicked()
     {
-        ArtifactManager.Instance.OwnedArtifacts.Sort((a, b) =>
-        {
-            bool isAActive = a is ActiveArtifactData;
-            bool isBActive = b is ActiveArtifactData;
-
-            if (isAActive && !isBActive)    // a는 액티브, b가 패시브면 a를 앞으로 둠.
-            {
-                return -1;
-            }
-            if (!isAActive && isBActive)    // b는 액티브, a는 패시브면 b를 앞으로 둠.
-            {
-                return 1;
-            }
-
-            if (!isAActive && !isBActive)    // 둘 다 패시브일 경우 
-            {
-                PassiveArtifactData passiveA = a as PassiveArtifactData;
-                PassiveArtifactData passiveB = b as PassiveArtifactData;
-                return passiveB.grade.CompareTo(passiveA.grade);    // 등급으로 비교함
-            }
-
-            return a.name.CompareTo(b.name);
-        });
-
-        UpdateInventory();
-        _selectedArtifact = null;
-        UpdateDescriptionPanel();
+        OnRequestSort?.Invoke();
     }
+    #endregion
 }
