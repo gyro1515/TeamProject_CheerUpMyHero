@@ -2,13 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class UIEquipGroupSlot : MonoBehaviour
+public class UIArtifactEquipPanel : MonoBehaviour
 {
     [Header("슬롯 리스트")]
     [SerializeField] private List<UIArtifactEquipSlot> _slots;
 
     [Header("인벤토리")]
-    [SerializeField] private UIArtifactInventory _inventory;
+    [SerializeField] private UIArtifactInventoryPanel _inventory;
 
     private void Awake()
     {

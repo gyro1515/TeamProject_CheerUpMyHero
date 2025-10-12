@@ -23,9 +23,9 @@ public class UIArtifactEquipSlot : BaseUI
     private Button _button;
     private Outline _outline;
     private int _slotIndex;
-    private UIArtifactInventory _inventory;
+    private UIArtifactInventoryPanel _inventory;
 
-    public void Init(int slotIndex, UIArtifactInventory inventory)
+    public void Init(int slotIndex, UIArtifactInventoryPanel inventory)
     {
         _slotIndex = slotIndex;
         _inventory = inventory;

@@ -6,7 +6,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using static UnityEngine.GraphicsBuffer;
 
-public class UIArtifactInventory : BaseUI
+public class UIArtifactInventoryPanel : BaseUI
 {
     [Header("인벤토리 타이틀")]
     [SerializeField] private TextMeshProUGUI _title;

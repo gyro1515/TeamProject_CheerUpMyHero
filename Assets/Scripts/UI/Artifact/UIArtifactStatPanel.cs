@@ -12,7 +12,7 @@ public class StatDisplay
     public TextMeshProUGUI statText;
 }
 
-public class UIArtifactStatArea : BaseUI
+public class UIArtifactStatPanel : BaseUI
 {
     [Header("플레이어 스탯 UI")]
     [SerializeField] private Image _playerHpBonusBar;
