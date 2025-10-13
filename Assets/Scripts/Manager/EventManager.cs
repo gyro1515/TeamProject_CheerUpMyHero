@@ -38,7 +38,7 @@ public class EventManager : SingletonMono<EventManager>
     private void Start()
     {
         // *** 씬 전환마다 리소스 정리하려면 추가 필요***
-        SceneLoader.Instance.SceneResettables.Add(this);
+        //SceneLoader.Instance.SceneResettables.Add(this);
     }
     // 해당 타입의 이벤트 채널을 가져오거나, 없으면 새로 생성
     private static EventChannel<T> GetChannel<T>() where T : struct
