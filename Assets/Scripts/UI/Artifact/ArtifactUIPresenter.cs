@@ -66,7 +66,19 @@ public class ArtifactUIPresenter
     #region Handle 메서드
     public void HandleEquippedArtifactChanged()
     {
-        _statPanelView.RefreshArtifactStatUI();
+        StatPanelViewModel statVM = new StatPanelViewModel
+        {
+            PlayerAtk = CreateStatBarViewModel(EffectTarget.Player, StatType.AtkPower),
+            PlayerHp = CreateStatBarViewModel(EffectTarget.Player, StatType.MaxHp),
+            PlayerSpd = CreateStatBarViewModel(EffectTarget.Player, StatType.MoveSpeed),
+            PlayerAura = CreateStatBarViewModel(EffectTarget.Player, StatType.AuraRange),
+            MeleeAtk = CreateStatBarViewModel(EffectTarget.MeleeUnit, StatType.AtkPower),
+            MeleeHp = CreateStatBarViewModel(EffectTarget.MeleeUnit, StatType.MaxHp),
+            RangedAtk = CreateStatBarViewModel(EffectTarget.RangedUnit, StatType.AtkPower),
+            RangedHp = CreateStatBarViewModel(EffectTarget.RangedUnit, StatType.MaxHp)
+        };
+
+        _statPanelView.RefreshStatPanelUI(statVM);
 
         List<UIArtifactEquipSlot> slots = _equipPanelView.GetSlots();
         for (int i = 0; i < slots.Count; i++)
@@ -254,8 +266,47 @@ public class ArtifactUIPresenter
             vm.StatTypeText = $"유형 : {a.type}";
             vm.ValueOrCostText = $"Cost : {a.cost}";
         }
-
         return vm;
+    }
+
+    private StatBarViewModel CreateStatBarViewModel(EffectTarget target, StatType type)
+    {
+        List<PassiveArtifactData> artifacts = _model.EquippedArtifacts.OfType<PassiveArtifactData>()
+                                                    .Where(p => p.effectTarget == target && p.statType == type)
+                                                    .OrderByDescending(p => p.grade)
+                                                    .ToList();
+
+        StatBarViewModel barVm = new StatBarViewModel
+        {
+            Bonus = artifacts.Sum(p => p.value),
+            SegmentColors = artifacts.Select(p => GerGradeColor(p.grade)).ToList()
+        };
+
+        return barVm;
+    }
+
+    private Color GerGradeColor(PassiveArtifactGrade grade)
+    {
+        switch (grade)
+        {
+            case PassiveArtifactGrade.Common:
+                return Color.gray;
+
+            case PassiveArtifactGrade.Rare:
+                return Color.blue;
+
+            case PassiveArtifactGrade.Epic:
+                return Color.magenta;
+
+            case PassiveArtifactGrade.Unique:
+                return Color.yellow;
+
+            case PassiveArtifactGrade.Legendary:
+                return Color.green;
+
+            default:
+                return Color.black;
+        }
     }
     #endregion
 }
