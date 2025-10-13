@@ -10,6 +10,8 @@ public class EventChannel<T> where T : struct
     private Action<T> _onPublish;
     public void Subscribe(Action<T> callback)
     {
+        // 중복 구독 방지
+        _onPublish -= callback;
         _onPublish += callback;
     }
     public void Unsubscribe(Action<T> callback)
