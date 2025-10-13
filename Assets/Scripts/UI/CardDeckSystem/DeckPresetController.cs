@@ -6,7 +6,7 @@ using TMPro;
 using System.Collections;
 using DG.Tweening;
 
-public class DeckPresetController : BaseUI
+public class DeckPresetController : BaseUI, IBackButtonHandler
 {
     // 각 덱 탭의 UI 요소들을 묶어서 관리할 클래스
     [System.Serializable]
@@ -62,6 +62,14 @@ public class DeckPresetController : BaseUI
             OnUnitSelected(2, 100014);
 
         }
+    }
+    private void OnEnable()
+    {
+        EventManager.Publish(new AddUIStackEvent { ui = this });
+    }
+    private void OnDisable()
+    {
+        EventManager.Publish(new RemoveUIStackEvent());
     }
     private void Start()
     {
@@ -294,4 +302,9 @@ public class DeckPresetController : BaseUI
         }
     }
     #endregion
+    public void OnBackPressed()
+    {
+        Debug.Log("뒤로가기 버튼 눌림 - 메인 화면으로 이동");
+        GoToMainScene();
+    }
 }

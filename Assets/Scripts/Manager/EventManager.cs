@@ -74,7 +74,14 @@ public class EventManager : SingletonMono<EventManager>, ISceneResettable
     {
         return GetChannel<T>();
     }
-
+    // **************************
+    // 1.씬 전환 시 이벤트 테이블 초기화하면 좋은점: 씬 전환 오브젝트 파괴 시 이벤트 구독 해제할 필요 없음
+    // 단점: 씬 전환 후에도 이벤트 유지해야 하는 경우는 별도 처리 필요
+    // **************************
+    // 2.반면 씬 전환 시 초기화 안 하면 좋은점: 씬 전환 후에도 이벤트 유지 가능
+    // 단점: 씬 전환 오브젝트 파괴 시 이벤트 구독 해제 안 하면 메모리 누수 발생 가능성 있음
+    // **************************
+    // 현재는 1번 방식 채택, UIManager에서 구독하는건 OnSceneLoaded에서 다시 구독처리
     public void OnSceneReset()
     {
         //Debug.Log("[EventManager] 씬 전환: 이벤트 테이블 초기화");

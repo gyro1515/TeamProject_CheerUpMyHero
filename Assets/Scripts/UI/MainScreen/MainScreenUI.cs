@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class MainScreenUI : BaseUI
+public class MainScreenUI : BaseUI, IBackButtonHandler
 {
     [Header("버튼 세팅")]
     [SerializeField] private Button _adviserButton;
@@ -134,5 +134,9 @@ public class MainScreenUI : BaseUI
         }
     }
 
+    public void OnBackPressed()
+    {
+        Debug.Log("[MainScreenUI] 뒤로 가기 버튼 눌림");
+    }
 }
 

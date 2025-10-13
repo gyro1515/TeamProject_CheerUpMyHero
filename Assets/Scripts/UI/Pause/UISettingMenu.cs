@@ -3,8 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using DG.Tweening;
 
-public class UISettingMenu : BaseUI
+public class UISettingMenu : BaseUI, IBackButtonHandler
 {
     #region 사운드 패널
     [Header("사운드 버튼")]
@@ -12,7 +13,7 @@ public class UISettingMenu : BaseUI
 
     [Header("사운드 패널")]
     [SerializeField] private CanvasGroup _soundSettingPanel;
-
+    
     private void OnSoundSettingButtonClicked()
     {
         showPanel(_soundSettingPanel);
@@ -66,14 +67,14 @@ public class UISettingMenu : BaseUI
     private void OnResumeButtonClicked()
     {
         FadeManager.FadeOutUI(_canvasGroup);
+        showPanel(null);
         OnResumeButton?.Invoke();
     }
     #endregion
 
     private List<CanvasGroup> _allPanels;
-
-    private CanvasGroup _canvasGroup;
-
+    // 이 스크립트에 캔버스 그룹이 없어서, 인스펙터창에서 직접 연결해줘야 함
+    [SerializeField] CanvasGroup _canvasGroup;
     private void Awake()
     {
         _soundSettingButton.onClick.AddListener(OnSoundSettingButtonClicked);
@@ -81,8 +82,6 @@ public class UISettingMenu : BaseUI
         _controlSettingButton.onClick.AddListener(OnControlSettingButtonClicked);
         _giveUpButton.onClick.AddListener(OnGiveUpButtonClicked);
         _resumeButton.onClick.AddListener(OnResumeButtonClicked);
-
-        _canvasGroup = GetComponent<CanvasGroup>();
 
         _allPanels = new List<CanvasGroup>
         {
@@ -102,7 +101,6 @@ public class UISettingMenu : BaseUI
             }
         }
     }
-
     public void showPanel(CanvasGroup target)
     {
         foreach (CanvasGroup panel in _allPanels )
@@ -119,5 +117,19 @@ public class UISettingMenu : BaseUI
         }
 
         if(target != null) FadeManager.FadeInUI(target);
+    }
+    public void ShowPausePanel()
+    {
+        _canvasGroup.alpha = 0.0f;
+        _canvasGroup.DOFade(1f, 0.3f).SetUpdate(true);
+        _canvasGroup.interactable = true;
+        _canvasGroup.blocksRaycasts = true;
+        EventManager.Publish(new AddUIStackEvent { ui = this });
+    }
+    public void OnBackPressed()
+    {
+        Debug.Log("[UISettingMenu] 뒤로 가기 버튼 눌림");
+        OnResumeButtonClicked();
+        EventManager.Publish(new RemoveUIStackEvent());
     }
 }
