@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class DeckSelectPopup : BaseUI
+public class DeckSelectPopup : BaseUI, IBackButtonHandler
 {
    [SerializeField] private CanvasGroup _canvasGroup;
 
@@ -16,16 +16,28 @@ public class DeckSelectPopup : BaseUI
         _canvasGroup.alpha = 0.0f;
         //CloseUI(); 이걸 안 쓰는 이유는 CloseUI()는 페이드 아웃을 하기 때문에
     }
+    private void OnDisable()
+    {
+        EventManager.Publish(new RemoveUIStackEvent());
+    }
     public override void OpenUI()
     {
         base.OpenUI();
         if (_canvasGroup == null) { Debug.LogWarning("OpenUI: 캔버스 그룹 없음"); return; }
         FadeManager.FadeInUI(_canvasGroup);
+        EventManager.Publish(new AddUIStackEvent { ui = this });
     }
 
     public override void CloseUI()
     {
         if (_canvasGroup == null) { Debug.LogWarning("CloseUI: 캔버스 그룹 없음"); return; }
         FadeManager.FadeOutUI(_canvasGroup);
+    }
+
+    public void OnBackPressed()
+    {
+        Debug.Log("DeckSelectPopup: 뒤로가기 버튼 눌림");
+        EventManager.Publish(new RemoveUIStackEvent());
+        CloseUI();
     }
 }

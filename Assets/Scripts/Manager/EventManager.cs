@@ -10,6 +10,8 @@ public class EventChannel<T> where T : struct
     private Action<T> _onPublish;
     public void Subscribe(Action<T> callback)
     {
+        // 중복 구독 방지
+        _onPublish -= callback;
         _onPublish += callback;
     }
     public void Unsubscribe(Action<T> callback)
@@ -21,7 +23,8 @@ public class EventChannel<T> where T : struct
         _onPublish?.Invoke(eventData);
     }
 }
-public class EventManager : SingletonMono<EventManager>, ISceneResettable
+//public class EventManager : SingletonMono<EventManager>, ISceneResettable // 2안
+public class EventManager : SingletonMono<EventManager>
 {
     // 싱글톤 인스턴스 접근 안되게 하기
     private new static EventManager Instance => SingletonMono<EventManager>.Instance;
@@ -35,7 +38,7 @@ public class EventManager : SingletonMono<EventManager>, ISceneResettable
     private void Start()
     {
         // *** 씬 전환마다 리소스 정리하려면 추가 필요***
-        SceneLoader.Instance.SceneResettables.Add(this);
+        //SceneLoader.Instance.SceneResettables.Add(this);
     }
     // 해당 타입의 이벤트 채널을 가져오거나, 없으면 새로 생성
     private static EventChannel<T> GetChannel<T>() where T : struct
@@ -72,11 +75,19 @@ public class EventManager : SingletonMono<EventManager>, ISceneResettable
     {
         return GetChannel<T>();
     }
-
-    public void OnSceneReset()
+    // **************************
+    // 1.씬 전환 시 이벤트 테이블 초기화하면 좋은점: 씬 전환 오브젝트 파괴 시 이벤트 구독 해제할 필요 없음
+    // 단점: 씬 전환 후에도 이벤트 유지해야 하는 경우는 별도 처리 필요
+    // **************************
+    // 2.반면 씬 전환 시 초기화 안 하면 좋은점: 씬 전환 후에도 이벤트 유지 가능
+    // 단점: 씬 전환 오브젝트 파괴 시 이벤트 구독 해제 안 하면 메모리 누수 발생 가능성 있음
+    // **************************
+    // 현재는 1번 방식 채택, UIManager에서 구독하는건 OnSceneLoaded에서 다시 구독처리
+    /*public void OnSceneReset()
     {
         //Debug.Log("[EventManager] 씬 전환: 이벤트 테이블 초기화");
         _channels.Clear();
-    }
+    }*/
+    // ****************** 2번으로 변경 251013_21:16
 }
 

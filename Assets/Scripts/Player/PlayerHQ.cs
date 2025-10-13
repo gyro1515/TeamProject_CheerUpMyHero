@@ -25,7 +25,12 @@ public class PlayerHQ : BaseHQ
     protected override void Start()
     {
         // EnemyHQ와 달리 PlayerHQ는 캐싱된 이벤트 채널로 발행
-        onSpawn.Publish(new SpawnHQEvent { baseHQ = this, type = EUIHpBarType.PlayerUnit, hpBarSize = new Vector2(300f, 16.5f), isPlayer = true });
+        SpawnHQEvent ev = new SpawnHQEvent();
+        ev.baseHQ = this;
+        ev.type = EUIHpBarType.PlayerUnit;
+        ev.hpBarSize = new Vector2(300f, 16.5f);
+        ev.isPlayer = true;
+        onSpawn.Publish(ev);
         base.Start();
     }
     public override void Dead()

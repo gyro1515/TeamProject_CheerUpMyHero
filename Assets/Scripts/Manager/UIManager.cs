@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using static InputManager;
+
 
 public class UIManager : SingletonMono<UIManager>, ISceneResettable
 {
@@ -11,10 +13,16 @@ public class UIManager : SingletonMono<UIManager>, ISceneResettable
     private bool _isCleaning;
     private Dictionary<string, BaseUI> _uiDictionary = new Dictionary<string, BaseUI>();
     private BaseUI _currentOpenedPopup = null;
+    private readonly Stack<IBackButtonHandler> _uiStack = new Stack<IBackButtonHandler>();
 
     protected override void Awake()
     {
         base.Awake();
+        InputManager.Instance.gameObject.SetActive(true); // InputManager 강제 초기화
+        //SceneManager.sceneLoaded += OnSceneLoaded;
+        EventManager.Subscribe<BackButtonPressedEvent>(_ => BackButtonPressed());
+        EventManager.Subscribe<AddUIStackEvent>(PushUI);
+        EventManager.Subscribe<RemoveUIStackEvent>(_ => PopUI());
     }
     /*private void OnEnable()
     {
@@ -57,6 +65,43 @@ public class UIManager : SingletonMono<UIManager>, ISceneResettable
         SceneManager.sceneUnloaded -= OnSceneUnloaded;
     }
 */
+    // UI 순서 관리
+    void PushUI(AddUIStackEvent eventStruct)
+    {
+        _uiStack.Push(eventStruct.ui);
+    }
+
+    // UI가 닫힐 때 스택에서 제거
+    void PopUI()
+    {
+        if (_uiStack.Count > 0)
+        {
+            var tmp = _uiStack.Pop();
+            Debug.Log($"UIManager: UI 스택에서 제거: {tmp.ToString()} / {_uiStack.Count}");
+        }
+    }
+    void BackButtonPressed()
+    {
+        Debug.Log($"UIManager: 뒤로 가기 버튼 눌림{_uiStack.Count}");
+        // 스택에 UI가 하나라도 있다면
+        if (_uiStack.Count > 0)
+        {
+            // 스택의 가장 위에 있는 UI에게 뒤로 가기 처리를 위임
+            IBackButtonHandler topUI = _uiStack.Peek();
+            topUI?.OnBackPressed();
+        }
+        else
+        {
+            Debug.Log("뒤로 가기: 열린 UI 없음 (게임 종료 로직 등 수행)");
+#if UNITY_EDITOR
+            // 에디터에서는 플레이 모드를 종료
+            EditorApplication.isPlaying = false;
+#else
+        // 실제 빌드된 환경에서는 애플리케이션 종료
+        Application.Quit();
+#endif
+        }
+    }
     // ================================
     // UI 관리
     // ================================
@@ -149,7 +194,14 @@ public class UIManager : SingletonMono<UIManager>, ISceneResettable
         return typeof(T).Name;
     }
 
-
+    // 씬 로드 시 다시 구독
+    /*private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        //Debug.Log("OnSceneLoaded 호출");
+        EventManager.Subscribe<BackButtonPressedEvent>(_ => BackButtonPressed());
+        EventManager.Subscribe<AddUIStackEvent>(PushUI);
+        EventManager.Subscribe<RemoveUIStackEvent>(_ => PopUI());
+    }*/
     // ================================
     // 리소스 정리
     // ================================
@@ -185,6 +237,7 @@ public class UIManager : SingletonMono<UIManager>, ISceneResettable
     public void OnSceneReset()
     {
         CleanAllUIs();
+        _uiStack.Clear();
     }
     
 
