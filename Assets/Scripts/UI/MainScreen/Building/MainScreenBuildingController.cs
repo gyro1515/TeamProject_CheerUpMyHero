@@ -80,38 +80,49 @@ public class MainScreenBuildingController : SingletonMono<MainScreenBuildingCont
     private void HandleTileClick(BuildingTile tile)
     {
         _selectedTile = tile;
-
         selectedFrameObject.SetActive(true);
         selectedFrameObject.transform.position = tile.transform.position;
 
-        TileStatus status = PlayerDataManager.Instance.TileStatusGrid[tile.X, tile.Y];
-        var currentBuilding = PlayerDataManager.Instance.BuildingGridData[tile.X, tile.Y];
+        if (tile.MyTileType == TileType.Special)
+        {
 
-        if (status == TileStatus.Damaged && currentBuilding != null)
-        {
-            // '반파'된 건물이면 -> 수리 확인창 열기
-            upgradePanel.InitializeForRepair(tile);
-            upgradePanel.OpenUI();
+            Debug.Log($"스페셜 타일 ({tile.X},{tile.Y})을 클릭했습니다. (현재 기능 없음)");
+
+            // 현재는 상호작용할 패널이 없으므로, 즉시 선택을 해제
+            DeselectTile();
         }
-        else if (status == TileStatus.Normal && tile.MyTileType == TileType.Normal)
+        else if (tile.MyTileType == TileType.Normal)
         {
-            // '정상' 상태의 일반 타일이면 -> 기존 건설/업그레이드 로직
-            if (currentBuilding == null)
+
+            TileStatus status = PlayerDataManager.Instance.TileStatusGrid[tile.X, tile.Y];
+            var currentBuilding = PlayerDataManager.Instance.BuildingGridData[tile.X, tile.Y];
+
+            if (status == TileStatus.Damaged && currentBuilding != null)
             {
-                selectPanel.Initialize(tile, upgradePanel);
-                selectPanel.OpenUI();
+                // '반파'된 건물이면 -> 수리 확인창 열기
+                upgradePanel.InitializeForRepair(tile);
+                upgradePanel.OpenUI();
+            }
+            else if (status == TileStatus.Normal)
+            {
+                // '정상' 상태의 일반 타일이면 -> 건설/업그레이드
+                if (currentBuilding == null)
+                {
+                    selectPanel.Initialize(tile, upgradePanel);
+                    selectPanel.OpenUI();
+                }
+                else
+                {
+                    upgradePanel.InitializeForUpgrade(tile);
+                    upgradePanel.OpenUI();
+                }
             }
             else
             {
-                upgradePanel.InitializeForUpgrade(tile);
-                upgradePanel.OpenUI();
+                // 황폐화, 수리 중 상태의 '일반' 타일은 상호작용 불가
+                Debug.Log($"타일 ({tile.X},{tile.Y})은(는) 현재 상호작용할 수 없습니다.");
+                DeselectTile();
             }
-        }
-        else
-        {
-            // 황폐화, 수리 중, 스페셜 타일 등은 선택만 하고 패널은 열지 않음
-            Debug.Log($"타일 ({tile.X},{tile.Y})은(는) 현재 상호작용할 수 없습니다.");
-            // DeselectTile(); // 바로 선택 해제할 수도 있음
         }
     }
 
