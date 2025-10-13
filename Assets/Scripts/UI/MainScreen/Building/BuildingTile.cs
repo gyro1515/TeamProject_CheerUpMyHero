@@ -23,6 +23,10 @@ public class BuildingTile : MonoBehaviour
     [SerializeField] private Image tileImage; // 타일의 이미지를 표시할 Image 컴포넌트
     [SerializeField] public Sprite emptyTileSprite; // 건물이 없을 때 표시할 기본 빈 타일 이미지
 
+    private void OnEnable()
+    {
+        EventManager.Subscribe<TileRepairProgressEvent>(OnTileRepairProgress);
+    }
 
     // BuildingManager가 타일을 생성할 때 호출해 줄 초기화 함수
     public void Initialize(int x, int y)
@@ -49,6 +53,22 @@ public class BuildingTile : MonoBehaviour
         }
         GetComponent<Button>().onClick.AddListener(OnTileClick);
         UpdateStatusVisual();
+    }
+
+    private void OnDisable()
+    {
+        EventManager.Unsubscribe<TileRepairProgressEvent>(OnTileRepairProgress);
+    }
+    private void OnTileRepairProgress(TileRepairProgressEvent e)
+    {
+        if (e.X == this.X && e.Y == this.Y)
+        {
+            float progress = 1.0f - ((float)e.TurnsRemaining / e.TotalTurns);
+
+            Color targetColor = Color.Lerp(Color.red, Color.white, progress);
+
+            tileImage.color = targetColor;
+        }
     }
 
 
@@ -90,23 +110,24 @@ public class BuildingTile : MonoBehaviour
     {
         if (MyTileType == TileType.Special)
         {
-            // 스페셜 타일은 어떤 상태든 항상 회색을 유지
             tileImage.color = Color.gray;
-            return; 
+            return;
         }
 
-        //  '일반 타일'일 때만 실행
         TileStatus status = PlayerDataManager.Instance.TileStatusGrid[X, Y];
 
-        if (status == TileStatus.Damaged || status == TileStatus.Repairing)
+        switch (status)
         {
-            // 파괴/수리 중 상태일 때는 빨간색으로 표시
-            tileImage.color = Color.red;
-        }
-        else // TileStatus.Normal
-        {
-            // 정상 상태일 때는 흰색으로 복원
-            tileImage.color = Color.white;
+            case TileStatus.Damaged:
+                tileImage.color = Color.red;
+                break;
+            case TileStatus.Repairing:
+                tileImage.color = Color.cyan; 
+                break;
+            case TileStatus.Normal:
+                tileImage.color = Color.white;
+                break;
         }
     }
+
 }

@@ -27,9 +27,9 @@ public class DeckData
     public DeckData(string defaultName)
     {
         DeckName = defaultName;
-        // 9개의 빈 슬롯(-1)으로 초기화
-        UnitIds = new List<int>(new int[9]);
-        for (int i = 0; i < 9; i++)
+        // 8개의 빈 슬롯(-1)으로 초기화
+        UnitIds = new List<int>(new int[8]);
+        for (int i = 0; i < 8; i++)
         {
             UnitIds[i] = -1;
         }
@@ -201,6 +201,16 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
                     if (TileRepairTurnsGrid[x, y] > 0)
                     {
                         TileRepairTurnsGrid[x, y]--;
+
+                        EventManager.Publish(new TileRepairProgressEvent
+                        {
+                            X = x,
+                            Y = y,
+                            TurnsRemaining = TileRepairTurnsGrid[x, y],
+                            TotalTurns = 3 // 총 수리 턴
+                        });
+
+
                         if (TileRepairTurnsGrid[x, y] == 0)
                         {
                             // 턴이 0이 되면 정상 상태로 복구
