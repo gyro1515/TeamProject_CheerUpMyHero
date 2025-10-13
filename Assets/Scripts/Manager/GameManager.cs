@@ -24,6 +24,7 @@ public class GameManager : SingletonMono<GameManager>
     public bool IsBattleStarted { get; private set; } = false;
 
     public float StartTime { get; private set; }
+    public bool NeedsTileVisualUpdate { get; set; } = false;
 
     public LoadMain LoadMain { get; set; } = LoadMain.None;
 
@@ -130,6 +131,8 @@ public class GameManager : SingletonMono<GameManager>
     public void ShowResultUI(bool isVictory)
     {
         PlayerDataManager.Instance.AdvanceRepairTurn();
+
+        NeedsTileVisualUpdate = true;
 
         Time.timeScale = 0f;
 

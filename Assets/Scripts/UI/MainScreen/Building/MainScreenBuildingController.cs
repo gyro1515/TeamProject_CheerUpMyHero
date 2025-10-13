@@ -29,6 +29,18 @@ public class MainScreenBuildingController : SingletonMono<MainScreenBuildingCont
     {
         CreateGrid();
     }
+    private void OnEnable()
+    {
+        // 💡 2. GameManager가 존재하고, "화면 갱신" 깃발이 세워져 있는지 확인합니다.
+        if (GameManager.Instance != null && GameManager.Instance.NeedsTileVisualUpdate)
+        {
+            // 💡 3. 깃발을 확인했으면, 스스로 화면 갱신을 실행합니다.
+            UpdateAllTileVisuals();
+
+            // 💡 4. 일을 끝냈으므로, 깃발을 다시 내립니다. (중복 실행 방지)
+            GameManager.Instance.NeedsTileVisualUpdate = false;
+        }
+    }
 
     // ---------------- 그리드 생성 ----------------
     private void CreateGrid()
@@ -268,4 +280,25 @@ public class MainScreenBuildingController : SingletonMono<MainScreenBuildingCont
         tile.UpdateStatusVisual();
         Debug.Log($"타일 ({tile.X},{tile.Y})의 수리를 시작합니다. 남은 턴: {PlayerDataManager.Instance.TileRepairTurnsGrid[tile.X, tile.Y]}");
     }
+
+    public void UpdateAllTileVisuals()
+    {
+        if (_tiles == null) return;
+
+        // CreateGrid가 아직 호출되지 않아 _tiles가 비어있을 수 있으므로 방어 코드 추가
+        if (_tiles[0, 0] == null)
+        {
+            CreateGrid(); // 만약 타일이 없다면 생성부터 하도록 강제
+        }
+
+        foreach (var tile in _tiles)
+        {
+            if (tile != null)
+            {
+                tile.UpdateStatusVisual();
+            }
+        }
+        Debug.Log("모든 타일의 시각적 상태를 업데이트했습니다.");
+    }
 }
+

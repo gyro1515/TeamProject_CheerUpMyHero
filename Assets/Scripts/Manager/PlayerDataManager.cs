@@ -192,7 +192,6 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
         {
             for (int x = 0; x < 5; x++)
             {
-                // '황폐화' 상태(건물 없는 손상 타일)이거나 '수리 중' 상태일 때만 턴 감소
                 bool isWasted = (TileStatusGrid[x, y] == TileStatus.Damaged && BuildingGridData[x, y] == null);
                 bool isRepairing = (TileStatusGrid[x, y] == TileStatus.Repairing);
 
@@ -202,18 +201,8 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
                     {
                         TileRepairTurnsGrid[x, y]--;
 
-                        EventManager.Publish(new TileRepairProgressEvent
-                        {
-                            X = x,
-                            Y = y,
-                            TurnsRemaining = TileRepairTurnsGrid[x, y],
-                            TotalTurns = 3 // 총 수리 턴
-                        });
-
-
                         if (TileRepairTurnsGrid[x, y] == 0)
                         {
-                            // 턴이 0이 되면 정상 상태로 복구
                             TileStatusGrid[x, y] = TileStatus.Normal;
                             Debug.Log($"타일 ({x},{y})이(가) 자동으로 수리 완료되었습니다.");
                             UpdateAllBuildingEffects();

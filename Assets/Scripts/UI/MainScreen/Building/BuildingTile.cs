@@ -23,11 +23,6 @@ public class BuildingTile : MonoBehaviour
     [SerializeField] private Image tileImage; // 타일의 이미지를 표시할 Image 컴포넌트
     [SerializeField] public Sprite emptyTileSprite; // 건물이 없을 때 표시할 기본 빈 타일 이미지
 
-    private void OnEnable()
-    {
-        EventManager.Subscribe<TileRepairProgressEvent>(OnTileRepairProgress);
-    }
-
     // BuildingManager가 타일을 생성할 때 호출해 줄 초기화 함수
     public void Initialize(int x, int y)
     {
@@ -55,21 +50,7 @@ public class BuildingTile : MonoBehaviour
         UpdateStatusVisual();
     }
 
-    private void OnDisable()
-    {
-        EventManager.Unsubscribe<TileRepairProgressEvent>(OnTileRepairProgress);
-    }
-    private void OnTileRepairProgress(TileRepairProgressEvent e)
-    {
-        if (e.X == this.X && e.Y == this.Y)
-        {
-            float progress = 1.0f - ((float)e.TurnsRemaining / e.TotalTurns);
 
-            Color targetColor = Color.Lerp(Color.red, Color.white, progress);
-
-            tileImage.color = targetColor;
-        }
-    }
 
 
     private void OnTileClick()
@@ -116,18 +97,30 @@ public class BuildingTile : MonoBehaviour
 
         TileStatus status = PlayerDataManager.Instance.TileStatusGrid[X, Y];
 
+        // 총 수리 턴
+        const int totalTurns = 3;
+
         switch (status)
         {
             case TileStatus.Damaged:
-                tileImage.color = Color.red;
-                break;
             case TileStatus.Repairing:
-                tileImage.color = Color.cyan; 
+                // Damaged와 Repairing 상태 모두 남은 턴에 따라 색을 계산합니다.
+                int turnsRemaining = PlayerDataManager.Instance.TileRepairTurnsGrid[X, Y];
+
+                // 수리 진행률 (0.0 ~ 1.0)
+                float progress = 1.0f - ((float)turnsRemaining / totalTurns);
+
+                // Damaged 상태일 때는 빨간색에서, Repairing 상태일 때는 청록색에서 시작
+                Color startColor = (status == TileStatus.Damaged) ? Color.red : Color.cyan;
+
+                // 시작 색상과 흰색 사이를 진행률에 따라 보간(Lerp)하여 최종 색 결정
+                tileImage.color = Color.Lerp(startColor, Color.white, progress);
                 break;
+
             case TileStatus.Normal:
+                // Normal 상태일 때는 항상 흰색
                 tileImage.color = Color.white;
                 break;
         }
     }
-
 }
