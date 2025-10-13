@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public enum ResourceType
 {
@@ -15,6 +16,8 @@ public enum ResourceType
     Bm,
     Ticket
 }
+public enum TileStatus { Normal, Damaged, Repairing }
+
 [System.Serializable]
 public class DeckData
 {
@@ -47,6 +50,15 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
         {
             InitializeResources();
             LoadDecks();
+
+            for (int y = 0; y < 5; y++)   //일단 넣어 뒀습니다 나중에 플레이어데이터매니저 리팩토링할 때 빼겠습니다
+            {
+                for (int x = 0; x < 5; x++)
+                {
+                    TileStatusGrid[x, y] = TileStatus.Normal;
+                    TileRepairTurnsGrid[x, y] = 0;
+                }
+            }
         }
         TestCardGenerate();
     }
@@ -103,6 +115,9 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
     //빌딩 데이터
     #region Building
     public BuildingUpgradeData[,] BuildingGridData { get; set; } = new BuildingUpgradeData[5, 5];
+
+    public TileStatus[,] TileStatusGrid { get; private set; } = new TileStatus[5, 5];
+    public int[,] TileRepairTurnsGrid { get; private set; } = new int[5, 5];
     // 건설 가능한 건물 목록을 저장해 둘 리스트 (한 번만 생성)
     private List<BuildingUpgradeData> _buildableList;
 
@@ -124,6 +139,62 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
             }
         }
         return _buildableList;
+    }
+
+
+    public void DamageRandomTile()
+    {
+        int randomX;
+        int randomY;
+
+        // 일반(Normal) 타일이 나올 때까지 반복해서 랜덤 좌표를 뽑기
+        do
+        {
+            randomX = Random.Range(0, 5);
+            randomY = Random.Range(0, 5);
+        }
+        while (randomX == 4 || randomY == 4); // 스페셜 타일(x=4 또는 y=4)이면 다시 뽑음
+
+        // 해당 타일의 상태를 'Damaged'로 변경하고, 수리 기간을 3턴으로 설정
+        TileStatusGrid[randomX, randomY] = TileStatus.Damaged;
+        TileRepairTurnsGrid[randomX, randomY] = 3;
+
+        if (BuildingGridData[randomX, randomY] != null)
+        {
+            Debug.Log($"패배 페널티: ({randomX}, {randomY}) 타일의 건물이 '반파'되었습니다.");
+        }
+        else
+        {
+            Debug.Log($"패배 페널티: ({randomX}, {randomY}) 타일이 '황폐화'되었습니다.");
+        }
+    }
+
+    //전투가 끝날 때마다 호출되어 턴을 넘기는 함수
+    public void AdvanceRepairTurn()
+    {
+        for (int y = 0; y < 5; y++)
+        {
+            for (int x = 0; x < 5; x++)
+            {
+                // '황폐화' 상태(건물 없는 손상 타일)이거나 '수리 중' 상태일 때만 턴 감소
+                bool isWasted = (TileStatusGrid[x, y] == TileStatus.Damaged && BuildingGridData[x, y] == null);
+                bool isRepairing = (TileStatusGrid[x, y] == TileStatus.Repairing);
+
+                if (isWasted || isRepairing)
+                {
+                    if (TileRepairTurnsGrid[x, y] > 0)
+                    {
+                        TileRepairTurnsGrid[x, y]--;
+                        if (TileRepairTurnsGrid[x, y] == 0)
+                        {
+                            // 턴이 0이 되면 정상 상태로 복구
+                            TileStatusGrid[x, y] = TileStatus.Normal;
+                            Debug.Log($"타일 ({x},{y})이(가) 자동으로 수리 완료되었습니다.");
+                        }
+                    }
+                }
+            }
+        }
     }
     #endregion
 

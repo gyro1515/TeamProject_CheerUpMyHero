@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class MainScreenBuildingController : SingletonMono<MainScreenBuildingController>
@@ -82,22 +84,34 @@ public class MainScreenBuildingController : SingletonMono<MainScreenBuildingCont
         selectedFrameObject.SetActive(true);
         selectedFrameObject.transform.position = tile.transform.position;
 
+        TileStatus status = PlayerDataManager.Instance.TileStatusGrid[tile.X, tile.Y];
         var currentBuilding = PlayerDataManager.Instance.BuildingGridData[tile.X, tile.Y];
 
-        if (tile.MyTileType == TileType.Normal)
+        if (status == TileStatus.Damaged && currentBuilding != null)
         {
+            // '반파'된 건물이면 -> 수리 확인창 열기
+            upgradePanel.InitializeForRepair(tile);
+            upgradePanel.OpenUI();
+        }
+        else if (status == TileStatus.Normal && tile.MyTileType == TileType.Normal)
+        {
+            // '정상' 상태의 일반 타일이면 -> 기존 건설/업그레이드 로직
             if (currentBuilding == null)
             {
-                // 건설
                 selectPanel.Initialize(tile, upgradePanel);
                 selectPanel.OpenUI();
             }
             else
             {
-                // 업그레이드
                 upgradePanel.InitializeForUpgrade(tile);
                 upgradePanel.OpenUI();
             }
+        }
+        else
+        {
+            // 황폐화, 수리 중, 스페셜 타일 등은 선택만 하고 패널은 열지 않음
+            Debug.Log($"타일 ({tile.X},{tile.Y})은(는) 현재 상호작용할 수 없습니다.");
+            // DeselectTile(); // 바로 선택 해제할 수도 있음
         }
     }
 
@@ -190,5 +204,56 @@ public class MainScreenBuildingController : SingletonMono<MainScreenBuildingCont
         PlayerDataManager.Instance.UpdateAllBuildingEffects(); 
 
         Debug.Log($"{current.buildingName} Lv.{current.level} → Lv.{next.level} 업그레이드 완료!");
+    }
+
+    // ------수리------
+    public void RepairBuildingOnTile(BuildingTile tile)
+    {
+        var currentBuildingData = PlayerDataManager.Instance.BuildingGridData[tile.X, tile.Y];
+        if (currentBuildingData == null) return;
+
+        BuildingUpgradeData prevLevelData = DataManager.Instance.BuildingUpgradeData.Values
+                                            .FirstOrDefault(data => data.nextLevel == currentBuildingData.idNumber);
+
+        if (prevLevelData == null)
+        {
+            Debug.LogError($"건물 ID {currentBuildingData.idNumber}의 이전 레벨 데이터를 찾을 수 없어 수리 비용을 계산할 수 없습니다.");
+            return;
+        }
+
+        // prevLevelData.costs가 바로 현재 건물을 지을 때 들었던 비용
+        List<Cost> repairCosts = prevLevelData.costs;
+
+        // 모든 필요 자원을 확인
+        bool canAfford = true;
+        foreach (var cost in repairCosts)
+        {
+            // 각 자원의 필요량은 50%로 계산
+            int requiredAmount = Mathf.CeilToInt(cost.amount * 0.5f);
+            if (PlayerDataManager.Instance.GetResourceAmount(cost.resourceType) < requiredAmount)
+            {
+                canAfford = false;
+                break; // 하나라도 부족하면 즉시 중단
+            }
+        }
+
+        if (!canAfford)
+        {
+            Debug.Log("자원이 부족하여 수리할 수 없습니다.");
+            return;
+        }
+
+        // 모든 자원을 차감
+        foreach (var cost in repairCosts)
+        {
+            int costAmount = Mathf.CeilToInt(cost.amount * 0.5f);
+            PlayerDataManager.Instance.AddResource(cost.resourceType, -costAmount);
+        }
+
+        //상태를 'Damaged'에서 'Repairing'으로 변경
+        PlayerDataManager.Instance.TileStatusGrid[tile.X, tile.Y] = TileStatus.Repairing;
+
+        tile.UpdateStatusVisual();
+        Debug.Log($"타일 ({tile.X},{tile.Y})의 수리를 시작합니다. 남은 턴: {PlayerDataManager.Instance.TileRepairTurnsGrid[tile.X, tile.Y]}");
     }
 }
