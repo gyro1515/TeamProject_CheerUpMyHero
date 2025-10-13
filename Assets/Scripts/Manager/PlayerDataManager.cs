@@ -144,18 +144,33 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
 
     public void DamageRandomTile()
     {
-        int randomX;
-        int randomY;
-
-        // 일반(Normal) 타일이 나올 때까지 반복해서 랜덤 좌표를 뽑기
-        do
+        //파괴 가능한 '일반' 타일의 좌표 목록을 만듦
+        List<(int x, int y)> availableTiles = new List<(int, int)>();
+        for (int y = 0; y < 5; y++)
         {
-            randomX = Random.Range(0, 5);
-            randomY = Random.Range(0, 5);
+            for (int x = 0; x < 5; x++)
+            {
+                //스페셜 타일이 아니고, 현재 상태가 'Normal'인 타일만 후보에 추가
+                bool isSpecial = (x == 4 || y == 4);
+                if (!isSpecial && TileStatusGrid[x, y] == TileStatus.Normal)
+                {
+                    availableTiles.Add((x, y));
+                }
+            }
         }
-        while (randomX == 4 || randomY == 4); // 스페셜 타일(x=4 또는 y=4)이면 다시 뽑음
 
-        // 해당 타일의 상태를 'Damaged'로 변경하고, 수리 기간을 3턴으로 설정
+        //파괴할 수 있는 타일이 하나도 없다면, 함수를 즉시 종료
+        if (availableTiles.Count == 0)
+        {
+            Debug.Log("더 이상 파괴할 수 있는 타일이 없습니다.");
+            return;
+        }
+
+        //파괴 가능한 타일 목록 중에서 랜덤으로 하나를 선택
+        int randomIndex = Random.Range(0, availableTiles.Count);
+        (int randomX, int randomY) = availableTiles[randomIndex];
+
+        //선택된 타일의 상태를 'Damaged'로 변경
         TileStatusGrid[randomX, randomY] = TileStatus.Damaged;
         TileRepairTurnsGrid[randomX, randomY] = 3;
 
@@ -167,6 +182,7 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
         {
             Debug.Log($"패배 페널티: ({randomX}, {randomY}) 타일이 '황폐화'되었습니다.");
         }
+        UpdateAllBuildingEffects();
     }
 
     //전투가 끝날 때마다 호출되어 턴을 넘기는 함수
@@ -190,6 +206,7 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
                             // 턴이 0이 되면 정상 상태로 복구
                             TileStatusGrid[x, y] = TileStatus.Normal;
                             Debug.Log($"타일 ({x},{y})이(가) 자동으로 수리 완료되었습니다.");
+                            UpdateAllBuildingEffects();
                         }
                     }
                 }
@@ -414,6 +431,10 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
         {
             for (int x = 0; x < 5; x++)
             {
+                if (TileStatusGrid[x, y] != TileStatus.Normal)
+                {
+                    continue;
+                }
                 var building = BuildingGridData[x, y];
                 if (building == null) continue;
 

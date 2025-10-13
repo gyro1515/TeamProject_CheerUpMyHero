@@ -252,6 +252,7 @@ public class MainScreenBuildingController : SingletonMono<MainScreenBuildingCont
 
         //상태를 'Damaged'에서 'Repairing'으로 변경
         PlayerDataManager.Instance.TileStatusGrid[tile.X, tile.Y] = TileStatus.Repairing;
+        PlayerDataManager.Instance.UpdateAllBuildingEffects();
 
         tile.UpdateStatusVisual();
         Debug.Log($"타일 ({tile.X},{tile.Y})의 수리를 시작합니다. 남은 턴: {PlayerDataManager.Instance.TileRepairTurnsGrid[tile.X, tile.Y]}");
