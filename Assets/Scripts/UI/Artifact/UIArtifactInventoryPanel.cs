@@ -7,12 +7,21 @@ using UnityEngine;
 using UnityEngine.UI;
 using static UnityEngine.GraphicsBuffer;
 
+public struct DescriptionViewModel
+{
+    public bool IsPanelActive;
+    public ArtifactData ArtifactData;
+
+    public string GradeOrLevelText;
+    public string StatTypeText;
+    public string ValueOrCostText;
+
+    public bool IsEquipped;
+}
+
 public class UIArtifactInventoryPanel : BaseUI
 {
     #region UI 참조 변수
-    [Header("인벤토리 타이틀")]
-    [SerializeField] private TextMeshProUGUI _title;
-
     [Header("닫기 버튼")]
     [SerializeField] private Button _closeButton;
 
@@ -40,7 +49,6 @@ public class UIArtifactInventoryPanel : BaseUI
     private CanvasGroup _canvasGroup;
 
     private List<UIArtifactInvInventorySlot> _slotList = new List<UIArtifactInvInventorySlot>();        // 인벤토리 안에 생성된 슬롯들 담아두는 리스트
-    private EffectTarget _currentTargetType;
     
     public ArtifactData _selectedArtifact;
     private int _currentSlotIndex;
@@ -52,6 +60,7 @@ public class UIArtifactInventoryPanel : BaseUI
     public event Action OnRequestSort;
     public event Action<ArtifactData, int> OnRequestEquip;
     public event Action<ArtifactData> OnRequestUnEquip;
+    public event Action<ArtifactData> OnRequestSelectArtifact;
     #endregion
 
     private void Awake()
@@ -67,79 +76,63 @@ public class UIArtifactInventoryPanel : BaseUI
         _InnerButton.onClick.AddListener(CloseDescriptionPanel);
     }
 
-    public void OpenInventory(int slotIndex)        // 인벤토리 열기 + 지금 선택된 슬롯 어디인지 전달해주는 역할
+    public void OpenInventory(int slotIndex, List<InventorySlotViewModel> viewModels)        // 인벤토리 열기 + 지금 선택된 슬롯 어디인지 전달해주는 역할
     {
         _currentSlotIndex = slotIndex;
         _selectedArtifact = null;
 
-        UpdateInventory();
-        UpdateDescriptionPanel();
+        RefreshArtifactInventoryUI(viewModels);
+        UpdateDescriptionPanel(new DescriptionViewModel { IsPanelActive = false });
         FadeManager.FadeInUI(_canvasGroup);
+    }
+
+    public void RefreshArtifactInventoryUI(List<InventorySlotViewModel> viewModels)         // 인벤토리 UI 새로고침
+    {
+        for (int i = 0; i < viewModels.Count; i++)
+        {
+            UIArtifactInvInventorySlot slot;
+
+            if (i >= _slotList.Count)
+            {
+                GameObject createdSlot = Instantiate(_slotPrefab, _slotCreatPosition);
+                slot = createdSlot.GetComponent<UIArtifactInvInventorySlot>();
+                slot.OnArtifactInventorySlotClicked += SelectArtifact;
+                _slotList.Add(slot);
+            }
+            else
+            {
+                slot = _slotList[i];
+            }
+
+            slot.Init(viewModels[i]);
+        }
+
+        for (int i = viewModels.Count; i < _slotList.Count; i++)
+        {
+            _slotList[i].gameObject.SetActive(false);
+        }
     }
 
     private void SelectArtifact(ArtifactData selectArtifact)
     {
-        _selectedArtifact = selectArtifact;
-        UpdateDescriptionPanel();
+        OnRequestSelectArtifact?.Invoke(selectArtifact);
     }
 
-    private void UpdateInventory()
+    public void UpdateDescriptionPanel(DescriptionViewModel vm)       // 유물 눌렀을 때 유물 정보 뜨게 하는 메서드임
     {
-        // 지금 열린 슬롯에 어떤 유물이 있는 지 확인함
-        ArtifactData currentSlotEquipped = ArtifactManager.Instance.EquippedArtifacts[_currentSlotIndex];
+        _selectedArtifact = vm.ArtifactData;
 
-        List<ArtifactData> ownedList = ArtifactManager.Instance.OwnedArtifacts;
+        descriptionPanel.SetActive(vm.IsPanelActive);
+        if (!vm.IsPanelActive) return;
 
-        while (_slotList.Count < ownedList.Count)    // 딱 데이터 개수만큼 인벤토리 슬롯을 준비해둠 슬롯마다 눌렀을 때 이벤트 추가
-        {
-            GameObject createdSlot = Instantiate(_slotPrefab, _slotCreatPosition);
-            UIArtifactInvInventorySlot newSlot = createdSlot.GetComponent<UIArtifactInvInventorySlot>();
-            newSlot.OnArtifactInventorySlotClicked += SelectArtifact;
-            _slotList.Add(newSlot);
-        }
+        descriptionName.text = vm.ArtifactData.name;
+        description.text = vm.ArtifactData.description;
+        descriptionGrade.text = vm.GradeOrLevelText;
+        descriptionType.text = vm.StatTypeText;
+        descriptionValue.text = vm.ValueOrCostText;
 
-        for (int i = 0; i < _slotList.Count; i++)       // 만든 슬롯에 걸러진 데이터 다 넣어주고 + 슬롯 만듦.
-        {
-            if (i < ownedList.Count)        // 어차피 슬롯 개수는 딱 맞춰서 생성되니까 필요 없을 것 같긴 한데....
-            {
-                bool isEquipedThisSlot = (ownedList[i] == currentSlotEquipped);
-                _slotList[i].Init(ownedList[i], isEquipedThisSlot);
-                _slotList[i].gameObject.SetActive(true);
-            }
-            else
-            {
-                _slotList[i].gameObject.SetActive(false);
-            }
-        }
-    }
-
-    private void UpdateDescriptionPanel()       // 유물 눌렀을 때 유물 정보 뜨게 하는 메서드임
-    {
-        if (_selectedArtifact == null)
-        {
-            descriptionPanel.SetActive(false);
-            return;
-        }
-        descriptionPanel.SetActive(true);                   // 선택한 유물 있으면 패널 띄우기
-        descriptionName.text = _selectedArtifact.name;
-        description.text = _selectedArtifact.description;
-
-        if (_selectedArtifact is PassiveArtifactData passiveAf)     // 유물이 패시브일 때 출력 값
-        {
-            descriptionGrade.text = $"등급 : {passiveAf.grade}";
-            descriptionType.text = $"스탯 타입 : {passiveAf.statType}";
-            descriptionValue.text = $"효과 : + {passiveAf.value}%";
-        }
-        else if (_selectedArtifact is ActiveArtifactData activeAf)      // 유물이 액티브일 때 출력 값
-        {
-            descriptionGrade.text = $"Lv. {activeAf.levelData[activeAf.curLevel].level}";
-            descriptionType.text = $"유형 : {activeAf.type}";
-            descriptionValue.text = $"Cost : {activeAf.cost}";
-        }
-
-        isEquipped = ArtifactManager.Instance.EquippedArtifacts.Contains(_selectedArtifact);
-        _equipButton.gameObject.SetActive(!isEquipped);
-        _unEquipButton.gameObject.SetActive(isEquipped);
+        _equipButton.interactable = (vm.IsPanelActive && !vm.IsEquipped);
+        _unEquipButton.interactable = (vm.IsPanelActive && vm.IsEquipped);
 
         _outerButton.gameObject.SetActive(true);
         _InnerButton.gameObject.SetActive(true);
@@ -147,11 +140,9 @@ public class UIArtifactInventoryPanel : BaseUI
 
     private void CloseDescriptionPanel()
     {
-        _selectedArtifact = null;
-        descriptionPanel.SetActive(false);
-        _outerButton.gameObject.SetActive(false);
-        _InnerButton.gameObject.SetActive(false);
+        OnRequestSelectArtifact?.Invoke(null);
     }
+
 
     #region 버튼 메서드
     private void OnCloseButtonClicked()

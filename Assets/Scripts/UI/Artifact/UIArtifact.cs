@@ -17,37 +17,45 @@ public class UIArtifact : BaseUI
     [SerializeField] private Button _gotoCardDeckButton;
 
     private CanvasGroup _canvasGroup;
+
+    private ArtifactUIPresenter _presenter;
+    #endregion
+
+    #region 이벤트 시스템
+    public event Action<ArtifactType> OnRequestAutoEquip;
     #endregion
 
     #region 생명주기
     private void Awake()
     {
+        _presenter = new ArtifactUIPresenter(ArtifactManager.Instance,
+                                             this,
+                                             _inventoryPanel,
+                                             _equipPanel,
+                                             _statPanel);
+
         _canvasGroup = GetComponent<CanvasGroup>();
         _closeButton.onClick.AddListener(() => SceneLoader.Instance.StartLoadScene(SceneState.BattleScene));
-    }
 
-    private void OnEnable()
-    {
-        ArtifactManager.Instance.OnEquippedArtifactChanged += RefreshAllArtifactDisplay;
+        _passiveEquipButton.onClick.AddListener(OnPassiveEquipButtonClicked);
+        _activeEquipButton.onClick.AddListener(OnActiveEquipButtonClicked);
+        _ConfirmEquipButton.onClick.AddListener(() => OnRequestAutoEquip?.Invoke(_selectedType));
+
+        if (_passiveOutline != null) _passiveOutline.enabled = false;
+        if (_activeOutline != null) _activeOutline.enabled = false;
     }
 
     private void Start()
     {
         _gotoCardDeckButton.onClick.AddListener(OnCardDeckClicked);
-        RefreshAllArtifactDisplay();
+        _presenter.InitialDisplay();
     }
 
-    private void OnDisable()
+    private void OnDestroy()
     {
-        ArtifactManager.Instance.OnEquippedArtifactChanged -= RefreshAllArtifactDisplay;
+        _presenter?.Dispose();
     }
     #endregion
-
-    private void RefreshAllArtifactDisplay()
-    {
-        _statPanel.RefreshArtifactStatDisplay();
-        _equipPanel.RefreshAllArtifactEquipSlotDisplay();
-    }
 
     #region 버튼
     private void OnCloseButtonClicked()
@@ -61,4 +69,36 @@ public class UIArtifact : BaseUI
     }
     #endregion
 
+    #region 자동 장착 로직 관련
+    [Header("자동 장착 버튼")]
+    [SerializeField] private Button _passiveEquipButton;
+    [SerializeField] private Button _activeEquipButton;
+    [SerializeField] private Button _ConfirmEquipButton;
+
+    [Header("선택 아웃라인")]
+    [SerializeField] private Outline _passiveOutline;
+    [SerializeField] private Outline _activeOutline;
+    private ArtifactType _selectedType;
+
+    private void OnPassiveEquipButtonClicked()
+    {
+        _selectedType = ArtifactType.Passive;
+        UpdateSelectionUI();
+    }
+
+    private void OnActiveEquipButtonClicked()
+    {
+        _selectedType = ArtifactType.Active;
+        UpdateSelectionUI();
+    }
+
+    private void UpdateSelectionUI()
+    {
+        if (_passiveOutline != null)
+            _passiveOutline.enabled = (_selectedType == ArtifactType.Passive);
+
+        if (_activeOutline != null)
+            _activeOutline.enabled = (_selectedType == ArtifactType.Active);
+    }
+    #endregion
 }

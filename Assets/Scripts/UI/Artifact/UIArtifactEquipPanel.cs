@@ -1,38 +1,45 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class UIArtifactEquipPanel : MonoBehaviour
 {
-    [Header("슬롯 리스트")]
-    [SerializeField] private List<UIArtifactEquipSlot> _slots;
+    [Header("슬롯 프리펩")]
+    [SerializeField] private GameObject _equipSlotPrefab;
+    [SerializeField] private Transform _createPosition;
 
-    [Header("인벤토리")]
-    [SerializeField] private UIArtifactInventoryPanel _inventory;
+    private List<UIArtifactEquipSlot> _slots = new List<UIArtifactEquipSlot>();
 
-    private void Awake()
+    public event Action OnslotsInitialize;
+
+    private void Start()
     {
         InitializeSlots();
     }
 
-    private void OnDisable()
-    {
-        
-    }
-
     private void InitializeSlots()
     {
-        for (int i = 0; i < _slots.Count; i++)
+        foreach (UIArtifactEquipSlot slot in _slots)
         {
-            _slots[i].Init(i, _inventory);
+            Destroy(slot.gameObject);
         }
+        _slots.Clear();
+
+        for (int i = 0; i < 8; i++)
+        {
+            GameObject slot = Instantiate(_equipSlotPrefab, _createPosition);
+            UIArtifactEquipSlot newSlot = slot.GetComponent<UIArtifactEquipSlot>();
+
+            newSlot.Init(i);
+            _slots.Add(newSlot);
+        }
+
+        OnslotsInitialize?.Invoke();
     }
 
-    public void RefreshAllArtifactEquipSlotDisplay()
+    public List<UIArtifactEquipSlot> GetSlots()
     {
-        foreach (var slot in _slots)
-        {
-            slot.RefreshArtifactEquipSlotDisplay();
-        }
+        return _slots;
     }
 }
