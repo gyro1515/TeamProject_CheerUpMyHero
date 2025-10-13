@@ -19,7 +19,10 @@ public class UIManager : SingletonMono<UIManager>, ISceneResettable
     {
         base.Awake();
         InputManager.Instance.gameObject.SetActive(true); // InputManager 강제 초기화
-        SceneManager.sceneLoaded += OnSceneLoaded;
+        //SceneManager.sceneLoaded += OnSceneLoaded;
+        EventManager.Subscribe<BackButtonPressedEvent>(_ => BackButtonPressed());
+        EventManager.Subscribe<AddUIStackEvent>(PushUI);
+        EventManager.Subscribe<RemoveUIStackEvent>(_ => PopUI());
     }
     /*private void OnEnable()
     {
@@ -192,13 +195,13 @@ public class UIManager : SingletonMono<UIManager>, ISceneResettable
     }
 
     // 씬 로드 시 다시 구독
-    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    /*private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         //Debug.Log("OnSceneLoaded 호출");
         EventManager.Subscribe<BackButtonPressedEvent>(_ => BackButtonPressed());
         EventManager.Subscribe<AddUIStackEvent>(PushUI);
         EventManager.Subscribe<RemoveUIStackEvent>(_ => PopUI());
-    }
+    }*/
     // ================================
     // 리소스 정리
     // ================================

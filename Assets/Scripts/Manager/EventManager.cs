@@ -23,7 +23,8 @@ public class EventChannel<T> where T : struct
         _onPublish?.Invoke(eventData);
     }
 }
-public class EventManager : SingletonMono<EventManager>, ISceneResettable
+//public class EventManager : SingletonMono<EventManager>, ISceneResettable // 2안
+public class EventManager : SingletonMono<EventManager>
 {
     // 싱글톤 인스턴스 접근 안되게 하기
     private new static EventManager Instance => SingletonMono<EventManager>.Instance;
@@ -82,10 +83,11 @@ public class EventManager : SingletonMono<EventManager>, ISceneResettable
     // 단점: 씬 전환 오브젝트 파괴 시 이벤트 구독 해제 안 하면 메모리 누수 발생 가능성 있음
     // **************************
     // 현재는 1번 방식 채택, UIManager에서 구독하는건 OnSceneLoaded에서 다시 구독처리
-    public void OnSceneReset()
+    /*public void OnSceneReset()
     {
         //Debug.Log("[EventManager] 씬 전환: 이벤트 테이블 초기화");
         _channels.Clear();
-    }
+    }*/
+    // ****************** 2번으로 변경 251013_21:16
 }
 
