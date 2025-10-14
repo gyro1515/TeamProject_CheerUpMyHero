@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UIArtifact : BaseUI
+public class UIArtifact : BaseUI, IBackButtonHandler
 {
     #region UI요소 참조 변수
     [Header("UI 요소 참조")]
@@ -44,11 +44,18 @@ public class UIArtifact : BaseUI
         if (_passiveOutline != null) _passiveOutline.enabled = false;
         if (_activeOutline != null) _activeOutline.enabled = false;
     }
-
+    private void OnEnable()
+    {
+        EventManager.Publish(new AddUIStackEvent { ui = this });
+    }
     private void Start()
     {
         _gotoCardDeckButton.onClick.AddListener(OnCardDeckClicked);
         _presenter.InitialDisplay();
+    }
+    private void OnDisable()
+    {
+        EventManager.Publish(new RemoveUIStackEvent());
     }
 
     private void OnDestroy()
@@ -67,6 +74,13 @@ public class UIArtifact : BaseUI
     {
         FadeManager.Instance.SwitchGameObjects(gameObject, UIManager.Instance.GetUI<DeckPresetController>().gameObject);
     }
+
+    public void OnBackPressed()
+    {
+        Debug.Log($"{gameObject.name} 뒤로가기: ");
+        OnCardDeckClicked();
+    }
+
     #endregion
 
     #region 자동 장착 로직 관련

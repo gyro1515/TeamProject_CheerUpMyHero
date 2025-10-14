@@ -8,6 +8,8 @@ public class EnemyHQ : BaseHQ
     [Header("적 본부 세팅")]
     [SerializeField] List<PoolType> enemyUnits = new List<PoolType>(); // 기본 스폰 유닛
 
+    private const string POOLPATH = "Prefabs/ObjPooling/";
+
     public Coroutine spawnUnitRoutine; // 웨이브시 스폰은 일시 정지용
 
     public EnemyWaveSystem WaveSystem { get; private set; }
@@ -44,6 +46,7 @@ public class EnemyHQ : BaseHQ
         //InvokeRepeating("SpawnUnit", 0f, spawnInterval);
 
         WaveSystem = GetComponent<EnemyWaveSystem>();
+        SetUnitCoolTime();
     }
     protected override void Start()
     {
@@ -73,6 +76,21 @@ public class EnemyHQ : BaseHQ
         GameManager.Instance.ClearStage();
         Debug.Log("적군 HQ 파괴! 승리!");
     }
+    void SetUnitCoolTime()
+    {
+        for (int i = 0; i < enemyUnits.Count; i++)
+        {
+            GameObject enemyUnitPrefab = Resources.Load<GameObject>(POOLPATH + enemyUnits[i].ToString());
+            if(enemyUnitPrefab == null)
+            {
+                Debug.LogError($"EnemyHQ: {enemyUnits[i]} 프리팹을 로드하지 못했습니다.");
+                continue;
+            }
+            float cooltime = enemyUnitPrefab.GetComponent<BaseUnit>().SpawnCooldown;
+            enemyUnitCoolTimes[enemyUnits[i]] = cooltime;
+            StartCoroutine(EnemyCoolTimeRoutin(enemyUnits[i], cooltime));
+        }
+    }
     bool SpawnUnit() // 소환했으면 리턴 트루
     {
         if (enemyUnits.Count == 0) return false;
@@ -81,25 +99,13 @@ public class EnemyHQ : BaseHQ
         for (int i = 0; i < enemyUnits.Count; i++)
         {
             //Debug.Log(enemyUnits[i] + " 스폰 시도");
-            // 처음 추가하는 거라면 바로 스폰
-            if (!enemyUnitCoolTimes.ContainsKey(enemyUnits[i]))
-            {
-                GameObject enemyUnitGO = ObjectPoolManager.Instance.Get(enemyUnits[i]);
-                enemyUnitGO.transform.position = GetRandomSpawnPos();
-                float cooltime = enemyUnitGO.GetComponent<BaseUnit>().SpawnCooldown;
-                enemyUnitCoolTimes[enemyUnits[i]] = cooltime;
-                StartCoroutine(EnemyCoolTimeRoutin(enemyUnits[i], cooltime));
-                return true;
-            }
-            else // 처음이 아니라면 쿨타임 확인 후 스폰
-            {
-                if (!enemyUnitCanSpawn[enemyUnits[i]]) continue; // 스폰 못하면 다음
+            // 251014 변경 -> 처음 추가하는 거라도 쿨타임 적용, Awake에서 미리 세팅
+            if (!enemyUnitCanSpawn[enemyUnits[i]]) continue; // 스폰 못하면 다음
 
-                GameObject enemyUnitGO = ObjectPoolManager.Instance.Get(enemyUnits[i]);
-                enemyUnitGO.transform.position = GetRandomSpawnPos();
-                StartCoroutine(EnemyCoolTimeRoutin(enemyUnits[i], enemyUnitCoolTimes[enemyUnits[i]]));
-                return true;
-            }
+            GameObject enemyUnitGO = ObjectPoolManager.Instance.Get(enemyUnits[i]);
+            enemyUnitGO.transform.position = GetRandomSpawnPos();
+            StartCoroutine(EnemyCoolTimeRoutin(enemyUnits[i], enemyUnitCoolTimes[enemyUnits[i]]));
+            return true;
         }
         // 쿨타임 때문에 못 스폰했으면 false 리턴
         return false;

@@ -16,18 +16,23 @@ public class UIPause : BaseUI, IBackButtonHandler
     [SerializeField] private UISettingMenu _settingMenuScript;
 
     private CanvasGroup _settingPanelCanvasGroup;
+    BasePopUpUI _settingPanelPopUpUI;
 
     private void Awake()
     {
         _pauseButton.onClick.AddListener(OnPauseButtonClicked);
 
+        _settingPanelPopUpUI = _settingPanel.GetComponent<BasePopUpUI>();
         _settingPanelCanvasGroup = _settingPanel.GetComponent<CanvasGroup>();
         _settingPanel.GetComponent<Button>().onClick.AddListener(() => 
         { 
             ApplySpeed(CurrentSpeed);
-            _settingMenuScript.showPanel(null);
+            //_settingMenuScript.showPanel(null);
         }); 
         InitSpeedBtn();
+        EventManager.Publish(new AddUIStackEvent { ui = this });
+        Debug.Log("너 왜 안돼");
+
     }
     private void Start()
     {
@@ -36,7 +41,6 @@ public class UIPause : BaseUI, IBackButtonHandler
             ApplySpeed(SpeedState.X1); // 웨이브 경고 시 배속 초기화
         };
         GameManager.Instance.enemyHQ.WaveSystem.SetOnWarningEnd(() => ApplySpeed(CurrentSpeed));
-        EventManager.Publish(new AddUIStackEvent { ui = this });
     }
     private void OnPauseButtonClicked()
     {
@@ -46,8 +50,9 @@ public class UIPause : BaseUI, IBackButtonHandler
         _settingPanelCanvasGroup.DOFade(1f, 0.3f).SetUpdate(true);
         _settingPanelCanvasGroup.interactable = true;
         _settingPanelCanvasGroup.blocksRaycasts = true;*/
-        _settingPanel.SetActive(true);
-        _settingMenuScript.ShowPausePanel();
+        /*_settingPanel.SetActive(true);
+        _settingMenuScript.ShowPausePanel();*/
+        _settingPanelPopUpUI.OpenUI();
     }
 
     [Header("속도조절 버튼")]

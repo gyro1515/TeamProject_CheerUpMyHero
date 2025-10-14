@@ -39,6 +39,7 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
 {
     // 선택한 스테이지 선택용
     public (int mainStageIdx, int subStageIdx) SelectedStageIdx { get; set; } = (-1, -1);
+    public TileDataHandler _TileDataHandler { get; private set; }
 
     //테스트용 카드 데이터(유닛 테이블로 교체될 예정
     public Dictionary<int, TempCardData> cardDic;
@@ -48,31 +49,39 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
         base.Awake();
         if (Instance == this)
         {
+            _TileDataHandler = new TileDataHandler();
+
             InitializeResources();
             LoadDecks();
-
-            for (int y = 0; y < 5; y++)   //일단 넣어 뒀습니다 나중에 플레이어데이터매니저 리팩토링할 때 빼겠습니다
-            {
-                for (int x = 0; x < 5; x++)
-                {
-                    TileStatusGrid[x, y] = TileStatus.Normal;
-                    TileRepairTurnsGrid[x, y] = 0;
-                }
-            }
+            TestCardGenerate();
         }
-        TestCardGenerate();
     }
-
     private void OnEnable()
     {
-        
+        EventManager.Subscribe<GridStateChangedEvent>(OnGridStateChanged);
+        EventManager.Subscribe<BattleEndedEvent>(OnBattleEnded);
     }
 
     private void OnDisable()
     {
-        
-    }
+        EventManager.Unsubscribe<GridStateChangedEvent>(OnGridStateChanged);
+        EventManager.Unsubscribe<BattleEndedEvent>(OnBattleEnded);
 
+    }
+    private void OnGridStateChanged(GridStateChangedEvent e)
+    {
+        UpdateAllBuildingEffects();
+    }
+    private void OnBattleEnded(BattleEndedEvent e)
+    {
+        Debug.Log($"전투 종료 감지! (승리: {e.IsVictory})");
+        _TileDataHandler.AdvanceRepairTurn();
+        if (!e.IsVictory)
+        {
+            _TileDataHandler.DamageRandomTile();
+        }
+
+    }
     //테스트용 카드 생성
     void TestCardGenerate()
     {
@@ -114,10 +123,8 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
 
     //빌딩 데이터
     #region Building
-    public BuildingUpgradeData[,] BuildingGridData { get; set; } = new BuildingUpgradeData[5, 5];
-
-    public TileStatus[,] TileStatusGrid { get; private set; } = new TileStatus[5, 5];
-    public int[,] TileRepairTurnsGrid { get; private set; } = new int[5, 5];
+    //public void DamageRandomTile() => _TileHandler.DamageRandomTile();
+    //public void AdvanceRepairTurn() => _TileHandler.AdvanceRepairTurn();
     // 건설 가능한 건물 목록을 저장해 둘 리스트 (한 번만 생성)
     private List<BuildingUpgradeData> _buildableList;
 
@@ -139,78 +146,6 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
             }
         }
         return _buildableList;
-    }
-
-
-    public void DamageRandomTile()
-    {
-        //파괴 가능한 '일반' 타일의 좌표 목록을 만듦
-        List<(int x, int y)> availableTiles = new List<(int, int)>();
-        for (int y = 0; y < 5; y++)
-        {
-            for (int x = 0; x < 5; x++)
-            {
-                //스페셜 타일이 아니고, 현재 상태가 'Normal'인 타일만 후보에 추가
-                bool isSpecial = (x == 4 || y == 4);
-                if (!isSpecial && TileStatusGrid[x, y] == TileStatus.Normal)
-                {
-                    availableTiles.Add((x, y));
-                }
-            }
-        }
-
-        //파괴할 수 있는 타일이 하나도 없다면, 함수를 즉시 종료
-        if (availableTiles.Count == 0)
-        {
-            Debug.Log("더 이상 파괴할 수 있는 타일이 없습니다.");
-            return;
-        }
-
-        //파괴 가능한 타일 목록 중에서 랜덤으로 하나를 선택
-        int randomIndex = Random.Range(0, availableTiles.Count);
-        (int randomX, int randomY) = availableTiles[randomIndex];
-
-        //선택된 타일의 상태를 'Damaged'로 변경
-        TileStatusGrid[randomX, randomY] = TileStatus.Damaged;
-        TileRepairTurnsGrid[randomX, randomY] = 3;
-
-        if (BuildingGridData[randomX, randomY] != null)
-        {
-            Debug.Log($"패배 페널티: ({randomX}, {randomY}) 타일의 건물이 '반파'되었습니다.");
-        }
-        else
-        {
-            Debug.Log($"패배 페널티: ({randomX}, {randomY}) 타일이 '황폐화'되었습니다.");
-        }
-        UpdateAllBuildingEffects();
-    }
-
-    //전투가 끝날 때마다 호출되어 턴을 넘기는 함수
-    public void AdvanceRepairTurn()
-    {
-        for (int y = 0; y < 5; y++)
-        {
-            for (int x = 0; x < 5; x++)
-            {
-                bool isWasted = (TileStatusGrid[x, y] == TileStatus.Damaged && BuildingGridData[x, y] == null);
-                bool isRepairing = (TileStatusGrid[x, y] == TileStatus.Repairing);
-
-                if (isWasted || isRepairing)
-                {
-                    if (TileRepairTurnsGrid[x, y] > 0)
-                    {
-                        TileRepairTurnsGrid[x, y]--;
-
-                        if (TileRepairTurnsGrid[x, y] == 0)
-                        {
-                            TileStatusGrid[x, y] = TileStatus.Normal;
-                            Debug.Log($"타일 ({x},{y})이(가) 자동으로 수리 완료되었습니다.");
-                            UpdateAllBuildingEffects();
-                        }
-                    }
-                }
-            }
-        }
     }
     #endregion
 
@@ -263,11 +198,11 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
     private void InitializeResources()
     {
         // 5가지 자원을 모두 딕셔너리에 추가하고 초기 수량을 설정.
-        _resources[ResourceType.Gold] = 100000;
-        _resources[ResourceType.Wood] = 100000;
-        _resources[ResourceType.Iron] = 100000;
+        _resources[ResourceType.Gold] = 100;
+        _resources[ResourceType.Wood] = 100;
+        _resources[ResourceType.Iron] = 100;
         _resources[ResourceType.Food] = CurrentFood;
-        _resources[ResourceType.MagicStone] = 100000;
+        _resources[ResourceType.MagicStone] = 100;
         _resources[ResourceType.Bm] = 0; 
         _resources[ResourceType.Ticket] = 0;
     }
@@ -303,23 +238,20 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
         }
     }
 
+    public (int gold, int wood, int iron, int magicStone) ApplyDefeatPenalties()
+    {
+        var resourcePenalties = ApplyResourcePenalty();
+
+        return resourcePenalties;
+    }
+
     public (int gold, int wood, int iron, int magicStone) ApplyResourcePenalty()
     {
-        // Food를 제외한 재화에 대해 5% 페널티 계산
-        int goldPenalty = Mathf.CeilToInt(GetResourceAmount(ResourceType.Gold) * 0.05f);
-        AddResource(ResourceType.Gold, -goldPenalty);
-
-        int woodPenalty = Mathf.CeilToInt(GetResourceAmount(ResourceType.Wood) * 0.05f);
-        AddResource(ResourceType.Wood, -woodPenalty);
-
-        int ironPenalty = Mathf.CeilToInt(GetResourceAmount(ResourceType.Iron) * 0.05f);
-        AddResource(ResourceType.Iron, -ironPenalty);
-
-        int magicStonePenalty = Mathf.CeilToInt(GetResourceAmount(ResourceType.MagicStone) * 0.05f);
-        AddResource(ResourceType.MagicStone, -magicStonePenalty);
-
+        int goldPenalty = Mathf.CeilToInt(GetResourceAmount(ResourceType.Gold) * 0.05f); AddResource(ResourceType.Gold, -goldPenalty);
+        int woodPenalty = Mathf.CeilToInt(GetResourceAmount(ResourceType.Wood) * 0.05f); AddResource(ResourceType.Wood, -woodPenalty);
+        int ironPenalty = Mathf.CeilToInt(GetResourceAmount(ResourceType.Iron) * 0.05f); AddResource(ResourceType.Iron, -ironPenalty);
+        int magicStonePenalty = Mathf.CeilToInt(GetResourceAmount(ResourceType.MagicStone) * 0.05f); AddResource(ResourceType.MagicStone, -magicStonePenalty);
         Debug.Log($"패배 페널티: 골드 -{goldPenalty}, 목재 -{woodPenalty}, 철 -{ironPenalty}, 마력석 -{magicStonePenalty}");
-
         return (goldPenalty, woodPenalty, ironPenalty, magicStonePenalty);
     }
     #endregion
@@ -418,71 +350,24 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
     // 모든 건물의 효과를 한 번에 합산하여 계산하는 범용 함수
     public void UpdateAllBuildingEffects()
     {
-        // --- 계산 전, 모든 보너스 값을 초기화 ---
-        int totalCalculatedMax = 20000;
-        float totalGainPercent = 0f;
-        TotalUnitCooldownReduction = 0f;
-        RareUnitSlots = 0;
-        EpicUnitSlots = 0;
+        _TileDataHandler.CalculateTotalBuildingEffects(
+            out int bonusMaxFood,
+            out float foodGainPercent,
+            out float cooldownReduction,
+            out int rareSlots,
+            out int epicSlots
+        );
 
-        // --- 모든 그리드를 순회하며 건물 효과를 합산 ---
-        for (int y = 0; y < 5; y++)
-        {
-            for (int x = 0; x < 5; x++)
-            {
-                if (TileStatusGrid[x, y] != TileStatus.Normal)
-                {
-                    continue;
-                }
-                var building = BuildingGridData[x, y];
-                if (building == null) continue;
-
-                foreach (var effect in building.effects)
-                {
-                    switch (effect.effectType)
-                    {
-                        case BuildingEffectType.MaximumFood:
-                            if (building.buildingType == BuildingType.Farm)
-                            {
-                                totalCalculatedMax += (int)effect.effectValueMin;
-                            }
-                            break;
-                        case BuildingEffectType.IncreaseFoodGainSpeed:
-                            if (building.buildingType == BuildingType.Farm)
-                            {
-                                totalGainPercent += effect.effectValueMin;
-                            }
-                            break;
-                        case BuildingEffectType.UnitCoolDown:
-                            if (building.buildingType == BuildingType.Barracks)
-                            {
-                                TotalUnitCooldownReduction += effect.effectValueMin;
-                            }
-                            break;
-                        case BuildingEffectType.CanSummonRareUnits:
-                            if (building.buildingType == BuildingType.Barracks)
-                            {
-                                RareUnitSlots += (int)effect.effectValueMin;
-                            }
-                            break;
-                        case BuildingEffectType.CanSummonEpicUnits:
-                            if (building.buildingType == BuildingType.Barracks)
-                            {
-                                EpicUnitSlots += (int)effect.effectValueMin;
-                            }
-                            break;
-                    }
-                }
-            }
-        }
-
-        // --- 최종 계산된 농장 관련 값들을 업데이트 ---
-        _calculatedMaxFood = totalCalculatedMax;
-        currentFarmGainPercent = totalGainPercent;
+        _calculatedMaxFood = 20000 + bonusMaxFood;
+        currentFarmGainPercent = foodGainPercent;
         if (MaxFood > _calculatedMaxFood)
         {
             MaxFood = _calculatedMaxFood;
         }
+
+        TotalUnitCooldownReduction = cooldownReduction;
+        RareUnitSlots = rareSlots;
+        EpicUnitSlots = epicSlots;
 
         OnResourceChangedEvent?.Invoke(ResourceType.Food, CurrentFood);
         Debug.Log($"모든 건물 효과 계산 완료: 최대 식량={_calculatedMaxFood}, 식량 보너스={currentFarmGainPercent}%, 유닛 쿨감={TotalUnitCooldownReduction}%, 레어 슬롯={RareUnitSlots}, 에픽 슬롯={EpicUnitSlots}");
@@ -491,7 +376,7 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
 
     // 스테이지 클리어 기록
     #region Clear Stage
-    
+
 
 
     #endregion

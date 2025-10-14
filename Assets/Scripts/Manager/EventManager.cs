@@ -16,6 +16,7 @@ public class EventChannel<T> where T : struct
     }
     public void Unsubscribe(Action<T> callback)
     {
+        if (_onPublish == null) return;
         _onPublish -= callback;
     }
     public void Publish(T eventData)
@@ -34,11 +35,26 @@ public class EventManager : SingletonMono<EventManager>
     protected override void Awake()
     {
         base.Awake();
+        SceneManager.sceneLoaded += Loaded;
+        SceneManager.sceneUnloaded += Unloaded;
+    }
+    private void Loaded(Scene scene, LoadSceneMode mode)
+    {
+        Debug.Log($"{_channels.Count}");
+    }
+    private void Unloaded(Scene scene)
+    {
+        Debug.Log($"{_channels.Count}");
     }
     private void Start()
     {
         // *** 씬 전환마다 리소스 정리하려면 추가 필요***
         //SceneLoader.Instance.SceneResettables.Add(this);
+    }
+    override protected void OnDestroy()
+    {
+        base.OnDestroy();
+        _channels.Clear();
     }
     // 해당 타입의 이벤트 채널을 가져오거나, 없으면 새로 생성
     private static EventChannel<T> GetChannel<T>() where T : struct

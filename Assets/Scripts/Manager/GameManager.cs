@@ -24,7 +24,7 @@ public class GameManager : SingletonMono<GameManager>
     public bool IsBattleStarted { get; private set; } = false;
 
     public float StartTime { get; private set; }
-    public bool NeedsTileVisualUpdate { get; set; } = false;
+    //public bool NeedsTileVisualUpdate { get; set; } = false;
 
     public LoadMain LoadMain { get; set; } = LoadMain.None;
 
@@ -130,9 +130,9 @@ public class GameManager : SingletonMono<GameManager>
 
     public void ShowResultUI(bool isVictory)
     {
-        PlayerDataManager.Instance.AdvanceRepairTurn();
+        EventManager.Publish(new BattleEndedEvent { IsVictory = isVictory });
 
-        NeedsTileVisualUpdate = true;
+        //NeedsTileVisualUpdate = true;
 
         Time.timeScale = 0f;
 
@@ -168,7 +168,7 @@ public class GameManager : SingletonMono<GameManager>
             {
                 for (int x = 0; x < 5; x++)
                 {
-                    BuildingUpgradeData building = PlayerDataManager.Instance.BuildingGridData[x, y];
+                    BuildingUpgradeData building = PlayerDataManager.Instance._TileDataHandler.BuildingGridData[x, y];
                     if (building != null)
                     {
                         foreach (BuildingEffect effect in building.effects)
@@ -215,8 +215,6 @@ public class GameManager : SingletonMono<GameManager>
             Debug.Log("패배 페널티를 적용합니다.");
 
             var penalties = PlayerDataManager.Instance.ApplyResourcePenalty();
-
-            PlayerDataManager.Instance.DamageRandomTile();
 
             // 결과창 UI 열기 (차감된 값이므로 음수로 전달)
             RewardPanelUI?.OpenUI(-penalties.gold, -penalties.wood, -penalties.iron, -penalties.magicStone, false);

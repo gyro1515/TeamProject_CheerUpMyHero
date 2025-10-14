@@ -25,6 +25,8 @@ public class UIMiniMapIcon : BasePoolable
     {
         RectTransform.localScale = Vector3.one;
         RectTransform.offsetMax = new Vector2(RectTransform.offsetMax.x, 0f);
+        RectTransform.offsetMin = new Vector2(RectTransform.offsetMin.x, 0f);
+        //RectTransform.sizeDelta = new Vector2();
     }
 
 

@@ -27,7 +27,7 @@ public class UIJoyStickVer2 : MonoBehaviour, IPointerDownHandler, IPointerUpHand
         rad = baseRad * mainCanvas.scaleFactor;
         isPressing = true;
         MovePlayer(eventData);
-        Debug.Log($"조이스틱 반지름: {rad}, 델타 사이즈");
+        //Debug.Log($"조이스틱 반지름: {rad}, 델타 사이즈");
     }
     public void OnDrag(PointerEventData eventData)
     {

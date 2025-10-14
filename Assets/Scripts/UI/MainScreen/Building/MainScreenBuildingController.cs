@@ -31,15 +31,15 @@ public class MainScreenBuildingController : SingletonMono<MainScreenBuildingCont
     }
     private void OnEnable()
     {
-        // 💡 2. GameManager가 존재하고, "화면 갱신" 깃발이 세워져 있는지 확인합니다.
-        if (GameManager.Instance != null && GameManager.Instance.NeedsTileVisualUpdate)
-        {
-            // 💡 3. 깃발을 확인했으면, 스스로 화면 갱신을 실행합니다.
-            UpdateAllTileVisuals();
+        //// GameManager가 존재하고, "화면 갱신" 깃발이 세워져 있는지 확인
+        //if (GameManager.Instance != null && GameManager.Instance.NeedsTileVisualUpdate)
+        //{
+        //    //깃발을 확인했으면, 스스로 화면 갱신을 실행
+               UpdateAllTileVisuals();
 
-            // 💡 4. 일을 끝냈으므로, 깃발을 다시 내립니다. (중복 실행 방지)
-            GameManager.Instance.NeedsTileVisualUpdate = false;
-        }
+        //    //일을 끝냈으므로, 깃발을 다시 내립니다. (중복 실행 방지)
+        //    GameManager.Instance.NeedsTileVisualUpdate = false;
+        //}
     }
 
     // ---------------- 그리드 생성 ----------------
@@ -66,7 +66,7 @@ public class MainScreenBuildingController : SingletonMono<MainScreenBuildingCont
 
                 _tiles[x, y] = tile;
 
-                var buildingData = PlayerDataManager.Instance.BuildingGridData[x, y];
+                var buildingData = PlayerDataManager.Instance._TileDataHandler.BuildingGridData[x, y];
                 if (buildingData != null)
                     tile.SetBuilding(buildingData);
 
@@ -106,8 +106,8 @@ public class MainScreenBuildingController : SingletonMono<MainScreenBuildingCont
         else if (tile.MyTileType == TileType.Normal)
         {
 
-            TileStatus status = PlayerDataManager.Instance.TileStatusGrid[tile.X, tile.Y];
-            var currentBuilding = PlayerDataManager.Instance.BuildingGridData[tile.X, tile.Y];
+            TileStatus status = PlayerDataManager.Instance._TileDataHandler.TileStatusGrid[tile.X, tile.Y];
+            var currentBuilding = PlayerDataManager.Instance._TileDataHandler.BuildingGridData[tile.X, tile.Y];
 
             if (status == TileStatus.Damaged && currentBuilding != null)
             {
@@ -183,7 +183,7 @@ public class MainScreenBuildingController : SingletonMono<MainScreenBuildingCont
         }
 
         // 저장 & 반영
-        PlayerDataManager.Instance.BuildingGridData[tile.X, tile.Y] = level1Data;
+        PlayerDataManager.Instance._TileDataHandler.BuildingGridData[tile.X, tile.Y] = level1Data;
         tile.SetBuilding(level1Data);
 
         PlayerDataManager.Instance.UpdateAllBuildingEffects();
@@ -196,7 +196,7 @@ public class MainScreenBuildingController : SingletonMono<MainScreenBuildingCont
     {
         if (tile == null) { Debug.LogError("tile이 null입니다."); return; }
 
-        var current = PlayerDataManager.Instance.BuildingGridData[tile.X, tile.Y];
+        var current = PlayerDataManager.Instance._TileDataHandler.BuildingGridData[tile.X, tile.Y];
         if (current == null) { Debug.LogError("업그레이드할 건물 없음"); return; }
 
         var next = DataManager.Instance.BuildingUpgradeData.GetData(current.nextLevel);
@@ -221,7 +221,7 @@ public class MainScreenBuildingController : SingletonMono<MainScreenBuildingCont
             PlayerDataManager.Instance.AddResource(cost.resourceType, -cost.amount);
 
         // 저장 & 반영
-        PlayerDataManager.Instance.BuildingGridData[tile.X, tile.Y] = next;
+        PlayerDataManager.Instance._TileDataHandler.BuildingGridData[tile.X, tile.Y] = next;
         tile.SetBuilding(next);
 
         PlayerDataManager.Instance.UpdateAllBuildingEffects(); 
@@ -232,7 +232,7 @@ public class MainScreenBuildingController : SingletonMono<MainScreenBuildingCont
     // ------수리------
     public void RepairBuildingOnTile(BuildingTile tile)
     {
-        var currentBuildingData = PlayerDataManager.Instance.BuildingGridData[tile.X, tile.Y];
+        var currentBuildingData = PlayerDataManager.Instance._TileDataHandler.BuildingGridData[tile.X, tile.Y];
         if (currentBuildingData == null) return;
 
         BuildingUpgradeData prevLevelData = DataManager.Instance.BuildingUpgradeData.Values
@@ -274,11 +274,11 @@ public class MainScreenBuildingController : SingletonMono<MainScreenBuildingCont
         }
 
         //상태를 'Damaged'에서 'Repairing'으로 변경
-        PlayerDataManager.Instance.TileStatusGrid[tile.X, tile.Y] = TileStatus.Repairing;
+        PlayerDataManager.Instance._TileDataHandler.TileStatusGrid[tile.X, tile.Y] = TileStatus.Repairing;
         PlayerDataManager.Instance.UpdateAllBuildingEffects();
 
         tile.UpdateStatusVisual();
-        Debug.Log($"타일 ({tile.X},{tile.Y})의 수리를 시작합니다. 남은 턴: {PlayerDataManager.Instance.TileRepairTurnsGrid[tile.X, tile.Y]}");
+        Debug.Log($"타일 ({tile.X},{tile.Y})의 수리를 시작합니다. 남은 턴: {PlayerDataManager.Instance._TileDataHandler.TileStatusGrid[tile.X, tile.Y]}");
     }
 
     public void UpdateAllTileVisuals()

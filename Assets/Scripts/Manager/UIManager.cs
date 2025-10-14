@@ -4,6 +4,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using static InputManager;
+using static Unity.Burst.Intrinsics.X86.Avx;
 
 
 public class UIManager : SingletonMono<UIManager>, ISceneResettable
@@ -69,6 +70,7 @@ public class UIManager : SingletonMono<UIManager>, ISceneResettable
     void PushUI(AddUIStackEvent eventStruct)
     {
         _uiStack.Push(eventStruct.ui);
+        Debug.Log($"UIManager: UI 스택에서 추가: {eventStruct.ui.ToString()} / {_uiStack.Count}");
     }
 
     // UI가 닫힐 때 스택에서 제거
@@ -82,7 +84,7 @@ public class UIManager : SingletonMono<UIManager>, ISceneResettable
     }
     void BackButtonPressed()
     {
-        Debug.Log($"UIManager: 뒤로 가기 버튼 눌림{_uiStack.Count}");
+        //Debug.Log($"UIManager: 뒤로 가기 버튼 눌림{_uiStack.Count}");
         // 스택에 UI가 하나라도 있다면
         if (_uiStack.Count > 0)
         {

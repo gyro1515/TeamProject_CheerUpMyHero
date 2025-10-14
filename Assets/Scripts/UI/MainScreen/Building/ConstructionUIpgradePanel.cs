@@ -7,7 +7,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class ConstructionUpgradePanel : BaseUI
+public class ConstructionUpgradePanel : BasePopUpUI
 {
     [Header("UI 요소 연결")]
     [SerializeField] private TextMeshProUGUI costText;
@@ -33,16 +33,17 @@ public class ConstructionUpgradePanel : BaseUI
     private BuildingTile _targetTile;
     private BuildingUpgradeData _constructionData; // 건설 시 사용할 데이터 (0레벨)
     private BuildingUpgradeData _upgradeData;      // 업그레이드 시 사용할 데이터 (다음 레벨)
-    private CanvasGroup _canvasGroup;
+    //private CanvasGroup _canvasGroup;
 
     private bool _isClosing = false;
 
     private enum PanelMode { None, Construction, Upgrade, Repair }
     private PanelMode _mode = PanelMode.None;
 
-    private void Awake()
+    protected override void Awake()
     {
-        _canvasGroup = GetComponent<CanvasGroup>();
+        base.Awake();
+        //_canvasGroup = GetComponent<CanvasGroup>();
         actionButton.onClick.AddListener(OnActionButtonClick);
         closeButton.onClick.AddListener(() => CloseUI());
     }
@@ -53,7 +54,7 @@ public class ConstructionUpgradePanel : BaseUI
         _targetTile = tile;
         _mode = PanelMode.Upgrade;
 
-        BuildingUpgradeData currentData = PlayerDataManager.Instance.BuildingGridData[tile.X, tile.Y];
+        BuildingUpgradeData currentData = PlayerDataManager.Instance._TileDataHandler.BuildingGridData[tile.X, tile.Y];
         if (currentData == null) return;
 
         _upgradeData = DataManager.Instance.BuildingUpgradeData.GetData(currentData.nextLevel);
@@ -329,15 +330,16 @@ public class ConstructionUpgradePanel : BaseUI
         => EffectNames.TryGetValue(type, out var name) ? name : type.ToString();
 
     // --- 애니메이션 ---
-    public override void OpenUI()
+    /*public override void OpenUI()
     {
         base.OpenUI();
         FadeManager.FadeInUI(_canvasGroup);
-    }
+    }*/
     public override void CloseUI()
     {
-        if (_isClosing) return;
-        _isClosing = true;
+        /*if (_isClosing) return;
+        _isClosing = true;*/
+        base.CloseUI();
 
         if (_targetTile != null)
         {
@@ -345,14 +347,14 @@ public class ConstructionUpgradePanel : BaseUI
             _targetTile = null;
         }
 
-        FadeManager.FadeOutUI(_canvasGroup);
-        StartCoroutine(CoCloseAfterDelay(0.3f));
+        /*FadeManager.FadeOutUI(_canvasGroup);
+        StartCoroutine(CoCloseAfterDelay(0.3f));*/
     }
 
-    private IEnumerator CoCloseAfterDelay(float delay)
+    /*private IEnumerator CoCloseAfterDelay(float delay)
     {
         yield return new WaitForSecondsRealtime(delay);
         base.CloseUI();
         _isClosing = false;
-    }
+    }*/
 }
