@@ -96,7 +96,7 @@ public class UIMiniMap : MonoBehaviour
 
     void AddToMinMapUnitList(BaseCharacter unit, bool isPlayer)
     {
-        Dictionary<BaseCharacter, UIMiniMapIcon> unitPiar = isPlayer ? playerUnitIconsPair : enemyUnitIconsPair;
+        Dictionary<BaseCharacter, UIMiniMapIcon> unitPair = isPlayer ? playerUnitIconsPair : enemyUnitIconsPair;
         Color unitColor = isPlayer ? playerColor : enemyColor;
 
         GameObject obj = ObjectPoolManager.Instance.Get(PoolType.UIMinimapIcon);
@@ -106,7 +106,7 @@ public class UIMiniMap : MonoBehaviour
         UIMiniMapIcon icon = obj.GetComponent<UIMiniMapIcon>();
         icon.ResetRectTransform();
         icon.SetColor(unitColor);
-        unitPiar.Add(unit, icon);
+        unitPair.Add(unit, icon);
     }
 
     void RemoveFromMiniMapUnitList(BaseCharacter unit, bool isPlayer)
