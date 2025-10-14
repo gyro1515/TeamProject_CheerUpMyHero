@@ -350,7 +350,6 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
     // 모든 건물의 효과를 한 번에 합산하여 계산하는 범용 함수
     public void UpdateAllBuildingEffects()
     {
-        // 1. GridManager에게 계산을 요청하고, out 매개변수로 결과를 받아옵니다.
         _TileDataHandler.CalculateTotalBuildingEffects(
             out int bonusMaxFood,
             out float foodGainPercent,
