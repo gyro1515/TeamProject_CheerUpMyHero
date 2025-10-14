@@ -4,7 +4,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UIUnitCardSelect : MonoBehaviour
+public class UIUnitCardSelect : MonoBehaviour, IBackButtonHandler
 {
     [SerializeField] InfiniteScroll infiniteScroll;
     public InfiniteScroll InfiniteScroll {  get { return infiniteScroll; } }
@@ -35,6 +35,7 @@ public class UIUnitCardSelect : MonoBehaviour
         infiniteScroll.ResetCardData(cardFilter.ModifiedCardList);
         infiniteScroll.OnCanSelectCard += ControllBlocker;
         cardFilter.FilterAndSort();
+        EventManager.Publish(new AddUIStackEvent { ui = this });
     }
 
     private void OnDisable()
@@ -43,6 +44,7 @@ public class UIUnitCardSelect : MonoBehaviour
         closeButton?.onClick.RemoveListener(OnCloseButtonPress);
         emptySpaceButton?.onClick.RemoveListener(OnCloseButtonPress);
         infiniteScroll.OnCanSelectCard -= ControllBlocker;
+        EventManager.Publish(new RemoveUIStackEvent());
     }
 
     public void SetDeckSlotNum(int slotNum)
@@ -78,5 +80,11 @@ public class UIUnitCardSelect : MonoBehaviour
     void OnCloseButtonPress()
     {
         this.gameObject.SetActive(false);
+    }
+
+    public void OnBackPressed()
+    {
+        Debug.Log($"{gameObject.name} 뒤로가기: ");
+        OnCloseButtonPress();
     }
 }

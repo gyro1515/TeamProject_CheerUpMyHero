@@ -4,7 +4,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class SearchPanelInUnitCard : MonoBehaviour
+public class SearchPanelInUnitCard : MonoBehaviour, IBackButtonHandler
 {
     [SerializeField] TMP_InputField inputfield;
     
@@ -29,6 +29,8 @@ public class SearchPanelInUnitCard : MonoBehaviour
         touchBackground.onClick.AddListener(JustClose);
         noButton.onClick.AddListener(JustClose);
         yesButton.onClick.AddListener(ConfirmSearch);
+        EventManager.Publish(new AddUIStackEvent { ui = this });
+
     }
 
     private void OnDisable()
@@ -37,6 +39,8 @@ public class SearchPanelInUnitCard : MonoBehaviour
         noButton.onClick.RemoveListener(JustClose);
         yesButton.onClick.RemoveListener(ConfirmSearch);
         inputfield.text = string.Empty;
+        EventManager.Publish(new RemoveUIStackEvent());
+
     }
 
     void JustClose()
@@ -51,4 +55,9 @@ public class SearchPanelInUnitCard : MonoBehaviour
         this.gameObject.SetActive(false);
     }
 
+    public void OnBackPressed()
+    {
+        Debug.Log($"{gameObject.name} 뒤로가기: ");
+        this.gameObject.SetActive(false);
+    }
 }

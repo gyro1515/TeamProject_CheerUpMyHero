@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UIArtifact : BaseUI
+public class UIArtifact : BaseUI, IBackButtonHandler
 {
     [Header("UI간 이동 버튼")]
     [SerializeField] private Button _closeButton; //지금 비활성화 되어있음
@@ -16,12 +16,18 @@ public class UIArtifact : BaseUI
         _canvasGroup = GetComponent<CanvasGroup>();
         _closeButton.onClick.AddListener(() => SceneLoader.Instance.StartLoadScene(SceneState.BattleScene));
     }
-
+    private void OnEnable()
+    {
+        EventManager.Publish(new AddUIStackEvent { ui = this });
+    }
     private void Start()
     {
         _gotoCardDeckButton.onClick.AddListener(OnCardDeckClicked);
     }
-
+    private void OnDisable()
+    {
+        EventManager.Publish(new RemoveUIStackEvent());
+    }
     private void OnCloseButtonClicked()
     {
         FadeManager.FadeOutUI(_canvasGroup);
@@ -30,5 +36,11 @@ public class UIArtifact : BaseUI
     private void OnCardDeckClicked()
     {
         FadeManager.Instance.SwitchGameObjects(gameObject, UIManager.Instance.GetUI<DeckPresetController>().gameObject);
+    }
+
+    public void OnBackPressed()
+    {
+        Debug.Log($"{gameObject.name} 뒤로가기: ");
+        OnCardDeckClicked();
     }
 }

@@ -6,15 +6,25 @@ public class DeckSelectPopup : BaseUI, IBackButtonHandler
 {
    [SerializeField] private CanvasGroup _canvasGroup;
 
+    bool isInit = false;
     private void Awake()
     {
         if(_canvasGroup == null)
         _canvasGroup = GetComponent<CanvasGroup>();
+        
+        //if(gameObject.activeSelf) base.CloseUI();
     }
     private void OnEnable()
     {
         _canvasGroup.alpha = 0.0f;
         //CloseUI(); 이걸 안 쓰는 이유는 CloseUI()는 페이드 아웃을 하기 때문에
+        
+        EventManager.Publish(new AddUIStackEvent { ui = this });
+        if (!isInit)
+        {
+            isInit = true;
+            base.CloseUI();
+        }
     }
     private void OnDisable()
     {
@@ -25,19 +35,17 @@ public class DeckSelectPopup : BaseUI, IBackButtonHandler
         base.OpenUI();
         if (_canvasGroup == null) { Debug.LogWarning("OpenUI: 캔버스 그룹 없음"); return; }
         FadeManager.FadeInUI(_canvasGroup);
-        EventManager.Publish(new AddUIStackEvent { ui = this });
     }
 
     public override void CloseUI()
     {
         if (_canvasGroup == null) { Debug.LogWarning("CloseUI: 캔버스 그룹 없음"); return; }
-        FadeManager.FadeOutUI(_canvasGroup);
+        FadeManager.FadeOutUI(_canvasGroup, base.CloseUI);
     }
 
     public void OnBackPressed()
     {
         Debug.Log("DeckSelectPopup: 뒤로가기 버튼 눌림");
-        EventManager.Publish(new RemoveUIStackEvent());
         CloseUI();
     }
 }
