@@ -83,6 +83,7 @@ public class UIArtifactInventoryPanel : BaseUI
 
         RefreshArtifactInventoryUI(viewModels);
         UpdateDescriptionPanel(new DescriptionViewModel { IsPanelActive = false });
+        this.gameObject.SetActive(true);
         FadeManager.FadeInUI(_canvasGroup);
     }
 

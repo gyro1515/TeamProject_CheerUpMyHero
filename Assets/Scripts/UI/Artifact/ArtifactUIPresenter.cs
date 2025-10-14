@@ -127,6 +127,8 @@ public class ArtifactUIPresenter
 
     private void HandleInventoryOpenRequest(int slotIndex)
     {
+        Debug.Log("인벤토리 핸들 메서드 호출됨");
+
         List<ArtifactData> ownedList = _model.OwnedArtifacts;
         ArtifactData equippedInCurrentSlot = _model.EquippedArtifacts[slotIndex];
 

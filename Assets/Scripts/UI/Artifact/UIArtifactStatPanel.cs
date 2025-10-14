@@ -23,7 +23,7 @@ public struct StatPanelViewModel
     public StatBarViewModel RangedHp;
 }
 
-public class UIArtifactStatPanel : BaseUI
+public class UIArtifactStatPanel : MonoBehaviour
 {
     [Header("PlayerAtk 스탯 UI")]
     [SerializeField] private Image[] _playerAtkSegments;

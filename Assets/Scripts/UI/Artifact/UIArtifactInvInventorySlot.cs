@@ -17,7 +17,7 @@ public struct InventorySlotViewModel
     public bool IsEquippedInCurrentSlot;
 }
 
-public class UIArtifactInvInventorySlot : BaseUI
+public class UIArtifactInvInventorySlot : MonoBehaviour
 {
     #region UI요소 참조 변수
     [Header("유물 데이터 적용")]

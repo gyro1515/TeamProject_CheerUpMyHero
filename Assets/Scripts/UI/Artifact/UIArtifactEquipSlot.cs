@@ -15,7 +15,7 @@ public struct EquipSlotViewModel
     public Sprite Icon;
 }
 
-public class UIArtifactEquipSlot : BaseUI
+public class UIArtifactEquipSlot : MonoBehaviour
 {
     #region UI요소 참조 변수
     [Header("유물 데이터 적용")]
