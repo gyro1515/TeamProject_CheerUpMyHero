@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -5,44 +6,47 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UIArtifactEquipSlot : BaseUI
+public struct EquipSlotViewModel
 {
+    public string Name;
+    public string StatType;
+    public string StatValue;
+    public Color BorderColor;
+    public Sprite Icon;
+}
+
+public class UIArtifactEquipSlot : MonoBehaviour
+{
+    #region UI요소 참조 변수
     [Header("유물 데이터 적용")]
     [SerializeField] private Image _artifactIcon;
     [SerializeField] private TextMeshProUGUI _nameText;
     [SerializeField] private TextMeshProUGUI _statTypeText;
     [SerializeField] private TextMeshProUGUI _statValueText;
 
-    [Header("등급별 테두리 색상")]
-    [SerializeField] private Color _commonBorder = Color.gray;
-    [SerializeField] private Color _rareBorder = Color.blue;
-    [SerializeField] private Color _epicBorder = Color.magenta;
-    [SerializeField] private Color _uniqueBorder = Color.yellow;
-    [SerializeField] private Color _legendaryBorder = Color.green;
-
     private Button _button;
     private Outline _outline;
     private int _slotIndex;
-    private UIArtifactInventory _inventory;
+    #endregion
 
-    public void Init(int slotIndex, UIArtifactInventory inventory)
+    #region 이벤트 시스템
+    public event Action<int> OnRequestOpenInventory;
+    #endregion
+
+    // 생성된 슬롯이 몇 번째 슬롯인지만 정보 넣어줌.
+    public void Init(int slotIndex)
     {
         _slotIndex = slotIndex;
-        _inventory = inventory;
         
         _outline = GetComponent<Outline>();
         _button = GetComponent<Button>();
         _button.onClick.AddListener(OnButtonClicked);
-
-        ArtifactManager.Instance.OnEquippedArtifactChanged += UpdateUI;
-        UpdateUI();
     }
 
-    private void UpdateUI()
+    // 슬롯에 유물 정보 넣어줌
+    public void RefreshArtifactEquipSlotDisplay(EquipSlotViewModel vm)
     {
-        ArtifactData equippedArtifact = ArtifactManager.Instance.EquippedArtifacts[_slotIndex];
-
-        if (equippedArtifact == null)
+        if (string.IsNullOrEmpty(vm.Name))
         {
             _artifactIcon.sprite = null;
             _nameText.text = "";
@@ -50,84 +54,18 @@ public class UIArtifactEquipSlot : BaseUI
             _statValueText.text = "";
             _outline.effectColor = Color.black;
         }
-
-        if (equippedArtifact != null) _nameText.text = equippedArtifact.name;
-        // 아이콘 처리 로직
-
-        if (equippedArtifact is PassiveArtifactData passiveAf)
+        else
         {
-            #region 테두리 색깔 결정하기
-            switch (passiveAf.grade)
-            {
-                case PassiveArtifactGrade.Common:
-                    _outline.effectColor = _commonBorder;
-                    break;
-
-                case PassiveArtifactGrade.Rare:
-                    _outline.effectColor = _rareBorder;
-                    break;
-
-                case PassiveArtifactGrade.Epic:
-                    _outline.effectColor = _epicBorder;
-                    break;
-
-                case PassiveArtifactGrade.Unique:
-                    _outline.effectColor = _uniqueBorder;
-                    break;
-
-                case PassiveArtifactGrade.Legendary:
-                    _outline.effectColor = _legendaryBorder;
-                    break;
-
-                default:
-                    _outline.effectColor = Color.black;
-                    break;
-            }
-            #endregion
-
-            #region 스탯 타입 출력하기
-            switch (passiveAf.statType)
-            {
-                case StatType.MaxHp:
-                    _statTypeText.text = "HP";
-                    break;
-
-                case StatType.AtkPower:
-                    _statTypeText.text = "ATK";
-                    break;
-
-                case StatType.MoveSpeed:
-                    _statTypeText.text = "SPD";
-                    break;
-
-                case StatType.AuraRange:
-                    _statTypeText.text = "RNG";
-                    break;
-
-                default:
-                    _statTypeText.text = "ERROR";
-                    break;
-            }
-            #endregion
-
-            _statValueText.text = passiveAf.value.ToString();
-        }
-        else if (equippedArtifact is ActiveArtifactData activeAf)
-        {
-            _statTypeText.text = $"Lv.{activeAf.levelData[activeAf.curLevel].level}";
-            _statValueText.text = $"Cost : {activeAf.cost}";
-            _outline.effectColor = _legendaryBorder;
+            _nameText.text = vm.Name;
+            _statTypeText.text = vm.StatType;
+            _statValueText.text = vm.StatValue;
+            _outline.effectColor = vm.BorderColor;
+            _artifactIcon.sprite = vm.Icon;
         }
     }
 
     private void OnButtonClicked()
     {
-        _inventory.OpenInventory(_slotIndex);
-    }
-
-    private void OnDestroy()
-    {
-        _button.onClick.RemoveListener(OnButtonClicked);
-        ArtifactManager.Instance.OnEquippedArtifactChanged -= UpdateUI;
+        OnRequestOpenInventory?.Invoke(_slotIndex);
     }
 }

@@ -24,6 +24,7 @@ public class GameManager : SingletonMono<GameManager>
     public bool IsBattleStarted { get; private set; } = false;
 
     public float StartTime { get; private set; }
+    //public bool NeedsTileVisualUpdate { get; set; } = false;
 
     public LoadMain LoadMain { get; set; } = LoadMain.None;
 
@@ -129,6 +130,10 @@ public class GameManager : SingletonMono<GameManager>
 
     public void ShowResultUI(bool isVictory)
     {
+        EventManager.Publish(new BattleEndedEvent { IsVictory = isVictory });
+
+        //NeedsTileVisualUpdate = true;
+
         Time.timeScale = 0f;
 
         if (RewardPanelUI == null)
@@ -163,7 +168,7 @@ public class GameManager : SingletonMono<GameManager>
             {
                 for (int x = 0; x < 5; x++)
                 {
-                    BuildingUpgradeData building = PlayerDataManager.Instance.BuildingGridData[x, y];
+                    BuildingUpgradeData building = PlayerDataManager.Instance._TileDataHandler.BuildingGridData[x, y];
                     if (building != null)
                     {
                         foreach (BuildingEffect effect in building.effects)

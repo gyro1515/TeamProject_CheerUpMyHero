@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public enum ResourceType
 {
@@ -15,6 +16,8 @@ public enum ResourceType
     Bm,
     Ticket
 }
+public enum TileStatus { Normal, Damaged, Repairing }
+
 [System.Serializable]
 public class DeckData
 {
@@ -24,9 +27,9 @@ public class DeckData
     public DeckData(string defaultName)
     {
         DeckName = defaultName;
-        // 9개의 빈 슬롯(-1)으로 초기화
-        UnitIds = new List<int>(new int[9]);
-        for (int i = 0; i < 9; i++)
+        // 8개의 빈 슬롯(-1)으로 초기화
+        UnitIds = new List<int>(new int[8]);
+        for (int i = 0; i < 8; i++)
         {
             UnitIds[i] = -1;
         }
@@ -36,6 +39,7 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
 {
     // 선택한 스테이지 선택용
     public (int mainStageIdx, int subStageIdx) SelectedStageIdx { get; set; } = (-1, -1);
+    public TileDataHandler _TileDataHandler { get; private set; }
 
     //테스트용 카드 데이터(유닛 테이블로 교체될 예정
     public Dictionary<int, TempCardData> cardDic;
@@ -45,22 +49,39 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
         base.Awake();
         if (Instance == this)
         {
+            _TileDataHandler = new TileDataHandler();
+
             InitializeResources();
             LoadDecks();
+            TestCardGenerate();
         }
-        TestCardGenerate();
     }
-
     private void OnEnable()
     {
-        
+        EventManager.Subscribe<GridStateChangedEvent>(OnGridStateChanged);
+        EventManager.Subscribe<BattleEndedEvent>(OnBattleEnded);
     }
 
     private void OnDisable()
     {
-        
-    }
+        EventManager.Unsubscribe<GridStateChangedEvent>(OnGridStateChanged);
+        EventManager.Unsubscribe<BattleEndedEvent>(OnBattleEnded);
 
+    }
+    private void OnGridStateChanged(GridStateChangedEvent e)
+    {
+        UpdateAllBuildingEffects();
+    }
+    private void OnBattleEnded(BattleEndedEvent e)
+    {
+        Debug.Log($"전투 종료 감지! (승리: {e.IsVictory})");
+        _TileDataHandler.AdvanceRepairTurn();
+        if (!e.IsVictory)
+        {
+            _TileDataHandler.DamageRandomTile();
+        }
+
+    }
     //테스트용 카드 생성
     void TestCardGenerate()
     {
@@ -102,7 +123,8 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
 
     //빌딩 데이터
     #region Building
-    public BuildingUpgradeData[,] BuildingGridData { get; set; } = new BuildingUpgradeData[5, 5];
+    //public void DamageRandomTile() => _TileHandler.DamageRandomTile();
+    //public void AdvanceRepairTurn() => _TileHandler.AdvanceRepairTurn();
     // 건설 가능한 건물 목록을 저장해 둘 리스트 (한 번만 생성)
     private List<BuildingUpgradeData> _buildableList;
 
@@ -216,23 +238,20 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
         }
     }
 
+    public (int gold, int wood, int iron, int magicStone) ApplyDefeatPenalties()
+    {
+        var resourcePenalties = ApplyResourcePenalty();
+
+        return resourcePenalties;
+    }
+
     public (int gold, int wood, int iron, int magicStone) ApplyResourcePenalty()
     {
-        // Food를 제외한 재화에 대해 5% 페널티 계산
-        int goldPenalty = Mathf.CeilToInt(GetResourceAmount(ResourceType.Gold) * 0.05f);
-        AddResource(ResourceType.Gold, -goldPenalty);
-
-        int woodPenalty = Mathf.CeilToInt(GetResourceAmount(ResourceType.Wood) * 0.05f);
-        AddResource(ResourceType.Wood, -woodPenalty);
-
-        int ironPenalty = Mathf.CeilToInt(GetResourceAmount(ResourceType.Iron) * 0.05f);
-        AddResource(ResourceType.Iron, -ironPenalty);
-
-        int magicStonePenalty = Mathf.CeilToInt(GetResourceAmount(ResourceType.MagicStone) * 0.05f);
-        AddResource(ResourceType.MagicStone, -magicStonePenalty);
-
+        int goldPenalty = Mathf.CeilToInt(GetResourceAmount(ResourceType.Gold) * 0.05f); AddResource(ResourceType.Gold, -goldPenalty);
+        int woodPenalty = Mathf.CeilToInt(GetResourceAmount(ResourceType.Wood) * 0.05f); AddResource(ResourceType.Wood, -woodPenalty);
+        int ironPenalty = Mathf.CeilToInt(GetResourceAmount(ResourceType.Iron) * 0.05f); AddResource(ResourceType.Iron, -ironPenalty);
+        int magicStonePenalty = Mathf.CeilToInt(GetResourceAmount(ResourceType.MagicStone) * 0.05f); AddResource(ResourceType.MagicStone, -magicStonePenalty);
         Debug.Log($"패배 페널티: 골드 -{goldPenalty}, 목재 -{woodPenalty}, 철 -{ironPenalty}, 마력석 -{magicStonePenalty}");
-
         return (goldPenalty, woodPenalty, ironPenalty, magicStonePenalty);
     }
     #endregion
@@ -331,67 +350,24 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
     // 모든 건물의 효과를 한 번에 합산하여 계산하는 범용 함수
     public void UpdateAllBuildingEffects()
     {
-        // --- 계산 전, 모든 보너스 값을 초기화 ---
-        int totalCalculatedMax = 20000;
-        float totalGainPercent = 0f;
-        TotalUnitCooldownReduction = 0f;
-        RareUnitSlots = 0;
-        EpicUnitSlots = 0;
+        _TileDataHandler.CalculateTotalBuildingEffects(
+            out int bonusMaxFood,
+            out float foodGainPercent,
+            out float cooldownReduction,
+            out int rareSlots,
+            out int epicSlots
+        );
 
-        // --- 모든 그리드를 순회하며 건물 효과를 합산 ---
-        for (int y = 0; y < 5; y++)
-        {
-            for (int x = 0; x < 5; x++)
-            {
-                var building = BuildingGridData[x, y];
-                if (building == null) continue;
-
-                foreach (var effect in building.effects)
-                {
-                    switch (effect.effectType)
-                    {
-                        case BuildingEffectType.MaximumFood:
-                            if (building.buildingType == BuildingType.Farm)
-                            {
-                                totalCalculatedMax += (int)effect.effectValueMin;
-                            }
-                            break;
-                        case BuildingEffectType.IncreaseFoodGainSpeed:
-                            if (building.buildingType == BuildingType.Farm)
-                            {
-                                totalGainPercent += effect.effectValueMin;
-                            }
-                            break;
-                        case BuildingEffectType.UnitCoolDown:
-                            if (building.buildingType == BuildingType.Barracks)
-                            {
-                                TotalUnitCooldownReduction += effect.effectValueMin;
-                            }
-                            break;
-                        case BuildingEffectType.CanSummonRareUnits:
-                            if (building.buildingType == BuildingType.Barracks)
-                            {
-                                RareUnitSlots += (int)effect.effectValueMin;
-                            }
-                            break;
-                        case BuildingEffectType.CanSummonEpicUnits:
-                            if (building.buildingType == BuildingType.Barracks)
-                            {
-                                EpicUnitSlots += (int)effect.effectValueMin;
-                            }
-                            break;
-                    }
-                }
-            }
-        }
-
-        // --- 최종 계산된 농장 관련 값들을 업데이트 ---
-        _calculatedMaxFood = totalCalculatedMax;
-        currentFarmGainPercent = totalGainPercent;
+        _calculatedMaxFood = 20000 + bonusMaxFood;
+        currentFarmGainPercent = foodGainPercent;
         if (MaxFood > _calculatedMaxFood)
         {
             MaxFood = _calculatedMaxFood;
         }
+
+        TotalUnitCooldownReduction = cooldownReduction;
+        RareUnitSlots = rareSlots;
+        EpicUnitSlots = epicSlots;
 
         OnResourceChangedEvent?.Invoke(ResourceType.Food, CurrentFood);
         Debug.Log($"모든 건물 효과 계산 완료: 최대 식량={_calculatedMaxFood}, 식량 보너스={currentFarmGainPercent}%, 유닛 쿨감={TotalUnitCooldownReduction}%, 레어 슬롯={RareUnitSlots}, 에픽 슬롯={EpicUnitSlots}");
@@ -400,7 +376,7 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
 
     // 스테이지 클리어 기록
     #region Clear Stage
-    
+
 
 
     #endregion
