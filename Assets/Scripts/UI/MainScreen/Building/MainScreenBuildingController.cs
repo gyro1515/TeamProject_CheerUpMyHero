@@ -31,13 +31,13 @@ public class MainScreenBuildingController : SingletonMono<MainScreenBuildingCont
     }
     private void OnEnable()
     {
-        // 💡 2. GameManager가 존재하고, "화면 갱신" 깃발이 세워져 있는지 확인합니다.
+        // GameManager가 존재하고, "화면 갱신" 깃발이 세워져 있는지 확인
         if (GameManager.Instance != null && GameManager.Instance.NeedsTileVisualUpdate)
         {
-            // 💡 3. 깃발을 확인했으면, 스스로 화면 갱신을 실행합니다.
+            //깃발을 확인했으면, 스스로 화면 갱신을 실행
             UpdateAllTileVisuals();
 
-            // 💡 4. 일을 끝냈으므로, 깃발을 다시 내립니다. (중복 실행 방지)
+            //일을 끝냈으므로, 깃발을 다시 내립니다. (중복 실행 방지)
             GameManager.Instance.NeedsTileVisualUpdate = false;
         }
     }
