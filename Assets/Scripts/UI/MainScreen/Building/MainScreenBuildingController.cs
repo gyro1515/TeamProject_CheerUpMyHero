@@ -351,12 +351,15 @@ public class MainScreenBuildingController : SingletonMono<MainScreenBuildingCont
 
     public void HandleDrop(BuildingTile destinationTile)
     {
-        if (_sourceDragTile == null || _sourceDragTile == destinationTile || destinationTile.MyTileType == TileType.Special)
+        var dataHandler = PlayerDataManager.Instance._TileDataHandler;
+        var destStatus = dataHandler.TileStatusGrid[destinationTile.X, destinationTile.Y];
+
+        // 목표 타일의 상태가 'Normal'이 아닐 경우 드랍을 무효
+        if (_sourceDragTile == null || _sourceDragTile == destinationTile || destinationTile.MyTileType == TileType.Special || destStatus != TileStatus.Normal)
         {
-            return; // 드래그 중이 아니거나, 자기 자신 위, 특수 타일 위 드랍은 무시
+            return;
         }
 
-        var dataHandler = PlayerDataManager.Instance._TileDataHandler;
         var destBuilding = dataHandler.BuildingGridData[destinationTile.X, destinationTile.Y];
 
         if (destBuilding == null) // Case 1: 빈 타일로 이동
@@ -368,11 +371,9 @@ public class MainScreenBuildingController : SingletonMono<MainScreenBuildingCont
             dataHandler.SwapBuildingData(_sourceDragTile.X, _sourceDragTile.Y, destinationTile.X, destinationTile.Y);
         }
 
-        // 데이터가 변경되었으므로, 두 타일의 UI를 모두 갱신
         UpdateTileUI(_sourceDragTile);
         UpdateTileUI(destinationTile);
 
-        // 드래그 상태를 성공적으로 마무리하고 초기화
         _sourceDragTile = null;
         dragIcon.gameObject.SetActive(false);
     }
