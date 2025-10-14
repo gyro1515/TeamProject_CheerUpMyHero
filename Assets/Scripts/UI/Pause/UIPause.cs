@@ -6,7 +6,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UIPause : BaseUI
+public class UIPause : BaseUI, IBackButtonHandler
 {
     [Header("일시정지 버튼")]
     [SerializeField] private Button _pauseButton;
@@ -36,15 +36,18 @@ public class UIPause : BaseUI
             ApplySpeed(SpeedState.X1); // 웨이브 경고 시 배속 초기화
         };
         GameManager.Instance.enemyHQ.WaveSystem.SetOnWarningEnd(() => ApplySpeed(CurrentSpeed));
+        EventManager.Publish(new AddUIStackEvent { ui = this });
     }
     private void OnPauseButtonClicked()
     {
         Time.timeScale = 0.0f;
-        _settingPanel.SetActive(true);
+        /*_settingPanel.SetActive(true);
         _settingPanelCanvasGroup.alpha = 0.0f;
         _settingPanelCanvasGroup.DOFade(1f, 0.3f).SetUpdate(true);
         _settingPanelCanvasGroup.interactable = true;
-        _settingPanelCanvasGroup.blocksRaycasts = true;
+        _settingPanelCanvasGroup.blocksRaycasts = true;*/
+        _settingPanel.SetActive(true);
+        _settingMenuScript.ShowPausePanel();
     }
 
     [Header("속도조절 버튼")]
@@ -99,5 +102,11 @@ public class UIPause : BaseUI
         Time.timeScale = (int)speed;
         speedText.text = $"x{(int)speed}";
         Debug.Log($"[SpeedBtn] 현재 배속: {speed}");
+    }
+
+    public void OnBackPressed()
+    {
+        Debug.Log("[UIPause] 뒤로 가기 버튼 눌림");
+        OnPauseButtonClicked();
     }
 }

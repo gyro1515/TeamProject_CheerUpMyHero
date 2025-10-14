@@ -25,6 +25,10 @@ public class UIHpBarContainer : BaseUI
         hpBar.HpBarInit(character, type, hpBarSize);
         return hpBar;
     }*/
+    private void OnDisable()
+    {
+        EventManager.Unsubscribe<SpawnHQEvent>(AddHpBar);
+    }
     void AddHpBar(SpawnHQEvent e)
     {
         UIHpbar hpBar = Instantiate(uiHpBarPrefab, gameObject.transform).GetComponent<UIHpbar>();
