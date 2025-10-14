@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
 public class DataManager : SingletonMono<DataManager>
@@ -109,10 +110,21 @@ public class DataManager : SingletonMono<DataManager>
         }
     }
 
+    private DataBase<StageModifierData, StageModifierSO> _stageModifierData;
+    public DataBase<StageModifierData, StageModifierSO> StageModifierData
+    {
+        get
+        {
+            if (Instance._stageModifierData == null)
+            {
+                Instance._stageModifierData = new DataBase<StageModifierData, StageModifierSO>();
+            }
+            return Instance._stageModifierData;
+        }
+    }
 
     protected override void Awake()
     {
         base.Awake();
-        
     }
 }
