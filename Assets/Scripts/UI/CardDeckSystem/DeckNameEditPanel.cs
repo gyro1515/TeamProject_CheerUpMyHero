@@ -37,6 +37,6 @@ public class DeckNameEditPanel : BaseUI, IBackButtonHandler
     {
         Debug.Log($"{gameObject.name} 뒤로가기: ");
         CloseUI();
-        _controller.ExitEditMode();
+        //_controller.ExitEditMode();
     }
 }

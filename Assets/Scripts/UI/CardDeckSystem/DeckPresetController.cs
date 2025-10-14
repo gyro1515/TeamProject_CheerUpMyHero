@@ -68,10 +68,7 @@ public class DeckPresetController : BaseUI, IBackButtonHandler
     {
         EventManager.Publish(new AddUIStackEvent { ui = this });
     }
-    private void OnDisable()
-    {
-        EventManager.Publish(new RemoveUIStackEvent());
-    }
+    
     private void Start()
     {
         _currentDeckIndex = PlayerDataManager.Instance.ActiveDeckIndex;
@@ -105,7 +102,10 @@ public class DeckPresetController : BaseUI, IBackButtonHandler
 
         SelectDeck(_currentDeckIndex);
     }
-
+    private void OnDisable()
+    {
+        EventManager.Publish(new RemoveUIStackEvent());
+    }
     #region UI 생성 및 업데이트
 
     public void SelectDeck(int deckIndex)
@@ -187,7 +187,8 @@ public class DeckPresetController : BaseUI, IBackButtonHandler
     void OnUnitSlotClicked(int slotIndex)
     {
         Debug.Log($"{_currentDeckIndex}번 덱의 {slotIndex + 1}번 슬롯 클릭됨 -> 유닛 선택창 열기");
-        unitCardSelectPanel.gameObject.SetActive(true);
+        //unitCardSelectPanel.gameObject.SetActive(true);
+        unitCardSelectPanel.OpenUI();
         unitCardSelectPanel.SetDeckSlotNum(slotIndex);
     }
 

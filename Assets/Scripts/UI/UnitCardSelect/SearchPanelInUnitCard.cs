@@ -4,13 +4,12 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class SearchPanelInUnitCard : MonoBehaviour, IBackButtonHandler
+public class SearchPanelInUnitCard : BasePopUpUI
 {
     [SerializeField] TMP_InputField inputfield;
     
     [SerializeField] Button noButton;
     [SerializeField] Button yesButton;
-    Button touchBackground;
 
     private CardFilter cardFilter;
 
@@ -19,45 +18,37 @@ public class SearchPanelInUnitCard : MonoBehaviour, IBackButtonHandler
         this.cardFilter = cardFilter;
     }
 
-    private void Awake()
+    protected override void Awake()
     {
-        touchBackground = GetComponent<Button>();
+        base.Awake();
     }
 
-    private void OnEnable()
+    protected override void OnEnable()
     {
-        touchBackground.onClick.AddListener(JustClose);
+        base.OnEnable();
         noButton.onClick.AddListener(JustClose);
         yesButton.onClick.AddListener(ConfirmSearch);
-        EventManager.Publish(new AddUIStackEvent { ui = this });
 
     }
 
-    private void OnDisable()
+    protected override void OnDisable()
     {
-        touchBackground.onClick.RemoveListener(JustClose);
+        base.OnDisable();
         noButton.onClick.RemoveListener(JustClose);
         yesButton.onClick.RemoveListener(ConfirmSearch);
         inputfield.text = string.Empty;
-        EventManager.Publish(new RemoveUIStackEvent());
-
     }
 
     void JustClose()
     {
         inputfield.text = string.Empty;
-        this.gameObject.SetActive(false);
+        CloseUI();
     }
 
     void ConfirmSearch()
     {
         cardFilter.SetSeacrh(inputfield.text);
-        this.gameObject.SetActive(false);
+        CloseUI();
     }
 
-    public void OnBackPressed()
-    {
-        Debug.Log($"{gameObject.name} 뒤로가기: ");
-        this.gameObject.SetActive(false);
-    }
 }

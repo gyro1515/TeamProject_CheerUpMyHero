@@ -228,11 +228,13 @@ public class CardFilter : MonoBehaviour
 
     [SerializeField] Button search;
     [SerializeField] GameObject searchPanel;
+    SearchPanelInUnitCard searchPanelInUnitCard;
 
     private void Awake()
     {
         filterList.GetComponent<UIDropDownInUnitCard>().Init(this);
-        searchPanel.GetComponent<SearchPanelInUnitCard>().Init(this);
+        searchPanelInUnitCard = searchPanel.GetComponent<SearchPanelInUnitCard>();
+        searchPanelInUnitCard.Init(this);
     }
 
     private void OnEnable()
@@ -326,7 +328,8 @@ public class CardFilter : MonoBehaviour
 
     void OnSearch()
     {
-        searchPanel.SetActive(true);
+        //searchPanel.SetActive(true);
+        searchPanelInUnitCard.OpenUI();
     }
 
     public void SetSeacrh(string text)
