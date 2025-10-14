@@ -57,10 +57,7 @@ public class DeckPresetController : BaseUI, IBackButtonHandler
     {
         if (Input.GetKeyDown(KeyCode.Space)) //테스트 코드
         {
-            OnUnitSelected(0, 100012);
-            OnUnitSelected(1, 100013);
-            OnUnitSelected(2, 100014);
-
+            OnAutoFormClicked();
         }
     }
     private void OnEnable()

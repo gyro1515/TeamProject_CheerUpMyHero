@@ -95,7 +95,7 @@ public class BuildingTile : MonoBehaviour
             return;
         }
 
-        TileStatus status = PlayerDataManager.Instance.TileStatusGrid[X, Y];
+        TileStatus status = PlayerDataManager.Instance._TileDataHandler.TileStatusGrid[X, Y];
 
         // 총 수리 턴
         const int totalTurns = 3;
@@ -105,7 +105,7 @@ public class BuildingTile : MonoBehaviour
             case TileStatus.Damaged:
             case TileStatus.Repairing:
                 // Damaged와 Repairing 상태 모두 남은 턴에 따라 색을 계산합니다.
-                int turnsRemaining = PlayerDataManager.Instance.TileRepairTurnsGrid[X, Y];
+                int turnsRemaining = PlayerDataManager.Instance._TileDataHandler.TileRepairTurnsGrid[X, Y];
 
                 // 수리 진행률 (0.0 ~ 1.0)
                 float progress = 1.0f - ((float)turnsRemaining / totalTurns);
