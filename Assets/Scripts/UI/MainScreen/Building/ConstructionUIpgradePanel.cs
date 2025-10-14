@@ -1,6 +1,7 @@
 using DG.Tweening;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using TMPro;
 using UnityEngine;
@@ -36,7 +37,7 @@ public class ConstructionUpgradePanel : BaseUI
 
     private bool _isClosing = false;
 
-    private enum PanelMode { None, Construction, Upgrade }
+    private enum PanelMode { None, Construction, Upgrade, Repair }
     private PanelMode _mode = PanelMode.None;
 
     private void Awake()
@@ -68,6 +69,16 @@ public class ConstructionUpgradePanel : BaseUI
 
         _constructionData = DataManager.Instance.BuildingUpgradeData.GetData(buildingBaseID);
         currentImage.sprite = tile.emptyTileSprite;
+        UpdatePanelContents();
+    }
+
+    // ---수리 초기화---
+    public void InitializeForRepair(BuildingTile tile)
+    {
+        _targetTile = tile;
+        _mode = PanelMode.Repair;
+        _constructionData = null;
+        _upgradeData = null;
         UpdatePanelContents();
     }
 
@@ -129,6 +140,24 @@ public class ConstructionUpgradePanel : BaseUI
                 UpdateEffectText(currentData, _upgradeData);
             }
         }
+        else if (_mode == PanelMode.Repair)
+        {
+            BuildingUpgradeData currentData = _targetTile.GetBuildingData();
+
+            // 수리 UI 설정
+            actionButton.gameObject.SetActive(true);
+            nextImage.gameObject.SetActive(false);
+            arrowImage.SetActive(false);
+            currentEffectGroup.SetActive(false);
+            nextEffectGroup.SetActive(false);
+
+            currentImage.sprite = currentData.buildingSprite;
+            currentLevelText.text = $"{FormatBuildingName(currentData)} \n (반파)";
+            nextLevelText.text = "수리하시겠습니까?";
+            actionButtonText.text = "수리";
+
+            UpdateRepairCostText(currentData);
+        }
     }
 
     // --- 비용 텍스트 ---
@@ -145,6 +174,40 @@ public class ConstructionUpgradePanel : BaseUI
 
             string resourceName = GetResourceNameInKorean(cost.resourceType);
             costSb.AppendLine($"<color={(enough ? "black" : "red")}>{resourceName}: {playerAmount}/{cost.amount}</color>");
+        }
+
+        costText.text = costSb.ToString();
+        costText.richText = true;
+
+        UpdateActionButtonState(canAfford);
+    }
+
+    private void UpdateRepairCostText(BuildingUpgradeData currentBuildingData)
+    {
+        // 현재 건물을 짓는데 들었던 '이전 레벨'의 데이터 찾기
+        BuildingUpgradeData prevLevelData = DataManager.Instance.BuildingUpgradeData.Values
+                                            .FirstOrDefault(data => data.nextLevel == currentBuildingData.idNumber);
+
+        if (prevLevelData == null)
+        {
+            costText.text = "비용 정보 없음";
+            UpdateActionButtonState(false);
+            return;
+        }
+
+        //  50% 수리 비용을 계산하고 텍스트를 만듦
+        StringBuilder costSb = new StringBuilder("수리 비용:\n");
+        bool canAfford = true;
+
+        foreach (var cost in prevLevelData.costs)
+        {
+            int requiredAmount = Mathf.CeilToInt(cost.amount * 0.5f);
+            int playerAmount = PlayerDataManager.Instance.GetResourceAmount(cost.resourceType);
+            bool enough = playerAmount >= requiredAmount;
+            if (!enough) canAfford = false;
+
+            string resourceName = GetResourceNameInKorean(cost.resourceType);
+            costSb.AppendLine($"<color={(enough ? "black" : "red")}>{resourceName}: {playerAmount}/{requiredAmount}</color>");
         }
 
         costText.text = costSb.ToString();
@@ -194,6 +257,10 @@ public class ConstructionUpgradePanel : BaseUI
         else if (_mode == PanelMode.Upgrade)
         {
             MainScreenBuildingController.Instance.UpgradeBuildingOnTile(_targetTile);
+        }
+        else if (_mode == PanelMode.Repair)
+        {
+            MainScreenBuildingController.Instance.RepairBuildingOnTile(_targetTile);
         }
 
         CloseUI();
