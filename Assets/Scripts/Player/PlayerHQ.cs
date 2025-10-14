@@ -11,7 +11,10 @@ public class PlayerHQ : BaseHQ
     // 미리 캐싱하고 사용하는 방식 => 업데이트 같은 곳에서 사용할 때 성능 향상
     EventChannel<SpawnHQEvent> onSpawn;
     // 해당 유닛을 몇 번 소환했는지 체크용
-    
+    Dictionary<PoolType, int> unitSpawnCnt = new Dictionary<PoolType, int>();
+    // 강화 횟수 체크용
+    const int upgradeCnt = 3;
+
     protected override void Awake()
     {
         base.Awake();
@@ -56,5 +59,17 @@ public class PlayerHQ : BaseHQ
     {
         GameObject playerUnitGO = ObjectPoolManager.Instance.Get(poolType);
         playerUnitGO.transform.position = GetRandomSpawnPos();
+        if(unitSpawnCnt.ContainsKey(poolType))
+        {
+            unitSpawnCnt[poolType]++;
+            // 4번 소환할 때마다 강화
+            if (unitSpawnCnt[poolType] > upgradeCnt)
+            {
+                unitSpawnCnt[poolType] = 0;
+                playerUnitGO.GetComponent<BaseUnit>().SetStatMultiplierByWave(2f);
+            }
+            return;
+        }
+        unitSpawnCnt[poolType] = 1;
     }
 }
