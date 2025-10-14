@@ -2,26 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ConstructionSelectPanel : BaseUI
+public class ConstructionSelectPanel : BasePopUpUI
 {
     [SerializeField] private GameObject buildingSelectItemPrefab;
     [SerializeField] private Transform contentParent;
 
-    private CanvasGroup _canvasGroup;
-
     private BuildingTile _targetTile;
-    private bool _isClosing = false;
-
-
-
-    private void Awake()
-    {
-        _canvasGroup = GetComponent<CanvasGroup>();
-    }
-
-
-    // 패널이 열릴 때 호출되는 함수
-    // 패널이 열릴 때 호출되는 함수
+    
     public void Initialize(BuildingTile tile, ConstructionUpgradePanel upgradePanel)
     {
         _targetTile = tile;
@@ -43,30 +30,13 @@ public class ConstructionSelectPanel : BaseUI
             item.Initialize(data.idNumber, _targetTile, this, upgradePanel); 
         }
     }
-
-    public override void OpenUI()
-    {
-        if (_isClosing) return; //중복 호출 방지
-        _isClosing = true;
-        base.OpenUI();
-        FadeManager.FadeInUI(_canvasGroup);
-    }
-
     public override void CloseUI()
     {
+        base.CloseUI();
         if (_targetTile != null)
         {
             MainScreenBuildingController.Instance.DeselectTile();
             _targetTile = null; 
         }
-        FadeManager.FadeOutUI(_canvasGroup);
-        StartCoroutine(CoCloseAfterDelay(0.3f));
-    }
-
-    private IEnumerator CoCloseAfterDelay(float delay)
-    {
-        yield return new WaitForSecondsRealtime(delay);
-        base.CloseUI();
-        _isClosing = false; //완료 후 플래그 초기화
     }
 }

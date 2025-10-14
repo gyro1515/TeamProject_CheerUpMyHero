@@ -84,7 +84,7 @@ public class UIManager : SingletonMono<UIManager>, ISceneResettable
     }
     void BackButtonPressed()
     {
-        Debug.Log($"UIManager: 뒤로 가기 버튼 눌림{_uiStack.Count}");
+        //Debug.Log($"UIManager: 뒤로 가기 버튼 눌림{_uiStack.Count}");
         // 스택에 UI가 하나라도 있다면
         if (_uiStack.Count > 0)
         {
