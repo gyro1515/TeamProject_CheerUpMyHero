@@ -80,7 +80,7 @@ public class UIArtifact : BaseUI, IBackButtonHandler
         Debug.Log($"{gameObject.name} 뒤로가기: ");
         OnCardDeckClicked();
     }
-}
+
     #endregion
 
     #region 자동 장착 로직 관련
