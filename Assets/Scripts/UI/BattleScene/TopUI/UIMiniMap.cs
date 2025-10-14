@@ -102,7 +102,8 @@ public class UIMiniMap : MonoBehaviour
         GameObject obj = ObjectPoolManager.Instance.Get(PoolType.UIMinimapIcon);
 
         //부모 변경해야 캔버스에 표시됨. 반대로 반납할 때는 부모 원위치 필요
-        obj.transform.SetParent(unitsTransform, false); // 두번째 인자 false 하면 기존 월드좌표를 리셋하고 부모를 바꿈
+        //obj.transform.SetParent(unitsTransform, false); // 두번째 인자 false 하면 기존 월드좌표를 리셋하고 부모를 바꿈
+        obj.transform.SetParent(unitsTransform); // 두번째 인자 false 하면 기존 월드좌표를 리셋하고 부모를 바꿈
         UIMiniMapIcon icon = obj.GetComponent<UIMiniMapIcon>();
         icon.ResetRectTransform();
         icon.SetColor(unitColor);
