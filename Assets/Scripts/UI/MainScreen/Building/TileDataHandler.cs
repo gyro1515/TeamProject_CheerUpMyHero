@@ -26,6 +26,26 @@ public class TileDataHandler
             }
         }
     }
+    public void SwapBuildingData(int sourceX, int sourceY, int destX, int destY)
+    {
+        var temp = BuildingGridData[destX, destY];
+        BuildingGridData[destX, destY] = BuildingGridData[sourceX, sourceY];
+        BuildingGridData[sourceX, sourceY] = temp;
+
+        Debug.Log($"건물 위치 교체: ({sourceX},{sourceY}) <-> ({destX},{destY})");
+        EventManager.Publish(new GridStateChangedEvent());
+    }
+    public void MoveBuildingData(int sourceX, int sourceY, int destX, int destY)
+    {
+        if (BuildingGridData[destX, destY] == null)
+        {
+            BuildingGridData[destX, destY] = BuildingGridData[sourceX, sourceY];
+            BuildingGridData[sourceX, sourceY] = null;
+
+            Debug.Log($"건물 위치 이동: ({sourceX},{sourceY}) -> ({destX},{destY})");
+            EventManager.Publish(new GridStateChangedEvent());
+        }
+    }
     public void CalculateTotalBuildingEffects(
        out int bonusMaxFood,
        out float foodGainPercent,

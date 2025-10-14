@@ -1,6 +1,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
+
 
 public class MainScreenBuildingController : SingletonMono<MainScreenBuildingController>
 {
@@ -9,11 +12,21 @@ public class MainScreenBuildingController : SingletonMono<MainScreenBuildingCont
     [SerializeField] private Transform gridParent;                  // 타일 그리드 부모 (GridLayoutGroup이 붙은 오브젝트)
     [SerializeField] private ConstructionSelectPanel selectPanel;   // 건설 선택 패널
     [SerializeField] private ConstructionUpgradePanel upgradePanel; // 업그레이드 패널
+   
+    [Header("드래그 앤 드랍")]
+    [SerializeField] private Image dragIcon;
+
+    [Header("타일 테두리")]
+    [SerializeField] private GameObject selectedFrameObject;
 
     private BuildingTile[,] _tiles = new BuildingTile[5, 5];
     private BuildingTile _selectedTile;
+    private BuildingTile _sourceDragTile; // 드래그를 시작한 타일
 
-    [SerializeField] private GameObject selectedFrameObject;
+
+
+    public bool IsDragging() => _sourceDragTile != null; // 현재 드래그 중인지 확인하는 프로퍼티
+
 
     protected override void Awake() //돈디스트로이 온 로드 에러가 떠서 추가했습니다
     {
@@ -62,7 +75,7 @@ public class MainScreenBuildingController : SingletonMono<MainScreenBuildingCont
             {
                 var tileGO = Instantiate(tilePrefab, gridParent);
                 var tile = tileGO.GetComponent<BuildingTile>();
-                tile.Initialize(x, y);
+                tile.Initialize(x, y, this);
 
                 _tiles[x, y] = tile;
 
@@ -300,5 +313,76 @@ public class MainScreenBuildingController : SingletonMono<MainScreenBuildingCont
         }
         Debug.Log("모든 타일의 시각적 상태를 업데이트했습니다.");
     }
+
+    #region 드래그 앤 드랍 로직
+
+    public void StartDrag(BuildingTile sourceTile)
+    {
+        if (sourceTile == null) return;
+        _sourceDragTile = sourceTile;
+
+        dragIcon.sprite = sourceTile.GetBuildingData().buildingSprite;
+        dragIcon.gameObject.SetActive(true);
+        dragIcon.transform.position = Input.mousePosition;
+
+        // 원래 타일의 이미지를 약간 투명하게
+        sourceTile.GetComponent<Image>().color = new Color(1, 1, 1, 0.5f);
+    }
+
+    public void UpdateDrag(PointerEventData eventData)
+    {
+        if (dragIcon.gameObject.activeInHierarchy)
+        {
+            dragIcon.transform.position = eventData.position;
+        }
+    }
+
+    public void EndDrag()
+    {
+        if (_sourceDragTile != null)
+        {
+            // 드랍이 성공하지 못하고 끝났을 경우, 원래 타일의 모습을 복원
+            UpdateTileUI(_sourceDragTile);
+        }
+
+        _sourceDragTile = null;
+        dragIcon.gameObject.SetActive(false);
+    }
+
+    public void HandleDrop(BuildingTile destinationTile)
+    {
+        if (_sourceDragTile == null || _sourceDragTile == destinationTile || destinationTile.MyTileType == TileType.Special)
+        {
+            return; // 드래그 중이 아니거나, 자기 자신 위, 특수 타일 위 드랍은 무시
+        }
+
+        var dataHandler = PlayerDataManager.Instance._TileDataHandler;
+        var destBuilding = dataHandler.BuildingGridData[destinationTile.X, destinationTile.Y];
+
+        if (destBuilding == null) // Case 1: 빈 타일로 이동
+        {
+            dataHandler.MoveBuildingData(_sourceDragTile.X, _sourceDragTile.Y, destinationTile.X, destinationTile.Y);
+        }
+        else // Case 2: 다른 건물과 위치 교체
+        {
+            dataHandler.SwapBuildingData(_sourceDragTile.X, _sourceDragTile.Y, destinationTile.X, destinationTile.Y);
+        }
+
+        // 데이터가 변경되었으므로, 두 타일의 UI를 모두 갱신
+        UpdateTileUI(_sourceDragTile);
+        UpdateTileUI(destinationTile);
+
+        // 드래그 상태를 성공적으로 마무리하고 초기화
+        _sourceDragTile = null;
+        dragIcon.gameObject.SetActive(false);
+    }
+
+    private void UpdateTileUI(BuildingTile tile)
+    {
+        var buildingData = PlayerDataManager.Instance._TileDataHandler.BuildingGridData[tile.X, tile.Y];
+        tile.SetBuilding(buildingData);
+        tile.UpdateStatusVisual(); // 색상과 상태를 모두 원래대로 복원
+    }
+    #endregion
 }
 
