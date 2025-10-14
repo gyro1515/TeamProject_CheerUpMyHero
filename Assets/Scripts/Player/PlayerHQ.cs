@@ -10,6 +10,8 @@ public class PlayerHQ : BaseHQ
 
     // 미리 캐싱하고 사용하는 방식 => 업데이트 같은 곳에서 사용할 때 성능 향상
     EventChannel<SpawnHQEvent> onSpawn;
+    // 해당 유닛을 몇 번 소환했는지 체크용
+    
     protected override void Awake()
     {
         base.Awake();

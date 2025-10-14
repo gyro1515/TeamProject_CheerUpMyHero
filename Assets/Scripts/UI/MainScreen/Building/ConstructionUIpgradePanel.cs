@@ -53,7 +53,7 @@ public class ConstructionUpgradePanel : BaseUI
         _targetTile = tile;
         _mode = PanelMode.Upgrade;
 
-        BuildingUpgradeData currentData = PlayerDataManager.Instance.BuildingGridData[tile.X, tile.Y];
+        BuildingUpgradeData currentData = PlayerDataManager.Instance._TileDataHandler.BuildingGridData[tile.X, tile.Y];
         if (currentData == null) return;
 
         _upgradeData = DataManager.Instance.BuildingUpgradeData.GetData(currentData.nextLevel);

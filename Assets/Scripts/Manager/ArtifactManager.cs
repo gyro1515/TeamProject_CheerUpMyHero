@@ -8,6 +8,7 @@ using Random = UnityEngine.Random;
 public class ArtifactManager : SingletonMono<ArtifactManager>
 {
     public event Action OnEquippedArtifactChanged;
+    public event Action OnOwnedArtifactsChanged;
 
     public ArtifactSO artifactSO;
 
@@ -245,6 +246,35 @@ public class ArtifactManager : SingletonMono<ArtifactManager>
             source[randomNum] = null;
         }*/
         return result;
+    }
+
+    public void SortOwnedArtifacts()
+    {
+        ArtifactManager.Instance.OwnedArtifacts.Sort((a, b) =>
+        {
+            bool isAActive = a is ActiveArtifactData;
+            bool isBActive = b is ActiveArtifactData;
+
+            if (isAActive && !isBActive)    // a는 액티브, b가 패시브면 a를 앞으로 둠.
+            {
+                return -1;
+            }
+            if (!isAActive && isBActive)    // b는 액티브, a는 패시브면 b를 앞으로 둠.
+            {
+                return 1;
+            }
+
+            if (!isAActive && !isBActive)    // 둘 다 패시브일 경우 
+            {
+                PassiveArtifactData passiveA = a as PassiveArtifactData;
+                PassiveArtifactData passiveB = b as PassiveArtifactData;
+                return passiveB.grade.CompareTo(passiveA.grade);    // 등급으로 비교함
+            }
+
+            return a.name.CompareTo(b.name);
+        });
+
+        OnOwnedArtifactsChanged?.Invoke();
     }
 
     public List <ActiveArtifactData> GetRandomActiveArtifact(int count)

@@ -16,7 +16,7 @@ public class SupplyUI : BaseUI
     [SerializeField] Image foodMaxGaugeImage;
     private void Awake()
     {
-        Debug.Log("SupplyUI초기화");
+        //Debug.Log("SupplyUI초기화");
         //PlayerDataManager.Instance.OnResourceChangedEvent += OnResourceChanged;
     }
     private void OnEnable()
@@ -49,7 +49,7 @@ public class SupplyUI : BaseUI
 
     private void UpdateFoodUI()
     {
-        Debug.Log("SupplyUI호출");
+        //Debug.Log("SupplyUI호출");
 
         int currentFood = PlayerDataManager.Instance.CurrentFood;
         int maxFood = PlayerDataManager.Instance.MaxFood;

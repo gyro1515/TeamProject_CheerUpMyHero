@@ -16,6 +16,7 @@ public class EventChannel<T> where T : struct
     }
     public void Unsubscribe(Action<T> callback)
     {
+        if (_onPublish == null) return;
         _onPublish -= callback;
     }
     public void Publish(T eventData)

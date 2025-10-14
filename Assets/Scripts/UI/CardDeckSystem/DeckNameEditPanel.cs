@@ -1,10 +1,11 @@
 using UnityEngine;
 using System.Collections;
 
-public class DeckNameEditPanel : BaseUI
+public class DeckNameEditPanel : BaseUI, IBackButtonHandler
 {
     private CanvasGroup _canvasGroup;
     [SerializeField] DeckPresetController _controller;
+    bool _isFade = false;
     private void Awake()
     {
         _canvasGroup = GetComponent<CanvasGroup>();
@@ -12,14 +13,30 @@ public class DeckNameEditPanel : BaseUI
 
     public override void OpenUI()
     {
+        if (_isFade) return;
         base.OpenUI();
-        FadeManager.FadeInUI(_canvasGroup);
+        _isFade = true;
+        FadeManager.FadeInUI(_canvasGroup, SetFadeFalse);
+        EventManager.Publish(new AddUIStackEvent { ui = this });
     }
 
     public override void CloseUI()
     {
-        FadeManager.FadeOutUI(_canvasGroup);
+        if (_isFade) return;
+        _isFade = true;
+        FadeManager.FadeOutUI(_canvasGroup, SetFadeFalse);
+        EventManager.Publish(new RemoveUIStackEvent());
         _controller.ExitEditMode();
     }
+    void SetFadeFalse()
+    {
+        _isFade = false;
+    }
 
+    public void OnBackPressed()
+    {
+        Debug.Log($"{gameObject.name} 뒤로가기: ");
+        CloseUI();
+        //_controller.ExitEditMode();
+    }
 }

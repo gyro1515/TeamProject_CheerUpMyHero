@@ -20,6 +20,7 @@ public class DeckPresetController : BaseUI, IBackButtonHandler
     [Header("--- UI 그룹 ---")]
     [SerializeField] private CanvasGroup viewModeCanvasGroup; // 평상시 UI 그룹
     [SerializeField] private CanvasGroup editNameCanvasGroup; // 이름 수정 UI 그룹
+    [SerializeField] private DeckNameEditPanel editNamePanel; // 이름 수정 UI 패널
 
     [Header("--- 하위 컨트롤러 ---")]
     [SerializeField] private DeckTabController deckTabController;
@@ -57,20 +58,14 @@ public class DeckPresetController : BaseUI, IBackButtonHandler
     {
         if (Input.GetKeyDown(KeyCode.Space)) //테스트 코드
         {
-            OnUnitSelected(0, 100012);
-            OnUnitSelected(1, 100013);
-            OnUnitSelected(2, 100014);
-
+            OnAutoFormClicked();
         }
     }
     private void OnEnable()
     {
         EventManager.Publish(new AddUIStackEvent { ui = this });
     }
-    private void OnDisable()
-    {
-        EventManager.Publish(new RemoveUIStackEvent());
-    }
+    
     private void Start()
     {
         _currentDeckIndex = PlayerDataManager.Instance.ActiveDeckIndex;
@@ -93,7 +88,7 @@ public class DeckPresetController : BaseUI, IBackButtonHandler
         completeButton.onClick.AddListener(OnCompleteClicked);
         adviserButton.onClick.AddListener(GoToMainScene);
         confirmNameButton.onClick.AddListener(OnConfirmNameChange);
-        cancelNameButton.onClick.AddListener(ExitEditMode);
+        cancelNameButton.onClick.AddListener(editNamePanel.CloseUI);
         autoButton.onClick.AddListener(OnAutoFormClicked);
         relicButton.onClick.AddListener(OnRelicButtonClicked);
 
@@ -104,7 +99,10 @@ public class DeckPresetController : BaseUI, IBackButtonHandler
 
         SelectDeck(_currentDeckIndex);
     }
-
+    private void OnDisable()
+    {
+        EventManager.Publish(new RemoveUIStackEvent());
+    }
     #region UI 생성 및 업데이트
 
     public void SelectDeck(int deckIndex)
@@ -152,7 +150,8 @@ public class DeckPresetController : BaseUI, IBackButtonHandler
     {
         viewModeCanvasGroup.DOFade(0.3f, 0.3f);
         viewModeCanvasGroup.interactable = false;
-        FadeManager.FadeInUI(editNameCanvasGroup);
+        //FadeManager.FadeInUI(editNameCanvasGroup);
+        editNamePanel.OpenUI();
 
         string currentName = PlayerDataManager.Instance.DeckPresets[_currentDeckIndex].DeckName;
         deckNameInputField.text = currentName;
@@ -167,12 +166,14 @@ public class DeckPresetController : BaseUI, IBackButtonHandler
         PlayerDataManager.Instance.DeckPresets[_currentDeckIndex].DeckName = newName;
         PlayerDataManager.Instance.SaveDecks();
 
-        ExitEditMode();
+        //ExitEditMode();
+        editNamePanel.CloseUI();
     }
 
     public void ExitEditMode()
     {
-        FadeManager.FadeOutUI(editNameCanvasGroup);
+        //FadeManager.FadeOutUI(editNameCanvasGroup);
+        //editNamePanel.CloseUI();
         viewModeCanvasGroup.DOFade(1f, 0.3f);
         viewModeCanvasGroup.interactable = true;
         SelectDeck(_currentDeckIndex);
@@ -183,7 +184,8 @@ public class DeckPresetController : BaseUI, IBackButtonHandler
     void OnUnitSlotClicked(int slotIndex)
     {
         Debug.Log($"{_currentDeckIndex}번 덱의 {slotIndex + 1}번 슬롯 클릭됨 -> 유닛 선택창 열기");
-        unitCardSelectPanel.gameObject.SetActive(true);
+        //unitCardSelectPanel.gameObject.SetActive(true);
+        unitCardSelectPanel.OpenUI();
         unitCardSelectPanel.SetDeckSlotNum(slotIndex);
     }
 
