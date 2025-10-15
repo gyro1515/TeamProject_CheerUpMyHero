@@ -8,22 +8,36 @@ public class UITimeBar : MonoBehaviour
 {
     [SerializeField] Image[] smallTimeBar = new Image[20];
     
-    private WaitForSeconds wait30s = new WaitForSeconds(30f);
+    private WaitForSeconds wait30s;
     private int timeIndex = 0;
 
-    private void Start()
+    private void Awake()
     {
+        EventManager.Subscribe<TimeSyncEvent>(StartTimer);
+    }
+    
+    void StartTimer(TimeSyncEvent timerSyncEvent)
+    {
+        float waitTime = timerSyncEvent.waveTime / 4;
+        Debug.Log($"타이머 시작:{timerSyncEvent.waveTime} => {waitTime}");
+        wait30s = new WaitForSeconds(waitTime);
         StartCoroutine(thirtySeconds());
     }
-
 
     IEnumerator thirtySeconds()
     {
         while (timeIndex < smallTimeBar.Length)
         {
-            yield return wait30s;
+            // 일단 채우고 시간 대기
             smallTimeBar[timeIndex].color = Color.black;
             timeIndex++;
+            yield return wait30s;
         }
     }
 }
+#region 시간 동기화 이벤트
+public struct TimeSyncEvent
+{
+    public float waveTime;
+}
+#endregion
