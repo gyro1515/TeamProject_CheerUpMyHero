@@ -37,8 +37,16 @@ public class UISpawnUnitSlot : MonoBehaviour
     {
         _foodConsumption = foodConsumption;
         unitIcon.sprite = sprite;
-        _cooldown = cooldown;
+        //_cooldown = cooldown;
         playerUnitType = poolType; // 소환할 유닛 타입을 직접 받음
+        
+        float totalReductionPercent = PlayerDataManager.Instance.TotalUnitCooldownReduction;
+
+        //최종 쿨타임을 계산합니다. (기본 쿨타임 * (1 - 할인율))
+        float finalCooldown = cooldown * (1.0f - totalReductionPercent / 100.0f);
+
+        //계산된 최종 쿨타임을 이 슬롯의 쿨타임(_cooldown)으로 설정
+        _cooldown = finalCooldown;
 
         if (unitId == -1) // 빈 슬롯 처리
         {

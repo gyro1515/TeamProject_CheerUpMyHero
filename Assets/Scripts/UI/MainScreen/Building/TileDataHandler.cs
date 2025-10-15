@@ -69,27 +69,28 @@ public class TileDataHandler
                 if (building == null) continue;
 
                 //이 타일의 기본 효율을 1.0 (100%)로 시작
-                float efficiencyMultiplier = 1.0f;
+                float efficiencyMultiplier = 1.0f; // '고정값' 효과에 사용할 곱셈 보너스
+                float additiveBonusPercent = 0f;
 
                 //만약 이 타일에 대한 지역 보너스가 있다면, 효율에 더해줌
                 if (tileEfficiencyBonuses.TryGetValue((x, y), out float bonusPercent))
                 {
-                    efficiencyMultiplier += bonusPercent / 100.0f; // 예: 5% 보너스 -> 1.0 + 0.05 = 1.05
+                    efficiencyMultiplier += bonusPercent / 100.0f; 
+                    additiveBonusPercent = bonusPercent; // 덧셈용으로 퍼센트 값 저장
                 }
 
                 foreach (var effect in building.effects)
                 {
                     switch (effect.effectType)
                     {
-                        // 생산량/효과 관련 수치에만 효율 보너스를 적용
                         case BuildingEffectType.MaximumFood:
-                            if (building.buildingType == BuildingType.Farm) bonusMaxFood += (int)(effect.effectValueMin * efficiencyMultiplier);
+                            if (building.buildingType == BuildingType.Farm) bonusMaxFood += Mathf.CeilToInt(effect.effectValueMin * efficiencyMultiplier);
                             break;
                         case BuildingEffectType.IncreaseFoodGainSpeed:
-                            if (building.buildingType == BuildingType.Farm) foodGainPercent += effect.effectValueMin * efficiencyMultiplier;
+                            if (building.buildingType == BuildingType.Farm) foodGainPercent += effect.effectValueMin + additiveBonusPercent;
                             break;
                         case BuildingEffectType.UnitCoolDown:
-                            if (building.buildingType == BuildingType.Barracks) cooldownReduction += effect.effectValueMin * efficiencyMultiplier;
+                            if (building.buildingType == BuildingType.Barracks) cooldownReduction += effect.effectValueMin * additiveBonusPercent;
                             break;
 
                         case BuildingEffectType.CanSummonRareUnits:

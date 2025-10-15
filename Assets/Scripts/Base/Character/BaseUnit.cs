@@ -96,12 +96,16 @@ public abstract class BaseUnit : BaseCharacter
     }
     public void SetStatMultiplierByWave(float statMultiplier)
     {
+        float healthBonus = PlayerDataManager.Instance.SynergyAllUnitHealthBonus;
+        float attackBonus = PlayerDataManager.Instance.SynergyAllUnitAttackBonus;
+        float attackCooldownReduction = PlayerDataManager.Instance.SynergyUnitAttackCooldownReduction;
+
         // 배율에 따른 체력 공격력 세팅
-        MaxHp = TmpMaxHp * statMultiplier;
+        MaxHp = TmpMaxHp * statMultiplier * (1.0f + healthBonus / 100.0f);
         curHp = MaxHp;
-        AtkPower = TmpAtkPower * statMultiplier;
+        AtkPower = TmpAtkPower * statMultiplier * (1.0f + attackBonus / 100.0f);
         float tmpstatMultiplier = Math.Clamp(statMultiplier, 0.8f, 1.2f); // 크기는 너무 작아지거나 커지지 않도록 제한
-        AttackRate = TmpAttackRate * statMultiplier; // 공격 속도는 크기와 상관없이 배율에 비례
+        AttackRate = TmpAttackRate * statMultiplier * (1.0f - attackCooldownReduction / 100.0f); // 공격 속도는 크기와 상관없이 배율에 비례
         // 아래는 다 tmpstatMultiplier로 세팅, 크기에 따라 인식/공격 범위도 달라지도록
         gameObject.transform.localScale = TmpSize * tmpstatMultiplier;
         AttackRange = TmpAttackRange * tmpstatMultiplier;

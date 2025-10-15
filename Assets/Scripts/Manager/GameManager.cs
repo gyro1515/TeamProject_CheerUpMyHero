@@ -168,12 +168,14 @@ public class GameManager : SingletonMono<GameManager>
             {
                 for (int x = 0; x < 4; x++) // 범위를 4x4 일반 타일로 수정
                 {
-                    // 이 타일의 기본 효율을 1.0 (100%)로 시작
                     float efficiencyMultiplier = 1.0f;
+                    float additiveBonusPercent = 0f;
+
 
                     if (PlayerDataManager.Instance.TileEfficiencyBonuses.TryGetValue((x, y), out float bonusPercent))
                     {
-                        efficiencyMultiplier += bonusPercent / 100.0f; // 예: 5% 보너스 -> 1.05배
+                        efficiencyMultiplier += bonusPercent / 100.0f;
+                        additiveBonusPercent = bonusPercent;
                     }
 
                     BuildingUpgradeData building = PlayerDataManager.Instance._TileDataHandler.BuildingGridData[x, y];
@@ -184,23 +186,23 @@ public class GameManager : SingletonMono<GameManager>
                             switch (effect.effectType)
                             {
                                 case BuildingEffectType.BaseWoodProduction:
-                                    totalBaseWood += (int)(effect.effectValueMin * efficiencyMultiplier);
+                                    totalBaseWood += Mathf.CeilToInt(effect.effectValueMin * efficiencyMultiplier);
                                     break;
                                 case BuildingEffectType.AdditionalWoodProduction:
-                                    totalBonusWoodPercent += effect.effectValueMin * efficiencyMultiplier;
+                                    totalBonusWoodPercent += effect.effectValueMin + additiveBonusPercent;
                                     break;
                                 case BuildingEffectType.BaseIronProduction:
-                                    totalBaseIron += (int)(effect.effectValueMin * efficiencyMultiplier);
+                                    totalBaseIron += Mathf.CeilToInt(effect.effectValueMin * efficiencyMultiplier);
                                     break;
                                 case BuildingEffectType.AdditionalIronProduction:
-                                    totalBonusIronPercent += effect.effectValueMin * efficiencyMultiplier;
+                                    totalBonusIronPercent += effect.effectValueMin * additiveBonusPercent;
                                     break;
                                 case BuildingEffectType.MagicStoneFindChance:
                                     totalMagicStoneChance += effect.effectValueMin;
                                     break;
                                 case BuildingEffectType.MagicStoneProduction:
-                                    totalMagicStoneMin += (int)(effect.effectValueMin * efficiencyMultiplier);
-                                    totalMagicStoneMax += (int)(effect.effectValueMax * efficiencyMultiplier);
+                                    totalMagicStoneMin += Mathf.CeilToInt(effect.effectValueMin * efficiencyMultiplier);
+                                    totalMagicStoneMax += Mathf.CeilToInt(effect.effectValueMax * efficiencyMultiplier);
                                     break;
                             }
                         }
@@ -210,8 +212,8 @@ public class GameManager : SingletonMono<GameManager>
 
             //최종 보상을 계산
             finalGold = rewardData.rewardGold;
-            finalWood = rewardData.rewardWood + (int)(totalBaseWood * (1 + totalBonusWoodPercent / 100f));
-            finalIron = rewardData.rewardIron + (int)(totalBaseIron * (1 + totalBonusIronPercent / 100f));
+            finalWood = rewardData.rewardWood + Mathf.CeilToInt(totalBaseWood * (1 + totalBonusWoodPercent / 100f));
+            finalIron = rewardData.rewardIron + Mathf.CeilToInt(totalBaseIron * (1 + totalBonusIronPercent / 100f));
             finalMagicStone = rewardData.rewardMagicStone;
 
             if (Random.Range(0, 100) < totalMagicStoneChance)

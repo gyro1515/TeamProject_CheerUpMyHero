@@ -54,6 +54,8 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
     public float SynergyIronCostReduction { get; private set; }
     public float SynergyMagicStoneCostReduction { get; private set; }
     public float SynergyMaxFoodBonus { get; private set; }
+    public float SynergyUnitAttackCooldownReduction { get; private set; }
+    public float SynergyBlockBonusPercent { get; private set; } // 전문 기술 단지
 
     private Dictionary<(int x, int y), float> _tileEfficiencyBonuses;
     public IReadOnlyDictionary<(int x, int y), float> TileEfficiencyBonuses => _tileEfficiencyBonuses;
@@ -186,6 +188,8 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
         SynergyIronCostReduction = 0f;
         SynergyMagicStoneCostReduction = 0f;
         SynergyMaxFoodBonus = 0f;
+        SynergyUnitAttackCooldownReduction = 0f;
+        SynergyBlockBonusPercent = 0f;
         _tileEfficiencyBonuses.Clear();
     }
 
@@ -238,16 +242,12 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
                 SynergyMagicStoneCostReduction += 2.5f;
                 break;
             case BuildingSynergyType.Barracks_Line:
-                SynergyUnitCooldownReduction += 10f;
+                SynergyUnitAttackCooldownReduction += 10f;
                 break;
 
             //블록 시너지
             case BuildingSynergyType.Specialized_Block:
-                foreach (var pos in synergy.TilePositions)
-                {
-                    _tileEfficiencyBonuses.TryAdd(pos, 0); // 키가 없으면 0으로 추가
-                    _tileEfficiencyBonuses[pos] += 2.5f; // 효율 2.5% 증가
-                }
+                SynergyBlockBonusPercent += 10f;
                 break;
             case BuildingSynergyType.Balanced_Block:
                 foreach (var pos in synergy.TilePositions)
@@ -500,15 +500,18 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
 
         int baseMaxFood = 20000;
 
-        // 2. 기본값에 건물들의 '플랫(flat)' 보너스를 더함 (블록 시너지 포함)
-        int totalFlatBonusMaxFood = buildingBonusMaxFood;
+        // 기본값에 건물들의 '플랫(flat)' 보너스를 더함 (블록 시너지 포함)
+        float blockMultiplier = 1.0f + (SynergyBlockBonusPercent / 100.0f);
+        int bonusFromBuildings = Mathf.CeilToInt(buildingBonusMaxFood * blockMultiplier); // 결과: 2200
 
-        // 3. (기본값 + 플랫 보너스)에 시너지 '퍼센트(%)' 보너스를 적용
-        float synergyMultiplier = 1.0f + (SynergyMaxFoodBonus / 100.0f);
-        _calculatedMaxFood = (int)((baseMaxFood + totalFlatBonusMaxFood) * synergyMultiplier);
+
+        // (기본값 + 플랫 보너스)에 시너지 '퍼센트(%)' 보너스를 적용
+        float globalMultiplier = 1.0f + (SynergyMaxFoodBonus / 100.0f);
+
+        _calculatedMaxFood = Mathf.CeilToInt((baseMaxFood + bonusFromBuildings) * globalMultiplier);
 
         // --- 나머지 효과들도 전역 시너지 보너스를 최종 합산 ---
-        currentFarmGainPercent = buildingFoodGainPercent + SynergyFoodProductionBonus;
+        currentFarmGainPercent = buildingFoodGainPercent + SynergyFoodProductionBonus + SynergyBlockBonusPercent;
         TotalUnitCooldownReduction = buildingCooldownReduction + SynergyUnitCooldownReduction;
         RareUnitSlots = buildingRareSlots;
         EpicUnitSlots = buildingEpicSlots;
