@@ -164,10 +164,20 @@ public class GameManager : SingletonMono<GameManager>
             int totalMagicStoneMin = 0;
             int totalMagicStoneMax = 0;
 
-            for (int y = 0; y < 5; y++)
+            for (int y = 0; y < 4; y++) // 범위를 4x4 일반 타일로 수정
             {
-                for (int x = 0; x < 5; x++)
+                for (int x = 0; x < 4; x++) // 범위를 4x4 일반 타일로 수정
                 {
+                    float efficiencyMultiplier = 1.0f;
+                    float additiveBonusPercent = 0f;
+
+
+                    if (PlayerDataManager.Instance.TileEfficiencyBonuses.TryGetValue((x, y), out float bonusPercent))
+                    {
+                        efficiencyMultiplier += bonusPercent / 100.0f;
+                        additiveBonusPercent = bonusPercent;
+                    }
+
                     BuildingUpgradeData building = PlayerDataManager.Instance._TileDataHandler.BuildingGridData[x, y];
                     if (building != null)
                     {
@@ -175,14 +185,24 @@ public class GameManager : SingletonMono<GameManager>
                         {
                             switch (effect.effectType)
                             {
-                                case BuildingEffectType.BaseWoodProduction: totalBaseWood += (int)effect.effectValueMin; break;
-                                case BuildingEffectType.AdditionalWoodProduction: totalBonusWoodPercent += effect.effectValueMin; break;
-                                case BuildingEffectType.BaseIronProduction: totalBaseIron += (int)effect.effectValueMin; break;
-                                case BuildingEffectType.AdditionalIronProduction: totalBonusIronPercent += effect.effectValueMin; break;
-                                case BuildingEffectType.MagicStoneFindChance: totalMagicStoneChance += effect.effectValueMin; break;
+                                case BuildingEffectType.BaseWoodProduction:
+                                    totalBaseWood += Mathf.CeilToInt(effect.effectValueMin * efficiencyMultiplier);
+                                    break;
+                                case BuildingEffectType.AdditionalWoodProduction:
+                                    totalBonusWoodPercent += effect.effectValueMin + additiveBonusPercent;
+                                    break;
+                                case BuildingEffectType.BaseIronProduction:
+                                    totalBaseIron += Mathf.CeilToInt(effect.effectValueMin * efficiencyMultiplier);
+                                    break;
+                                case BuildingEffectType.AdditionalIronProduction:
+                                    totalBonusIronPercent += effect.effectValueMin * additiveBonusPercent;
+                                    break;
+                                case BuildingEffectType.MagicStoneFindChance:
+                                    totalMagicStoneChance += effect.effectValueMin;
+                                    break;
                                 case BuildingEffectType.MagicStoneProduction:
-                                    totalMagicStoneMin += (int)effect.effectValueMin;
-                                    totalMagicStoneMax += (int)effect.effectValueMax;
+                                    totalMagicStoneMin += Mathf.CeilToInt(effect.effectValueMin * efficiencyMultiplier);
+                                    totalMagicStoneMax += Mathf.CeilToInt(effect.effectValueMax * efficiencyMultiplier);
                                     break;
                             }
                         }
@@ -192,8 +212,8 @@ public class GameManager : SingletonMono<GameManager>
 
             //최종 보상을 계산
             finalGold = rewardData.rewardGold;
-            finalWood = rewardData.rewardWood + (int)(totalBaseWood * (1 + totalBonusWoodPercent / 100f));
-            finalIron = rewardData.rewardIron + (int)(totalBaseIron * (1 + totalBonusIronPercent / 100f));
+            finalWood = rewardData.rewardWood + Mathf.CeilToInt(totalBaseWood * (1 + totalBonusWoodPercent / 100f));
+            finalIron = rewardData.rewardIron + Mathf.CeilToInt(totalBaseIron * (1 + totalBonusIronPercent / 100f));
             finalMagicStone = rewardData.rewardMagicStone;
 
             if (Random.Range(0, 100) < totalMagicStoneChance)

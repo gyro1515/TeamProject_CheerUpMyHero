@@ -47,11 +47,12 @@ public class TileDataHandler
         }
     }
     public void CalculateTotalBuildingEffects(
-       out int bonusMaxFood,
-       out float foodGainPercent,
-       out float cooldownReduction,
-       out int rareSlots,
-       out int epicSlots)
+    out int bonusMaxFood,
+    out float foodGainPercent,
+    out float cooldownReduction,
+    out int rareSlots,
+    out int epicSlots,
+    Dictionary<(int, int), float> tileEfficiencyBonuses)
     {
         bonusMaxFood = 0;
         foodGainPercent = 0f;
@@ -63,41 +64,46 @@ public class TileDataHandler
         {
             for (int x = 0; x < 5; x++)
             {
-                if (TileStatusGrid[x, y] != TileStatus.Normal)
-                {
-                    continue;
-                }
+                if (TileStatusGrid[x, y] != TileStatus.Normal) continue;
                 var building = BuildingGridData[x, y];
                 if (building == null) continue;
+
+                //이 타일의 기본 효율을 1.0 (100%)로 시작
+                float efficiencyMultiplier = 1.0f; // '고정값' 효과에 사용할 곱셈 보너스
+                float additiveBonusPercent = 0f;
+
+                //만약 이 타일에 대한 지역 보너스가 있다면, 효율에 더해줌
+                if (tileEfficiencyBonuses.TryGetValue((x, y), out float bonusPercent))
+                {
+                    efficiencyMultiplier += bonusPercent / 100.0f; 
+                    additiveBonusPercent = bonusPercent; // 덧셈용으로 퍼센트 값 저장
+                }
 
                 foreach (var effect in building.effects)
                 {
                     switch (effect.effectType)
                     {
                         case BuildingEffectType.MaximumFood:
-                            if (building.buildingType == BuildingType.Farm)
-                                bonusMaxFood += (int)effect.effectValueMin;
+                            if (building.buildingType == BuildingType.Farm) bonusMaxFood += Mathf.CeilToInt(effect.effectValueMin * efficiencyMultiplier);
                             break;
                         case BuildingEffectType.IncreaseFoodGainSpeed:
-                            if (building.buildingType == BuildingType.Farm)
-                                foodGainPercent += effect.effectValueMin;
+                            if (building.buildingType == BuildingType.Farm) foodGainPercent += effect.effectValueMin + additiveBonusPercent;
                             break;
                         case BuildingEffectType.UnitCoolDown:
-                            if (building.buildingType == BuildingType.Barracks)
-                                cooldownReduction += effect.effectValueMin;
+                            if (building.buildingType == BuildingType.Barracks) cooldownReduction += effect.effectValueMin * additiveBonusPercent;
                             break;
+
                         case BuildingEffectType.CanSummonRareUnits:
-                            if (building.buildingType == BuildingType.Barracks)
-                                rareSlots += (int)effect.effectValueMin;
+                            if (building.buildingType == BuildingType.Barracks) rareSlots += (int)effect.effectValueMin;
                             break;
                         case BuildingEffectType.CanSummonEpicUnits:
-                            if (building.buildingType == BuildingType.Barracks)
-                                epicSlots += (int)effect.effectValueMin;
+                            if (building.buildingType == BuildingType.Barracks) epicSlots += (int)effect.effectValueMin;
                             break;
                     }
                 }
             }
         }
+
     }
 
 public void DamageRandomTile()
@@ -170,4 +176,126 @@ public void DamageRandomTile()
             EventManager.Publish(new GridStateChangedEvent());
         }
     }
+    public List<DetectedSynergy> DetectAllSynergies()
+    {
+        var detectedSynergies = new List<DetectedSynergy>();
+        var usedTiles = new bool[5, 5]; // 시너지에 이미 포함된 타일을 추적하여 중복 방지
+
+        // 우선순위 1: 라인 시너지 (4칸)
+        DetectLineSynergies(detectedSynergies, usedTiles);
+
+        // 우선순위 2: 블록 시너지 (2x2)
+        DetectBlockSynergies(detectedSynergies, usedTiles);
+
+        // 우선순위 3: 인접 시너지 (2칸)
+        DetectAdjacencySynergies(detectedSynergies, usedTiles);
+
+        return detectedSynergies;
+    }
+
+    // --- 시너지 감지 헬퍼 메서드 ---
+
+    private BuildingType GetBuildingTypeAt(int x, int y)
+    {
+        if (x < 0 || x >= 4 || y < 0 || y >= 4) return BuildingType.None; // 일반 타일(4x4) 범위를 벗어나면 없음 처리
+        if (TileStatusGrid[x, y] != TileStatus.Normal) return BuildingType.None;
+
+        return BuildingGridData[x, y]?.buildingType ?? BuildingType.None;
+    }
+
+    private void DetectLineSynergies(List<DetectedSynergy> detected, bool[,] used)
+    {
+        for (int y = 0; y < 4; y++)
+        {
+            BuildingType firstType = GetBuildingTypeAt(0, y);
+            if (firstType != BuildingType.None && firstType == GetBuildingTypeAt(1, y) && firstType == GetBuildingTypeAt(2, y) && firstType == GetBuildingTypeAt(3, y))
+            {
+                if (used[0, y] || used[1, y] || used[2, y] || used[3, y]) continue;
+                if (GetLineSynergyType(firstType) is BuildingSynergyType lineSynergy)
+                {
+                    var positions = new List<(int, int)> { (0, y), (1, y), (2, y), (3, y) };
+                    detected.Add(new DetectedSynergy(lineSynergy, positions));
+                    positions.ForEach(p => used[p.Item1, p.Item2] = true);
+                }
+            }
+        }
+        for (int x = 0; x < 4; x++)
+        {
+            BuildingType firstType = GetBuildingTypeAt(x, 0);
+            if (firstType != BuildingType.None && firstType == GetBuildingTypeAt(x, 1) && firstType == GetBuildingTypeAt(x, 2) && firstType == GetBuildingTypeAt(x, 3))
+            {
+                if (used[x, 0] || used[x, 1] || used[x, 2] || used[x, 3]) continue;
+                if (GetLineSynergyType(firstType) is BuildingSynergyType lineSynergy)
+                {
+                    var positions = new List<(int, int)> { (x, 0), (x, 1), (x, 2), (x, 3) };
+                    detected.Add(new DetectedSynergy(lineSynergy, positions));
+                    positions.ForEach(p => used[p.Item1, p.Item2] = true);
+                }
+            }
+        }
+    }
+
+    private void DetectBlockSynergies(List<DetectedSynergy> detected, bool[,] used)
+    {
+        for (int y = 0; y < 3; y++) { for (int x = 0; x < 3; x++) { if (used[x, y] || used[x + 1, y] || used[x, y + 1] || used[x + 1, y + 1]) continue; var types = new HashSet<BuildingType> { GetBuildingTypeAt(x, y), GetBuildingTypeAt(x + 1, y), GetBuildingTypeAt(x, y + 1), GetBuildingTypeAt(x + 1, y + 1) }; if (types.Contains(BuildingType.None)) continue; var pos = new List<(int, int)> { (x, y), (x + 1, y), (x, y + 1), (x + 1, y + 1) }; if (types.Count == 1) { detected.Add(new DetectedSynergy(BuildingSynergyType.Specialized_Block, pos)); pos.ForEach(p => used[p.Item1, p.Item2] = true); } else if (types.Count == 4 && types.IsSupersetOf(new[] { BuildingType.Farm, BuildingType.LumberMill, BuildingType.Mine, BuildingType.Barracks })) { detected.Add(new DetectedSynergy(BuildingSynergyType.Balanced_Block, pos)); pos.ForEach(p => used[p.Item1, p.Item2] = true); } } }
+    }
+
+    private void DetectAdjacencySynergies(List<DetectedSynergy> detected, bool[,] used)
+    {
+        for (int y = 0; y < 4; y++)
+        {
+            for (int x = 0; x < 4; x++)
+            {
+                if (used[x, y]) continue;
+                var currentType = GetBuildingTypeAt(x, y);
+                if (currentType == BuildingType.None) continue;
+
+                if (x < 4 && !used[x + 1, y])
+                {
+                    if (GetAdjacencySynergyType(currentType, GetBuildingTypeAt(x + 1, y)) is BuildingSynergyType synergy)
+                    {
+                        var pos = new List<(int, int)> { (x, y), (x + 1, y) };
+                        detected.Add(new DetectedSynergy(synergy, pos));
+                        used[x, y] = true; used[x + 1, y] = true;
+                        continue;
+                    }
+                }
+
+                if (y < 4 && !used[x, y + 1])
+                {
+                    if (GetAdjacencySynergyType(currentType, GetBuildingTypeAt(x, y + 1)) is BuildingSynergyType synergy)
+                    {
+                        var pos = new List<(int, int)> { (x, y), (x, y + 1) };
+                        detected.Add(new DetectedSynergy(synergy, pos));
+                        used[x, y] = true; used[x, y + 1] = true;
+                    }
+                }
+            }
+        }
+    }
+
+    // --- 타입 매핑 헬퍼 ---
+    private BuildingSynergyType? GetLineSynergyType(BuildingType type) => type switch
+    {
+        BuildingType.Farm => BuildingSynergyType.Farm_Line,
+        BuildingType.LumberMill => BuildingSynergyType.LumberMill_Line,
+        BuildingType.Mine => BuildingSynergyType.Mine_Line,
+        BuildingType.Barracks => BuildingSynergyType.Barracks_Line,
+        _ => null
+    };
+
+    private BuildingSynergyType? GetAdjacencySynergyType(BuildingType type1, BuildingType type2)
+    {
+        var types = new HashSet<BuildingType> { type1, type2 };
+        if (types.Contains(BuildingType.None)) return null;
+
+        if (types.SetEquals(new[] { BuildingType.Farm, BuildingType.Barracks })) return BuildingSynergyType.Farm_Barracks;
+        if (types.SetEquals(new[] { BuildingType.Barracks, BuildingType.Mine })) return BuildingSynergyType.Barracks_Mine;
+        if (types.SetEquals(new[] { BuildingType.Barracks, BuildingType.LumberMill })) return BuildingSynergyType.Barracks_LumberMill;
+        if (types.SetEquals(new[] { BuildingType.Mine, BuildingType.LumberMill })) return BuildingSynergyType.Mine_LumberMill;
+        if (types.SetEquals(new[] { BuildingType.Farm, BuildingType.Mine })) return BuildingSynergyType.Farm_Mine;
+        if (types.SetEquals(new[] { BuildingType.Farm, BuildingType.LumberMill })) return BuildingSynergyType.Farm_LumberMill;
+        return null;
+    }
+
 }
