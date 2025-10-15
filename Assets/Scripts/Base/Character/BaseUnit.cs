@@ -28,6 +28,7 @@ public abstract class BaseUnit : BaseCharacter
     // 데이터 용 변수, 데이터 테이블 완성시 테이블에서 가져오기 
     public float TmpAttackRange { get; protected set; }
     public float TmpCognizanceRange { get; protected set; }
+    public float TmpAttackRate { get; protected set; }
 
 
     public bool IsInvincible { get; private set; } = false; // 무적 여부
@@ -64,6 +65,7 @@ public abstract class BaseUnit : BaseCharacter
         base.Awake();
         TmpAttackRange = AttackRange;
         TmpCognizanceRange = CognizanceRange;
+        TmpAttackRate = AttackRate;
         knockbackHandler = GetComponent<KnockbackHandler>();
         UnitController = GetComponent<BaseUnitController>();
         // 바인드 해제는 람다식으로 안됨, 그리고 굳이 해제를...?
@@ -99,9 +101,11 @@ public abstract class BaseUnit : BaseCharacter
         curHp = MaxHp;
         AtkPower = TmpAtkPower * statMultiplier;
         float tmpstatMultiplier = Math.Clamp(statMultiplier, 0.8f, 1.2f); // 크기는 너무 작아지거나 커지지 않도록 제한
+        AttackRate = TmpAttackRate * statMultiplier; // 공격 속도는 크기와 상관없이 배율에 비례
+        // 아래는 다 tmpstatMultiplier로 세팅, 크기에 따라 인식/공격 범위도 달라지도록
         gameObject.transform.localScale = TmpSize * tmpstatMultiplier;
-        AttackRange = TmpAttackRange * statMultiplier;
-        CognizanceRange = TmpCognizanceRange * statMultiplier;
+        AttackRange = TmpAttackRange * tmpstatMultiplier;
+        CognizanceRange = TmpCognizanceRange * tmpstatMultiplier;
 
         CapsuleCollider2D col = GetComponent<CapsuleCollider2D>();
         // 사이즈는 달라질 수 있으니 활성화 시마다 갱신
