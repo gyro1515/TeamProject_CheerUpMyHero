@@ -12,6 +12,7 @@ public class UISpawnUnitSlot : MonoBehaviour
     [SerializeField] Button spawnUnitBtn;
     [SerializeField] TextMeshProUGUI text; // 추후 아이콘만 설정하면 될 듯 합니다.
     [SerializeField] TextMeshProUGUI costText;
+    [SerializeField] Outline outlineForCanSpawnLegendary; // 전설 등급 소환 가능시 아웃라인 효과
 
     float _cooldown = -1f;
     float _cooldownTimer = -1f;
@@ -101,3 +102,6 @@ public class UISpawnUnitSlot : MonoBehaviour
         unitIconTimer.fillAmount = active ? 1f : 0f;
     }
 }
+#region 전설 유닛 소환 아웃라인 이벤트
+struct CanSpawnLegendaryUnitEvent {}
+#endregion
