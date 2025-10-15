@@ -7,7 +7,8 @@ public class StageChallengeData : StageModifierData
 {
     public EffectTarget effectTarget;
     public StatType statType;
-    public ValueModifiactionType valueModifiactionType;
+    public ValueModificationType valueModificationType;
+    public int maxLevel;
     public float valuePerLevel;
     public ModifierSpecialEffect modifierSpecialEffect;
 }

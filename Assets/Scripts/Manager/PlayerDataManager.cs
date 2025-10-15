@@ -85,7 +85,6 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
     {
         EventManager.Unsubscribe<GridStateChangedEvent>(OnGridStateChanged);
         EventManager.Unsubscribe<BattleEndedEvent>(OnBattleEnded);
-
     }
     private void OnGridStateChanged(GridStateChangedEvent e)
     {

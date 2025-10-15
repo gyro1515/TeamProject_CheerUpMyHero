@@ -10,7 +10,7 @@ public class PlayerHQ : BaseHQ
     [SerializeField] float statMultiplier = 1.2f; // 아군 유닛 강화 배율
     [SerializeField] List<int> upgradeCntByRarity = new List<int>() { 8, 4 }; // 커먼, 레어, 에픽 순서로 몇 번 소환시 강화할지 
     // 미리 캐싱하고 사용하는 방식 => 업데이트 같은 곳에서 사용할 때 성능 향상
-    EventChannel<SpawnHQEvent> onSpawn;
+    IEventPublisher<SpawnHQEvent> onSpawn;
     // 해당 유닛을 몇 번 소환했는지 체크용
     Dictionary<PoolType, int> unitSpawnCnt = new Dictionary<PoolType, int>();
     // 강화 횟수 체크용
@@ -56,7 +56,7 @@ public class PlayerHQ : BaseHQ
         //playerUnitGO.transform.SetParent(gameObject.transform);
         //PlayerUnit playerUnit = playerUnitGO.GetComponent<PlayerUnit>();
     }*/
-    public void SpawnUnit(PoolType poolType)
+    public void SpawnUnit(PoolType poolType, UISpawnUnitSlot uiSlot)
     {
         GameObject playerUnitGO = ObjectPoolManager.Instance.Get(poolType);
         playerUnitGO.transform.position = GetRandomSpawnPos();
@@ -75,6 +75,8 @@ public class PlayerHQ : BaseHQ
             else if(unitSpawnCnt[poolType] == tmpUpgradeCntByRarity - 1)
             {
                 // 유닛 슬롯에 전설 유닛 소환 가능 알리기
+                uiSlot.SetOutLineForSpawnLegendaryUnit();
+                Debug.Log("다음 소환시 전설 유닛 소환");
             }
             return;
         }

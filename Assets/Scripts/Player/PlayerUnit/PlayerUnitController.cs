@@ -44,7 +44,7 @@ public class PlayerUnitController : BaseUnitController
     public override void Attack()
     {
         base.Attack();
-        playerUnit.TargetUnit.TakeDamage(playerUnit.AtkPower);
+        playerUnit.TargetUnit?.TakeDamage(playerUnit.AtkPower);
         //Debug.Log("아군 유닛: 공격!");
     }
     public override void Dead()
@@ -132,7 +132,7 @@ public class PlayerUnitController : BaseUnitController
 
         while (normalizedTime < playerUnit.StartAttackNormalizedTime)
         {
-            if (playerUnit.TargetUnit.IsDead()) // 공격 중에 죽었다면 브레이크
+            if (playerUnit.TargetUnit == null || playerUnit.TargetUnit.IsDead()) // 공격 중에 죽었다면 브레이크
             {
                 ResetPlayerUnitController();
                 findTargetRoutine = StartCoroutine(TargetingRoutine());

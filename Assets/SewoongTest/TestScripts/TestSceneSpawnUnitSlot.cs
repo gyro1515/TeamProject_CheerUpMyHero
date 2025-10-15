@@ -48,7 +48,7 @@ public class TestSceneSpawnUnitSlot : MonoBehaviour
     {
         SetTimerIconActive(true);
         // 여기서 유닛 소환, 테스트 용으로 이렇게 형변환
-        if ((int)playerUnitType != -1) GameManager.Instance.PlayerHQ.SpawnUnit(playerUnitType);
+        //if ((int)playerUnitType != -1) GameManager.Instance.PlayerHQ.SpawnUnit(playerUnitType);
     }
     void SetTimerIconActive(bool active)
     {

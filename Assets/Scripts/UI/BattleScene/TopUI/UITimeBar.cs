@@ -10,12 +10,16 @@ public class UITimeBar : MonoBehaviour
     
     private WaitForSeconds wait30s;
     private int timeIndex = 0;
-
+    IEventSubscriber<TimeSyncEvent> timeSyncEventSub;
     private void Awake()
     {
-        EventManager.Subscribe<TimeSyncEvent>(StartTimer);
+        timeSyncEventSub = EventManager.GetSubscriber<TimeSyncEvent>();
+        timeSyncEventSub.Subscribe(StartTimer);
     }
-    
+    private void OnDisable()
+    {
+        timeSyncEventSub.Unsubscribe(StartTimer);
+    }
     void StartTimer(TimeSyncEvent timerSyncEvent)
     {
         float waitTime = timerSyncEvent.waveTime / 4;

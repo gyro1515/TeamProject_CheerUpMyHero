@@ -9,7 +9,7 @@ public class EnemyUnit : BaseUnit
         public BaseUnit baseUnit;
         public bool isPlayer;
     }
-    float statMultiplier = 1f;
+    //float statMultiplier = 1f;
     protected override void Awake()
     {
         base.Awake();

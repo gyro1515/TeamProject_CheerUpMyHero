@@ -5,11 +5,19 @@ using UnityEngine;
 
 public class ArtifactUIPresenter
 {
+    #region 아티팩트 UI 요소 
     private readonly ArtifactManager _model;
     private readonly UIArtifact _mainView;
     private readonly UIArtifactInventoryPanel _inventoryPanelView;
     private readonly UIArtifactEquipPanel _equipPanelView;
     private readonly UIArtifactStatPanel _statPanelView;
+    #endregion
+
+    #region 생성자 + 구독 해제 메서드
+    public void InitialDisplay()    // 유물 선택 창 켜졌을 때 활성화해주는 함수
+    {
+        HandleEquippedArtifactChanged();
+    }
 
     public ArtifactUIPresenter(ArtifactManager model,
                                UIArtifact mainView,
@@ -31,7 +39,7 @@ public class ArtifactUIPresenter
         _inventoryPanelView.OnRequestEquip += HandleEquipRequest;
         _inventoryPanelView.OnRequestUnEquip += HandleUnEquipRequest;
         _inventoryPanelView.OnRequestSort += HandleSortRequest;
-        _inventoryPanelView.OnRequestClose += () => _inventoryPanelView.gameObject.SetActive(false);
+        _inventoryPanelView.OnRequestClose += HandleInventoryCloseRequest;
         _inventoryPanelView.OnRequestSelectArtifact += HandleSelectArtifactRequest;
 
         _equipPanelView.OnslotsInitialize += HandleEquipSlotsInitiaized;
@@ -47,7 +55,7 @@ public class ArtifactUIPresenter
         _inventoryPanelView.OnRequestEquip -= HandleEquipRequest;
         _inventoryPanelView.OnRequestUnEquip -= HandleUnEquipRequest;
         _inventoryPanelView.OnRequestSort -= HandleSortRequest;
-        _inventoryPanelView.OnRequestClose -= () => _inventoryPanelView.gameObject.SetActive(false);
+        _inventoryPanelView.OnRequestClose -= HandleInventoryCloseRequest;
         _inventoryPanelView.OnRequestSelectArtifact -= HandleSelectArtifactRequest;
 
         _equipPanelView.OnslotsInitialize -= HandleEquipSlotsInitiaized;
@@ -57,15 +65,12 @@ public class ArtifactUIPresenter
             slot.OnRequestOpenInventory -= HandleInventoryOpenRequest;
         }
     }
+    #endregion
 
-    public void InitialDisplay()
-    {
-        HandleEquippedArtifactChanged();
-    }
-
-    #region Handle 메서드
+    #region Handle 메서드 : 유물 데이터 변경
     public void HandleEquippedArtifactChanged()
     {
+        // 각 스탯 종류별 뷰모델 만들어서 뷰모델로 이루어진 뷰모델 덩어리 만듬
         StatPanelViewModel statVM = new StatPanelViewModel
         {
             PlayerAtk = CreateStatBarViewModel(EffectTarget.Player, StatType.AtkPower),
@@ -102,7 +107,7 @@ public class ArtifactUIPresenter
     private void HandleEquipRequest(ArtifactData artifact, int slotIndex)
     {
         _model.EquipArtifact(artifact, slotIndex);
-        _inventoryPanelView.gameObject.SetActive(false);
+        _inventoryPanelView.CloseUI();
     }
 
     private void HandleUnEquipRequest(ArtifactData artifact)
@@ -112,11 +117,14 @@ public class ArtifactUIPresenter
             if (_model.EquippedArtifacts[i] == artifact)
             {
                 _model.UnEquipArtifact(i);
+                _inventoryPanelView.CloseUI();
                 break;
             }
         }
     }
+    #endregion
 
+    #region Handle 메서드 : UIArtifactShow 관련
     private void HandleEquipSlotsInitiaized()
     {
         foreach (var slot in _equipPanelView.GetSlots())
@@ -125,17 +133,28 @@ public class ArtifactUIPresenter
         }
     }
 
+    private void HandleAutoEquipRequest(ArtifactType type)
+    {
+        _model.AutoEquipArtifacts(type);
+    }
+    #endregion
+
+    #region Handle 메서드 : UIArtifactInventoryPanel 관련
     private void HandleInventoryOpenRequest(int slotIndex)
     {
-        Debug.Log("인벤토리 핸들 메서드 호출됨");
-
         List<ArtifactData> ownedList = _model.OwnedArtifacts;
         ArtifactData equippedInCurrentSlot = _model.EquippedArtifacts[slotIndex];
 
         List<InventorySlotViewModel> viewModels = ownedList.Select(artifact => 
                                                   CreateInventorySlotViewModel(artifact, equippedInCurrentSlot)).ToList();
 
+        // ↑ 위의 모델에서 뷰모델 만들어서, ↓ 인벤토리 여는 메서드 호출함
         _inventoryPanelView.OpenInventory(slotIndex, viewModels);
+    }
+
+    private void HandleInventoryCloseRequest()
+    {
+        _inventoryPanelView.CloseUI();
     }
 
     private void HandleSelectArtifactRequest(ArtifactData selectedArtifact)
@@ -147,11 +166,6 @@ public class ArtifactUIPresenter
     private void HandleSortRequest()
     {
         _model.SortOwnedArtifacts();
-    }
-
-    private void HandleAutoEquipRequest(ArtifactType type)
-    {
-        _model.AutoEquipArtifacts(type);
     }
     #endregion
 
@@ -166,28 +180,7 @@ public class ArtifactUIPresenter
         {
             vm.StatType = p.statType.ToString();
             vm.StatValue = p.value.ToString();
-
-            switch (p.grade)
-            {
-                case PassiveArtifactGrade.Common:
-                    vm.BorderColor = Color.gray;
-                    break;
-                case PassiveArtifactGrade.Rare:
-                    vm.BorderColor = Color.blue;
-                    break;
-                case PassiveArtifactGrade.Epic:
-                    vm.BorderColor = Color.magenta;
-                    break;
-                case PassiveArtifactGrade.Unique:
-                    vm.BorderColor = Color.yellow;
-                    break;
-                case PassiveArtifactGrade.Legendary:
-                    vm.BorderColor = Color.green;
-                    break;
-                default:
-                    vm.BorderColor = Color.black;
-                    break;
-            }
+            vm.BorderColor = GetGradeColor(p.grade);
         }
         else if (artifact is ActiveArtifactData a)
         {
@@ -212,28 +205,7 @@ public class ArtifactUIPresenter
         {
             vm.StatType = p.statType.ToString();
             vm.StatValue = p.value.ToString();
-
-            switch (p.grade)
-            {
-                case PassiveArtifactGrade.Common:
-                    vm.BorderColor = Color.gray;
-                    break;
-                case PassiveArtifactGrade.Rare:
-                    vm.BorderColor = Color.blue;
-                    break;
-                case PassiveArtifactGrade.Epic:
-                    vm.BorderColor = Color.magenta;
-                    break;
-                case PassiveArtifactGrade.Unique:
-                    vm.BorderColor = Color.yellow;
-                    break;
-                case PassiveArtifactGrade.Legendary:
-                    vm.BorderColor = Color.green;
-                    break;
-                default:
-                    vm.BorderColor = Color.black;
-                    break;
-            }
+            vm.BorderColor = GetGradeColor(p.grade);
         }
         else if (artifact is ActiveArtifactData a)
         {
@@ -281,13 +253,12 @@ public class ArtifactUIPresenter
         StatBarViewModel barVm = new StatBarViewModel
         {
             Bonus = artifacts.Sum(p => p.value),
-            SegmentColors = artifacts.Select(p => GerGradeColor(p.grade)).ToList()
+            SegmentColors = artifacts.Select(p => GetGradeColor(p.grade)).ToList()
         };
-
         return barVm;
     }
 
-    private Color GerGradeColor(PassiveArtifactGrade grade)
+    private Color GetGradeColor(PassiveArtifactGrade grade)
     {
         switch (grade)
         {
