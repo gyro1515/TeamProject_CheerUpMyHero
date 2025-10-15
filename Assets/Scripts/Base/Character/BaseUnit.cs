@@ -25,6 +25,9 @@ public abstract class BaseUnit : BaseCharacter
     [field: SerializeField] public Rarity UnitRarity { get; private set; } // 유닛 등급
 
     public IDamageable TargetUnit { get; set; }
+    // 데이터 용 변수, 데이터 테이블 완성시 테이블에서 가져오기 
+    public float TmpAttackRange { get; protected set; }
+    public float TmpCognizanceRange { get; protected set; }
 
 
     public bool IsInvincible { get; private set; } = false; // 무적 여부
@@ -59,6 +62,8 @@ public abstract class BaseUnit : BaseCharacter
     protected override void Awake()
     {
         base.Awake();
+        TmpAttackRange = AttackRange;
+        TmpCognizanceRange = CognizanceRange;
         knockbackHandler = GetComponent<KnockbackHandler>();
         UnitController = GetComponent<BaseUnitController>();
         // 바인드 해제는 람다식으로 안됨, 그리고 굳이 해제를...?
@@ -70,19 +75,12 @@ public abstract class BaseUnit : BaseCharacter
     {
         base.OnEnable();
         TargetUnit = null;
-        
-        CapsuleCollider2D col = GetComponent<CapsuleCollider2D>();
-        // 사이즈는 달라질 수 있으니 활성화 시마다 갱신
-        knockbackHandler.Init(col.size.x);
-        // ex: 최대 체력 = 300 / HitBackCount = 3 => 데미지 100이 누적될때마다 히트백
-        hitbackHp = MaxHp / HitBackCount;
-        // ex: curHp / hitbackHp  => 2 -> 1 -> 0에서만 히트백이 발생하도록
-        hitbackTriggerCount = HitBackCount - 1;
-
+        SetStatMultiplierByWave(1f);
     }
     protected override void OnDisable()
     {
         base.OnDisable();
+        SetStatMultiplierByWave(1f); // 몬스터 비활성화시 초기화
         TargetUnit = null;
     }
     protected virtual void SetHitBackActive(bool active)
@@ -100,7 +98,10 @@ public abstract class BaseUnit : BaseCharacter
         MaxHp = TmpMaxHp * statMultiplier;
         curHp = MaxHp;
         AtkPower = TmpAtkPower * statMultiplier;
-        gameObject.transform.localScale = TmpSize * statMultiplier;
+        float tmpstatMultiplier = Math.Clamp(statMultiplier, 0.8f, 1.2f); // 크기는 너무 작아지거나 커지지 않도록 제한
+        gameObject.transform.localScale = TmpSize * tmpstatMultiplier;
+        AttackRange = TmpAttackRange * statMultiplier;
+        CognizanceRange = TmpCognizanceRange * statMultiplier;
 
         CapsuleCollider2D col = GetComponent<CapsuleCollider2D>();
         // 사이즈는 달라질 수 있으니 활성화 시마다 갱신

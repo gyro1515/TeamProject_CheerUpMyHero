@@ -35,7 +35,7 @@ public class SingletonMono<T> : MonoBehaviour where T : MonoBehaviour
                 if (instance.gameObject) Destroy(instance.gameObject);
                 Debug.LogWarning($"페이크 널 {typeof(T).Name}이(가) 존재합니다."); 
             }
-            Debug.Log($"싱글톤 {typeof(T).Name}이(가) 생성되었습니다.");
+            //Debug.Log($"싱글톤 {typeof(T).Name}이(가) 생성되었습니다.");
             instance = this as T;
             if (IsPersistent) // 파괴 불능이면
                 DontDestroyOnLoad(gameObject); // 씬 전환에도 유지

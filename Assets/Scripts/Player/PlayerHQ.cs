@@ -7,7 +7,7 @@ public class PlayerHQ : BaseHQ
 {
     [Header("아군 본부 세팅")]
     [SerializeField] List<PoolType> playerUnits = new List<PoolType>();
-
+    [SerializeField] float statMultiplier = 1.2f; // 아군 유닛 강화 배율
     // 미리 캐싱하고 사용하는 방식 => 업데이트 같은 곳에서 사용할 때 성능 향상
     EventChannel<SpawnHQEvent> onSpawn;
     // 해당 유닛을 몇 번 소환했는지 체크용
@@ -66,7 +66,7 @@ public class PlayerHQ : BaseHQ
             if (unitSpawnCnt[poolType] > upgradeCnt)
             {
                 unitSpawnCnt[poolType] = 0;
-                playerUnitGO.GetComponent<BaseUnit>().SetStatMultiplierByWave(2f);
+                playerUnitGO.GetComponent<BaseUnit>().SetStatMultiplierByWave(statMultiplier);
             }
             return;
         }
