@@ -5,7 +5,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 
-public class MainScreenBuildingController : SingletonMono<MainScreenBuildingController>
+public class MainScreenBuildingController : MonoBehaviour
 {
     [Header("프리팹연결")]
     [SerializeField] private GameObject tilePrefab;                 // 타일 프리팹
@@ -23,20 +23,29 @@ public class MainScreenBuildingController : SingletonMono<MainScreenBuildingCont
     private BuildingTile _selectedTile;
     private BuildingTile _sourceDragTile; // 드래그를 시작한 타일
 
+    public static MainScreenBuildingController Instance { get; private set; }
 
 
     public bool IsDragging() => _sourceDragTile != null; // 현재 드래그 중인지 확인하는 프로퍼티
 
 
-    protected override void Awake() //돈디스트로이 온 로드 에러가 떠서 추가했습니다
+    private void Awake()
     {
-        Transform originalParent = transform.parent; //UIManager에 의해 설정된 현재 부모를 기억
-
-        transform.SetParent(null);//DontDestroyOnLoad를 호출하기 위해 잠시 루트 오브젝트로 만듦
-
-        base.Awake();
-
-        transform.SetParent(originalParent);  //원래의 부모에게 다시 자식으로 돌아갑니다.
+        if (Instance != null && Instance != this)
+        {
+            Destroy(this.gameObject);
+        }
+        else
+        {
+            Instance = this;
+        }
+    }
+    private void OnDestroy()
+    {
+        if (Instance == this)
+        {
+            Instance = null;
+        }
     }
     private void Start()
     {
