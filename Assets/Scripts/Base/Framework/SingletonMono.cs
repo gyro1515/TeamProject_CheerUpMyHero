@@ -32,8 +32,9 @@ public class SingletonMono<T> : MonoBehaviour where T : MonoBehaviour
             //if(!instance.IsUnityNull())
             if(!System.Object.ReferenceEquals(instance, null))
             {
-                if (instance.gameObject) Destroy(instance.gameObject);
+                //if (instance.gameObject) Destroy(instance.gameObject);
                 Debug.LogWarning($"페이크 널 {typeof(T).Name}이(가) 존재합니다."); 
+                return; // 페이크 널 방지
             }
             //Debug.Log($"싱글톤 {typeof(T).Name}이(가) 생성되었습니다.");
             instance = this as T;
@@ -61,11 +62,16 @@ public class SingletonMono<T> : MonoBehaviour where T : MonoBehaviour
     }
     protected virtual void OnDestroy()
     {
-
         if (instance == this)
         {
             //if(IsPersistent) isDestroyed = true;
+            instance = null;
         }
+        /*if (instance && instance.gameObject)
+        {
+            Destroy(instance);
+            Destroy(instance.gameObject);
+        }*/
         instance = null;
 
     }

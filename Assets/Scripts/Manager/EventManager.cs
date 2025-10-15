@@ -3,8 +3,22 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-// 먼저 캐싱하고 뒤늦게 구독/구독해제 해도 이벤트가 캐싱한 델리게이트에 추가/제거 되도록 하기 위해 이벤트 채널 클래스 사용
-public class EventChannel<T> where T : struct
+
+// 구독자에게 노출될 인터페이스
+public interface IEventSubscriber<T> where T : struct
+{
+    void Subscribe(Action<T> callback);
+    void Unsubscribe(Action<T> callback);
+}
+
+// 발행자에게 노출될 인터페이스
+public interface IEventPublisher<T> where T : struct
+{
+    void Publish(T eventData);
+}
+
+// EventChannel은 두 인터페이스를 모두 구현
+public class EventChannel<T> : IEventSubscriber<T>, IEventPublisher<T> where T : struct
 {
     // 구독자들이 등록될 델리게이트
     private Action<T> _onPublish;
@@ -86,24 +100,16 @@ public class EventManager : SingletonMono<EventManager>
             (channel as EventChannel<T>)?.Publish(eventData);
         }
     }
-    // 이벤트 캐싱용, 여러 번 실행할 때 사용(Update나 자주 호출해야 하는 곳에)
-    public static EventChannel<T> GetPublisher<T>() where T : struct
+    // 이벤트 캐싱용
+    // 발행(Publish)만 가능하도록, 반독 발행용
+    public static IEventPublisher<T> GetPublisher<T>() where T : struct
     {
         return GetChannel<T>();
     }
-    // **************************
-    // 1.씬 전환 시 이벤트 테이블 초기화하면 좋은점: 씬 전환 오브젝트 파괴 시 이벤트 구독 해제할 필요 없음
-    // 단점: 씬 전환 후에도 이벤트 유지해야 하는 경우는 별도 처리 필요
-    // **************************
-    // 2.반면 씬 전환 시 초기화 안 하면 좋은점: 씬 전환 후에도 이벤트 유지 가능
-    // 단점: 씬 전환 오브젝트 파괴 시 이벤트 구독 해제 안 하면 메모리 누수 발생 가능성 있음
-    // **************************
-    // 현재는 1번 방식 채택, UIManager에서 구독하는건 OnSceneLoaded에서 다시 구독처리
-    /*public void OnSceneReset()
+    // 구독 기능만 외부에 노출하고 싶을 때 사용할 수 있는 메서드, 반복 구독/구독 해제용
+    public static IEventSubscriber<T> GetSubscriber<T>() where T : struct
     {
-        //Debug.Log("[EventManager] 씬 전환: 이벤트 테이블 초기화");
-        _channels.Clear();
-    }*/
-    // ****************** 2번으로 변경 251013_21:16
+        return GetChannel<T>();
+    }
 }
 

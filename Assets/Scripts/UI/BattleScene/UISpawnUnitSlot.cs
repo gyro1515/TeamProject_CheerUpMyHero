@@ -21,6 +21,8 @@ public class UISpawnUnitSlot : MonoBehaviour
     PoolType playerUnitType;
     private void Awake()
     {
+        costText.gameObject.SetActive(true); // 현재 왜 꺼져있는지 모르겠음
+        outlineForCanSpawnLegendary.enabled = false;
         spawnUnitBtn.onClick.AddListener(OnSpawnUnit);
     }
     private void Update()
@@ -60,10 +62,12 @@ public class UISpawnUnitSlot : MonoBehaviour
         if (GameManager.Instance.PlayerHQ == null) return;
         if (PlayerDataManager.Instance.CurrentFood < _foodConsumption) return;
 
+        if(outlineForCanSpawnLegendary.enabled) outlineForCanSpawnLegendary.enabled = false;
+
         PlayerDataManager.Instance.AddResource(ResourceType.Food, -_foodConsumption);
         SetTimerIconActive(true);
 
-        GameManager.Instance.PlayerHQ.SpawnUnit(playerUnitType);
+        GameManager.Instance.PlayerHQ.SpawnUnit(playerUnitType, this);
     }
 
     //public void InitSpawnUnitSlot(Sprite sprite, int cardIdx, float cooldown, int foodConsumption)
@@ -101,7 +105,10 @@ public class UISpawnUnitSlot : MonoBehaviour
         unitIconTimer.gameObject.SetActive(active);
         unitIconTimer.fillAmount = active ? 1f : 0f;
     }
+    
+    public void SetOutLineForSpawnLegendaryUnit()
+    {
+        outlineForCanSpawnLegendary.enabled = true;
+    }
 }
-#region 전설 유닛 소환 아웃라인 이벤트
-struct CanSpawnLegendaryUnitEvent {}
-#endregion
+

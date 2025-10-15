@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class PlayerRangedSplashController : BaseUnitController
@@ -186,6 +187,7 @@ public class PlayerRangedSplashController : BaseUnitController
     private void OnDrawGizmos()
     {
         if (!Application.isPlaying) return;
+        if (gameObject.IsDestroyed()) return;
 
         Gizmos.color = Color.cyan; // 색상 지정
         Vector3 pos = transform.position;
@@ -194,6 +196,7 @@ public class PlayerRangedSplashController : BaseUnitController
         Gizmos.DrawWireCube(pos, new Vector3(playerUnit.CognizanceRange, 2f));
         if (!isAttacking ) return;
         Gizmos.color = Color.red;
+        if (targetPos == null) return;
         pos = targetPos.position;
         pos.y += 0.75f;
         Gizmos.DrawWireCube(pos, new Vector3(playerUnit.AttackRange, 2f));
