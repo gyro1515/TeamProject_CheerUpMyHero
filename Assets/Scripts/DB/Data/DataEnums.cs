@@ -29,7 +29,7 @@ public enum StatType                // 효과의 대상 스탯 지정하는 enum
 }
 
 // 데이터 참조 태그 : 운명&도전
-public enum ValueModifiactionType   // 효과의 값 계산 방식 지정하는 enum
+public enum ValueModificationType   // 효과의 값 계산 방식 지정하는 enum
 {
     None,
     Percentage,
@@ -45,8 +45,8 @@ public enum ValueConditionOperater  // 효과에 특수 조건이 붙어있거�
     NotEquals,          // !=
     Greater,            // >
     Less,               // <
-    GreateThenOrEqual,  // >=
-    LessThenOrEqual     // <=
+    GreaterThanOrEqual,  // >=
+    LessThanOrEqual     // <=
 }
 
 #region 유물 enum

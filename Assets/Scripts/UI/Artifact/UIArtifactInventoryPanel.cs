@@ -19,7 +19,7 @@ public struct DescriptionViewModel
     public bool IsEquipped;
 }
 
-public class UIArtifactInventoryPanel : BaseUI
+public class UIArtifactInventoryPanel : BasePopUpUI
 {
     #region UI 참조 변수
     [Header("닫기 버튼")]
@@ -46,13 +46,10 @@ public class UIArtifactInventoryPanel : BaseUI
     [SerializeField] private GameObject _slotPrefab;
     [SerializeField] private Transform _slotCreatPosition;
 
-    private CanvasGroup _canvasGroup;
-
     private List<UIArtifactInvInventorySlot> _slotList = new List<UIArtifactInvInventorySlot>();        // 인벤토리 안에 생성된 슬롯들 담아두는 리스트
     
     public ArtifactData _selectedArtifact;
     private int _currentSlotIndex;
-    private bool isEquipped;
     #endregion
 
     #region 이벤트 시스템
@@ -63,9 +60,9 @@ public class UIArtifactInventoryPanel : BaseUI
     public event Action<ArtifactData> OnRequestSelectArtifact;
     #endregion
 
-    private void Awake()
+    protected override void Awake()
     {
-        _canvasGroup = GetComponent<CanvasGroup>();
+        base.Awake();
 
         _closeButton.onClick.AddListener(OnCloseButtonClicked);
         _equipButton.onClick.AddListener(OnEquipButtonClicked);
@@ -83,8 +80,7 @@ public class UIArtifactInventoryPanel : BaseUI
 
         RefreshArtifactInventoryUI(viewModels);
         UpdateDescriptionPanel(new DescriptionViewModel { IsPanelActive = false });
-        this.gameObject.SetActive(true);
-        FadeManager.FadeInUI(_canvasGroup);
+        OpenUI();
     }
 
     public void RefreshArtifactInventoryUI(List<InventorySlotViewModel> viewModels)         // 인벤토리 UI 새로고침
