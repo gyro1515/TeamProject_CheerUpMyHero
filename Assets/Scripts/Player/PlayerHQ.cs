@@ -7,7 +7,8 @@ public class PlayerHQ : BaseHQ
 {
     [Header("아군 본부 세팅")]
     [SerializeField] List<PoolType> playerUnits = new List<PoolType>();
-
+    [SerializeField] float statMultiplier = 1.2f; // 아군 유닛 강화 배율
+    [SerializeField] List<int> upgradeCntByRarity = new List<int>() { 8, 4 }; // 커먼, 레어, 에픽 순서로 몇 번 소환시 강화할지 
     // 미리 캐싱하고 사용하는 방식 => 업데이트 같은 곳에서 사용할 때 성능 향상
     EventChannel<SpawnHQEvent> onSpawn;
     // 해당 유닛을 몇 번 소환했는지 체크용
@@ -63,10 +64,17 @@ public class PlayerHQ : BaseHQ
         {
             unitSpawnCnt[poolType]++;
             // 4번 소환할 때마다 강화
-            if (unitSpawnCnt[poolType] > upgradeCnt)
+            // 251015 변경 -> 커먼 유닛은 8번, 레어는 4번
+            Rarity unitRarity = Rarity.common;
+            int tmpUpgradeCntByRarity = upgradeCntByRarity[(int)unitRarity];
+            if (unitSpawnCnt[poolType] >= tmpUpgradeCntByRarity)
             {
                 unitSpawnCnt[poolType] = 0;
-                playerUnitGO.GetComponent<BaseUnit>().SetStatMultiplierByWave(2f);
+                playerUnitGO.GetComponent<BaseUnit>().SetStatMultiplierByWave(statMultiplier);
+            }
+            else if(unitSpawnCnt[poolType] == tmpUpgradeCntByRarity - 1)
+            {
+                // 유닛 슬롯에 전설 유닛 소환 가능 알리기
             }
             return;
         }
