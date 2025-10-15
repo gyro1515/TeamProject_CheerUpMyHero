@@ -165,22 +165,62 @@ public class ConstructionUpgradePanel : BasePopUpUI
     private void UpdateCostText(List<Cost> costs)
     {
         StringBuilder costSb = new StringBuilder("필요 자원:\n");
-        bool canAfford = true;
+        bool canAffordAll = true;
 
         foreach (var cost in costs)
         {
+            int originalCost = cost.amount;
+            int finalCost = originalCost; // 최종 비용을 기본 비용으로 초기화
+
+            //업그레이드 모드일 때만 할인율을 적용
+            if (_mode == PanelMode.Upgrade)
+            {
+                float reductionPercent = 0f;
+                switch (cost.resourceType)
+                {
+                    case ResourceType.Wood:
+                        reductionPercent = PlayerDataManager.Instance.SynergyWoodCostReduction;
+                        break;
+                    case ResourceType.Iron:
+                        reductionPercent = PlayerDataManager.Instance.SynergyIronCostReduction;
+                        break;
+                    case ResourceType.MagicStone:
+                        reductionPercent = PlayerDataManager.Instance.SynergyMagicStoneCostReduction;
+                        break;
+                }
+
+                // 할인율이 0보다 클 경우에만 최종 비용을 다시 계산
+                if (reductionPercent > 0)
+                {
+                    finalCost = Mathf.CeilToInt(originalCost * (1.0f - reductionPercent / 100.0f));
+                }
+            }
+
             int playerAmount = PlayerDataManager.Instance.GetResourceAmount(cost.resourceType);
-            bool enough = playerAmount >= cost.amount;
-            if (!enough) canAfford = false;
+            bool hasEnough = playerAmount >= finalCost;
+            if (!hasEnough)
+            {
+                canAffordAll = false;
+            }
 
             string resourceName = GetResourceNameInKorean(cost.resourceType);
-            costSb.AppendLine($"<color={(enough ? "black" : "red")}>{resourceName}: {playerAmount}/{cost.amount}</color>");
+
+            // 할인된 가격과 원래 가격을 함께 표시 
+            if (finalCost < originalCost)
+            {
+                costSb.AppendLine($"<color={(hasEnough ? "black" : "red")}>{resourceName}: {playerAmount}/{finalCost}</color>");
+            }
+            else
+            {
+                // 할인이 없으면 원래대로 표시
+                costSb.AppendLine($"<color={(hasEnough ? "black" : "red")}>{resourceName}: {playerAmount}/{finalCost}</color>");
+            }
         }
 
         costText.text = costSb.ToString();
-        costText.richText = true;
+        costText.richText = true; // 취소선, 색상 등 서식 적용을 위해 필수
 
-        UpdateActionButtonState(canAfford);
+        UpdateActionButtonState(canAffordAll);
     }
 
     private void UpdateRepairCostText(BuildingUpgradeData currentBuildingData)

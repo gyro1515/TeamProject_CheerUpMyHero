@@ -164,10 +164,18 @@ public class GameManager : SingletonMono<GameManager>
             int totalMagicStoneMin = 0;
             int totalMagicStoneMax = 0;
 
-            for (int y = 0; y < 5; y++)
+            for (int y = 0; y < 4; y++) // 범위를 4x4 일반 타일로 수정
             {
-                for (int x = 0; x < 5; x++)
+                for (int x = 0; x < 4; x++) // 범위를 4x4 일반 타일로 수정
                 {
+                    // 이 타일의 기본 효율을 1.0 (100%)로 시작
+                    float efficiencyMultiplier = 1.0f;
+
+                    if (PlayerDataManager.Instance.TileEfficiencyBonuses.TryGetValue((x, y), out float bonusPercent))
+                    {
+                        efficiencyMultiplier += bonusPercent / 100.0f; // 예: 5% 보너스 -> 1.05배
+                    }
+
                     BuildingUpgradeData building = PlayerDataManager.Instance._TileDataHandler.BuildingGridData[x, y];
                     if (building != null)
                     {
@@ -175,14 +183,24 @@ public class GameManager : SingletonMono<GameManager>
                         {
                             switch (effect.effectType)
                             {
-                                case BuildingEffectType.BaseWoodProduction: totalBaseWood += (int)effect.effectValueMin; break;
-                                case BuildingEffectType.AdditionalWoodProduction: totalBonusWoodPercent += effect.effectValueMin; break;
-                                case BuildingEffectType.BaseIronProduction: totalBaseIron += (int)effect.effectValueMin; break;
-                                case BuildingEffectType.AdditionalIronProduction: totalBonusIronPercent += effect.effectValueMin; break;
-                                case BuildingEffectType.MagicStoneFindChance: totalMagicStoneChance += effect.effectValueMin; break;
+                                case BuildingEffectType.BaseWoodProduction:
+                                    totalBaseWood += (int)(effect.effectValueMin * efficiencyMultiplier);
+                                    break;
+                                case BuildingEffectType.AdditionalWoodProduction:
+                                    totalBonusWoodPercent += effect.effectValueMin * efficiencyMultiplier;
+                                    break;
+                                case BuildingEffectType.BaseIronProduction:
+                                    totalBaseIron += (int)(effect.effectValueMin * efficiencyMultiplier);
+                                    break;
+                                case BuildingEffectType.AdditionalIronProduction:
+                                    totalBonusIronPercent += effect.effectValueMin * efficiencyMultiplier;
+                                    break;
+                                case BuildingEffectType.MagicStoneFindChance:
+                                    totalMagicStoneChance += effect.effectValueMin;
+                                    break;
                                 case BuildingEffectType.MagicStoneProduction:
-                                    totalMagicStoneMin += (int)effect.effectValueMin;
-                                    totalMagicStoneMax += (int)effect.effectValueMax;
+                                    totalMagicStoneMin += (int)(effect.effectValueMin * efficiencyMultiplier);
+                                    totalMagicStoneMax += (int)(effect.effectValueMax * efficiencyMultiplier);
                                     break;
                             }
                         }
