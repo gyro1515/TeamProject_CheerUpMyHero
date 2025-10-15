@@ -28,10 +28,9 @@ public class UITimeBar : MonoBehaviour
     {
         while (timeIndex < smallTimeBar.Length)
         {
-            // 일단 채우고 시간 대기
+            yield return wait30s;
             smallTimeBar[timeIndex].color = Color.black;
             timeIndex++;
-            yield return wait30s;
         }
     }
 }

@@ -22,6 +22,7 @@ public abstract class BaseUnit : BaseCharacter
     public BaseUnitController UnitController { get; private set; }
 
     [field: SerializeField] public UnitType UnitType { get; private set; } // 유닛 타입
+    [field: SerializeField] public Rarity UnitRarity { get; private set; } // 유닛 등급
 
     public IDamageable TargetUnit { get; set; }
 
