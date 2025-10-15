@@ -114,7 +114,7 @@ public class PlayerController : BaseController
     public override void Attack()
     {
         base.Attack();
-        player.TargetUnit.TakeDamage(player.AtkPower);
+        player.TargetUnit?.TakeDamage(player.AtkPower);
     }
     void PlayerMoveAnimation(Vector3 newMoveDir)
     {

@@ -80,7 +80,7 @@ public class TestEnemySplashController : BaseController
         base.Attack();
         if (attackType == AttackTypeTest.Single)
         {
-            enemyUnit.TargetUnit.TakeDamage(enemyUnit.AtkPower);
+            enemyUnit.TargetUnit?.TakeDamage(enemyUnit.AtkPower);
         }
         else if (attackType == AttackTypeTest.ExplosiveRange)
         {

@@ -13,7 +13,7 @@ public class UIManager : SingletonMono<UIManager>, ISceneResettable
 
     private bool _isCleaning;
     private Dictionary<string, BaseUI> _uiDictionary = new Dictionary<string, BaseUI>();
-    private BaseUI _currentOpenedPopup = null;
+    //private BaseUI _currentOpenedPopup = null;
     private readonly Stack<IBackButtonHandler> _uiStack = new Stack<IBackButtonHandler>();
 
     protected override void Awake()
@@ -60,12 +60,12 @@ public class UIManager : SingletonMono<UIManager>, ISceneResettable
         // *** 씬 전환마다 리소스 정리하려면 추가 필요***
         SceneLoader.Instance.SceneResettables.Add(this);
     }
-    /*private void OnDisable()
+    private void OnDisable()
     {
-        // 씬 언로드 이벤트 해제 (메모리 누수 방지)
-        SceneManager.sceneUnloaded -= OnSceneUnloaded;
+        /*// 씬 언로드 이벤트 해제 (메모리 누수 방지)
+        SceneManager.sceneUnloaded -= OnSceneUnloaded;*/
     }
-*/
+
     // UI 순서 관리
     void PushUI(AddUIStackEvent eventStruct)
     {

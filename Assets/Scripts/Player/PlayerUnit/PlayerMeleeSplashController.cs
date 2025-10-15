@@ -160,7 +160,7 @@ public class PlayerMeleeSplashController : BaseUnitController
 
         while (normalizedTime < playerUnit.StartAttackNormalizedTime)
         {
-            if (playerUnit.TargetUnit.IsDead())
+            if (playerUnit.TargetUnit == null || playerUnit.TargetUnit.IsDead())
             {
                 ResetPlayerUnitController();
                 findTargetRoutine = StartCoroutine(TargetingRoutine());
