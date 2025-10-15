@@ -26,6 +26,7 @@ public class UnitManager : SingletonMono<UnitManager>
     public event Action<BaseCharacter, bool> onUnitDeSpawn;
 
 
+
     protected override void Awake()
     {
         base.Awake();

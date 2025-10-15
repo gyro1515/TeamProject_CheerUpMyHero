@@ -56,11 +56,11 @@ public class EventManager : SingletonMono<EventManager>
     protected override void Awake()
     {
         base.Awake();
-        SceneManager.sceneLoaded += Loaded;
-        SceneManager.sceneUnloaded += Unloaded;
+        /*SceneManager.sceneLoaded += Loaded;
+        SceneManager.sceneUnloaded += Unloaded;*/
     }
     #region 테스트
-    [SerializeField] int eventCnt = 0;
+    /*[SerializeField] int eventCnt = 0;
     private void Update()
     {
         eventCnt = _channels.Count;
@@ -74,7 +74,7 @@ public class EventManager : SingletonMono<EventManager>
     {
         // 테스트
         Debug.Log($"{_channels.Count}");
-    }
+    }*/
     #endregion
     /* private void Start()
      {
@@ -104,6 +104,7 @@ public class EventManager : SingletonMono<EventManager>
         }
         return (EventChannel<T>)channel;
     }
+    #region 삭제 예정된 코드, 구독자/발행자 인터페이스를 통한 접근 권장
     public static void Subscribe<T>(Action<T> callback) where T : struct
     {
         GetChannel<T>().Subscribe(callback);
@@ -123,6 +124,7 @@ public class EventManager : SingletonMono<EventManager>
             (channel as EventChannel<T>)?.Publish(eventData);
         }
     }
+    #endregion
     // 이벤트 발행, 계속 실행할 때 이벤트 캐싱해서 사용 용도
     // 발행(Publish)만 가능하도록, 반독 발행용
     public static IEventPublisher<T> GetPublisher<T>() where T : struct

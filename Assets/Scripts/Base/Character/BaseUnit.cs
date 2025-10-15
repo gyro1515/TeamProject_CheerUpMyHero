@@ -77,7 +77,7 @@ public abstract class BaseUnit : BaseCharacter
     {
         base.OnEnable();
         TargetUnit = null;
-        SetStatMultiplierByWave(1f);
+        //SetStatMultiplierByWave(1f);
     }
     protected override void OnDisable()
     {
@@ -100,8 +100,8 @@ public abstract class BaseUnit : BaseCharacter
         MaxHp = TmpMaxHp * statMultiplier;
         curHp = MaxHp;
         AtkPower = TmpAtkPower * statMultiplier;
-        float tmpstatMultiplier = Math.Clamp(statMultiplier, 0.8f, 1.2f); // 크기는 너무 작아지거나 커지지 않도록 제한
         AttackRate = TmpAttackRate * statMultiplier; // 공격 속도는 크기와 상관없이 배율에 비례
+        float tmpstatMultiplier = Math.Clamp(statMultiplier, 0.8f, 1.2f); // 크기는 너무 작아지거나 커지지 않도록 제한
         // 아래는 다 tmpstatMultiplier로 세팅, 크기에 따라 인식/공격 범위도 달라지도록
         gameObject.transform.localScale = TmpSize * tmpstatMultiplier;
         AttackRange = TmpAttackRange * tmpstatMultiplier;

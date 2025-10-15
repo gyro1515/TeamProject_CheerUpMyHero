@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.Tracing;
 using UnityEngine;
 
 public class PlayerHQ : BaseHQ
@@ -13,13 +14,15 @@ public class PlayerHQ : BaseHQ
     IEventPublisher<SpawnHQEvent> onSpawn;
     // 해당 유닛을 몇 번 소환했는지 체크용
     Dictionary<PoolType, int> unitSpawnCnt = new Dictionary<PoolType, int>();
+    // 해당 유닛 타입 저장용
+    Dictionary<PoolType, Rarity> uunitRarityType = new Dictionary<PoolType, Rarity>();
     // 강화 횟수 체크용
     const int upgradeCnt = 3;
 
     protected override void Awake()
     {
         base.Awake();
-
+        
         //UIManager.Instance.GetUI<UIHpBarContainer>().AddHpBar(this, EUIHpBarType.PlayerUnit, new Vector2(300f, 16.5f));
         //UnitManager.Instance.AddUnitList(this, true);
         // 위와 다르게 아래는 바로 매니저를 호출한 이유는 다른 클래스의 start에서 GameManager.Instance.PlayerHQ를 사용하기 때문

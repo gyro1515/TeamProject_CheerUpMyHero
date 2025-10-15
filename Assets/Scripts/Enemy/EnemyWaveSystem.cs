@@ -28,6 +28,7 @@ public class EnemyWaveSystem : MonoBehaviour
 
     public event Action OnWarningDisplayed; // 웨이브 경고가 화면에 표시될 때 발생하는 이벤트
 
+    IEventPublisher<TimeSyncEvent> onTimeSyncEvent;
     private void Awake()
     {
         enemyHQ = GetComponent<EnemyHQ>();
@@ -37,10 +38,11 @@ public class EnemyWaveSystem : MonoBehaviour
         //TestWaveDateInit();
         SetWaveData();
         waitForSpawnInterval = new WaitForSeconds(spawnWaveInterval);
+        onTimeSyncEvent = EventManager.GetPublisher<TimeSyncEvent>();
     }
     private void Start()
     {
-        EventManager.Publish(new TimeSyncEvent { waveTime = waveTime });
+        onTimeSyncEvent.Publish(new TimeSyncEvent { waveTime = waveTime });
         // 웨이브 코루틴
         StartCoroutine(WaveTimeRoutine());
     }
@@ -53,6 +55,7 @@ public class EnemyWaveSystem : MonoBehaviour
             OnWarningDisplayed?.Invoke();
         }
     }
+    
     IEnumerator WaveTimeRoutine()
     {
         waveIdx = 0;
@@ -153,6 +156,7 @@ public class EnemyWaveSystem : MonoBehaviour
     {
         warningUI.OnWarningEnd += onWarningEndEvent;
     }
+    #region 테스트용
     // 데이터 테이블에 따라 아래 형식 사용할 수 있어서 일단 주석처리
     /*void TestWaveDateInit()
     {
@@ -263,4 +267,5 @@ public class EnemyWaveSystem : MonoBehaviour
         }
         WaveData.Add(wave5);
     }*/
+    #endregion
 }
