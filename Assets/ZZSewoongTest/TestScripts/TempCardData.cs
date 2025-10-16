@@ -20,11 +20,12 @@ public class TempCardData
     public int potential;
     public PoolType poolType;
 
-    public TempCardData(int id, string name, UnitType unitType, float health, int cost, float atkPower, float coolTime, PoolType pooltype)
+    public TempCardData(int id, string name, UnitType unitType, float health, int cost, float atkPower, 
+        float coolTime, PoolType pooltype, Rarity rarity = Rarity.common)
     {
         this.id = id;
         //rarity = (Rarity)UnityEngine.Random.Range(0, 3);
-        rarity = Rarity.common;
+        this.rarity = rarity;
         this.unitType = unitType;
         unitName = name;
         description = "설명";
@@ -38,17 +39,5 @@ public class TempCardData
     }
 }
 
-public enum Rarity 
-{ 
-    common,
-    rare,
-    epic
-}
 
-public enum UnitType 
-{ 
-    Tanker,
-    Dealer,
-    Healer
-}
 

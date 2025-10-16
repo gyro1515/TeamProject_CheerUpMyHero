@@ -108,7 +108,7 @@ public class EnemyWaveSystem : MonoBehaviour
             // 여기서 오브젝트 풀에서 가져오기
             GameObject enemyUnitGO = ObjectPoolManager.Instance.Get(unitList[i].poolType);
             enemyUnitGO.transform.position = enemyHQ.GetRandomSpawnPos();
-            enemyUnitGO.GetComponent<EnemyUnit>().SetStatMultiplierByWave(unitList[i].statMultiplier);
+            enemyUnitGO.GetComponent<EnemyUnit>().SetStatMultiplier(unitList[i].statMultiplier);
             yield return waitForSpawnInterval;
         }
         // 웨이브 끝나면 기존 유닛 스폰 루틴 다시 활성화

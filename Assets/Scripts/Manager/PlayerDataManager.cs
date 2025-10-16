@@ -42,7 +42,8 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
     public TileDataHandler _TileDataHandler { get; private set; }
 
     //테스트용 카드 데이터(유닛 테이블로 교체될 예정
-    public Dictionary<int, TempCardData> cardDic;
+    //public Dictionary<int, TempCardData> cardDic;
+    public Dictionary<int, BaseUnitData> OwnedCardData { get; private set; } = new Dictionary<int, BaseUnitData>();
 
     #region 시너지 보너스
     //모든 시너지 효과를 합산하여 저장할 프로퍼티들
@@ -102,12 +103,13 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
     }
 
     //테스트용 카드 생성
+    // ToDo: 엑셀 데이터로 교체 필요**************
     void TestCardGenerate()
     {
-        cardDic = new() 
+        /*cardDic = new() 
         {
             {100001, new TempCardData(100001, "징집병", UnitType.Dealer, 250f, 75, 20f, 6f, PoolType.Allies_Unit1)},
-            {100002, new TempCardData(100002, "방패병", UnitType.Tanker, 1000f, 150, 5f, 6f, PoolType.Allies_Unit2)},
+            {100002, new TempCardData(100002, "방패병", UnitType.Tanker, 1000f, 150, 5f, 6f, PoolType.Allies_Unit2, Rarity.rare)},
             {100003, new TempCardData(100003, "도끼병", UnitType.Dealer, 500f, 300, 62f, 6f, PoolType.Allies_Unit3)},
             {100004, new TempCardData(100004, "궁수", UnitType.Dealer, 1000f, 600, 250f, 6.6f, PoolType.Allies_Unit4)},
             {100005, new TempCardData(100005, "기마병", UnitType.Dealer, 1250f, 750, 32f, 6f, PoolType.Allies_Unit5)},
@@ -126,12 +128,17 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
             {105008, new TempCardData(105008, "큰 도끼 광전사", UnitType.Dealer, 1500f, 1490, 1000f, 17.3f, PoolType.Allies_Unit18)},
             {105009, new TempCardData(105009, "마법사", UnitType.Dealer, 1000f, 1050, 450f, 6f, PoolType.Allies_Unit19)},
             {105010, new TempCardData(105010, "자경단원", UnitType.Dealer, 600f, 300, 35f, 6f, PoolType.Allies_Unit20)},
-        };
+        };*/
+        List<BaseUnitData> unitList = DataManager.PlayerUnitData.SO.allianceCommon;
+        for(int i = 0; i < unitList.Count; i++)
+        {
+            OwnedCardData[unitList[i].idNumber] = unitList[i];
+        }
     }
-
-    public TempCardData GetUnitData(int cardId)
+    //public TempCardData GetUnitData(int cardId)
+    public BaseUnitData GetUnitData(int cardId)
     {
-        if (cardDic.TryGetValue(cardId, out TempCardData data))
+        if (OwnedCardData.TryGetValue(cardId, out BaseUnitData data))
         {
             return data;
         }
@@ -336,11 +343,11 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
     private void InitializeResources()
     {
         // 5가지 자원을 모두 딕셔너리에 추가하고 초기 수량을 설정.
-        _resources[ResourceType.Gold] = 10000;
-        _resources[ResourceType.Wood] = 10000;
-        _resources[ResourceType.Iron] = 10000;
+        _resources[ResourceType.Gold] = 100;
+        _resources[ResourceType.Wood] = 0;
+        _resources[ResourceType.Iron] = 0;
         _resources[ResourceType.Food] = CurrentFood;
-        _resources[ResourceType.MagicStone] = 100;
+        _resources[ResourceType.MagicStone] = 0;
         _resources[ResourceType.Bm] = 0; 
         _resources[ResourceType.Ticket] = 0;
     }

@@ -54,6 +54,7 @@ public class BackendManager : SingletonMono<BackendManager>
             Debug.Log($"<color=cyan>UGS 초기화 성공!</color>");
 
             // 2. 익명 로그인 시도 (초기화가 성공해야 호출 가능)
+            // 현재는 자동으로 하지만, 나중에 google 계정 연동이라던가 생기면 분리 필요
 
             // 이미 로그인 되어있는지 확인 후, 안되어 있을 때만 시도
             if (!AuthenticationService.Instance.IsSignedIn)
@@ -80,6 +81,7 @@ public class BackendManager : SingletonMono<BackendManager>
         }
     }
 
+    //로그인
     async Task<bool> SignInAnonymouslyAsync()
     {
         try
@@ -124,6 +126,7 @@ public class BackendManager : SingletonMono<BackendManager>
     }
 
     // 서버 통신 가능여부 종합 체크
+    // 반환값에 enum을 추가하면 실패 이유도 같이 반환 가능
     private static async Task<bool> CanCommunicateAsync(string apiKey)
     {
         // 1. 초기화 확인
@@ -136,6 +139,8 @@ public class BackendManager : SingletonMono<BackendManager>
 
         // 4. 과도한 호출 방지
         // 각 api가 호출되는 시점 저장하고 비교
+
+        // 5. 로그인 유효 확인
 
         return true;
     }
@@ -151,7 +156,9 @@ public class BackendManager : SingletonMono<BackendManager>
     {
         if (!await CanCommunicateAsync(nameof(SaveDataAsync)))
         {
-            Debug.LogError("백엔드 매니저 준비 실패: 데이터 저장 불가");
+            Debug.LogError("서버 연결 불가: 데이터 저장 불가");
+            //이유도 같이 나오게 할 예정
+
             return;
         }
         await Instance.InternalSaveDataAsync(data);
