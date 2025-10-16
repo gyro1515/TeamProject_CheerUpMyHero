@@ -102,12 +102,13 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
     }
 
     //테스트용 카드 생성
+    // ToDo: 엑셀 데이터로 교체 필요**************
     void TestCardGenerate()
     {
         cardDic = new() 
         {
             {100001, new TempCardData(100001, "징집병", UnitType.Dealer, 250f, 75, 20f, 6f, PoolType.Allies_Unit1)},
-            {100002, new TempCardData(100002, "방패병", UnitType.Tanker, 1000f, 150, 5f, 6f, PoolType.Allies_Unit2)},
+            {100002, new TempCardData(100002, "방패병", UnitType.Tanker, 1000f, 150, 5f, 6f, PoolType.Allies_Unit2, Rarity.rare)},
             {100003, new TempCardData(100003, "도끼병", UnitType.Dealer, 500f, 300, 62f, 6f, PoolType.Allies_Unit3)},
             {100004, new TempCardData(100004, "궁수", UnitType.Dealer, 1000f, 600, 250f, 6.6f, PoolType.Allies_Unit4)},
             {100005, new TempCardData(100005, "기마병", UnitType.Dealer, 1250f, 750, 32f, 6f, PoolType.Allies_Unit5)},

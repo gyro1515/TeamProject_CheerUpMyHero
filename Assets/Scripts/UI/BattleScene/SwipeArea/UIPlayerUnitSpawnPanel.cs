@@ -40,7 +40,7 @@ public class UIPlayerUnitSpawnPanel : BaseUI
                 unitSlot.InitSpawnUnitSlot(null, "비었음", -1, PoolType.None, 0, -1);
                 continue;
             }
-
+            // ToDo: 엑셀 데이터로 교체 필요**************
             // PlayerDataManager에서 unitId로 임시 카드 데이터를 가져옴
             TempCardData cardData = PlayerDataManager.Instance.GetUnitData(unitId);
 
