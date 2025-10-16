@@ -16,7 +16,7 @@ public class PopupBackground : MonoBehaviour
 
     private void CloseParentPopup()
     {
-        Debug.Log("꺼짐");
+        //Debug.Log("꺼짐");
         if (_parentPopup != null)
         {
             _parentPopup.CloseUI();

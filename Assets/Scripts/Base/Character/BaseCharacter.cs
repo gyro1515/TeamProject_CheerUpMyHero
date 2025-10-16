@@ -53,6 +53,7 @@ public class BaseCharacter : MonoBehaviour
         TmpMaxHp = MaxHp;
         TmpAtkPower = AtkPower;
         TmpSize = gameObject.transform.localScale;
+
         BaseController = GetComponent<BaseController>();
         Damageable = GetComponent<IDamageable>();
         AnimationData = AnimationData.Instance;

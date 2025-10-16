@@ -17,6 +17,7 @@ public class EnemyWaveSystem : MonoBehaviour
     [SerializeField] float waveTime = 90f; // 웨이브 타임 -> 테스트로 20초
     [SerializeField] float warningBeforeWaveTime = 15f; // 경고 타임 -> 테스트로 웨이브 3초 전에 출력
     [SerializeField] float spawnWaveInterval = 0.5f; // 웨이브 마다 간격 달라질 수 있음, 현재는 통일
+    WaitForSeconds waitForSpawnInterval;
 
     UIWaveWarning warningUI;
     EnemyHQ enemyHQ;
@@ -27,6 +28,7 @@ public class EnemyWaveSystem : MonoBehaviour
 
     public event Action OnWarningDisplayed; // 웨이브 경고가 화면에 표시될 때 발생하는 이벤트
 
+    IEventPublisher<TimeSyncEvent> onTimeSyncEvent;
     private void Awake()
     {
         enemyHQ = GetComponent<EnemyHQ>();
@@ -35,9 +37,12 @@ public class EnemyWaveSystem : MonoBehaviour
         timeUntilWave = waveTime - warningTime;
         //TestWaveDateInit();
         SetWaveData();
+        waitForSpawnInterval = new WaitForSeconds(spawnWaveInterval);
+        onTimeSyncEvent = EventManager.GetPublisher<TimeSyncEvent>();
     }
     private void Start()
     {
+        onTimeSyncEvent.Publish(new TimeSyncEvent { waveTime = waveTime });
         // 웨이브 코루틴
         StartCoroutine(WaveTimeRoutine());
     }
@@ -50,6 +55,7 @@ public class EnemyWaveSystem : MonoBehaviour
             OnWarningDisplayed?.Invoke();
         }
     }
+    
     IEnumerator WaveTimeRoutine()
     {
         waveIdx = 0;
@@ -95,7 +101,6 @@ public class EnemyWaveSystem : MonoBehaviour
         // 데이터 없으면 바로 종료
         if (waveDataIdx >= WaveData.Count) yield break;
         // 캐싱하기
-        WaitForSeconds wait = new WaitForSeconds(spawnWaveInterval);
         List<(PoolType poolType, float statMultiplier)> unitList = WaveData[waveDataIdx].unitList;
         int unitCnt = unitList.Count;
         for (int i = 0; i < unitCnt; i++)
@@ -104,7 +109,7 @@ public class EnemyWaveSystem : MonoBehaviour
             GameObject enemyUnitGO = ObjectPoolManager.Instance.Get(unitList[i].poolType);
             enemyUnitGO.transform.position = enemyHQ.GetRandomSpawnPos();
             enemyUnitGO.GetComponent<EnemyUnit>().SetStatMultiplierByWave(unitList[i].statMultiplier);
-            yield return wait;
+            yield return waitForSpawnInterval;
         }
         // 웨이브 끝나면 기존 유닛 스폰 루틴 다시 활성화
         enemyHQ.SetSpawnEnemyActive(true);
@@ -151,6 +156,7 @@ public class EnemyWaveSystem : MonoBehaviour
     {
         warningUI.OnWarningEnd += onWarningEndEvent;
     }
+    #region 테스트용
     // 데이터 테이블에 따라 아래 형식 사용할 수 있어서 일단 주석처리
     /*void TestWaveDateInit()
     {
@@ -261,4 +267,5 @@ public class EnemyWaveSystem : MonoBehaviour
         }
         WaveData.Add(wave5);
     }*/
+    #endregion
 }

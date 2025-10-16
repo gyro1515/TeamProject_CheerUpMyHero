@@ -69,7 +69,7 @@ public class PlayerHealerUnitController : BaseUnitController
     public override void Attack()
     {
         base.Attack();
-        playerUnit.TargetUnit.TakeDamage(playerUnit.AtkPower);
+        playerUnit.TargetUnit?.TakeDamage(playerUnit.AtkPower);
     }
     #region Coroutines
 

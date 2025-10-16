@@ -7,7 +7,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class ConstructionUpgradePanel : BaseUI
+public class ConstructionUpgradePanel : BasePopUpUI
 {
     [Header("UI 요소 연결")]
     [SerializeField] private TextMeshProUGUI costText;
@@ -33,16 +33,17 @@ public class ConstructionUpgradePanel : BaseUI
     private BuildingTile _targetTile;
     private BuildingUpgradeData _constructionData; // 건설 시 사용할 데이터 (0레벨)
     private BuildingUpgradeData _upgradeData;      // 업그레이드 시 사용할 데이터 (다음 레벨)
-    private CanvasGroup _canvasGroup;
+    //private CanvasGroup _canvasGroup;
 
     private bool _isClosing = false;
 
     private enum PanelMode { None, Construction, Upgrade, Repair }
     private PanelMode _mode = PanelMode.None;
 
-    private void Awake()
+    protected override void Awake()
     {
-        _canvasGroup = GetComponent<CanvasGroup>();
+        base.Awake();
+        //_canvasGroup = GetComponent<CanvasGroup>();
         actionButton.onClick.AddListener(OnActionButtonClick);
         closeButton.onClick.AddListener(() => CloseUI());
     }
@@ -164,22 +165,62 @@ public class ConstructionUpgradePanel : BaseUI
     private void UpdateCostText(List<Cost> costs)
     {
         StringBuilder costSb = new StringBuilder("필요 자원:\n");
-        bool canAfford = true;
+        bool canAffordAll = true;
 
         foreach (var cost in costs)
         {
+            int originalCost = cost.amount;
+            int finalCost = originalCost; // 최종 비용을 기본 비용으로 초기화
+
+            //업그레이드 모드일 때만 할인율을 적용
+            if (_mode == PanelMode.Upgrade)
+            {
+                float reductionPercent = 0f;
+                switch (cost.resourceType)
+                {
+                    case ResourceType.Wood:
+                        reductionPercent = PlayerDataManager.Instance.SynergyWoodCostReduction;
+                        break;
+                    case ResourceType.Iron:
+                        reductionPercent = PlayerDataManager.Instance.SynergyIronCostReduction;
+                        break;
+                    case ResourceType.MagicStone:
+                        reductionPercent = PlayerDataManager.Instance.SynergyMagicStoneCostReduction;
+                        break;
+                }
+
+                // 할인율이 0보다 클 경우에만 최종 비용을 다시 계산
+                if (reductionPercent > 0)
+                {
+                    finalCost = Mathf.CeilToInt(originalCost * (1.0f - reductionPercent / 100.0f));
+                }
+            }
+
             int playerAmount = PlayerDataManager.Instance.GetResourceAmount(cost.resourceType);
-            bool enough = playerAmount >= cost.amount;
-            if (!enough) canAfford = false;
+            bool hasEnough = playerAmount >= finalCost;
+            if (!hasEnough)
+            {
+                canAffordAll = false;
+            }
 
             string resourceName = GetResourceNameInKorean(cost.resourceType);
-            costSb.AppendLine($"<color={(enough ? "black" : "red")}>{resourceName}: {playerAmount}/{cost.amount}</color>");
+
+            // 할인된 가격과 원래 가격을 함께 표시 
+            if (finalCost < originalCost)
+            {
+                costSb.AppendLine($"<color={(hasEnough ? "black" : "red")}>{resourceName}: {playerAmount}/{finalCost}</color>");
+            }
+            else
+            {
+                // 할인이 없으면 원래대로 표시
+                costSb.AppendLine($"<color={(hasEnough ? "black" : "red")}>{resourceName}: {playerAmount}/{finalCost}</color>");
+            }
         }
 
         costText.text = costSb.ToString();
-        costText.richText = true;
+        costText.richText = true; // 취소선, 색상 등 서식 적용을 위해 필수
 
-        UpdateActionButtonState(canAfford);
+        UpdateActionButtonState(canAffordAll);
     }
 
     private void UpdateRepairCostText(BuildingUpgradeData currentBuildingData)
@@ -329,15 +370,16 @@ public class ConstructionUpgradePanel : BaseUI
         => EffectNames.TryGetValue(type, out var name) ? name : type.ToString();
 
     // --- 애니메이션 ---
-    public override void OpenUI()
+    /*public override void OpenUI()
     {
         base.OpenUI();
         FadeManager.FadeInUI(_canvasGroup);
-    }
+    }*/
     public override void CloseUI()
     {
-        if (_isClosing) return;
-        _isClosing = true;
+        /*if (_isClosing) return;
+        _isClosing = true;*/
+        base.CloseUI();
 
         if (_targetTile != null)
         {
@@ -345,14 +387,14 @@ public class ConstructionUpgradePanel : BaseUI
             _targetTile = null;
         }
 
-        FadeManager.FadeOutUI(_canvasGroup);
-        StartCoroutine(CoCloseAfterDelay(0.3f));
+        /*FadeManager.FadeOutUI(_canvasGroup);
+        StartCoroutine(CoCloseAfterDelay(0.3f));*/
     }
 
-    private IEnumerator CoCloseAfterDelay(float delay)
+    /*private IEnumerator CoCloseAfterDelay(float delay)
     {
         yield return new WaitForSecondsRealtime(delay);
         base.CloseUI();
         _isClosing = false;
-    }
+    }*/
 }
