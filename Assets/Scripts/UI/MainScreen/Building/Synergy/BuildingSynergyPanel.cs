@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class BuildingSynergyPanel : MonoBehaviour
@@ -12,13 +13,10 @@ public class BuildingSynergyPanel : MonoBehaviour
     // 건물 타입에 맞는 아이콘(Sprite)을 저장해두는 딕셔너리
     private Dictionary<BuildingType, Sprite> buildingIcons = new Dictionary<BuildingType, Sprite>();
 
-    private IEventSubscriber<SynergyDataUpdatedEvent> _synergyDataUpdatedSubscriber;
 
     void Awake()
     {
         LoadBuildingIcons();
-        _synergyDataUpdatedSubscriber = EventManager.GetSubscriber<SynergyDataUpdatedEvent>();
-        _synergyDataUpdatedSubscriber.Subscribe(OnSynergyDataUpdated);
     }
 
     void OnEnable()
@@ -28,19 +26,12 @@ public class BuildingSynergyPanel : MonoBehaviour
 
     void OnDisable()
     {
-        if (_synergyDataUpdatedSubscriber != null)
-        {
-            _synergyDataUpdatedSubscriber.Unsubscribe(OnSynergyDataUpdated);
-        }
+
     }
 
-    void OnSynergyDataUpdated(SynergyDataUpdatedEvent e)
-    {
-        UpdateDisplay();
-    }
 
     // UI 표시를 업데이트하는 메인 함수
-    void UpdateDisplay()
+    public void UpdateDisplay()
     {
         foreach (Transform child in scrollContent)
         {
@@ -67,31 +58,44 @@ public class BuildingSynergyPanel : MonoBehaviour
         {
             var item = Instantiate(itemPrefab, scrollContent);
 
-            // 같은 종류 건물의 효과들을 모두 합산
             var effectsSum = new Dictionary<BuildingEffectType, float>();
+            var magicStoneEffects = new List<BuildingEffect>();
+
             foreach (var building in group)
             {
                 foreach (var effect in building.effects)
                 {
-                    if (!effectsSum.ContainsKey(effect.effectType)) effectsSum[effect.effectType] = 0;
-                    effectsSum[effect.effectType] += effect.effectValueMin;
+                    if (effect.effectType == BuildingEffectType.MagicStoneProduction)
+                    {
+                        magicStoneEffects.Add(effect);
+                    }
+                    else 
+                    {
+                        if (!effectsSum.ContainsKey(effect.effectType)) effectsSum[effect.effectType] = 0;
+                        effectsSum[effect.effectType] += effect.effectValueMin;
+                    }
                 }
             }
 
-            // 합산된 효과를 하나의 문자열로 만듦
             var sb = new StringBuilder();
+
             foreach (var pair in effectsSum)
             {
-                string effectString = FormatEffectString(pair.Key, pair.Value);
+                var tempEffect = new BuildingEffect { effectType = pair.Key, effectValueMin = pair.Value };
+                string effectString = FormatEffectString(tempEffect);
                 if (!string.IsNullOrEmpty(effectString)) sb.AppendLine(effectString);
             }
 
-            // `SynergyInfoItem`에 필요한 데이터 준비
-            Sprite icon = buildingIcons.ContainsKey(group.Key) ? buildingIcons[group.Key] : null;
-            string title = $"x{group.Count()}";
+            foreach (var stoneEffect in magicStoneEffects.Distinct())
+            {
+                string effectString = FormatEffectString(stoneEffect);
+                if (!string.IsNullOrEmpty(effectString)) sb.AppendLine(effectString);
+            }
 
-            // `SynergyInfoItem`의 일반 정보 표시용 함수 호출
-            item.Initialize(icon, title, sb.ToString());
+            Sprite icon = buildingIcons.ContainsKey(group.Key) ? buildingIcons[group.Key] : null;
+            string title = $"{group.First().buildingName} x{group.Count()}";
+
+            item.Initialize(icon, title, sb.ToString().TrimEnd());
         }
     }
 
@@ -111,30 +115,42 @@ public class BuildingSynergyPanel : MonoBehaviour
             if (synergy.Type == BuildingSynergyType.Specialized_Block)
             {
                 icons = new List<Sprite>();
-                if (synergy.TilePositions.Count > 0)
+                if (synergy.TilePositions != null && synergy.TilePositions.Count > 0)
                 {
-                    // 블록의 첫 번째 타일 위치를 가져옴
-                    var pos = synergy.TilePositions[0];
-                    // 해당 위치의 건물 데이터를 가져옴
-                    var buildingData = PlayerDataManager.Instance._TileDataHandler.BuildingGridData[pos.x, pos.y];
-                    if (buildingData != null && buildingIcons.ContainsKey(buildingData.buildingType))
+                    var firstTilePos = synergy.TilePositions[0];
+
+                    BuildingUpgradeData buildingData = PlayerDataManager.Instance._TileDataHandler.BuildingGridData[firstTilePos.x, firstTilePos.y];
+
+                    if (buildingData != null)
                     {
-                        // 건물 타입에 맞는 아이콘을 추가
-                        icons.Add(buildingIcons[buildingData.buildingType]);
+                        BuildingType targetType = buildingData.buildingType;
+                        if (buildingIcons.ContainsKey(targetType))
+                        {
+                            icons.Add(buildingIcons[targetType]);
+                        }
                     }
                 }
             }
-            else // 그 외의 시너지는 기존 방식대로 처리
+            else 
             {
                 icons = types.Select(t => buildingIcons.ContainsKey(t) ? buildingIcons[t] : null)
                              .Where(s => s != null).ToList();
             }
+            switch (synergy.Type)
+            {
+                case BuildingSynergyType.Farm_Line:
+                case BuildingSynergyType.LumberMill_Line:
+                case BuildingSynergyType.Mine_Line:
+                case BuildingSynergyType.Barracks_Line:
+                    if (icons.Count > 0) item.Initialize(icons[0], title, desc, 4);
+                    break;
 
-            // `SynergyInfoItem`의 시너지 정보 표시용 함수 호출
-            item.Initialize(synergy.Type, icons, title, desc);
+                default:
+                    item.Initialize(synergy.Type, icons, title, desc);
+                    break;
+            }
         }
     }
-
     // --- 헬퍼 함수 (데이터 로드 및 텍스트 변환) ---
 
     // 게임 시작 시 건물 아이콘들을 미리 로드하는 함수
@@ -187,26 +203,61 @@ public class BuildingSynergyPanel : MonoBehaviour
         }
     }
 
-    // 건물 효과 타입과 값을 받아 최종 UI 문자열로 포맷팅하는 함수
-    string FormatEffectString(BuildingEffectType type, float value)
+    private string GetEffectValueString(BuildingEffect effect)
     {
-        string name = "";
-        string format = "+{0}";
-        switch (type)
+        switch (effect.effectType)
         {
-            case BuildingEffectType.MaximumFood: name = "최대 식량 보유량"; break;
-            case BuildingEffectType.IncreaseFoodGainSpeed: name = "초당 식량 획득량"; format = "+{0}%"; break;
-            case BuildingEffectType.UnitCoolDown: name = "유닛 생산 쿨타임"; format = "-{0}%"; break;
-            case BuildingEffectType.BaseWoodProduction: name = "기본 목재 획득량"; break;
-            case BuildingEffectType.AdditionalWoodProduction: name = "추가 목재 획득량"; format = "+{0}%"; break;
-            case BuildingEffectType.BaseIronProduction: name = "기본 철괴 획득량"; break;
-            case BuildingEffectType.AdditionalIronProduction: name = "추가 철괴 획득량"; format = "+{0}%"; break;
-            case BuildingEffectType.MagicStoneFindChance: name = "마력석 얻을 확률"; format = "+{0}%"; break;
-            case BuildingEffectType.MagicStoneProduction: name = "마력석 획득량"; format = "+{0}"; break;
-            case BuildingEffectType.CanSummonRareUnits: name = "레어 유닛 참여 수"; format = "+{0}%"; break;
-            case BuildingEffectType.CanSummonEpicUnits: name = "에픽 유닛 참여 수"; format = "+{0}%"; break;
-            default: return ""; 
+            case BuildingEffectType.IncreaseFoodGainSpeed:
+            case BuildingEffectType.AdditionalWoodProduction:
+            case BuildingEffectType.AdditionalIronProduction:
+            case BuildingEffectType.MagicStoneFindChance:
+            case BuildingEffectType.UnitCoolDown:
+                return $"{effect.effectValueMin}%";
         }
-        return $"{name} {string.Format(format, value)}";
+
+        if (effect.effectValueMax > 0 && effect.effectValueMin != effect.effectValueMax)
+        {
+            return $"{effect.effectValueMin}~{effect.effectValueMax}";
+        }
+        return effect.effectValueMin.ToString();
+    }
+
+    private static readonly Dictionary<BuildingEffectType, string> EffectNames = new()
+    {
+        { BuildingEffectType.MaximumFood, "최대 식량 보유량" },
+        { BuildingEffectType.IncreaseFoodGainSpeed, "초당 식량 획득량" },
+        { BuildingEffectType.BaseWoodProduction, "기본 목재 획득량" },
+        { BuildingEffectType.AdditionalWoodProduction, "추가 목재 획득량" },
+        { BuildingEffectType.BaseIronProduction, "기본 철괴 획득량" },
+        { BuildingEffectType.AdditionalIronProduction, "추가 철괴 획득량" },
+        { BuildingEffectType.UnitCoolDown, "유닛 생산 쿨타임" },
+        { BuildingEffectType.MagicStoneFindChance, "마력석 얻을 확률" },
+        { BuildingEffectType.MagicStoneProduction, "마력석 획득량" },
+        { BuildingEffectType.CanSummonRareUnits, "레어 유닛 참여 수" },
+        { BuildingEffectType.CanSummonEpicUnits, "에픽 유닛 참여 수" }
+    };
+
+    private string GetEffectNameInKorean(BuildingEffectType type)
+        => EffectNames.TryGetValue(type, out var name) ? name : type.ToString();
+
+    private string FormatEffectString(BuildingEffect effect)
+    {
+        string effectName = GetEffectNameInKorean(effect.effectType);
+        string valueString = GetEffectValueString(effect);
+
+        switch (effect.effectType)
+        {
+            case BuildingEffectType.IncreaseFoodGainSpeed:
+            case BuildingEffectType.AdditionalWoodProduction:
+            case BuildingEffectType.AdditionalIronProduction:
+            case BuildingEffectType.MagicStoneFindChance:
+            case BuildingEffectType.CanSummonRareUnits:
+            case BuildingEffectType.CanSummonEpicUnits:
+                return $"{effectName} +{valueString}";
+            case BuildingEffectType.UnitCoolDown:
+                return $"{effectName} -{valueString}";
+            default:
+                return $"{effectName} {valueString}";
+        }
     }
 }

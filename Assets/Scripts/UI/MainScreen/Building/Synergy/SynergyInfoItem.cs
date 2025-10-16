@@ -6,129 +6,185 @@ using UnityEngine.UI;
 public class SynergyInfoItem : MonoBehaviour
 {
     [Header("UI 연결")]
-    [SerializeField] private RectTransform iconContainer;
     [SerializeField] private TextMeshProUGUI titleText;
     [SerializeField] private TextMeshProUGUI descriptionText;
     [SerializeField] private TextMeshProUGUI countText;
 
-    // 일반 건물 효과 (아이콘 1개)
-    public void Initialize(Sprite icon, string title, string description)
-    {
-        ClearLayoutComponents();
-        if (countText != null) countText.gameObject.SetActive(false);
-        titleText.text = title;
-        descriptionText.text = description;
+    [Header("아이콘 레이아웃 컨테이너")]
+    [SerializeField] private GameObject singleIconLayout;
+    [SerializeField] private GameObject horizontalLayout;
+    [SerializeField] private GameObject gridIconLayout;
 
-        // 아이콘이 1개일 때는 컨테이너 높이에 맞춰 크게 생성
-        var iconGO = CreateIcon(icon);
+    // --- Public 초기화 함수들 ---
+
+    public void Initialize(Sprite icon, string title, string description, int count = 0)
+    {
+        PrepareForInitialization(title, description);
+
+        // 단일 아이콘 레이아웃 활성화
+        singleIconLayout.SetActive(true);
+        var iconContainer = singleIconLayout.transform;
+
+        // 아이콘 생성 및 설정
+        var iconGO = CreateIcon(icon, iconContainer);
         if (iconGO == null) return;
 
+        // 컨테이너 크기에 맞춰 아이콘 크기 조절
         var iconRect = iconGO.GetComponent<RectTransform>();
-        float containerHeight = iconContainer.rect.height;
+        var containerRect = iconContainer.GetComponent<RectTransform>();
+        float containerHeight = containerRect.rect.height;
         iconRect.sizeDelta = new Vector2(containerHeight, containerHeight);
 
-        // 중앙 정렬을 위해 Layout Group 추가
-        var layout = iconContainer.gameObject.AddComponent<HorizontalLayoutGroup>();
-        layout.childAlignment = TextAnchor.MiddleCenter;
+        // 카운트 텍스트 설정
+        if (count > 1 && countText != null)
+        {
+            countText.text = $"x{count}";
+            countText.gameObject.SetActive(true);
+        }
     }
 
-    // 시너지 효과 (아이콘 여러 개)
     public void Initialize(BuildingSynergyType synergyType, List<Sprite> icons, string title, string description)
     {
-        ClearLayoutComponents();
-        if (countText != null) countText.gameObject.SetActive(false);
-        titleText.text = title;
-        descriptionText.text = description;
+        PrepareForInitialization(title, description);
 
         switch (synergyType)
         {
-            // 라인 시너지는 아이콘 4개로 고정
-            case BuildingSynergyType.Farm_Line:
-            case BuildingSynergyType.LumberMill_Line:
-            case BuildingSynergyType.Mine_Line:
-            case BuildingSynergyType.Barracks_Line:
-                // 아이콘 1개를 크게 생성
-                var iconGO = CreateIcon(icons[0]);
-                var iconRect = iconGO.GetComponent<RectTransform>();
-                float containerHeight = iconContainer.rect.height;
-                iconRect.sizeDelta = new Vector2(containerHeight, containerHeight);
-                // 중앙 정렬
-                var layout = iconContainer.gameObject.AddComponent<HorizontalLayoutGroup>();
-                layout.childAlignment = TextAnchor.MiddleCenter;
-                // "x4" 텍스트 활성화
-                if (countText != null)
-                {
-                    countText.text = "X4";
-                    countText.gameObject.SetActive(true);
-                }
-                break;
-
-            // 블록 시너지 (2x2 그리드)
             case BuildingSynergyType.Specialized_Block:
+                gridIconLayout.SetActive(true);
+                PopulateGridIcons(icons, 4); // 2x2 그리드, 같은 아이콘 4개
+                break;
+
             case BuildingSynergyType.Balanced_Block:
-                SetupGridLayout();
-                // Specialized는 아이콘 1개를 4번, Balanced는 아이콘 4개를 1번씩
-                if (icons.Count == 1) for (int i = 0; i < 4; i++) CreateIcon(icons[0]);
-                else foreach (var i in icons) CreateIcon(i);
+                gridIconLayout.SetActive(true);
+                PopulateGridIcons(icons); // 2x2 그리드, 리스트의 모든 아이콘
                 break;
 
-            // 인접 시너지 등 나머지 (가로 정렬)
-            default:
-                SetupHorizontalLayoutAndCreateIcons(icons, icons.Count); // 아이콘 개수만큼 생성
+            default: // 인접 시너지 (아이콘 2개가 겹치는 형태)
+                horizontalLayout.SetActive(true);
+                PopulateOverlapIcons(icons);
                 break;
         }
     }
 
-    // 가로 레이아웃 설정과 아이콘 생성을 함께 처리하는 새로운 함수
-    void SetupHorizontalLayoutAndCreateIcons(List<Sprite> sprites, int totalCount)
+    // --- 아이콘 생성 및 배치 헬퍼 ---
+
+    private void PopulateGridIcons(List<Sprite> icons, int forceCount = 0)
     {
-        if (sprites == null || sprites.Count == 0 || totalCount == 0) return;
+        var iconContainer = gridIconLayout.transform;
 
-        var layout = iconContainer.gameObject.AddComponent<HorizontalLayoutGroup>();
-        layout.childAlignment = TextAnchor.MiddleLeft;
-        layout.spacing = 5;
-
-        // 컨테이너 너비에 맞춰 아이콘 크기 동적 계산
-        float totalSpacing = layout.spacing * (totalCount - 1);
-        float iconSize = (iconContainer.rect.width - totalSpacing) / totalCount;
-
-        for (int i = 0; i < totalCount; i++)
+        // Specialized_Block: 같은 아이콘을 지정된 횟수만큼 생성
+        if (forceCount > 0)
         {
-            // 라인 시너지처럼 아이콘이 1개만 제공될 경우를 대비
-            Sprite spriteToShow = sprites[i % sprites.Count];
-            var iconGO = CreateIcon(spriteToShow);
-
-            // 모든 아이콘에 LayoutElement를 추가하여 계산된 크기를 강제 적용
-            var le = iconGO.AddComponent<LayoutElement>();
-            le.preferredWidth = iconSize;
-            le.preferredHeight = iconSize;
+            if (icons != null && icons.Count > 0 && icons[0] != null)
+            {
+                for (int i = 0; i < forceCount; i++)
+                {
+                    CreateIcon(icons[0], iconContainer);
+                }
+            }
+        }
+        // Balanced_Block: 리스트에 있는 모든 아이콘 생성
+        else
+        {
+            if (icons != null)
+            {
+                foreach (var iconSprite in icons)
+                {
+                    CreateIcon(iconSprite, iconContainer);
+                }
+            }
         }
     }
 
-    void SetupGridLayout()
+    private void PopulateOverlapIcons(List<Sprite> sprites)
     {
-        var layout = iconContainer.gameObject.AddComponent<GridLayoutGroup>();
-        layout.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
-        layout.constraintCount = 2;
-        layout.spacing = new Vector2(5, 5);
-        float cellSize = (iconContainer.rect.width - layout.spacing.x) / 2;
-        layout.cellSize = new Vector2(cellSize, cellSize);
+        var iconContainer = horizontalLayout.transform;
+        if (sprites == null || sprites.Count == 0) return;
+
+        float containerHeight = iconContainer.GetComponent<RectTransform>().rect.height;
+        float finalIconSize = containerHeight * 1f; // 아이콘의 실제 크기
+        float holderWidth = finalIconSize * 0.5f;   // 아이콘이 절반만 보이도록 마스킹 홀더 너비 설정
+
+        // HorizontalLayoutGroup 컴포넌트에 겹치도록 음수 spacing 설정
+        var layoutGroup = iconContainer.GetComponent<HorizontalLayoutGroup>();
+        if (layoutGroup != null)
+        {
+            // (홀더 너비 * 2) - 전체 아이콘 너비 = 겹치는 양
+            float spacing = (holderWidth * 2) - finalIconSize;
+            layoutGroup.spacing = spacing;
+        }
+
+        for (int i = 0; i < sprites.Count; i++)
+        {
+            Sprite sprite = sprites[i];
+            if (sprite == null) continue;
+
+            // 아이콘을 마스킹할 홀더(RectMask2D) 생성
+            var holderGO = new GameObject($"IconHolder_{i}", typeof(RectTransform), typeof(RectMask2D));
+            holderGO.transform.SetParent(iconContainer, false);
+            var holderRect = holderGO.GetComponent<RectTransform>();
+            holderRect.sizeDelta = new Vector2(holderWidth, finalIconSize);
+
+            // 실제 아이콘 이미지 생성 후 홀더의 자식으로 설정
+            var iconGO = new GameObject("Icon", typeof(Image));
+            iconGO.transform.SetParent(holderGO.transform, false);
+            var image = iconGO.GetComponent<Image>();
+            image.sprite = sprite;
+            image.preserveAspect = true;
+
+            // 아이콘 크기 및 위치 조절
+            var iconRect = iconGO.GetComponent<RectTransform>();
+            iconRect.sizeDelta = new Vector2(finalIconSize, finalIconSize);
+
+            // 홀더 안에서 아이콘을 반대 방향으로 밀어 원하는 부분이 보이게 설정
+            float shiftAmount = (finalIconSize - holderWidth) / 2f;
+            if (i == 0) // 왼쪽 아이콘은 오른쪽으로 밀어서 왼쪽 절반을 보여줌
+            {
+                iconRect.anchoredPosition = new Vector2(shiftAmount, 0);
+            }
+            else // 오른쪽 아이콘은 왼쪽으로 밀어서 오른쪽 절반을 보여줌
+            {
+                iconRect.anchoredPosition = new Vector2(-shiftAmount, 0);
+            }
+        }
     }
 
-    GameObject CreateIcon(Sprite iconSprite)
+    private GameObject CreateIcon(Sprite iconSprite, Transform parent)
     {
         if (iconSprite == null) return null;
         var iconGO = new GameObject("Icon", typeof(Image));
-        iconGO.transform.SetParent(iconContainer, false);
+        iconGO.transform.SetParent(parent, false);
         var image = iconGO.GetComponent<Image>();
         image.sprite = iconSprite;
         image.preserveAspect = true;
         return iconGO;
     }
 
-    void ClearLayoutComponents()
+    // --- 공통 준비 및 정리 함수 ---
+
+    private void PrepareForInitialization(string title, string description)
     {
-        if (iconContainer.GetComponent<LayoutGroup>() is LayoutGroup group) Destroy(group);
-        foreach (Transform child in iconContainer) Destroy(child.gameObject);
+        // 모든 레이아웃 컨테이너를 비우고 비활성화
+        ClearAllContainers();
+
+        // 텍스트 설정
+        titleText.text = title;
+        descriptionText.text = description;
+
+        // 카운트 텍스트 초기화
+        if (countText != null) countText.gameObject.SetActive(false);
+    }
+
+    private void ClearAllContainers()
+    {
+        // 모든 레이아웃 비활성화
+        singleIconLayout.SetActive(false);
+        horizontalLayout.SetActive(false);
+        gridIconLayout.SetActive(false);
+
+        // 각 레이아웃의 자식 오브젝트(이전에 생성된 아이콘)들 모두 삭제
+        foreach (Transform child in singleIconLayout.transform) Destroy(child.gameObject);
+        foreach (Transform child in horizontalLayout.transform) Destroy(child.gameObject);
+        foreach (Transform child in gridIconLayout.transform) Destroy(child.gameObject);
     }
 }

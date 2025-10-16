@@ -411,10 +411,13 @@ public class MainScreenBuildingController : MonoBehaviour
         {
             dataHandler.SwapBuildingData(_sourceDragTile.X, _sourceDragTile.Y, destinationTile.X, destinationTile.Y);
         }
-
+        PlayerDataManager.Instance.UpdateAllSynergyEffects();
+        if (synergyPanel != null)
+        {
+            synergyPanel.UpdateDisplay();
+        }
         UpdateTileUI(_sourceDragTile);
         UpdateTileUI(destinationTile);
-
         _sourceDragTile = null;
         dragIcon.gameObject.SetActive(false);
     }

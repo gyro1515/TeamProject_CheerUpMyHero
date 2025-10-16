@@ -62,6 +62,7 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
     public IReadOnlyDictionary<(int x, int y), float> TileEfficiencyBonuses => _tileEfficiencyBonuses;
     public List<DetectedSynergy> ActiveSynergies { get; private set; }
 
+    private IEventPublisher<SynergyDataUpdatedEvent> _synergyDataUpdatedPublisher;
     #endregion
 
     protected override void Awake()
@@ -71,7 +72,7 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
         {
             _TileDataHandler = new TileDataHandler();
             _tileEfficiencyBonuses = new Dictionary<(int, int), float>();
-
+            _synergyDataUpdatedPublisher = EventManager.GetPublisher<SynergyDataUpdatedEvent>();
             InitializeResources();
             LoadDecks();
             TestCardGenerate();
@@ -175,7 +176,8 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
         }
 
         // 시너지 계산 후 건물 효과를 다시 계산해야 시너지 보너스가 반영됨
-        UpdateAllBuildingEffects();
+        UpdateAllBuildingEffects(); 
+        _synergyDataUpdatedPublisher.Publish(new SynergyDataUpdatedEvent());
     }
 
     private void ResetSynergyBonuses()
