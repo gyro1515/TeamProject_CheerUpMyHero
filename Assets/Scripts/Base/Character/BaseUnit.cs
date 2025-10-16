@@ -9,21 +9,27 @@ using UnityEngine;
 public abstract class BaseUnit : BaseCharacter
 {
     [field: Header("유닛 세팅")]
-    [field: SerializeField] public float AttackRate { get; private set; }
-    [field: SerializeField] public float AttackRange { get; private set; }
-    [field: SerializeField] public float CognizanceRange { get; private set; } // 인식 범위
+    [field: SerializeField] public float AttackRate { get; protected set; }
+    [field: SerializeField] public float AttackRange { get; protected set; }
+    [field: SerializeField] public float CognizanceRange { get; protected set; } // 인식 범위
     [field: SerializeField] public int FoodConsumption { get; private set; }
-    [field: SerializeField] public float AttackDelayTime { get; private set; } = 1f; // 선딜
+    [field: SerializeField] public float AttackDelayTime { get; protected set; } = 1f; // 선딜
     [field: SerializeField] public float StartAttackTime { get; private set; } = 0.09f; // 애니메이션 기준 공격 시작 시간
     [field: SerializeField] public float StartAttackNormalizedTime { get; private set; } = 0.36f; // 애니메이션 기준 정규화된 공격 시작 시간
     [field: SerializeField] protected int HitBackCount { get; set; } = 3; // 최대 몇 번 히트백될 수 되는지
     [field: SerializeField] public float SpawnCooldown { get; set; } = 5f;
+    [field: SerializeField] public virtual BaseUnitData UnitData { get; protected set; } 
 
     public BaseUnitController UnitController { get; private set; }
 
     [field: SerializeField] public UnitType UnitType { get; private set; } // 유닛 타입
+    [field: SerializeField] public Rarity UnitRarity { get; private set; } // 유닛 등급
 
     public IDamageable TargetUnit { get; set; }
+    // 데이터 용 변수, 데이터 테이블 완성시 테이블에서 가져오기 -> 251016 테이블에서 가져오도록 수정
+    /*public float TmpAttackRange { get; protected set; }
+    public float TmpCognizanceRange { get; protected set; }
+    public float TmpAttackRate { get; protected set; }*/
 
 
     public bool IsInvincible { get; private set; } = false; // 무적 여부
@@ -58,32 +64,33 @@ public abstract class BaseUnit : BaseCharacter
     protected override void Awake()
     {
         base.Awake();
+        /*TmpAttackRange = AttackRange;
+        TmpCognizanceRange = CognizanceRange;
+        TmpAttackRate = AttackRate;*/
         knockbackHandler = GetComponent<KnockbackHandler>();
         UnitController = GetComponent<BaseUnitController>();
         // 바인드 해제는 람다식으로 안됨, 그리고 굳이 해제를...?
         // 넉백과 유닛은 생성주기가 같기 때문에
         knockbackHandler.OnHitBackActive += SetHitBackActive; // 무적 여부 바인드
 
+        gameObject.name = gameObject.name.Replace("(Clone)", ""); // 프리팹 이름으로 바꾸기
+
+        SetDataFromExcelData();
+        SetStatMultiplier(1f);
     }
     protected override void OnEnable()
     {
         base.OnEnable();
         TargetUnit = null;
-        
-        CapsuleCollider2D col = GetComponent<CapsuleCollider2D>();
-        // 사이즈는 달라질 수 있으니 활성화 시마다 갱신
-        knockbackHandler.Init(col.size.x);
-        // ex: 최대 체력 = 300 / HitBackCount = 3 => 데미지 100이 누적될때마다 히트백
-        hitbackHp = MaxHp / HitBackCount;
-        // ex: curHp / hitbackHp  => 2 -> 1 -> 0에서만 히트백이 발생하도록
-        hitbackTriggerCount = HitBackCount - 1;
-
     }
     protected override void OnDisable()
     {
         base.OnDisable();
+        SetStatMultiplier(1f); // 몬스터 비활성화시 초기화
         TargetUnit = null;
     }
+    protected abstract void SetDataFromExcelData();
+   
     protected virtual void SetHitBackActive(bool active)
     {
         IsInvincible = active;
@@ -93,20 +100,6 @@ public abstract class BaseUnit : BaseCharacter
         if (IsInvincible) return; // 이미 히트백이라면 리턴
         OnHitBack?.Invoke();
     }
-    public void SetStatMultiplierByWave(float statMultiplier)
-    {
-        // 배율에 따른 체력 공격력 세팅
-        MaxHp = TmpMaxHp * statMultiplier;
-        curHp = MaxHp;
-        AtkPower = TmpAtkPower * statMultiplier;
-        gameObject.transform.localScale = TmpSize * statMultiplier;
-
-        CapsuleCollider2D col = GetComponent<CapsuleCollider2D>();
-        // 사이즈는 달라질 수 있으니 활성화 시마다 갱신
-        knockbackHandler.Init(col.size.x * statMultiplier);
-        // ex: 최대 체력 = 300 / HitBackCount = 3 => 데미지 100이 누적될때마다 히트백
-        hitbackHp = MaxHp / HitBackCount;
-        // ex: curHp / hitbackHp  => 2 -> 1 -> 0에서만 히트백이 발생하도록
-        hitbackTriggerCount = HitBackCount - 1;
-    }
+    public abstract void SetStatMultiplier(float statMultiplier);
+    
 }

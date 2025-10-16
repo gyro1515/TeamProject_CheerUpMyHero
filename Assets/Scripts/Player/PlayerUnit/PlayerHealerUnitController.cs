@@ -69,7 +69,7 @@ public class PlayerHealerUnitController : BaseUnitController
     public override void Attack()
     {
         base.Attack();
-        playerUnit.TargetUnit.TakeDamage(playerUnit.AtkPower);
+        playerUnit.TargetUnit?.TakeDamage(playerUnit.AtkPower);
     }
     #region Coroutines
 
@@ -170,7 +170,7 @@ public class PlayerHealerUnitController : BaseUnitController
         float normalizedTime = -1f;
         do { normalizedTime = GetNormalizedTime(attackStateHash); yield return null; } while (normalizedTime < 0f);
 
-        animator.speed = playerUnit.StartAttackTime / playerUnit.AttackDelayTime;
+        animator.speed = playerUnit.StartAttackTime / playerUnit.UnitData.attackDelayTime;
 
         while (normalizedTime < playerUnit.StartAttackNormalizedTime)
         {
@@ -201,7 +201,7 @@ public class PlayerHealerUnitController : BaseUnitController
         float normalizedTime = -1f;
         do { normalizedTime = GetNormalizedTime(attackStateHash); yield return null; } while (normalizedTime < 0f);
 
-        animator.speed = playerUnit.StartAttackTime / playerUnit.AttackDelayTime;
+        animator.speed = playerUnit.StartAttackTime / playerUnit.UnitData.attackDelayTime;
 
         while (normalizedTime < playerUnit.StartAttackNormalizedTime)
         {

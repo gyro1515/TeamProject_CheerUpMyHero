@@ -11,12 +11,14 @@ public class UIHpBarContainer : BaseUI
 {
     [Header("체력바 컨테이터 세팅")]
     [SerializeField] GameObject uiHpBarPrefab;
+    IEventSubscriber<SpawnHQEvent> spawnHQEventSubscriber;
     private void Awake()
     {
         // 구독하고 해제할 필요가 없는 이유:
         // 이 오브젝트는 배틀씬 시작과 동시에 생성되고, 배틀씬이 끝나면 파괴됨
         // 씬 중간에 오브젝트가 활성화/비활성화 되는 것이 아니므로, 구독과 해제를 OnEnable/OnDisable에서 할 필요가 없음
-        EventManager.Subscribe<SpawnHQEvent>(AddHpBar);
+        spawnHQEventSubscriber = EventManager.GetSubscriber<SpawnHQEvent>();
+        spawnHQEventSubscriber.Subscribe(AddHpBar);
     }
     /*public UIHpbar AddHpBar(BaseCharacter character, EUIHpBarType type, Vector2? hpBarSize = null)
     {
@@ -27,7 +29,7 @@ public class UIHpBarContainer : BaseUI
     }*/
     private void OnDisable()
     {
-        EventManager.Unsubscribe<SpawnHQEvent>(AddHpBar);
+        spawnHQEventSubscriber.Unsubscribe(AddHpBar);
     }
     void AddHpBar(SpawnHQEvent e)
     {

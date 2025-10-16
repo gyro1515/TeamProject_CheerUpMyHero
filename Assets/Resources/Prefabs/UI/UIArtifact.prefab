@@ -5895,8 +5895,8 @@ GameObject:
   - component: {fileID: 5567673424184208313}
   - component: {fileID: 1934568423928741289}
   - component: {fileID: 4185455857152500021}
+  - component: {fileID: 4180920160047687699}
   - component: {fileID: 8850273476977253146}
-  - component: {fileID: 16442266911492975}
   - component: {fileID: 7830579354718405740}
   - component: {fileID: 4432150288595372913}
   m_Layer: 5
@@ -5977,6 +5977,18 @@ CanvasGroup:
   m_Interactable: 0
   m_BlocksRaycasts: 0
   m_IgnoreParentGroups: 0
+--- !u!114 &4180920160047687699
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5924261810587341368}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ce25dc14cbd840c4c9b0d4f2c1061fd0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &8850273476977253146
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5989,20 +6001,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 37080d9e81405a945b1105d5a405f9d9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _parentPopup: {fileID: 16442266911492975}
---- !u!114 &16442266911492975
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5924261810587341368}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2bf6ced681307ba42a0d032df61f5307, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _canvasGroup: {fileID: 0}
+  _parentPopup: {fileID: 4180920160047687699}
 --- !u!114 &7830579354718405740
 MonoBehaviour:
   m_ObjectHideFlags: 0

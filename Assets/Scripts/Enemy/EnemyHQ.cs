@@ -52,7 +52,6 @@ public class EnemyHQ : BaseHQ
     {
         // 이벤트 발행 => OnAction?.Invoke() 방식과 동일
         EventManager.Publish(new SpawnHQEvent { baseHQ = this, type = EUIHpBarType.EnemyUnit, hpBarSize = new Vector2(300f, 16.5f), isPlayer = false });
-
         base.Start();
 
         // 계속해서 유닛을 스폰하도록
@@ -80,14 +79,10 @@ public class EnemyHQ : BaseHQ
     {
         for (int i = 0; i < enemyUnits.Count; i++)
         {
-            GameObject enemyUnitPrefab = Resources.Load<GameObject>(POOLPATH + enemyUnits[i].ToString());
-            if(enemyUnitPrefab == null)
-            {
-                Debug.LogError($"EnemyHQ: {enemyUnits[i]} 프리팹을 로드하지 못했습니다.");
-                continue;
-            }
-            float cooltime = enemyUnitPrefab.GetComponent<BaseUnit>().SpawnCooldown;
+            float cooltime = DataManager.EnemyUnitData.GetData((int)enemyUnits[i]).spawnCooldown;
+
             enemyUnitCoolTimes[enemyUnits[i]] = cooltime;
+            Debug.Log($"{enemyUnits[i]} 쿨타임 {cooltime}초로 세팅");
             StartCoroutine(EnemyCoolTimeRoutin(enemyUnits[i], cooltime));
         }
     }

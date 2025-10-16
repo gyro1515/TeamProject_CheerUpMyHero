@@ -9,20 +9,24 @@ public class BasePopUpUI : BaseUI, IBackButtonHandler
 {
     protected CanvasGroup _canvasGroup;
     bool _isFade = false;
+    IEventPublisher<AddUIStackEvent> onAddUIStack;
+    IEventPublisher<RemoveUIStackEvent> onRemoveUIStack;
     protected virtual void Awake()
     {
         _canvasGroup = GetComponent<CanvasGroup>();
         _canvasGroup.alpha = 0f;
         _canvasGroup.interactable = false;
         _canvasGroup.blocksRaycasts = false;
+        onAddUIStack = EventManager.GetPublisher<AddUIStackEvent>();
+        onRemoveUIStack = EventManager.GetPublisher<RemoveUIStackEvent>();
     }
     protected virtual void OnEnable()
     {
-        EventManager.Publish(new AddUIStackEvent { ui = this });
+        onAddUIStack.Publish(new AddUIStackEvent { ui = this });
     }
     protected virtual void OnDisable()
     {
-        EventManager.Publish(new RemoveUIStackEvent());
+        onRemoveUIStack.Publish(new RemoveUIStackEvent());
     }
     public override void OpenUI()
     {

@@ -7,7 +7,8 @@ public class StageDestinyModifier : StageModifierData
 {
     public EffectTarget effectTarget;
     public StatType statType;
-    public ValueModifiactionType valueModifiactionType;
+    public ValueModificationType valueModificationType;
+    public float value;
     public ConditionType conditionType;
     public ValueConditionOperater valueConditionOperater;
     public float conditionValue;

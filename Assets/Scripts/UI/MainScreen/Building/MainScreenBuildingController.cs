@@ -208,7 +208,7 @@ public class MainScreenBuildingController : MonoBehaviour
         PlayerDataManager.Instance._TileDataHandler.BuildingGridData[tile.X, tile.Y] = level1Data;
         tile.SetBuilding(level1Data);
 
-        PlayerDataManager.Instance.UpdateAllBuildingEffects();
+        EventManager.Publish(new GridStateChangedEvent());
 
         Debug.Log($"{tile.X},{tile.Y}에 {level1Data.buildingName} 건설 완료!");
     }
@@ -221,6 +221,7 @@ public class MainScreenBuildingController : MonoBehaviour
         var current = PlayerDataManager.Instance._TileDataHandler.BuildingGridData[tile.X, tile.Y];
         if (current == null) { Debug.LogError("업그레이드할 건물 없음"); return; }
 
+        // 다음 레벨 데이터 확인 (업그레이드 비용은 current 데이터에 있음)
         var next = DataManager.Instance.BuildingUpgradeData.GetData(current.nextLevel);
         if (next == null)
         {
@@ -228,25 +229,50 @@ public class MainScreenBuildingController : MonoBehaviour
             return;
         }
 
-        // 비용 체크
+        // 비용 계산을 위한 리스트 선언
+        var finalCosts = new List<(ResourceType type, int amount)>();
+
+        // --- 비용 체크 ---
         foreach (var cost in current.costs)
         {
-            if (PlayerDataManager.Instance.GetResourceAmount(cost.resourceType) < cost.amount)
+            float reductionPercent = 0f;
+            switch (cost.resourceType)
             {
-                Debug.Log("자원이 부족하여 업그레이드 불가");
+                case ResourceType.Wood:
+                    reductionPercent = PlayerDataManager.Instance.SynergyWoodCostReduction;
+                    break;
+                case ResourceType.Iron:
+                    reductionPercent = PlayerDataManager.Instance.SynergyIronCostReduction;
+                    break;
+                case ResourceType.MagicStone:
+                    reductionPercent = PlayerDataManager.Instance.SynergyMagicStoneCostReduction;
+                    break;
+            }
+
+            // 최종 필요 비용 계산 (할인율 적용, 소수점 올림)
+            int finalCost = Mathf.CeilToInt(cost.amount * (1.0f - reductionPercent / 100.0f));
+
+            // 계산된 최종 비용을 리스트에 저장
+            finalCosts.Add((cost.resourceType, finalCost));
+
+            if (PlayerDataManager.Instance.GetResourceAmount(cost.resourceType) < finalCost)
+            {
+                Debug.Log($"자원이 부족하여 업그레이드 불가. 필요 {cost.resourceType}: {finalCost} (할인율: {reductionPercent}%)");
                 return;
             }
         }
 
-        // 비용 차감
-        foreach (var cost in current.costs)
-            PlayerDataManager.Instance.AddResource(cost.resourceType, -cost.amount);
+        // --- 비용 차감 ---
+        foreach (var finalCost in finalCosts)
+        {
+            PlayerDataManager.Instance.AddResource(finalCost.type, -finalCost.amount);
+        }
 
-        // 저장 & 반영
+        // --- 저장 & 반영 ---
         PlayerDataManager.Instance._TileDataHandler.BuildingGridData[tile.X, tile.Y] = next;
         tile.SetBuilding(next);
 
-        PlayerDataManager.Instance.UpdateAllBuildingEffects(); 
+        EventManager.Publish(new GridStateChangedEvent());
 
         Debug.Log($"{current.buildingName} Lv.{current.level} → Lv.{next.level} 업그레이드 완료!");
     }

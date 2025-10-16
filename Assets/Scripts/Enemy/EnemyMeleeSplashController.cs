@@ -153,7 +153,7 @@ public class EnemyMeleeSplashController : BaseUnitController
             yield return null;
         } while (normalizedTime < 0f);
 
-        animator.speed = enemyUnit.StartAttackTime / enemyUnit.AttackDelayTime;
+        animator.speed = enemyUnit.StartAttackTime / enemyUnit.UnitData.attackDelayTime;
 
         while (normalizedTime < enemyUnit.StartAttackNormalizedTime)
         {
