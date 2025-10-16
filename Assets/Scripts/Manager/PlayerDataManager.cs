@@ -6,6 +6,7 @@ using System.Text;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
+public struct SynergyDataUpdatedEvent { }
 public enum ResourceType
 {
     Gold,
@@ -59,6 +60,7 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
 
     private Dictionary<(int x, int y), float> _tileEfficiencyBonuses;
     public IReadOnlyDictionary<(int x, int y), float> TileEfficiencyBonuses => _tileEfficiencyBonuses;
+    public List<DetectedSynergy> ActiveSynergies { get; private set; }
 
     #endregion
 
@@ -146,10 +148,10 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
     {
         //모든 보너스 값을 0으로 초기화
         ResetSynergyBonuses();
-
+        ActiveSynergies = _TileDataHandler.DetectAllSynergies();
         //TileDataHandler에게 시너지 분석을 요청
         List<DetectedSynergy> activeSynergies = _TileDataHandler.DetectAllSynergies();
-
+        EventManager.GetPublisher<SynergyDataUpdatedEvent>().Publish(new SynergyDataUpdatedEvent());
         if (activeSynergies.Count > 0)
         {
             Debug.Log($"[시너지] {activeSynergies.Count}개의 시너지 감지!");
@@ -190,6 +192,7 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
         SynergyUnitAttackCooldownReduction = 0f;
         SynergyBlockBonusPercent = 0f;
         _tileEfficiencyBonuses.Clear();
+        ActiveSynergies?.Clear();
     }
 
     private void ApplySynergyEffect(DetectedSynergy synergy)
@@ -518,6 +521,7 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
         if (MaxFood > _calculatedMaxFood) { MaxFood = _calculatedMaxFood; }
 
         OnResourceChangedEvent?.Invoke(ResourceType.Food, CurrentFood);
+        EventManager.GetPublisher<SynergyDataUpdatedEvent>().Publish(new SynergyDataUpdatedEvent());
         Debug.Log($"모든 건물+시너지 효과 계산 완료: 최대 식량={_calculatedMaxFood}, 식량 보너스={currentFarmGainPercent}%, 유닛 쿨감={TotalUnitCooldownReduction}%");
     }
 
