@@ -150,7 +150,7 @@ public class PlayerRangedSplashController : BaseUnitController
             yield return null;
         } while (normalizedTime < 0f);
 
-        animator.speed = playerUnit.StartAttackTime / playerUnit.AttackDelayTime;
+        animator.speed = playerUnit.StartAttackTime / playerUnit.UnitData.attackDelayTime;
 
         while (normalizedTime < playerUnit.StartAttackNormalizedTime)
         {

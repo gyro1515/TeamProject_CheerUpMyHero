@@ -121,9 +121,53 @@ public class ExcelImporter : AssetPostprocessor
 		switch(type)
 		{
 			case CellType.String:
-				if (fieldInfo.FieldType.IsEnum) return Enum.Parse(fieldInfo.FieldType, cell.StringCellValue);
-				else return cell.StringCellValue;
-			case CellType.Boolean:
+                // 251016: 기존 방식은 enum 비트마스킹 처리 불가, 처리 가능하도록 방식 변경
+                /*if (fieldInfo.FieldType.IsEnum) return Enum.Parse(fieldInfo.FieldType, cell.StringCellValue);
+				else return cell.StringCellValue;*/
+                // CellType.String이 enum 이라면
+                if (fieldInfo.FieldType.IsEnum)
+                {
+                    string enumString = cell.StringCellValue;
+
+                    // 셀 값이 비어있거나 공백이면 enum의 기본값(보통 0)을 반환
+                    if (string.IsNullOrWhiteSpace(enumString))
+                    {
+                        return Enum.ToObject(fieldInfo.FieldType, 0);
+                    }
+
+                    // '/'가 포함되어 있다면 비트마스킹(Flags)으로 처리
+                    if (enumString.Contains("/"))
+                    {
+                        // 1. '/'를 기준으로 문자열을 분리합
+                        string[] enumNames = enumString.Split('/');
+                        int combinedValue = 0;
+
+                        foreach (var name in enumNames)
+                        {
+                            // 2. 각 문자열의 앞뒤 공백을 제거하고 enum 값으로 파싱
+                            string trimmedName = name.Trim();
+                            if (string.IsNullOrEmpty(trimmedName)) continue;
+
+                            try
+                            {
+                                object enumValue = Enum.Parse(fieldInfo.FieldType, trimmedName, true); // true: 대소문자 무시
+                                // 3. 파싱된 enum 값을 정수로 변환하여 비트 OR 연산으로 합칩
+                                combinedValue |= Convert.ToInt32(enumValue);
+                            }
+                            catch (ArgumentException e)
+                            {
+                                Debug.LogError($"'{trimmedName}'은(는) {fieldInfo.FieldType.Name} 열거형에 없는 값입니다. {e.Message}");
+                            }
+                        }
+                        // 4. 최종적으로 합쳐진 정수 값을 다시 해당 enum 타입으로 변환하여 반환
+                        return Enum.ToObject(fieldInfo.FieldType, combinedValue);
+                    }
+                    // '/'가 없다면 기존 방식대로 단일 값으로 처리
+                    else return Enum.Parse(fieldInfo.FieldType, enumString.Trim(), true);
+                }
+                // CellType.String이라면
+                else return cell.StringCellValue;
+            case CellType.Boolean:
 				return cell.BooleanCellValue;
 			case CellType.Numeric:
 				return Convert.ChangeType(cell.NumericCellValue, fieldInfo.FieldType);

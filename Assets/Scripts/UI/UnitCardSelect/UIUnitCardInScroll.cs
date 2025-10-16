@@ -7,7 +7,8 @@ public class UIUnitCardInScroll : MonoBehaviour
 {
     private CanvasGroup _canvasGroup;
     
-    private Dictionary<int, TempCardData> cardData;
+    //private Dictionary<int, TempCardData> cardData;
+    private Dictionary<int, BaseUnitData> cardData;
     
     [SerializeField] TMP_Text cardNameText;
     [SerializeField] TMP_Text unitType;
@@ -27,7 +28,8 @@ public class UIUnitCardInScroll : MonoBehaviour
 
     private void Start()
     {
-        cardData = PlayerDataManager.Instance.cardDic;
+        //cardData = PlayerDataManager.Instance.cardDic;
+        cardData = PlayerDataManager.Instance.OwnedCardData;
     }
 
     //카드 데이터 갱신
@@ -39,7 +41,8 @@ public class UIUnitCardInScroll : MonoBehaviour
         costText.text = $"코스트\n{cardData[cardNum].cost.ToString("F0")}";
         healthText.text = $"체력\n{cardData[cardNum].health.ToString("F0")}";
         atkPowerText.text = $"공격력\n{cardData[cardNum].atkPower.ToString("F0")}";
-        coolTimeText.text = $"쿨타임\n{cardData[cardNum].coolTime.ToString("N1")}";
+        //coolTimeText.text = $"쿨타임\n{cardData[cardNum].coolTime.ToString("N1")}";
+        coolTimeText.text = $"쿨타임\n{cardData[cardNum].spawnCooldown.ToString("N1")}";
         descriptionText.text = $"{cardData[cardNum].description}";
         Grey(!canSelect);
     }

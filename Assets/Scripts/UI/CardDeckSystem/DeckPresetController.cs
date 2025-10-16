@@ -259,7 +259,7 @@ public class DeckPresetController : BaseUI, IBackButtonHandler
         }
 
         // 플레이어가 보유한 모든 유닛 ID 목록
-        List<int> ownedUnitIds = new List<int>(PlayerDataManager.Instance.cardDic.Keys);
+        List<int> ownedUnitIds = new List<int>(PlayerDataManager.Instance.OwnedCardData.Keys);
 
         //이미 현재 덱에 편성된 유닛은 후보에서 제외
         ownedUnitIds.RemoveAll(id => currentUnitIds.Contains(id));

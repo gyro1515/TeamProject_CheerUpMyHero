@@ -36,9 +36,11 @@ public class CardFilter : MonoBehaviour
     public List<int> UsableCardList { get; private set; } = new();
 
     //가능한 카드에 기반한 유닛 리스트
-    private List<TempCardData> UsableUnitList = new();
+    //private List<TempCardData> UsableUnitList = new();
+    private List<BaseUnitData> UsableUnitList = new();
     //LINQ용
-    IEnumerable<TempCardData> query;
+    //IEnumerable<TempCardData> query;
+    IEnumerable<BaseUnitData> query;
 
     //수정사항 적용한 최종 출력 카드
     public List<int> ModifiedCardList { get; private set; } = new();
@@ -66,7 +68,8 @@ public class CardFilter : MonoBehaviour
     {
         if (AllCardList == null)
         {
-            AllCardList = new(PlayerDataManager.Instance.cardDic.Keys);
+            //AllCardList = new(PlayerDataManager.Instance.cardDic.Keys);
+            AllCardList = new(PlayerDataManager.Instance.OwnedCardData.Keys);
 
         }
 
@@ -84,11 +87,13 @@ public class CardFilter : MonoBehaviour
             UsableCardList.Remove(nowDeck[i]);
 
             //편성된 레어, 에픽 개수 세기
-            if (PlayerDataManager.Instance.cardDic[nowDeck[i]].rarity == Rarity.rare)
+            //if (PlayerDataManager.Instance.cardDic[nowDeck[i]].rarity == Rarity.rare)
+            if (PlayerDataManager.Instance.OwnedCardData[nowDeck[i]].rarity == Rarity.rare)
             {
                 rareInDeck++;
             }
-            if (PlayerDataManager.Instance.cardDic[nowDeck[i]].rarity == Rarity.epic)
+            //if (PlayerDataManager.Instance.cardDic[nowDeck[i]].rarity == Rarity.epic)
+            if (PlayerDataManager.Instance.OwnedCardData[nowDeck[i]].rarity == Rarity.epic)
             {
                 epicInDeck++;
             }
@@ -97,7 +102,8 @@ public class CardFilter : MonoBehaviour
         UsableUnitList.Clear();
         for (int i = 0; i < UsableCardList.Count; i++)
         {
-            UsableUnitList.Add(PlayerDataManager.Instance.cardDic[UsableCardList[i]]);
+            //UsableUnitList.Add(PlayerDataManager.Instance.cardDic[UsableCardList[i]]);
+            UsableUnitList.Add(PlayerDataManager.Instance.OwnedCardData[UsableCardList[i]]);
         }
 
         greyCardSet.Clear();
@@ -109,11 +115,11 @@ public class CardFilter : MonoBehaviour
             {
                 if (UsableUnitList[i].rarity == Rarity.rare && rareInDeck >= maxRareInDeck)
                 {
-                    greyCardSet.Add(UsableUnitList[i].id);
+                    greyCardSet.Add(UsableUnitList[i].idNumber);
                 }
                 else if (UsableUnitList[i].rarity == Rarity.epic && epicInDeck >= maxEpicInDeck)
                 {
-                    greyCardSet.Add(UsableUnitList[i].id);
+                    greyCardSet.Add(UsableUnitList[i].idNumber);
                 }
             }
         }
@@ -156,22 +162,22 @@ public class CardFilter : MonoBehaviour
             switch (selectedFilter)
             {
                 case SelectedFilter.Rarity:
-                    query = query.OrderBy(unit => unit.rarity).ThenBy(unit => unit.id);
+                    query = query.OrderBy(unit => unit.rarity).ThenBy(unit => unit.idNumber);
                     break;
                 case SelectedFilter.Cost:
-                    query = query.OrderBy(unit => unit.cost).ThenBy(unit => unit.id);
+                    query = query.OrderBy(unit => unit.cost).ThenBy(unit => unit.idNumber);
                     break;
                 case SelectedFilter.Health:
-                    query = query.OrderBy(unit => unit.health).ThenBy(unit => unit.id);
+                    query = query.OrderBy(unit => unit.health).ThenBy(unit => unit.idNumber);
                     break;
                 case SelectedFilter.AtkPower:
-                    query = query.OrderBy(unit => unit.atkPower).ThenBy(unit => unit.id);
+                    query = query.OrderBy(unit => unit.atkPower).ThenBy(unit => unit.idNumber);
                     break;
                 case SelectedFilter.CoolTime:
-                    query = query.OrderBy(unit => unit.coolTime).ThenBy(unit => unit.id);
+                    query = query.OrderBy(unit => unit.spawnCooldown).ThenBy(unit => unit.idNumber);
                     break;
                 default:
-                    query = query.OrderBy(unit => unit.id);
+                    query = query.OrderBy(unit => unit.idNumber);
                     break;
             }
         }
@@ -182,34 +188,34 @@ public class CardFilter : MonoBehaviour
             switch (selectedFilter)
             {
                 case SelectedFilter.Rarity:
-                    query = query.OrderByDescending(unit => unit.rarity).ThenByDescending(unit => unit.id);
+                    query = query.OrderByDescending(unit => unit.rarity).ThenByDescending(unit => unit.idNumber);
                     break;
                 case SelectedFilter.Cost:
-                    query = query.OrderByDescending(unit => unit.cost).ThenByDescending(unit => unit.id);
+                    query = query.OrderByDescending(unit => unit.cost).ThenByDescending(unit => unit.idNumber);
                     break;
                 case SelectedFilter.Health:
-                    query = query.OrderByDescending(unit => unit.health).ThenByDescending(unit => unit.id);
+                    query = query.OrderByDescending(unit => unit.health).ThenByDescending(unit => unit.idNumber);
                     break;
                 case SelectedFilter.AtkPower:
-                    query = query.OrderByDescending(unit => unit.atkPower).ThenByDescending(unit => unit.id);
+                    query = query.OrderByDescending(unit => unit.atkPower).ThenByDescending(unit => unit.idNumber);
                     break;
                 case SelectedFilter.CoolTime:
-                    query = query.OrderByDescending(unit => unit.coolTime).ThenByDescending(unit => unit.id);
+                    query = query.OrderByDescending(unit => unit.spawnCooldown).ThenByDescending(unit => unit.idNumber);
                     break;
                 default:
-                    query = query.OrderByDescending(unit => unit.id);
+                    query = query.OrderByDescending(unit => unit.idNumber);
                     break;
             }
 
 
         }
 
-        List<TempCardData> filteredUnitList = new(query.ToList());
+        List<BaseUnitData> filteredUnitList = new(query.ToList());
 
         ModifiedCardList.Clear();
         for (int i = 0; i < filteredUnitList.Count; i++)
         {
-            ModifiedCardList.Add(filteredUnitList[i].id);
+            ModifiedCardList.Add(filteredUnitList[i].idNumber);
         }
 
 
