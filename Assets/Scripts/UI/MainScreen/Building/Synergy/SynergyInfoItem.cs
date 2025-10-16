@@ -3,7 +3,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class SynergyInfoItem : MonoBehaviour
+public class SynergyInfoItem : BasePoolable
 {
     [Header("UI 연결")]
     [SerializeField] private TextMeshProUGUI titleText;

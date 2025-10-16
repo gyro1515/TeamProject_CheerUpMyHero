@@ -8,11 +8,11 @@ public class BuildingSynergyPanel : MonoBehaviour
 {
     [Header("UI 연결")]
     [SerializeField] private Transform scrollContent;
-    [SerializeField] private SynergyInfoItem itemPrefab; // 정보 표시용 아이템 프리팹
+    //[SerializeField] private SynergyInfoItem itemPrefab; // 정보 표시용 아이템 프리팹
 
     // 건물 타입에 맞는 아이콘(Sprite)을 저장해두는 딕셔너리
     private Dictionary<BuildingType, Sprite> buildingIcons = new Dictionary<BuildingType, Sprite>();
-
+    private List<SynergyInfoItem> activeItems = new List<SynergyInfoItem>();
 
     void Awake()
     {
@@ -33,15 +33,28 @@ public class BuildingSynergyPanel : MonoBehaviour
     // UI 표시를 업데이트하는 메인 함수
     public void UpdateDisplay()
     {
-        foreach (Transform child in scrollContent)
+        foreach (var item in activeItems)
         {
-            Destroy(child.gameObject);
+            item.GetComponent<BasePoolable>().ReleaseSelf();
         }
+        activeItems.Clear(); 
 
         DisplayEffectsByBuildingType();
         DisplayActiveSynergies();
     }
+    private SynergyInfoItem GetNewItem()
+    {
+        // 풀 매니저에서 아이템을 가져옵니다.
+        GameObject itemGO = ObjectPoolManager.Instance.Get(PoolType.SynergyInfoItem);
 
+        // 부모를 설정하고 스케일 등 UI 속성을 초기화합니다.
+        itemGO.transform.SetParent(scrollContent, false);
+        itemGO.transform.localScale = Vector3.one;
+
+        SynergyInfoItem item = itemGO.GetComponent<SynergyInfoItem>();
+        activeItems.Add(item); // 활성화 리스트에 추가
+        return item;
+    }
     // --- 세부 UI 표시 함수들 ---
 
     // 건물 타입별 효과를 합산하여 표시하는 함수
@@ -56,7 +69,7 @@ public class BuildingSynergyPanel : MonoBehaviour
 
         foreach (var group in buildingsByType)
         {
-            var item = Instantiate(itemPrefab, scrollContent);
+            var item = GetNewItem();
 
             var effectsSum = new Dictionary<BuildingEffectType, float>();
             var magicStoneEffects = new List<BuildingEffect>();
@@ -94,7 +107,6 @@ public class BuildingSynergyPanel : MonoBehaviour
 
             Sprite icon = buildingIcons.ContainsKey(group.Key) ? buildingIcons[group.Key] : null;
             string title = $"{group.First().buildingName} x{group.Count()}";
-
             item.Initialize(icon, title, sb.ToString().TrimEnd());
         }
     }
@@ -107,7 +119,7 @@ public class BuildingSynergyPanel : MonoBehaviour
 
         foreach (var synergy in synergies)
         {
-            var item = Instantiate(itemPrefab, scrollContent);
+            var item = GetNewItem();
             (string title, List<BuildingType> types, string desc) = GetSynergyUIData(synergy.Type);
 
             List<Sprite> icons;
