@@ -57,6 +57,39 @@ public class PlayerUnit : BaseUnit
         { Debug.LogError($"변환 실패: {gameObject.name} 은(는) PoolType에 없습니다."); return; }
 
         UnitData = DataManager.PlayerUnitData.GetData((int)poolType);
+        // 컨트롤러 자동추가 테스트
+        if(UnitController == null) // 컨트롤러 없다면
+        {
+            if(UnitData.unitType != UnitType.Healer) // 힐러는 따로
+            {
+                switch (UnitData.attackType)
+                {
+                    case UnitAttackType.Target:
+                        UnitController = gameObject.AddComponent<PlayerUnitController>();
+                        break;
+                    case UnitAttackType.Area:
+                        UnitController = gameObject.AddComponent<PlayerRangedSplashController>();
+                        break;
+                    case UnitAttackType.PierceArea:
+                        UnitController = gameObject.AddComponent<PlayerMeleeSplashController>();
+                        break;
+                }
+            }
+            else
+            {
+                switch (UnitData.attackType)
+                {
+                    case UnitAttackType.Target:
+                        UnitController = gameObject.AddComponent<PlayerHealerUnitController>();
+                        break;
+                    case UnitAttackType.Area:
+                        UnitController = gameObject.AddComponent<PlayerHealerSplashController>();
+                        break;
+                }
+                
+            }
+            
+        }
     }
     protected override float GetStatBonus(StatType type)
     {

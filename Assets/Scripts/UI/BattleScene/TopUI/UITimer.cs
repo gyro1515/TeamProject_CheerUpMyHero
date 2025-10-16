@@ -7,7 +7,6 @@ public class UITimer : MonoBehaviour
 {
     [SerializeField] TMP_Text timerText;
 
-
     //시작 절대 시간
     private float startTime;
 
