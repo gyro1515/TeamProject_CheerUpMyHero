@@ -39,17 +39,5 @@ public class TempCardData
     }
 }
 
-public enum Rarity 
-{ 
-    common,
-    rare,
-    epic
-}
 
-public enum UnitType 
-{ 
-    Tanker,
-    Dealer,
-    Healer
-}
 

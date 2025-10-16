@@ -42,12 +42,12 @@ public class UIPlayerUnitSpawnPanel : BaseUI
             }
             // ToDo: 엑셀 데이터로 교체 필요**************
             // PlayerDataManager에서 unitId로 임시 카드 데이터를 가져옴
-            TempCardData cardData = PlayerDataManager.Instance.GetUnitData(unitId);
+            BaseUnitData cardData = PlayerDataManager.Instance.GetUnitData(unitId);
 
             if (cardData != null)
             {
                 // 카드 데이터를 사용해 전투 소환 슬롯을 초기화합니다.
-                unitSlot.InitSpawnUnitSlot(null, cardData.unitName, unitId, cardData.poolType, cardData.coolTime, cardData.cost);
+                unitSlot.InitSpawnUnitSlot(null, cardData.unitName, unitId, cardData.poolType, cardData.spawnCooldown, cardData.cost);
             }
         }
 

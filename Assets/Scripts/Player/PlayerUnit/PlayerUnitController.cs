@@ -128,7 +128,7 @@ public class PlayerUnitController : BaseUnitController
         // 공격 애니메이션 총 길이 0.25초
         // 0.36지점까지 = 0.09초에 해당
         // 0.09초를 딜레이 초로 늘리려면
-        animator.speed = playerUnit.StartAttackTime / playerUnit.AttackDelayTime;
+        animator.speed = playerUnit.StartAttackTime / playerUnit.UnitData.attackDelayTime;
 
         while (normalizedTime < playerUnit.StartAttackNormalizedTime)
         {

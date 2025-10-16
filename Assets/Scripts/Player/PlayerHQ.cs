@@ -76,7 +76,7 @@ public class PlayerHQ : BaseHQ
         if (unitSpawnCnt[poolType] >= tmpUpgradeCntByRarity)
         {
             unitSpawnCnt[poolType] = 0;
-            playerUnitGO.GetComponent<BaseUnit>().SetStatMultiplierByWave(statMultiplier);
+            playerUnitGO.GetComponent<BaseUnit>().SetStatMultiplier(statMultiplier);
         }
         else if (unitSpawnCnt[poolType] == tmpUpgradeCntByRarity - 1)
         {
@@ -93,7 +93,8 @@ public class PlayerHQ : BaseHQ
         {
             int unitId = deckUnitIds[i];
             if (unitId == -1) { Debug.LogWarning("세팅 오류"); continue; }
-            TempCardData cardData = PlayerDataManager.Instance.GetUnitData(unitId);
+            //TempCardData cardData = PlayerDataManager.Instance.GetUnitData(unitId);
+            BaseUnitData cardData = PlayerDataManager.Instance.GetUnitData(unitId);
             if (cardData == null) { Debug.LogWarning("세팅 오류"); continue; }
             uunitRarityType[cardData.poolType] = cardData.rarity;
             unitSpawnCnt[cardData.poolType] = 0;
