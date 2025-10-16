@@ -8,7 +8,6 @@ public class BaseUnitData : MonoData
 {
     public Rarity rarity;
     public string unitName;
-    public string description = "설명 추가해야 합니다!!";
     public UnitType unitType;
     public PoolType poolType;
     public float health;
@@ -24,6 +23,7 @@ public class BaseUnitData : MonoData
     public float spawnCooldown;
     public UnitSynergyType synergyType; // 비트마스크 방식 도입
     public int cost;
+    public string description = "설명 추가해야 합니다!!";
 }
 public enum Rarity
 {

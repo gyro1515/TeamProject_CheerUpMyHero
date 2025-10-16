@@ -9,7 +9,7 @@ public class PlayerUnitSO : MonoSO<BaseUnitData>
 	public List<BaseUnitData> hero_unit; 
 	public List<BaseUnitData> hiller_unit; 
 	public List<BaseUnitData> allianceCommon; 
-	public List<BaseUnitData> allianceRare;
+	public List<BaseUnitData> allianceRare; 
 	public List<BaseUnitData> allianceEpic;
 
     public override List<BaseUnitData> GetList()
@@ -26,14 +26,13 @@ public class PlayerUnitSO : MonoSO<BaseUnitData>
 
             DB[(int)data.poolType] = data;
         }
-        // 힐러는 일단 제외
-        /*for (int i = 0; i < hiller_unit.Count; i++)
+        for (int i = 0; i < hiller_unit.Count; i++)
         {
             var data = hiller_unit[i];
             if (data == null) continue;
 
             DB[(int)data.poolType] = data;
-        }*/
+        }
         for (int i = 0; i < allianceCommon.Count; i++)
         {
             var data = allianceCommon[i];
