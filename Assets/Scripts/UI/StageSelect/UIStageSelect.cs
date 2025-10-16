@@ -18,7 +18,7 @@ using UnityEngine.UI;
 //    public bool isUnlocked = false;     // 메인 스테이지 해금 여부
 //    public List<SubStageData> subStages = new List<SubStageData>(); // 서브 스테이지 리스트
 //}
-public class UIStageSelect : BaseUI
+public class UIStageSelect : BaseUI, IBackButtonHandler
 {
     [Header("스테이지 선택UI 설정")]
     [SerializeField] Transform stageSlotsParent; // 슬롯들이 생성될 부모
@@ -45,6 +45,12 @@ public class UIStageSelect : BaseUI
     private void OnEnable()
     {
         StartCoroutine(CoScrollToLatestClearedStage());
+        EventManager.Publish(new AddUIStackEvent { ui = this });
+
+    }
+    private void OnDisable()
+    {
+        EventManager.Publish(new RemoveUIStackEvent());
     }
     /// 모든 메인/서브 스테이지를 하나의 목록으로 생성하는 함수
     private void CreateAllStageSlots()
@@ -143,7 +149,7 @@ public class UIStageSelect : BaseUI
 
         // PlayerDataManager에 선택된 스테이지 정보를 저장
         PlayerDataManager.Instance.SelectedStageIdx = (mainIdx, subIdx);
-
+ 
         // 전투 씬을 로드
         SceneLoader.Instance.StartLoadScene(SceneState.BattleScene);
     }
@@ -151,6 +157,19 @@ public class UIStageSelect : BaseUI
     void MoveToSelDeck()
     {
         Debug.Log("덱 선택으로 이동");
-        FadeManager.Instance.SwitchGameObjects(gameObject, _deckPresetController.gameObject);
+        if (_deckPresetController != null)
+        {
+            FadeManager.Instance.SwitchGameObjects(gameObject, _deckPresetController.gameObject);
+        }
+        else
+        {
+            Debug.LogError("UIManager에서 DeckPresetController를 찾을 수 없습니다!");
+        }
+    }
+
+    public void OnBackPressed()
+    {
+        Debug.Log("뒤로가기 버튼: 덱 선택으로 이동");
+        MoveToSelDeck();
     }
 }

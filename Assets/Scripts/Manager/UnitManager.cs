@@ -2,12 +2,16 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
+using static BaseHQ;
+using static EnemyUnit;
 using static UnityEngine.GraphicsBuffer;
 
 public class UnitManager : SingletonMono<UnitManager>
 {
+    // 유닛 매니저는 파괴 가능으로 세팅
+    protected override bool IsPersistent => false;
+
     //[Header("유닛 확인용")]
     List<BaseCharacter> playerUnitList = new List<BaseCharacter>();
     List<BaseCharacter> enemyUnitList = new List<BaseCharacter>();
@@ -22,13 +26,24 @@ public class UnitManager : SingletonMono<UnitManager>
     public event Action<BaseCharacter, bool> onUnitDeSpawn;
 
 
+
     protected override void Awake()
     {
         base.Awake();
+        
         playerLayerMask = LayerMask.GetMask("Player");
         enemyLayerMask = LayerMask.GetMask("Enemy");
-    } 
 
+        EventManager.Subscribe<SpawnHQEvent>(AddUnitList);
+    }
+    private void OnDisable()
+    {
+        EventManager.Unsubscribe<SpawnHQEvent>(AddUnitList);
+    }
+    void AddUnitList(SpawnHQEvent eventStruct)
+    {
+        AddUnitList(eventStruct.baseHQ, eventStruct.isPlayer);
+    }
     public void AddUnitList(BaseCharacter unit, bool isPlayer)
     {
         List<BaseCharacter> unitList = isPlayer ? playerUnitList : enemyUnitList;

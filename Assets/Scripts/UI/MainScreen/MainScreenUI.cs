@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class MainScreenUI : BaseUI
+public class MainScreenUI : BaseUI, IBackButtonHandler
 {
     [Header("버튼 세팅")]
     [SerializeField] private Button _adviserButton;
@@ -16,7 +16,9 @@ public class MainScreenUI : BaseUI
     [Header("패널 (Canvas Group)")]
     [SerializeField] private CanvasGroup _battlePanelCanvasGroup;
     //[SerializeField] private CanvasGroup _testPanelCanvasGroup;
-    [SerializeField] private CanvasGroup _deckSelectPanelCanvasGroup;
+
+    [Header("팝업 연결")]
+    [SerializeField] private DeckSelectPopup _deckSelectPopup;
 
     //UISelectCard uiSelectCard;
 
@@ -27,7 +29,7 @@ public class MainScreenUI : BaseUI
     {
         if (_adviserButton == null /*|| _battleButton == null*/
             || _battlePanelCanvasGroup == null /*|| _testPanelCanvasGroup == null*/ /*|| _testButton == null*/
-            || _deckSelectPanelCanvasGroup == null || _deckSelectButton == null || _notYetButton == null)
+            || _deckSelectPopup == null || _deckSelectButton == null || _notYetButton == null)
         {
             Debug.LogError("MainSceneUI: 모든 UI 컴포넌트가 인스펙터에 연결되지 않았습니다.");
             return;
@@ -51,12 +53,19 @@ public class MainScreenUI : BaseUI
     {
         ClosePanel(_battlePanelCanvasGroup, true);
         //ClosePanel(_testPanelCanvasGroup, true);
-        ClosePanel(_deckSelectPanelCanvasGroup, true);
+       /* if (_deckSelectPopup != null)
+        {
+            // _deckSelectPopup이 보통 Awake()되기 전에 OnEnable()이 호출되므로
+            _deckSelectPopup.CloseUI(); 
+        }*/
     }
     private void OnAdviserButtonClck()
     {
         //OpenPanel(_battlePanelCanvasGroup);
-        OpenPanel(_deckSelectPanelCanvasGroup);
+        if (_deckSelectPopup != null)
+        {
+            _deckSelectPopup.OpenUI();
+        }
         //OpenPanel(_testPanelCanvasGroup);
     }
 
@@ -81,13 +90,20 @@ public class MainScreenUI : BaseUI
         {
             Debug.LogError("UIManager에서 DeckPresetController를 찾을 수 없습니다!");
         }
+        if (_deckSelectPopup != null)
+        {
+            _deckSelectPopup.CloseUI();
+        }
     }
 
     private void OnNotYetButtonClick()
     {
         // "아직 아니야" 버튼 클릭 시 실행될 로직
         Debug.Log("덱 선택을 취소하고 패널을 닫습니다.");
-        ClosePanel(_deckSelectPanelCanvasGroup);
+        if (_deckSelectPopup != null)
+        {
+            _deckSelectPopup.CloseUI();
+        }
     }
 
     //private void OnTestButtonClick()
@@ -99,7 +115,7 @@ public class MainScreenUI : BaseUI
     private void OpenPanel(CanvasGroup canvasGroup)
     {
         if (canvasGroup == null) return;
-        FadeManager.Instance.FadeInUI(canvasGroup);
+        FadeManager.FadeInUI(canvasGroup);
     }
 
     private void ClosePanel(CanvasGroup canvasGroup, bool immediate = false)
@@ -114,9 +130,13 @@ public class MainScreenUI : BaseUI
         }
         else
         {
-            FadeManager.Instance.FadeOutUI(canvasGroup);
+            FadeManager.FadeOutUI(canvasGroup);
         }
     }
 
+    public void OnBackPressed()
+    {
+        Debug.Log("[MainScreenUI] 뒤로 가기 버튼 눌림");
+    }
 }
 

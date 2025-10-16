@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public enum TileType
@@ -10,7 +11,7 @@ public enum TileType
     None
 }
 
-public class BuildingTile : MonoBehaviour
+public class BuildingTile : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IDropHandler
 {
     public int X { get; private set; }
     public int Y { get; private set; }
@@ -22,15 +23,16 @@ public class BuildingTile : MonoBehaviour
     [Header("타일 이미지 설정")]
     [SerializeField] private Image tileImage; // 타일의 이미지를 표시할 Image 컴포넌트
     [SerializeField] public Sprite emptyTileSprite; // 건물이 없을 때 표시할 기본 빈 타일 이미지
-   
 
+    private MainScreenBuildingController _controller;
 
     // BuildingManager가 타일을 생성할 때 호출해 줄 초기화 함수
-    public void Initialize(int x, int y)
+    public void Initialize(int x, int y, MainScreenBuildingController controller)
     {
         X = x;
         Y = y;
 
+        _controller = controller; 
         MyTileType = TileType.Normal;
         tileImage.sprite = emptyTileSprite;
 
@@ -49,15 +51,47 @@ public class BuildingTile : MonoBehaviour
             GetComponent<Image>().color = Color.gray;
         }
         GetComponent<Button>().onClick.AddListener(OnTileClick);
-
+        UpdateStatusVisual();
     }
-
 
     private void OnTileClick()
     {
+        if (_controller.IsDragging()) return;
         OnTileClicked?.Invoke(this);
     }
+    #region 드래그 앤 드랍
+    public void OnBeginDrag(PointerEventData eventData)
+    {
+        // 건물이 없거나, 특수/손상된 타일은 드래그할 수 없음
+        if (_buildingData == null || MyTileType == TileType.Special ||
+            PlayerDataManager.Instance._TileDataHandler.TileStatusGrid[X, Y] != TileStatus.Normal)
+        {
+            eventData.pointerDrag = null; // 드래그를 취소시킴
+            return;
+        }
 
+        _controller.StartDrag(this);
+    }
+
+    //  드래그 중 (IDragHandler 구현)
+    public void OnDrag(PointerEventData eventData)
+    {
+        _controller.UpdateDrag(eventData);
+    }
+
+    // 드래그 종료 시 (IEndDragHandler 구현)
+    public void OnEndDrag(PointerEventData eventData)
+    {
+        _controller.EndDrag();
+    }
+
+    // 내 위에 다른 것이 드랍되었을 때 (IDropHandler 구현)
+    public void OnDrop(PointerEventData eventData)
+    {
+        // 실제 로직은 컨트롤러에게 위임
+        _controller.HandleDrop(this);
+    }
+#endregion
     // 건물이 건설/업그레이드되면 이 함수를 호출해서 타일의 모양과 데이터를 바꿈
     public void SetBuilding(BuildingUpgradeData buildingData)
     {
@@ -85,5 +119,42 @@ public class BuildingTile : MonoBehaviour
     public BuildingUpgradeData GetBuildingData()
     {
         return _buildingData;
+    }
+
+    public void UpdateStatusVisual()
+    {
+        if (MyTileType == TileType.Special)
+        {
+            tileImage.color = Color.gray;
+            return;
+        }
+
+        TileStatus status = PlayerDataManager.Instance._TileDataHandler.TileStatusGrid[X, Y];
+
+        // 총 수리 턴
+        const int totalTurns = 3;
+
+        switch (status)
+        {
+            case TileStatus.Damaged:
+            case TileStatus.Repairing:
+                // Damaged와 Repairing 상태 모두 남은 턴에 따라 색을 계산합니다.
+                int turnsRemaining = PlayerDataManager.Instance._TileDataHandler.TileRepairTurnsGrid[X, Y];
+
+                // 수리 진행률 (0.0 ~ 1.0)
+                float progress = 1.0f - ((float)turnsRemaining / totalTurns);
+
+                // Damaged 상태일 때는 빨간색에서, Repairing 상태일 때는 청록색에서 시작
+                Color startColor = (status == TileStatus.Damaged) ? Color.red : Color.cyan;
+
+                // 시작 색상과 흰색 사이를 진행률에 따라 보간(Lerp)하여 최종 색 결정
+                tileImage.color = Color.Lerp(startColor, Color.white, progress);
+                break;
+
+            case TileStatus.Normal:
+                // Normal 상태일 때는 항상 흰색
+                tileImage.color = Color.white;
+                break;
+        }
     }
 }

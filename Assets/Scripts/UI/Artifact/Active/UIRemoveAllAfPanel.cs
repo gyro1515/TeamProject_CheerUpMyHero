@@ -31,12 +31,12 @@ public class UIRemoveAllAfPanel : MonoBehaviour
     {
         if(active)
         {
-            FadeManager.Instance.FadeInUI(canvasGroup, () => SetButtonActive(active));
+            FadeManager.FadeInUI(canvasGroup, () => SetButtonActive(active));
         }
         else
         {
             SetButtonActive(active);
-            FadeManager.Instance.FadeOutUI(canvasGroup);
+            FadeManager.FadeOutUI(canvasGroup);
         }
     }
     void SetButtonActive(bool active)

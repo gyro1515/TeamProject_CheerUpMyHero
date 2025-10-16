@@ -4,39 +4,51 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UIUnitCardSelect : MonoBehaviour
+//public class UIUnitCardSelect : MonoBehaviour, IBackButtonHandler
+public class UIUnitCardSelect : BasePopUpUI
 {
     [SerializeField] InfiniteScroll infiniteScroll;
     public InfiniteScroll InfiniteScroll {  get { return infiniteScroll; } }
 
     [SerializeField] Button selectButton;
     [SerializeField] GameObject SeleckBlocker;
+    [SerializeField] Button closeButton;
+    [SerializeField] Button emptySpaceButton;
 
     [SerializeField] TMP_Text desckNumText;
     private CardFilter cardFilter;
 
     private int deckSlotNum;
 
-    private void Awake()
+    protected override void Awake()
     {
+        base.Awake();
         cardFilter = GetComponent<CardFilter>();
         infiniteScroll.InitRef(cardFilter);
     }
 
 
-    private void OnEnable()
+    protected override void OnEnable()
     {
-        selectButton?.onClick.AddListener(onSelectButtonPress);
+        base.OnEnable();
+        selectButton?.onClick.AddListener(OnSelectButtonPress);
+        closeButton?.onClick.AddListener(OnCloseButtonPress);
+        emptySpaceButton?.onClick.AddListener(OnCloseButtonPress);
         cardFilter.UpdateUsable();
         infiniteScroll.ResetCardData(cardFilter.ModifiedCardList);
         infiniteScroll.OnCanSelectCard += ControllBlocker;
         cardFilter.FilterAndSort();
+        //EventManager.Publish(new AddUIStackEvent { ui = this });
     }
 
-    private void OnDisable()
+    protected override void OnDisable()
     {
-        selectButton?.onClick.RemoveListener(onSelectButtonPress);
+        base.OnDisable();
+        selectButton?.onClick.RemoveListener(OnSelectButtonPress);
+        closeButton?.onClick.RemoveListener(OnCloseButtonPress);
+        emptySpaceButton?.onClick.RemoveListener(OnCloseButtonPress);
         infiniteScroll.OnCanSelectCard -= ControllBlocker;
+        //EventManager.Publish(new RemoveUIStackEvent());
     }
 
     public void SetDeckSlotNum(int slotNum)
@@ -45,7 +57,7 @@ public class UIUnitCardSelect : MonoBehaviour
         desckNumText.text = (deckSlotNum + 1).ToString();
     }
 
-    void onSelectButtonPress()
+    void OnSelectButtonPress()
     {
         int selectedIndex = infiniteScroll.SendSelectedUnit();
 
@@ -56,7 +68,7 @@ public class UIUnitCardSelect : MonoBehaviour
         else
         {
             Debug.Log($"현재 선택된 카드 {selectedIndex}번");
-            this.gameObject.SetActive(false);
+            CloseUI();
             UIManager.Instance.GetUI<DeckPresetController>().OnUnitSelected(deckSlotNum, selectedIndex);
         }
     }
@@ -69,4 +81,15 @@ public class UIUnitCardSelect : MonoBehaviour
             SeleckBlocker.SetActive(true);
     }
 
+    void OnCloseButtonPress()
+    {
+        CloseUI();
+        //this.gameObject.SetActive(false);
+    }
+
+    public override void OnBackPressed()
+    {
+        base.OnBackPressed();
+        OnCloseButtonPress();
+    }
 }

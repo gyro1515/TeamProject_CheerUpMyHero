@@ -30,7 +30,7 @@ public class UISwipeArea : MonoBehaviour, IEndDragHandler, IDragHandler
             pageToIdx.Add(i);
         }
         // 0이 가운데로 오게 하기
-        ShiftPageRight();
+        //ShiftPageRight();
         
     }
     private void Start()

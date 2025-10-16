@@ -6,10 +6,17 @@ using UnityEngine;
 
 public abstract class BaseHQ : BaseCharacter, IDamageable
 {
+    public struct SpawnHQEvent
+    {
+        public BaseHQ baseHQ;
+        public EUIHpBarType type;
+        public Vector2? hpBarSize;
+        public bool isPlayer;
+    }
     [Header("본부 세팅")]
     [SerializeField] protected float minY = 0; // 스폰 위치 최소값
     [SerializeField] protected float maxY = 0; // 스폰 위치 최대값
-    [SerializeField] protected float spawnInterval = 0.5f;
+    [SerializeField] protected float spawnInterval = 0.2f;
     int tmpMinY;
     int tmpMaxY;
 
@@ -20,7 +27,7 @@ public abstract class BaseHQ : BaseCharacter, IDamageable
         tmpMaxY = (int)(maxY * 100f) + 1;
         OnDead += Dead;
     }
-    protected abstract void SpawnUnit(); // 추후 애너미에만 있을 지도...?
+    //protected abstract void SpawnUnit(); // 추후 애너미에만 있을 지도...?
     public virtual void Dead()
     {
         // 여기서 오브젝트 풀 반환

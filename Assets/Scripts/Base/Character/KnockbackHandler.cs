@@ -57,12 +57,15 @@ public class KnockbackHandler : MonoBehaviour
     {
         //Debug.Log("넉백!!!");
         //StartCoroutine(KnockBackRoutine());
+        if (baseUnit == null || baseUnit.gameObject == null) return;
         float startPosX = baseUnit.gameObject.transform.position.x;
         float endPosX = startPosX + knockBackDistance;
-        baseUnit.gameObject.transform.DOMoveX(endPosX, knockBackTime).SetEase(Ease.OutQuad);
+        baseUnit?.gameObject?.transform.DOMoveX(endPosX, knockBackTime).SetEase(Ease.OutQuad);
     }
     IEnumerator HitBackRoutine()
     {
+        if (baseUnit == null || baseUnit.gameObject == null) yield break;
+
         //hitBackTimer = 0f;
         float getUpTime = 0.4f; // 애니메이션 일어나는 시간
         float startPosX = baseUnit.gameObject.transform.position.x;
@@ -74,6 +77,8 @@ public class KnockbackHandler : MonoBehaviour
         baseUnit.gameObject.transform.DOMoveX(endPosX, hitBackTime).SetEase(easeType);
         baseUnit.gameObject.transform.DOMoveY(endPosY, hitBackTime / 2).SetEase(easeType);
         yield return new WaitForSeconds(hitBackTime / 2);
+        if (baseUnit == null || baseUnit.gameObject == null) yield break;
+
         baseUnit.gameObject.transform.DOMoveY(startPosY, hitBackTime / 2).SetEase(Ease.OutBounce);
         yield return new WaitForSeconds(hitBackTime / 2);
 
@@ -92,13 +97,17 @@ public class KnockbackHandler : MonoBehaviour
         {
             Debug.Log("죽음");
             OnHitBackActive?.Invoke(false);
-            baseUnit.UnitController.SetDead();
+            if (baseUnit.TryGetComponent<Player>(out Player player))
+                Debug.Log("플레이어 넉백 후 사망");
+            else
+                baseUnit.UnitController.SetDead();
             yield break;
         }
         // 죽지 않았다면
         if(baseUnit.BaseController.Animator) 
             baseUnit.BaseController.Animator.SetBool(baseUnit.AnimationData.GetUpParameterHash, true);
         yield return new WaitForSeconds(getUpTime);
+        if (baseUnit == null || baseUnit.gameObject == null) yield break;
         if (baseUnit.BaseController.Animator)
             baseUnit.BaseController.Animator.SetBool(baseUnit.AnimationData.GetUpParameterHash, false);
         OnHitBackActive?.Invoke(false); // 히트백 끝

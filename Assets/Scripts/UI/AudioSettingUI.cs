@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.Audio;
 using UnityEngine.UI;
 
-public class AudioSettingUI : MonoBehaviour
+public class AudioSettingUI : MonoBehaviour, IBackButtonHandler
 {
     [Header("UI")]
     [SerializeField] private Slider masterSlider;
@@ -89,5 +89,11 @@ public class AudioSettingUI : MonoBehaviour
     {
         gameObject.SetActive(false);
         Time.timeScale = 1f;
+    }
+
+    public void OnBackPressed()
+    {
+        Debug.Log("[AudioSettingUI] OnBackPressed");
+
     }
 }

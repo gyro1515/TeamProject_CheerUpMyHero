@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using DG.Tweening;
 
 public class UISettingMenu : BaseUI
 {
@@ -11,11 +12,12 @@ public class UISettingMenu : BaseUI
     [SerializeField] private Button _soundSettingButton;
 
     [Header("사운드 패널")]
-    [SerializeField] private CanvasGroup _soundSettingPanel;
-
+    [SerializeField] private BasePopUpUI _soundSettingPanel;
+    
     private void OnSoundSettingButtonClicked()
     {
-        showPanel(_soundSettingPanel);
+        _soundSettingPanel.OpenUI();
+        //showPanel(_soundSettingPanel);
     }
     #endregion
 
@@ -24,11 +26,11 @@ public class UISettingMenu : BaseUI
     [SerializeField] private Button _fpsSettingButton;
 
     [Header("성능 관리 패널")]
-    [SerializeField] private CanvasGroup _fpsSettingPanel;
+    [SerializeField] private BasePopUpUI _fpsSettingPanel;
 
     private void OnFPSSettingButtonClicked()
     {
-        showPanel(_fpsSettingPanel);
+        _fpsSettingPanel.OpenUI();
     }
     #endregion
 
@@ -37,11 +39,11 @@ public class UISettingMenu : BaseUI
     [SerializeField] private Button _controlSettingButton;
 
     [Header("조작 패널 변경 패널")]
-    [SerializeField] private CanvasGroup _controlSettingPanel;
+    [SerializeField] private BasePopUpUI _controlSettingPanel;
 
     private void OnControlSettingButtonClicked()
     {
-        showPanel(_controlSettingPanel);
+        _controlSettingPanel.OpenUI();
     }
     #endregion
 
@@ -50,30 +52,30 @@ public class UISettingMenu : BaseUI
     [SerializeField] private Button _giveUpButton;
 
     [Header("포기 선택 패널")]
-    [SerializeField] private CanvasGroup _giveUpPanel;
+    [SerializeField] private BasePopUpUI _giveUpPanel;
 
     private void OnGiveUpButtonClicked()
     {
-        showPanel(_giveUpPanel);
+        _giveUpPanel.OpenUI();
     }
     #endregion
 
     #region 메인 메뉴 닫기
     [Header("돌아가기 버튼")]
     [SerializeField] private Button _resumeButton;
+    [SerializeField] private BasePopUpUI _settingPanel;
     public event Action OnResumeButton;
 
     private void OnResumeButtonClicked()
     {
-        FadeManager.Instance.FadeOutUI(_canvasGroup);
-        OnResumeButton?.Invoke();
+        _settingPanel.CloseUI();
+        //OnResumeButton?.Invoke();
     }
     #endregion
 
     private List<CanvasGroup> _allPanels;
-
-    private CanvasGroup _canvasGroup;
-
+    // 이 스크립트에 캔버스 그룹이 없어서, 인스펙터창에서 직접 연결해줘야 함
+    [SerializeField] CanvasGroup _canvasGroup;
     private void Awake()
     {
         _soundSettingButton.onClick.AddListener(OnSoundSettingButtonClicked);
@@ -82,17 +84,15 @@ public class UISettingMenu : BaseUI
         _giveUpButton.onClick.AddListener(OnGiveUpButtonClicked);
         _resumeButton.onClick.AddListener(OnResumeButtonClicked);
 
-        _canvasGroup = GetComponent<CanvasGroup>();
-
-        _allPanels = new List<CanvasGroup>
+        /*_allPanels = new List<CanvasGroup>
         {
             _soundSettingPanel, 
             _fpsSettingPanel,
             _controlSettingPanel,
             _giveUpPanel
-        };
+        };*/
 
-        foreach (CanvasGroup panel in _allPanels )
+        /*foreach (CanvasGroup panel in _allPanels )
         {
             if ( panel != null )
             {
@@ -100,10 +100,13 @@ public class UISettingMenu : BaseUI
                 panel.interactable = false;
                 panel.blocksRaycasts = false;
             }
-        }
+        }*/
     }
-
-    private void showPanel(CanvasGroup target)
+    private void OnDisable()
+    {
+        OnResumeButton?.Invoke();
+    }
+    /*public void showPanel(CanvasGroup target)
     {
         foreach (CanvasGroup panel in _allPanels )
         {
@@ -113,11 +116,25 @@ public class UISettingMenu : BaseUI
             {
                 if (panel.alpha > 0.0f)
                 {
-                    FadeManager.Instance.FadeOutUI(panel);
+                    FadeManager.FadeOutUI(panel);
                 }
             }
         }
 
-        FadeManager.Instance.FadeInUI(target);
-    }
+        if(target != null) FadeManager.FadeInUI(target);
+    }*/
+    /*public void ShowPausePanel()
+    {
+        _canvasGroup.alpha = 0.0f;
+        _canvasGroup.DOFade(1f, 0.3f).SetUpdate(true);
+        _canvasGroup.interactable = true;
+        _canvasGroup.blocksRaycasts = true;
+        EventManager.Publish(new AddUIStackEvent { ui = this });
+    }*/
+    /*public void OnBackPressed()
+    {
+        Debug.Log("[UISettingMenu] 뒤로 가기 버튼 눌림");
+        OnResumeButtonClicked();
+        //EventManager.Publish(new RemoveUIStackEvent());
+    }*/
 }

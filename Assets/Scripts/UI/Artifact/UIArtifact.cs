@@ -1,22 +1,118 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UIArtifact : MonoBehaviour
+public class UIArtifact : BaseUI, IBackButtonHandler
 {
-    [Header("돌아가기 버튼")]
-    [SerializeField] private Button _closeButton;
+    #region UI요소 참조 변수
+    [Header("UI 요소 참조")]
+    [SerializeField] private UIArtifactEquipPanel _equipPanel;
+    [SerializeField] private UIArtifactInventoryPanel _inventoryPanel;
+    [SerializeField] private UIArtifactStatPanel _statPanel;
 
-    CanvasGroup _canvasGroup;
+    [Header("UI간 이동 버튼")]
+    [SerializeField] private Button _closeButton;   //지금 비활성화 되어있음
+    [SerializeField] private Button _gotoCardDeckButton;
 
+    private CanvasGroup _canvasGroup;
+
+    private ArtifactUIPresenter _presenter;
+    #endregion
+
+    #region 이벤트 시스템
+    public event Action<ArtifactType> OnRequestAutoEquip;
+    #endregion
+
+    #region 생명주기
     private void Awake()
     {
+        _presenter = new ArtifactUIPresenter(ArtifactManager.Instance,
+                                             this,
+                                             _inventoryPanel,
+                                             _equipPanel,
+                                             _statPanel);
+
         _canvasGroup = GetComponent<CanvasGroup>();
+        _closeButton.onClick.AddListener(() => SceneLoader.Instance.StartLoadScene(SceneState.BattleScene));
+
+        _passiveEquipButton.onClick.AddListener(OnPassiveEquipButtonClicked);
+        _activeEquipButton.onClick.AddListener(OnActiveEquipButtonClicked);
+        _ConfirmEquipButton.onClick.AddListener(() => OnRequestAutoEquip?.Invoke(_selectedType));
+
+        if (_passiveOutline != null) _passiveOutline.enabled = false;
+        if (_activeOutline != null) _activeOutline.enabled = false;
+    }
+    private void OnEnable()
+    {
+        EventManager.Publish(new AddUIStackEvent { ui = this });
+    }
+    private void Start()
+    {
+        _gotoCardDeckButton.onClick.AddListener(OnCardDeckClicked);
+        _presenter.InitialDisplay();
+    }
+    private void OnDisable()
+    {
+        EventManager.Publish(new RemoveUIStackEvent());
     }
 
+    private void OnDestroy()
+    {
+        _presenter?.Dispose();
+    }
+    #endregion
+
+    #region 버튼
     private void OnCloseButtonClicked()
     {
-        FadeManager.Instance.FadeOutUI(_canvasGroup);
+        FadeManager.FadeOutUI(_canvasGroup);
     }
+
+    private void OnCardDeckClicked()
+    {
+        FadeManager.Instance.SwitchGameObjects(gameObject, UIManager.Instance.GetUI<DeckPresetController>().gameObject);
+    }
+
+    public void OnBackPressed()
+    {
+        Debug.Log($"{gameObject.name} 뒤로가기: ");
+        OnCardDeckClicked();
+    }
+
+    #endregion
+
+    #region 자동 장착 로직 관련
+    [Header("자동 장착 버튼")]
+    [SerializeField] private Button _passiveEquipButton;
+    [SerializeField] private Button _activeEquipButton;
+    [SerializeField] private Button _ConfirmEquipButton;
+
+    [Header("선택 아웃라인")]
+    [SerializeField] private Outline _passiveOutline;
+    [SerializeField] private Outline _activeOutline;
+    private ArtifactType _selectedType;
+
+    private void OnPassiveEquipButtonClicked()
+    {
+        _selectedType = ArtifactType.Passive;
+        UpdateSelectionUI();
+    }
+
+    private void OnActiveEquipButtonClicked()
+    {
+        _selectedType = ArtifactType.Active;
+        UpdateSelectionUI();
+    }
+
+    private void UpdateSelectionUI()
+    {
+        if (_passiveOutline != null)
+            _passiveOutline.enabled = (_selectedType == ArtifactType.Passive);
+
+        if (_activeOutline != null)
+            _activeOutline.enabled = (_selectedType == ArtifactType.Active);
+    }
+    #endregion
 }

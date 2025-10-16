@@ -1,31 +1,67 @@
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
-public class MainScreenBuildingController : SingletonMono<MainScreenBuildingController>
+
+public class MainScreenBuildingController : MonoBehaviour
 {
     [Header("프리팹연결")]
     [SerializeField] private GameObject tilePrefab;                 // 타일 프리팹
     [SerializeField] private Transform gridParent;                  // 타일 그리드 부모 (GridLayoutGroup이 붙은 오브젝트)
     [SerializeField] private ConstructionSelectPanel selectPanel;   // 건설 선택 패널
     [SerializeField] private ConstructionUpgradePanel upgradePanel; // 업그레이드 패널
+   
+    [Header("드래그 앤 드랍")]
+    [SerializeField] private Image dragIcon;
+
+    [Header("타일 테두리")]
+    [SerializeField] private GameObject selectedFrameObject;
 
     private BuildingTile[,] _tiles = new BuildingTile[5, 5];
     private BuildingTile _selectedTile;
+    private BuildingTile _sourceDragTile; // 드래그를 시작한 타일
 
-    [SerializeField] private GameObject selectedFrameObject;
+    public static MainScreenBuildingController Instance { get; private set; }
 
-    protected override void Awake() //돈디스트로이 온 로드 에러가 떠서 추가했습니다
+
+    public bool IsDragging() => _sourceDragTile != null; // 현재 드래그 중인지 확인하는 프로퍼티
+
+
+    private void Awake()
     {
-        Transform originalParent = transform.parent; //UIManager에 의해 설정된 현재 부모를 기억
-
-        transform.SetParent(null);//DontDestroyOnLoad를 호출하기 위해 잠시 루트 오브젝트로 만듦
-
-        base.Awake();
-
-        transform.SetParent(originalParent);  //원래의 부모에게 다시 자식으로 돌아갑니다.
+        if (Instance != null && Instance != this)
+        {
+            Destroy(this.gameObject);
+        }
+        else
+        {
+            Instance = this;
+        }
+    }
+    private void OnDestroy()
+    {
+        if (Instance == this)
+        {
+            Instance = null;
+        }
     }
     private void Start()
     {
         CreateGrid();
+    }
+    private void OnEnable()
+    {
+        //// GameManager가 존재하고, "화면 갱신" 깃발이 세워져 있는지 확인
+        //if (GameManager.Instance != null && GameManager.Instance.NeedsTileVisualUpdate)
+        //{
+        //    //깃발을 확인했으면, 스스로 화면 갱신을 실행
+               UpdateAllTileVisuals();
+
+        //    //일을 끝냈으므로, 깃발을 다시 내립니다. (중복 실행 방지)
+        //    GameManager.Instance.NeedsTileVisualUpdate = false;
+        //}
     }
 
     // ---------------- 그리드 생성 ----------------
@@ -48,11 +84,11 @@ public class MainScreenBuildingController : SingletonMono<MainScreenBuildingCont
             {
                 var tileGO = Instantiate(tilePrefab, gridParent);
                 var tile = tileGO.GetComponent<BuildingTile>();
-                tile.Initialize(x, y);
+                tile.Initialize(x, y, this);
 
                 _tiles[x, y] = tile;
 
-                var buildingData = PlayerDataManager.Instance.BuildingGridData[x, y];
+                var buildingData = PlayerDataManager.Instance._TileDataHandler.BuildingGridData[x, y];
                 if (buildingData != null)
                     tile.SetBuilding(buildingData);
 
@@ -78,25 +114,48 @@ public class MainScreenBuildingController : SingletonMono<MainScreenBuildingCont
     private void HandleTileClick(BuildingTile tile)
     {
         _selectedTile = tile;
-
         selectedFrameObject.SetActive(true);
         selectedFrameObject.transform.position = tile.transform.position;
 
-        var currentBuilding = PlayerDataManager.Instance.BuildingGridData[tile.X, tile.Y];
-
-        if (tile.MyTileType == TileType.Normal)
+        if (tile.MyTileType == TileType.Special)
         {
-            if (currentBuilding == null)
+
+            Debug.Log($"스페셜 타일 ({tile.X},{tile.Y})을 클릭했습니다. (현재 기능 없음)");
+
+            // 현재는 상호작용할 패널이 없으므로, 즉시 선택을 해제
+            DeselectTile();
+        }
+        else if (tile.MyTileType == TileType.Normal)
+        {
+
+            TileStatus status = PlayerDataManager.Instance._TileDataHandler.TileStatusGrid[tile.X, tile.Y];
+            var currentBuilding = PlayerDataManager.Instance._TileDataHandler.BuildingGridData[tile.X, tile.Y];
+
+            if (status == TileStatus.Damaged && currentBuilding != null)
             {
-                // 건설
-                selectPanel.Initialize(tile, upgradePanel);
-                selectPanel.OpenUI();
+                // '반파'된 건물이면 -> 수리 확인창 열기
+                upgradePanel.InitializeForRepair(tile);
+                upgradePanel.OpenUI();
+            }
+            else if (status == TileStatus.Normal)
+            {
+                // '정상' 상태의 일반 타일이면 -> 건설/업그레이드
+                if (currentBuilding == null)
+                {
+                    selectPanel.Initialize(tile, upgradePanel);
+                    selectPanel.OpenUI();
+                }
+                else
+                {
+                    upgradePanel.InitializeForUpgrade(tile);
+                    upgradePanel.OpenUI();
+                }
             }
             else
             {
-                // 업그레이드
-                upgradePanel.InitializeForUpgrade(tile);
-                upgradePanel.OpenUI();
+                // 황폐화, 수리 중 상태의 '일반' 타일은 상호작용 불가
+                Debug.Log($"타일 ({tile.X},{tile.Y})은(는) 현재 상호작용할 수 없습니다.");
+                DeselectTile();
             }
         }
     }
@@ -146,10 +205,10 @@ public class MainScreenBuildingController : SingletonMono<MainScreenBuildingCont
         }
 
         // 저장 & 반영
-        PlayerDataManager.Instance.BuildingGridData[tile.X, tile.Y] = level1Data;
+        PlayerDataManager.Instance._TileDataHandler.BuildingGridData[tile.X, tile.Y] = level1Data;
         tile.SetBuilding(level1Data);
 
-        PlayerDataManager.Instance.UpdateAllBuildingEffects();
+        EventManager.Publish(new GridStateChangedEvent());
 
         Debug.Log($"{tile.X},{tile.Y}에 {level1Data.buildingName} 건설 완료!");
     }
@@ -159,9 +218,10 @@ public class MainScreenBuildingController : SingletonMono<MainScreenBuildingCont
     {
         if (tile == null) { Debug.LogError("tile이 null입니다."); return; }
 
-        var current = PlayerDataManager.Instance.BuildingGridData[tile.X, tile.Y];
+        var current = PlayerDataManager.Instance._TileDataHandler.BuildingGridData[tile.X, tile.Y];
         if (current == null) { Debug.LogError("업그레이드할 건물 없음"); return; }
 
+        // 다음 레벨 데이터 확인 (업그레이드 비용은 current 데이터에 있음)
         var next = DataManager.Instance.BuildingUpgradeData.GetData(current.nextLevel);
         if (next == null)
         {
@@ -169,26 +229,196 @@ public class MainScreenBuildingController : SingletonMono<MainScreenBuildingCont
             return;
         }
 
-        // 비용 체크
+        // 비용 계산을 위한 리스트 선언
+        var finalCosts = new List<(ResourceType type, int amount)>();
+
+        // --- 비용 체크 ---
         foreach (var cost in current.costs)
         {
-            if (PlayerDataManager.Instance.GetResourceAmount(cost.resourceType) < cost.amount)
+            float reductionPercent = 0f;
+            switch (cost.resourceType)
             {
-                Debug.Log("자원이 부족하여 업그레이드 불가");
+                case ResourceType.Wood:
+                    reductionPercent = PlayerDataManager.Instance.SynergyWoodCostReduction;
+                    break;
+                case ResourceType.Iron:
+                    reductionPercent = PlayerDataManager.Instance.SynergyIronCostReduction;
+                    break;
+                case ResourceType.MagicStone:
+                    reductionPercent = PlayerDataManager.Instance.SynergyMagicStoneCostReduction;
+                    break;
+            }
+
+            // 최종 필요 비용 계산 (할인율 적용, 소수점 올림)
+            int finalCost = Mathf.CeilToInt(cost.amount * (1.0f - reductionPercent / 100.0f));
+
+            // 계산된 최종 비용을 리스트에 저장
+            finalCosts.Add((cost.resourceType, finalCost));
+
+            if (PlayerDataManager.Instance.GetResourceAmount(cost.resourceType) < finalCost)
+            {
+                Debug.Log($"자원이 부족하여 업그레이드 불가. 필요 {cost.resourceType}: {finalCost} (할인율: {reductionPercent}%)");
                 return;
             }
         }
 
-        // 비용 차감
-        foreach (var cost in current.costs)
-            PlayerDataManager.Instance.AddResource(cost.resourceType, -cost.amount);
+        // --- 비용 차감 ---
+        foreach (var finalCost in finalCosts)
+        {
+            PlayerDataManager.Instance.AddResource(finalCost.type, -finalCost.amount);
+        }
 
-        // 저장 & 반영
-        PlayerDataManager.Instance.BuildingGridData[tile.X, tile.Y] = next;
+        // --- 저장 & 반영 ---
+        PlayerDataManager.Instance._TileDataHandler.BuildingGridData[tile.X, tile.Y] = next;
         tile.SetBuilding(next);
 
-        PlayerDataManager.Instance.UpdateAllBuildingEffects(); 
+        EventManager.Publish(new GridStateChangedEvent());
 
         Debug.Log($"{current.buildingName} Lv.{current.level} → Lv.{next.level} 업그레이드 완료!");
     }
+
+    // ------수리------
+    public void RepairBuildingOnTile(BuildingTile tile)
+    {
+        var currentBuildingData = PlayerDataManager.Instance._TileDataHandler.BuildingGridData[tile.X, tile.Y];
+        if (currentBuildingData == null) return;
+
+        BuildingUpgradeData prevLevelData = DataManager.Instance.BuildingUpgradeData.Values
+                                            .FirstOrDefault(data => data.nextLevel == currentBuildingData.idNumber);
+
+        if (prevLevelData == null)
+        {
+            Debug.LogError($"건물 ID {currentBuildingData.idNumber}의 이전 레벨 데이터를 찾을 수 없어 수리 비용을 계산할 수 없습니다.");
+            return;
+        }
+
+        // prevLevelData.costs가 바로 현재 건물을 지을 때 들었던 비용
+        List<Cost> repairCosts = prevLevelData.costs;
+
+        // 모든 필요 자원을 확인
+        bool canAfford = true;
+        foreach (var cost in repairCosts)
+        {
+            // 각 자원의 필요량은 50%로 계산
+            int requiredAmount = Mathf.CeilToInt(cost.amount * 0.5f);
+            if (PlayerDataManager.Instance.GetResourceAmount(cost.resourceType) < requiredAmount)
+            {
+                canAfford = false;
+                break; // 하나라도 부족하면 즉시 중단
+            }
+        }
+
+        if (!canAfford)
+        {
+            Debug.Log("자원이 부족하여 수리할 수 없습니다.");
+            return;
+        }
+
+        // 모든 자원을 차감
+        foreach (var cost in repairCosts)
+        {
+            int costAmount = Mathf.CeilToInt(cost.amount * 0.5f);
+            PlayerDataManager.Instance.AddResource(cost.resourceType, -costAmount);
+        }
+
+        //상태를 'Damaged'에서 'Repairing'으로 변경
+        PlayerDataManager.Instance._TileDataHandler.TileStatusGrid[tile.X, tile.Y] = TileStatus.Repairing;
+        PlayerDataManager.Instance.UpdateAllBuildingEffects();
+
+        tile.UpdateStatusVisual();
+        Debug.Log($"타일 ({tile.X},{tile.Y})의 수리를 시작합니다. 남은 턴: {PlayerDataManager.Instance._TileDataHandler.TileStatusGrid[tile.X, tile.Y]}");
+    }
+
+    public void UpdateAllTileVisuals()
+    {
+        if (_tiles == null) return;
+
+        // CreateGrid가 아직 호출되지 않아 _tiles가 비어있을 수 있으므로 방어 코드 추가
+        if (_tiles[0, 0] == null)
+        {
+            CreateGrid(); // 만약 타일이 없다면 생성부터 하도록 강제
+        }
+
+        foreach (var tile in _tiles)
+        {
+            if (tile != null)
+            {
+                tile.UpdateStatusVisual();
+            }
+        }
+        Debug.Log("모든 타일의 시각적 상태를 업데이트했습니다.");
+    }
+
+    #region 드래그 앤 드랍 로직
+
+    public void StartDrag(BuildingTile sourceTile)
+    {
+        if (sourceTile == null) return;
+        _sourceDragTile = sourceTile;
+
+        dragIcon.sprite = sourceTile.GetBuildingData().buildingSprite;
+        dragIcon.gameObject.SetActive(true);
+        dragIcon.transform.position = Input.mousePosition;
+
+        // 원래 타일의 이미지를 약간 투명하게
+        sourceTile.GetComponent<Image>().color = new Color(1, 1, 1, 0.5f);
+    }
+
+    public void UpdateDrag(PointerEventData eventData)
+    {
+        if (dragIcon.gameObject.activeInHierarchy)
+        {
+            dragIcon.transform.position = eventData.position;
+        }
+    }
+
+    public void EndDrag()
+    {
+        if (_sourceDragTile != null)
+        {
+            // 드랍이 성공하지 못하고 끝났을 경우, 원래 타일의 모습을 복원
+            UpdateTileUI(_sourceDragTile);
+        }
+
+        _sourceDragTile = null;
+        dragIcon.gameObject.SetActive(false);
+    }
+
+    public void HandleDrop(BuildingTile destinationTile)
+    {
+        var dataHandler = PlayerDataManager.Instance._TileDataHandler;
+        var destStatus = dataHandler.TileStatusGrid[destinationTile.X, destinationTile.Y];
+
+        // 목표 타일의 상태가 'Normal'이 아닐 경우 드랍을 무효
+        if (_sourceDragTile == null || _sourceDragTile == destinationTile || destinationTile.MyTileType == TileType.Special || destStatus != TileStatus.Normal)
+        {
+            return;
+        }
+
+        var destBuilding = dataHandler.BuildingGridData[destinationTile.X, destinationTile.Y];
+
+        if (destBuilding == null) // Case 1: 빈 타일로 이동
+        {
+            dataHandler.MoveBuildingData(_sourceDragTile.X, _sourceDragTile.Y, destinationTile.X, destinationTile.Y);
+        }
+        else // Case 2: 다른 건물과 위치 교체
+        {
+            dataHandler.SwapBuildingData(_sourceDragTile.X, _sourceDragTile.Y, destinationTile.X, destinationTile.Y);
+        }
+
+        UpdateTileUI(_sourceDragTile);
+        UpdateTileUI(destinationTile);
+
+        _sourceDragTile = null;
+        dragIcon.gameObject.SetActive(false);
+    }
+
+    private void UpdateTileUI(BuildingTile tile)
+    {
+        var buildingData = PlayerDataManager.Instance._TileDataHandler.BuildingGridData[tile.X, tile.Y];
+        tile.SetBuilding(buildingData);
+        tile.UpdateStatusVisual(); // 색상과 상태를 모두 원래대로 복원
+    }
+    #endregion
 }
+

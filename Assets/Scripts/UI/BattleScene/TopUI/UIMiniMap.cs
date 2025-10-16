@@ -52,8 +52,8 @@ public class UIMiniMap : MonoBehaviour
         uIWidth = rectTransform.rect.width;
         uIWidth *= 0.93f; // 캔버스에 있는 HQ 위치 보정 
 
-        Debug.Log($"월드 크기: {wordWidth}");
-        Debug.Log($"UI 크기: {uIWidth}");
+        //Debug.Log($"월드 크기: {wordWidth}");
+        //Debug.Log($"UI 크기: {uIWidth}");
         //********
         worldCenter = enemyHQPos + playerHQPos;
         worldCenter /= 2;
@@ -96,17 +96,18 @@ public class UIMiniMap : MonoBehaviour
 
     void AddToMinMapUnitList(BaseCharacter unit, bool isPlayer)
     {
-        Dictionary<BaseCharacter, UIMiniMapIcon> unitPiar = isPlayer ? playerUnitIconsPair : enemyUnitIconsPair;
+        Dictionary<BaseCharacter, UIMiniMapIcon> unitPair = isPlayer ? playerUnitIconsPair : enemyUnitIconsPair;
         Color unitColor = isPlayer ? playerColor : enemyColor;
 
         GameObject obj = ObjectPoolManager.Instance.Get(PoolType.UIMinimapIcon);
 
         //부모 변경해야 캔버스에 표시됨. 반대로 반납할 때는 부모 원위치 필요
-        obj.transform.SetParent(unitsTransform, false); // 두번째 인자 false 하면 기존 월드좌표를 리셋하고 부모를 바꿈
+        //obj.transform.SetParent(unitsTransform, false); // 두번째 인자 false 하면 기존 월드좌표를 리셋하고 부모를 바꿈
+        obj.transform.SetParent(unitsTransform); // 두번째 인자 false 하면 기존 월드좌표를 리셋하고 부모를 바꿈
         UIMiniMapIcon icon = obj.GetComponent<UIMiniMapIcon>();
         icon.ResetRectTransform();
         icon.SetColor(unitColor);
-        unitPiar.Add(unit, icon);
+        unitPair.Add(unit, icon);
     }
 
     void RemoveFromMiniMapUnitList(BaseCharacter unit, bool isPlayer)

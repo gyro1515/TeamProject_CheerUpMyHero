@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using static InputManager;
+using static Unity.Burst.Intrinsics.X86.Avx;
+
 
 public class UIManager : SingletonMono<UIManager>, ISceneResettable
 {
@@ -10,27 +13,97 @@ public class UIManager : SingletonMono<UIManager>, ISceneResettable
 
     private bool _isCleaning;
     private Dictionary<string, BaseUI> _uiDictionary = new Dictionary<string, BaseUI>();
+    //private BaseUI _currentOpenedPopup = null;
+    private readonly Stack<IBackButtonHandler> _uiStack = new Stack<IBackButtonHandler>();
+
     protected override void Awake()
     {
         base.Awake();
+        InputManager.Instance.gameObject.SetActive(true); // InputManager 강제 초기화
+        //SceneManager.sceneLoaded += OnSceneLoaded;
+        EventManager.Subscribe<BackButtonPressedEvent>(_ => BackButtonPressed());
+        EventManager.Subscribe<AddUIStackEvent>(PushUI);
+        EventManager.Subscribe<RemoveUIStackEvent>(_ => PopUI());
     }
     /*private void OnEnable()
     {
         // 씬 언로드 이벤트 구독
         SceneManager.sceneUnloaded += OnSceneUnloaded;
     }*/
-
+    //private void Update()
+    //{
+    //    // 뒤로가기 버튼(Escape 키)이 눌렸는지 확인
+    //    if (Input.GetKeyDown(KeyCode.Escape))
+    //    {
+    //        // 현재 열려있는 팝업이 있다면 닫음
+    //        if (_currentOpenedPopup != null)
+    //        {
+    //            _currentOpenedPopup.CloseUI();
+    //            _currentOpenedPopup = null;
+    //        }
+    //    }
+    //}
+    //public void SetCurrentPopup(BaseUI ui)
+    //{
+    //    _currentOpenedPopup = ui;
+    //}
+    //public void ClearCurrentPopup(BaseUI ui)
+    //{
+    //    // 닫으려는 UI가 현재 열려있는 UI가 맞는지 확인 후 비움
+    //    if (_currentOpenedPopup == ui)
+    //    {
+    //        _currentOpenedPopup = null;
+    //    }
+    //}
     private void Start()
     {
         // *** 씬 전환마다 리소스 정리하려면 추가 필요***
         SceneLoader.Instance.SceneResettables.Add(this);
     }
-    /*private void OnDisable()
+    private void OnDisable()
     {
-        // 씬 언로드 이벤트 해제 (메모리 누수 방지)
-        SceneManager.sceneUnloaded -= OnSceneUnloaded;
+        /*// 씬 언로드 이벤트 해제 (메모리 누수 방지)
+        SceneManager.sceneUnloaded -= OnSceneUnloaded;*/
     }
-*/
+
+    // UI 순서 관리
+    void PushUI(AddUIStackEvent eventStruct)
+    {
+        _uiStack.Push(eventStruct.ui);
+        Debug.Log($"UIManager: UI 스택에서 추가: {eventStruct.ui.ToString()} / {_uiStack.Count}");
+    }
+
+    // UI가 닫힐 때 스택에서 제거
+    void PopUI()
+    {
+        if (_uiStack.Count > 0)
+        {
+            var tmp = _uiStack.Pop();
+            Debug.Log($"UIManager: UI 스택에서 제거: {tmp.ToString()} / {_uiStack.Count}");
+        }
+    }
+    void BackButtonPressed()
+    {
+        //Debug.Log($"UIManager: 뒤로 가기 버튼 눌림{_uiStack.Count}");
+        // 스택에 UI가 하나라도 있다면
+        if (_uiStack.Count > 0)
+        {
+            // 스택의 가장 위에 있는 UI에게 뒤로 가기 처리를 위임
+            IBackButtonHandler topUI = _uiStack.Peek();
+            topUI?.OnBackPressed();
+        }
+        else
+        {
+            Debug.Log("뒤로 가기: 열린 UI 없음 (게임 종료 로직 등 수행)");
+#if UNITY_EDITOR
+            // 에디터에서는 플레이 모드를 종료
+            EditorApplication.isPlaying = false;
+#else
+        // 실제 빌드된 환경에서는 애플리케이션 종료
+        Application.Quit();
+#endif
+        }
+    }
     // ================================
     // UI 관리
     // ================================
@@ -77,6 +150,7 @@ public class UIManager : SingletonMono<UIManager>, ISceneResettable
 
         // 1. 프리팹 로드
         string path = GetPath<T>();
+        //Debug.Log(path);
         GameObject prefab = Resources.Load<GameObject>(path);
         if (prefab == null)
         {
@@ -122,7 +196,14 @@ public class UIManager : SingletonMono<UIManager>, ISceneResettable
         return typeof(T).Name;
     }
 
-
+    // 씬 로드 시 다시 구독
+    /*private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        //Debug.Log("OnSceneLoaded 호출");
+        EventManager.Subscribe<BackButtonPressedEvent>(_ => BackButtonPressed());
+        EventManager.Subscribe<AddUIStackEvent>(PushUI);
+        EventManager.Subscribe<RemoveUIStackEvent>(_ => PopUI());
+    }*/
     // ================================
     // 리소스 정리
     // ================================
@@ -158,6 +239,7 @@ public class UIManager : SingletonMono<UIManager>, ISceneResettable
     public void OnSceneReset()
     {
         CleanAllUIs();
+        _uiStack.Clear();
     }
     
 

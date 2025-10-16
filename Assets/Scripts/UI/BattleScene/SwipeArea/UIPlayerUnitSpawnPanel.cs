@@ -5,12 +5,13 @@ using UnityEngine;
 public class UIPlayerUnitSpawnPanel : BaseUI
 {
     [Header("유닛 소환 패널 설정")]
-    [SerializeField] GameObject spawnUnitSlotPrefab;
-    [SerializeField] Transform spawnUnitSlotContainer;
+    /*[SerializeField] GameObject spawnUnitSlotPrefab;
+    [SerializeField] Transform spawnUnitSlotContainer;*/
+    [SerializeField] List<UISpawnUnitSlot> spawnUnitSlotList;
 
     private void Awake()
     {
-        if (!spawnUnitSlotPrefab || !spawnUnitSlotContainer) return;
+        /*if (!spawnUnitSlotPrefab || !spawnUnitSlotContainer) return;*/
 
         //PlayerDataManager에서 현재 활성화된 덱 정보를 가져옴
         ////테스트 코드**********
@@ -23,12 +24,14 @@ public class UIPlayerUnitSpawnPanel : BaseUI
         //********
         int activeDeckIndex = PlayerDataManager.Instance.ActiveDeckIndex;
         List<int> deckUnitIds = PlayerDataManager.Instance.DeckPresets[activeDeckIndex].UnitIds;
-        
-        
-        // 가져온 덱 정보로 슬롯을 생성
-        for (int i = 0; i < deckUnitIds.Count; i++)
+
+
+        // 가져온 덱 정보로 슬롯을 세팅: 250930 변경
+        //for (int i = 0; i < deckUnitIds.Count; i++)
+        for (int i = 0; i < spawnUnitSlotList.Count; i++)
         {
-            UISpawnUnitSlot unitSlot = Instantiate(spawnUnitSlotPrefab, spawnUnitSlotContainer).GetComponent<UISpawnUnitSlot>();
+            //UISpawnUnitSlot unitSlot = Instantiate(spawnUnitSlotPrefab, spawnUnitSlotContainer).GetComponent<UISpawnUnitSlot>();
+            UISpawnUnitSlot unitSlot = spawnUnitSlotList[i];
 
             int unitId = deckUnitIds[i];
 
@@ -37,14 +40,14 @@ public class UIPlayerUnitSpawnPanel : BaseUI
                 unitSlot.InitSpawnUnitSlot(null, "비었음", -1, PoolType.None, 0, -1);
                 continue;
             }
-
+            // ToDo: 엑셀 데이터로 교체 필요**************
             // PlayerDataManager에서 unitId로 임시 카드 데이터를 가져옴
-            TempCardData cardData = PlayerDataManager.Instance.GetUnitData(unitId);
+            BaseUnitData cardData = PlayerDataManager.Instance.GetUnitData(unitId);
 
             if (cardData != null)
             {
                 // 카드 데이터를 사용해 전투 소환 슬롯을 초기화합니다.
-                unitSlot.InitSpawnUnitSlot(null, cardData.unitName, unitId, cardData.poolType, cardData.coolTime, cardData.cost);
+                unitSlot.InitSpawnUnitSlot(null, cardData.unitName, unitId, cardData.poolType, cardData.spawnCooldown, cardData.cost);
             }
         }
 

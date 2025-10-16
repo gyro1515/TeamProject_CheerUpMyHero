@@ -120,15 +120,15 @@ public class FadeManager : SingletonMono<FadeManager>
         isFadeOut = false;
 
     }
-    public void FadeInUI(CanvasGroup target, TweenCallback afterFade = null)
+    public static void FadeInUI(CanvasGroup target, TweenCallback afterFade = null)
     {
-        SetInteractable(target, true);
+        Instance.SetInteractable(target, true);
         target.DOFade(1f, 0.3f).SetUpdate(true).onComplete += afterFade;
     }
 
-    public void FadeOutUI(CanvasGroup target)
+    public static void FadeOutUI(CanvasGroup target, TweenCallback afterFade = null)
     {
-        target.DOFade(0f, 0.3f).SetUpdate(true).onComplete += () => SetInteractable(target, false);
+        target.DOFade(0f, 0.3f).SetUpdate(true).onComplete += () => { Instance.SetInteractable(target, false); afterFade?.Invoke(); }; 
     }
     void SetInteractable(CanvasGroup target, bool active)
     {

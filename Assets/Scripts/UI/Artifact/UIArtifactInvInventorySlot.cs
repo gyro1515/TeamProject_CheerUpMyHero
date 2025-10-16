@@ -6,8 +6,20 @@ using UnityEngine.Events;
 using UnityEngine.UI;
 using System;
 
-public class UIArtifactInvInventorySlot : BaseUI
+public struct InventorySlotViewModel
 {
+    public ArtifactData Artifact;
+    public string Name;
+    public string StatType;
+    public string StatValue;
+    public Color BorderColor;
+    public Sprite Icon;
+    public bool IsEquippedInCurrentSlot;
+}
+
+public class UIArtifactInvInventorySlot : MonoBehaviour
+{
+    #region UI요소 참조 변수
     [Header("유물 데이터 적용")]
     [SerializeField] private Image _artifactIcon;
     [SerializeField] private TextMeshProUGUI _nameText;
@@ -15,18 +27,14 @@ public class UIArtifactInvInventorySlot : BaseUI
     [SerializeField] private TextMeshProUGUI _statValueText;
     [SerializeField] private GameObject _equippedImage;
 
-    [Header("등급별 테두리 색상")]
-    [SerializeField] private Color _commonBorder = Color.gray;
-    [SerializeField] private Color _rareBorder = Color.blue;
-    [SerializeField] private Color _epicBorder = Color.magenta;
-    [SerializeField] private Color _uniqueBorder = Color.yellow;
-    [SerializeField] private Color _legendaryBorder = Color.green;
-
-    private Outline _outline;
     private ArtifactData _data;
     private Button _button;
+    private Outline _outline;
+    #endregion
 
+    #region 이벤트 시스템
     public event Action<ArtifactData> OnArtifactInventorySlotClicked;
+    #endregion
 
     private void Awake()
     {
@@ -36,90 +44,18 @@ public class UIArtifactInvInventorySlot : BaseUI
         _button.onClick.AddListener(OnButtonClicked);
     }
 
-    public void Init(ArtifactData data, bool isEquipedThisSlot)
+    public void Init(InventorySlotViewModel vm)
     {
-        _data = data;
-        _equippedImage.SetActive(isEquipedThisSlot);
-        UpdateUI();
-    }
+        _data = vm.Artifact;
 
-    private void UpdateUI()
-    {
-        if (_data == null)
-        {
-            gameObject.SetActive(false);
-            return;
-        }
+        _nameText.text = vm.Name;
+        _statTypeText.text = vm.StatType;
+        _statValueText.text = vm.StatValue;
+        _outline.effectColor = vm.BorderColor;
+        _artifactIcon.sprite = vm.Icon;
+        _equippedImage.SetActive(vm.IsEquippedInCurrentSlot);
 
         gameObject.SetActive(true);
-        _nameText.text = _data.name;
-
-        // 나중에 유물 이미지 넣는 로직 추가해야 함
-        
-        if (_data is PassiveArtifactData passiveAf)
-        {
-            #region 테두리 색깔 결정하기
-            switch (passiveAf.grade)
-            {
-                case PassiveArtifactGrade.Common:
-                    _outline.effectColor = _commonBorder;
-                    break;
-
-                case PassiveArtifactGrade.Rare:
-                    _outline.effectColor = _rareBorder;
-                    break;
-                
-                case PassiveArtifactGrade.Epic:
-                    _outline.effectColor = _epicBorder;
-                    break;
-
-                case PassiveArtifactGrade.Unique:
-                    _outline.effectColor = _uniqueBorder;
-                    break;
-
-                case PassiveArtifactGrade.Legendary:
-                    _outline.effectColor =_legendaryBorder;
-                    break;
-
-                default:
-                    _outline.effectColor = Color.black;
-                    break;
-            }
-            #endregion
-
-            #region 스탯 타입 출력하기
-            switch (passiveAf.statType)
-            {
-                case StatType.MaxHp:
-                    _statTypeText.text = "HP";
-                    break;
-
-                case StatType.AtkPower:
-                    _statTypeText.text = "ATK";
-                    break;
-
-                case StatType.MoveSpeed:
-                    _statTypeText.text = "SPD";
-                    break;
-
-                case StatType.AuraRange:
-                    _statTypeText.text = "RNG";
-                    break;
-
-                default:
-                    _statTypeText.text = "ERROR";
-                    break;
-            }
-            #endregion
-
-            _statValueText.text = passiveAf.value.ToString();
-        }
-        else if (_data is ActiveArtifactData activeAf)
-        {
-            _statTypeText.text = $"Lv.{activeAf.levelData[activeAf.curLevel].level}";
-            _statValueText.text = $"Cost : {activeAf.cost}";
-            _outline.effectColor = _legendaryBorder;
-        }
     }
 
     private void OnButtonClicked()

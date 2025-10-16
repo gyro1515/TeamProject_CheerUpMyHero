@@ -1,11 +1,16 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class ArtifactManager : SingletonMono<ArtifactManager>
 {
     public event Action OnEquippedArtifactChanged;
+    public event Action OnOwnedArtifactsChanged;
+
+    public ArtifactSO artifactSO;
 
     public List<ArtifactData> OwnedArtifacts { get; private set; } = new List<ArtifactData>();       // 플레이어가 보유 중인 유물 리스트
 
@@ -35,6 +40,8 @@ public class ArtifactManager : SingletonMono<ArtifactManager>
         AddArtifact(08010001);
         AddArtifact(08010002);
         // ------------------------
+
+        artifactSO = Resources.Load<ArtifactSO>("DB/ArtifactSO");
     }
 
     private void OnEnable()
@@ -47,6 +54,7 @@ public class ArtifactManager : SingletonMono<ArtifactManager>
         
     }
 
+    #region 유물 : 유물 획득, 장착, 해제 등 필수 메서드
     // 플레이어 소유에 유물 추가하는 메서드
     public void AddArtifact(int id)
     {
@@ -60,16 +68,11 @@ public class ArtifactManager : SingletonMono<ArtifactManager>
         }
     }
 
-    // 유물 장착하는 메서드 -> 중복 체크하고 slotIndex번째 리스트 슬롯에 데이터 넣어줌.
+    // 유물 장착하는 메서드
     public void EquipArtifact(ArtifactData artifact, int slotIndex)
     {
         if (artifact == null) return;
         if (slotIndex < 0 || slotIndex >= ArtifactSlotCount) return;
-
-        for (int i = 0; i < ArtifactSlotCount; i++)
-        {
-            if (i != slotIndex && EquippedArtifacts[i] != null && EquippedArtifacts[i].name == artifact.name) return;
-        }
 
         EquippedArtifacts[slotIndex] = artifact;
         OnEquippedArtifactChanged?.Invoke();
@@ -84,7 +87,9 @@ public class ArtifactManager : SingletonMono<ArtifactManager>
         EquippedArtifacts[slotIndex] = null;
         OnEquippedArtifactChanged?.Invoke();
     }
-    
+    #endregion
+
+    #region 유물 : 특정 값 얻어오는 메서드
     // 장착한 패시브 유물의 특정 스탯 타입 값 도출하는 메서드 -> 패시브 유물인 지 확인하고 계산함
     public float GetPassiveArtifactStatBonus(EffectTarget target, StatType statType)
     {
@@ -115,7 +120,9 @@ public class ArtifactManager : SingletonMono<ArtifactManager>
         }
         return 0f;
     }
+    #endregion
 
+    #region 유물 : 저장 및 초기화 관련
     public void LoadArtifactData()
     {
         // 저장된 데이터 불러오는 로직 넣기~~~~ 지금은 못 넣음~~~~~
@@ -135,6 +142,164 @@ public class ArtifactManager : SingletonMono<ArtifactManager>
     private void InitializeEquippedArtifacts()      // 유물 초기화 메서드 -> 없으면 NullReference 생기더라구요
     {
         EquippedArtifacts = new List<ArtifactData>(new ArtifactData[ArtifactSlotCount]);
+    }
+    #endregion
+
+    // 유물 자동 장착 메서드
+    public void AutoEquipArtifacts(ArtifactType type)
+    {
+        if (type == null)
+        {
+            Debug.Log("정렬 유형 선택 안 돼서 정렬 안 됨");
+            return;
+        }
+
+        var sortedPAf = OwnedArtifacts.OfType<PassiveArtifactData>()
+                                                     .OrderByDescending(p => p.grade)
+                                                     .ThenBy(p => p.idNumber)
+                                                     .ToList();
+
+        var sortedAAf = OwnedArtifacts.OfType<ActiveArtifactData>()
+                                                     .OrderBy(a => a.levelData[a.curLevel].coolTime)
+                                                     .ToList();
+
+        List<ArtifactData> primaryList;
+        List<ArtifactData> subList;
+
+        if (type == ArtifactType.Passive)
+        {
+            primaryList = sortedPAf.Cast<ArtifactData>().ToList();
+            subList = sortedAAf.Cast<ArtifactData>().ToList();
+        }
+        else
+        {
+            primaryList = sortedAAf.Cast<ArtifactData>().ToList();
+            subList = sortedPAf.Cast<ArtifactData>().ToList();
+        }
+
+        for (int i = 0; i < ArtifactSlotCount; i++)
+        {
+            EquippedArtifacts[i] = null;
+        }
+
+        int slotIndex = 0;
+        // HashSet<(EffectTarget, StatType)> equippedPassiveTypes = new HashSet<(EffectTarget, StatType)>();
+
+        foreach ( var artifact in primaryList)
+        {
+            //if (artifact is PassiveArtifactData passive)
+            //{
+            //if (equippedPassiveTypes.Contains((passive.effectTarget, passive.statType)))
+            //{
+            //    continue;
+            //}
+            //equippedPassiveTypes.Add((passive.effectTarget, passive.statType));
+            // }
+
+            if (slotIndex >= ArtifactSlotCount) break;
+            EquippedArtifacts[slotIndex] = artifact;
+            slotIndex++;
+        }
+
+        foreach (var artifact in subList)
+        {
+            //if (artifact is PassiveArtifactData passive)
+            //{
+            //    if (equippedPassiveTypes.Contains((passive.effectTarget, passive.statType)))
+            //    {
+            //        continue;
+            //    }
+            //    equippedPassiveTypes.Add((passive.effectTarget, passive.statType));
+            //}
+
+            if (slotIndex >= ArtifactSlotCount) break;
+            EquippedArtifacts[slotIndex] = artifact;
+            slotIndex++;
+        }
+        OnEquippedArtifactChanged?.Invoke();
+    }
+
+    // 랜덤 패시브 아티팩트 생성하는 메서드 -> 스테이지 클리어 보상 용도
+    public List<PassiveArtifactData> GetRandomPassiveArtifact(int count)
+    {
+        List<PassiveArtifactData> source = new List<PassiveArtifactData>(artifactSO.passiveArtifacts);
+        List<PassiveArtifactData> result = new List<PassiveArtifactData>();
+
+        int tmpIdx = 0;
+        HashSet<int> usedIdx = new HashSet<int>();
+        while (tmpIdx < count)
+        {
+            int randomNum = Random.Range(0, source.Count);
+            if (usedIdx.Contains(randomNum)) continue;
+            usedIdx.Add(randomNum);
+            result.Add(source[randomNum]);
+            tmpIdx++;
+        }
+        /*for (int i = 0; i < count; i++)
+        {
+            int randomNum = Random.Range(0, source.Count);
+            if(source[randomNum] == null)
+            {
+                Debug.Log("중복 발생 다시 뽑기");
+            }
+            result.Add(source[randomNum]);
+            source[randomNum] = null;
+        }*/
+        return result;
+    }
+
+    public void SortOwnedArtifacts()
+    {
+        ArtifactManager.Instance.OwnedArtifacts.Sort((a, b) =>
+        {
+            bool isAActive = a is ActiveArtifactData;
+            bool isBActive = b is ActiveArtifactData;
+
+            if (isAActive && !isBActive)    // a는 액티브, b가 패시브면 a를 앞으로 둠.
+            {
+                return -1;
+            }
+            if (!isAActive && isBActive)    // b는 액티브, a는 패시브면 b를 앞으로 둠.
+            {
+                return 1;
+            }
+
+            if (!isAActive && !isBActive)    // 둘 다 패시브일 경우 
+            {
+                PassiveArtifactData passiveA = a as PassiveArtifactData;
+                PassiveArtifactData passiveB = b as PassiveArtifactData;
+                return passiveB.grade.CompareTo(passiveA.grade);    // 등급으로 비교함
+            }
+
+            return a.name.CompareTo(b.name);
+        });
+
+        OnOwnedArtifactsChanged?.Invoke();
+    }
+
+    public List <ActiveArtifactData> GetRandomActiveArtifact(int count)
+    {
+        List<ActiveArtifactData> source = new List<ActiveArtifactData>(artifactSO.activeArtifacts);
+        List<ActiveArtifactData> result = new List<ActiveArtifactData>();
+
+        int tmpIdx = 0;
+        HashSet<int> usedIdx = new HashSet<int>();
+        while (tmpIdx < count)
+        {
+            int randomNum = Random.Range(0, source.Count);
+            if (usedIdx.Contains(randomNum)) continue;
+            usedIdx.Add(randomNum);
+            result.Add(source[randomNum]);
+            tmpIdx++;
+        }
+
+        /*for (int i = 0; i < count; i++)
+        {
+            int randomNum = Random.Range(0, source.Count);
+            result.Add(source[randomNum]);
+            source[randomNum] = null;
+        }*/
+        return result ;
     }
 
     // 소유 액티브 유물 데이터

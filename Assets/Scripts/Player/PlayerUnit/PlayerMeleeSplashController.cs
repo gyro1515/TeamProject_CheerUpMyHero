@@ -118,7 +118,7 @@ public class PlayerMeleeSplashController : BaseUnitController
 
     private IEnumerator AttackRoutine()
     {
-        WaitForSeconds wait = new WaitForSeconds(10f / playerUnit.AttackRate);
+        WaitForSeconds wait = new WaitForSeconds(playerUnit.AttackRate);
         while (true)
         {
             if (playerUnit.TargetUnit != null)
@@ -156,11 +156,11 @@ public class PlayerMeleeSplashController : BaseUnitController
             yield return null;
         } while (normalizedTime < 0f);
 
-        animator.speed = playerUnit.StartAttackTime / playerUnit.AttackDelayTime;
+        animator.speed = playerUnit.StartAttackTime / playerUnit.UnitData.attackDelayTime;
 
         while (normalizedTime < playerUnit.StartAttackNormalizedTime)
         {
-            if (playerUnit.TargetUnit.IsDead())
+            if (playerUnit.TargetUnit == null || playerUnit.TargetUnit.IsDead())
             {
                 ResetPlayerUnitController();
                 findTargetRoutine = StartCoroutine(TargetingRoutine());

@@ -117,7 +117,7 @@ public class EnemyMeleeSplashController : BaseUnitController
 
     private IEnumerator AttackRoutine()
     {
-        WaitForSeconds wait = new WaitForSeconds(10f / enemyUnit.AttackRate);
+        WaitForSeconds wait = new WaitForSeconds(enemyUnit.AttackRate);
         while (true)
         {
             if (enemyUnit.TargetUnit != null)
@@ -153,7 +153,7 @@ public class EnemyMeleeSplashController : BaseUnitController
             yield return null;
         } while (normalizedTime < 0f);
 
-        animator.speed = enemyUnit.StartAttackTime / enemyUnit.AttackDelayTime;
+        animator.speed = enemyUnit.StartAttackTime / enemyUnit.UnitData.attackDelayTime;
 
         while (normalizedTime < enemyUnit.StartAttackNormalizedTime)
         {

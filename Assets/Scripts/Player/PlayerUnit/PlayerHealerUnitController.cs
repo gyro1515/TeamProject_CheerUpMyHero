@@ -69,7 +69,7 @@ public class PlayerHealerUnitController : BaseUnitController
     public override void Attack()
     {
         base.Attack();
-        playerUnit.TargetUnit.TakeDamage(playerUnit.AtkPower);
+        playerUnit.TargetUnit?.TakeDamage(playerUnit.AtkPower);
     }
     #region Coroutines
 
@@ -132,7 +132,7 @@ public class PlayerHealerUnitController : BaseUnitController
     /// 타겟이 사거리 안에 있을 때 공격(또는 힐) 애니메이션을 시작시키는 코루틴
     private IEnumerator AttackRoutine()
     {
-        WaitForSeconds wait = new WaitForSeconds(10f / playerUnit.AttackRate);
+        WaitForSeconds wait = new WaitForSeconds(playerUnit.AttackRate);
         while (true)
         {
             if (playerUnit.TargetUnit != null)
@@ -170,7 +170,7 @@ public class PlayerHealerUnitController : BaseUnitController
         float normalizedTime = -1f;
         do { normalizedTime = GetNormalizedTime(attackStateHash); yield return null; } while (normalizedTime < 0f);
 
-        animator.speed = playerUnit.StartAttackTime / playerUnit.AttackDelayTime;
+        animator.speed = playerUnit.StartAttackTime / playerUnit.UnitData.attackDelayTime;
 
         while (normalizedTime < playerUnit.StartAttackNormalizedTime)
         {
@@ -201,7 +201,7 @@ public class PlayerHealerUnitController : BaseUnitController
         float normalizedTime = -1f;
         do { normalizedTime = GetNormalizedTime(attackStateHash); yield return null; } while (normalizedTime < 0f);
 
-        animator.speed = playerUnit.StartAttackTime / playerUnit.AttackDelayTime;
+        animator.speed = playerUnit.StartAttackTime / playerUnit.UnitData.attackDelayTime;
 
         while (normalizedTime < playerUnit.StartAttackNormalizedTime)
         {

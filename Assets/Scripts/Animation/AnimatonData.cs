@@ -12,6 +12,7 @@ public class AnimationData : SingletonMono<AnimationData>, IAnimationData
     [SerializeField] private string dieParameterName = "Die";
     [SerializeField] private string speedParameterName = "Speed";
     [SerializeField] private string basicParameterName = "Blend Tree";
+    [SerializeField] private string stopAttackParameterName = "StopAttack";
 
     public int BaseParameterHash {  get; private set; }
     public int AttackParameterHash { get; private set; }
@@ -20,6 +21,7 @@ public class AnimationData : SingletonMono<AnimationData>, IAnimationData
     public int DieParameterHash { get; private set; }
     public int SpeedParameterHash {  get; private set; }
     public int BasicParameterHash {  get; private set; }
+    public int StopAttackParameterHash {  get; private set; }
     protected override void Awake()
     {
         base.Awake();
@@ -34,5 +36,7 @@ public class AnimationData : SingletonMono<AnimationData>, IAnimationData
         DieParameterHash = Animator.StringToHash(dieParameterName);
         SpeedParameterHash = Animator.StringToHash(speedParameterName);
         BasicParameterHash = Animator.StringToHash(basicParameterName);
+        StopAttackParameterHash = Animator.StringToHash(stopAttackParameterName);
+
     }
 }

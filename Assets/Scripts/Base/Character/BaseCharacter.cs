@@ -6,6 +6,9 @@ using UnityEngine;
 
 public class BaseCharacter : MonoBehaviour
 {
+    [Header("*데이터 idNumber설정*")]
+    [SerializeField] public int idNumber; 
+
     [field: Header("기본 캐릭터 세팅")]
     [field: SerializeField] public float MaxHp {  get; protected set; }
     [field: SerializeField] public float AtkPower {  get; protected set; }
@@ -14,9 +17,9 @@ public class BaseCharacter : MonoBehaviour
     [field: SerializeField] public Vector2 HpBarSize { get; private set; } // 체력바 사이즈용
     public BaseController BaseController { get; private set; }
 
-    // 데이터 용 변수, 데이터 테이블 완성시 테이블에서 가져오기 
-    public float TmpMaxHp { get; protected set; }
-    public float TmpAtkPower { get; protected set; }
+    // 데이터 용 변수, 데이터 테이블 완성시 테이블에서 가져오기  -> 251016 테이블에서 가져오도록 수정
+    /*public float TmpMaxHp { get; protected set; }
+    public float TmpAtkPower { get; protected set; }*/
     public Vector3 TmpSize { get; protected set; }
 
     protected Vector3 _moveDir;
@@ -50,9 +53,10 @@ public class BaseCharacter : MonoBehaviour
     public AnimationData AnimationData { get; private set; }
     protected virtual void Awake()
     {
-        TmpMaxHp = MaxHp;
-        TmpAtkPower = AtkPower;
+        /*TmpMaxHp = MaxHp;
+        TmpAtkPower = AtkPower;*/
         TmpSize = gameObject.transform.localScale;
+
         BaseController = GetComponent<BaseController>();
         Damageable = GetComponent<IDamageable>();
         AnimationData = AnimationData.Instance;
@@ -66,7 +70,7 @@ public class BaseCharacter : MonoBehaviour
     protected virtual void OnEnable()
     {
         // 다시 활성화 됐을때
-        curHp = TmpMaxHp;
+        curHp = MaxHp;
         IsDead = false;
 
         ArtifactManager.Instance.OnEquippedArtifactChanged += UpdateStat;

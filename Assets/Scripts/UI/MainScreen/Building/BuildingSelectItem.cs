@@ -6,7 +6,7 @@ public class BuildingSelectItem : BaseUI
 {
     [SerializeField] private Button selectButton;
     [SerializeField] private Image buildingImage;
-    [SerializeField] private TextMeshProUGUI buildingNameText;
+    //[SerializeField] private TextMeshProUGUI buildingNameText;
     [SerializeField] private TextMeshProUGUI costText;
     [SerializeField] private TextMeshProUGUI descriptionText;
     private ConstructionSelectPanel _parentPanel;
@@ -28,7 +28,7 @@ public class BuildingSelectItem : BaseUI
 
         BuildingUpgradeData level1Data = DataManager.Instance.BuildingUpgradeData.GetData(constructionData.nextLevel);
 
-        buildingNameText.text = constructionData.buildingName;
+        //buildingNameText.text = constructionData.buildingName;
         descriptionText.text = constructionData.description;
 
         string costStr = "";
@@ -53,10 +53,12 @@ public class BuildingSelectItem : BaseUI
 
     private void OnSelect()
     {
+        //_parentPanel?.CloseUI(); // 닫지 말기
+        // 닫을거면 바로 닫기
+        _parentPanel.gameObject.SetActive(false);
+
         // 건설/업그레이드 확인 패널을 엽니다.
         _upgradePanel.InitializeForConstruction(_targetTile, _buildingID);
         _upgradePanel.OpenUI();
-
-        _parentPanel?.CloseUI();
     }
 }
