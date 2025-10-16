@@ -151,7 +151,6 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
         ActiveSynergies = _TileDataHandler.DetectAllSynergies();
         //TileDataHandler에게 시너지 분석을 요청
         List<DetectedSynergy> activeSynergies = _TileDataHandler.DetectAllSynergies();
-        EventManager.GetPublisher<SynergyDataUpdatedEvent>().Publish(new SynergyDataUpdatedEvent());
         if (activeSynergies.Count > 0)
         {
             Debug.Log($"[시너지] {activeSynergies.Count}개의 시너지 감지!");
@@ -521,8 +520,8 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
         if (MaxFood > _calculatedMaxFood) { MaxFood = _calculatedMaxFood; }
 
         OnResourceChangedEvent?.Invoke(ResourceType.Food, CurrentFood);
-        EventManager.GetPublisher<SynergyDataUpdatedEvent>().Publish(new SynergyDataUpdatedEvent());
         Debug.Log($"모든 건물+시너지 효과 계산 완료: 최대 식량={_calculatedMaxFood}, 식량 보너스={currentFarmGainPercent}%, 유닛 쿨감={TotalUnitCooldownReduction}%");
+        EventManager.GetPublisher<SynergyDataUpdatedEvent>().Publish(new SynergyDataUpdatedEvent());
     }
 
     #endregion

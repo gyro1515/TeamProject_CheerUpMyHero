@@ -106,9 +106,29 @@ public class BuildingSynergyPanel : MonoBehaviour
             var item = Instantiate(itemPrefab, scrollContent);
             (string title, List<BuildingType> types, string desc) = GetSynergyUIData(synergy.Type);
 
-            // `BuildingType` 리스트를 `Sprite` 리스트로 변환
-            List<Sprite> icons = types.Select(t => buildingIcons.ContainsKey(t) ? buildingIcons[t] : null)
-                                      .Where(s => s != null).ToList();
+            List<Sprite> icons;
+
+            if (synergy.Type == BuildingSynergyType.Specialized_Block)
+            {
+                icons = new List<Sprite>();
+                if (synergy.TilePositions.Count > 0)
+                {
+                    // 블록의 첫 번째 타일 위치를 가져옴
+                    var pos = synergy.TilePositions[0];
+                    // 해당 위치의 건물 데이터를 가져옴
+                    var buildingData = PlayerDataManager.Instance._TileDataHandler.BuildingGridData[pos.x, pos.y];
+                    if (buildingData != null && buildingIcons.ContainsKey(buildingData.buildingType))
+                    {
+                        // 건물 타입에 맞는 아이콘을 추가
+                        icons.Add(buildingIcons[buildingData.buildingType]);
+                    }
+                }
+            }
+            else // 그 외의 시너지는 기존 방식대로 처리
+            {
+                icons = types.Select(t => buildingIcons.ContainsKey(t) ? buildingIcons[t] : null)
+                             .Where(s => s != null).ToList();
+            }
 
             // `SynergyInfoItem`의 시너지 정보 표시용 함수 호출
             item.Initialize(synergy.Type, icons, title, desc);
@@ -182,7 +202,7 @@ public class BuildingSynergyPanel : MonoBehaviour
             case BuildingEffectType.BaseIronProduction: name = "기본 철괴 획득량"; break;
             case BuildingEffectType.AdditionalIronProduction: name = "추가 철괴 획득량"; format = "+{0}%"; break;
             case BuildingEffectType.MagicStoneFindChance: name = "마력석 얻을 확률"; format = "+{0}%"; break;
-            case BuildingEffectType.MagicStoneProduction: name = "마력석 획득량"; format = "+{0}%"; break;
+            case BuildingEffectType.MagicStoneProduction: name = "마력석 획득량"; format = "+{0}"; break;
             case BuildingEffectType.CanSummonRareUnits: name = "레어 유닛 참여 수"; format = "+{0}%"; break;
             case BuildingEffectType.CanSummonEpicUnits: name = "에픽 유닛 참여 수"; format = "+{0}%"; break;
             default: return ""; 

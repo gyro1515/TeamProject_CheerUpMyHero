@@ -386,7 +386,6 @@ public class MainScreenBuildingController : MonoBehaviour
             // 드랍이 성공하지 못하고 끝났을 경우, 원래 타일의 모습을 복원
             UpdateTileUI(_sourceDragTile);
         }
-
         _sourceDragTile = null;
         dragIcon.gameObject.SetActive(false);
     }
