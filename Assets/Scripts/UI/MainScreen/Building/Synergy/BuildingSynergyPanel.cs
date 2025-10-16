@@ -35,7 +35,7 @@ public class BuildingSynergyPanel : MonoBehaviour
     {
         foreach (var item in activeItems)
         {
-            item.GetComponent<BasePoolable>().ReleaseSelf();
+            item.ReleaseSelf();
         }
         activeItems.Clear(); 
 
