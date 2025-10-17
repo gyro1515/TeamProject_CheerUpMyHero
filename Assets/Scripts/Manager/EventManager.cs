@@ -15,6 +15,7 @@ public interface IEventSubscriber<T> where T : struct
 public interface IEventPublisher<T> where T : struct
 {
     void Publish(T eventData);
+    public void Publish();
 }
 public interface IEventClearable
 {
@@ -38,6 +39,11 @@ public class EventManager : SingletonMono<EventManager>
         {
             if (_onPublish == null) return;
             _onPublish -= callback;
+        }
+        // 251017: 매개변수가 없는 버전 추가
+        public void Publish()
+        {
+            Publish(new T());
         }
         public void Publish(T eventData)
         {

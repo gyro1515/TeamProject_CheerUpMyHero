@@ -43,9 +43,12 @@ public class PlayerUnit : BaseUnit
         AttackRange = UnitData.attackRange * tmpstatMultiplier;
         CognizanceRange = UnitData.cognizanceRange * tmpstatMultiplier;
 
-        CapsuleCollider2D col = GetComponent<CapsuleCollider2D>();
+        // 현재 캡슐 사용 x
+        /*CapsuleCollider2D col = GetComponent<CapsuleCollider2D>();
         // 사이즈는 달라질 수 있으니 활성화 시마다 갱신
-        knockbackHandler.Init(col.size.x * statMultiplier);
+        knockbackHandler.Init(col.size.x * statMultiplier);*/
+        // 그저 유닛 크기에 비례하도록
+        knockbackHandler.Init((TmpSize * tmpstatMultiplier).x);
         // ex: 최대 체력 = 300 / HitBackCount = 3 => 데미지 100이 누적될때마다 히트백
         hitbackHp = MaxHp / UnitData.hitBack;
         // ex: curHp / hitbackHp  => 2 -> 1 -> 0에서만 히트백이 발생하도록
@@ -57,39 +60,37 @@ public class PlayerUnit : BaseUnit
         { Debug.LogError($"변환 실패: {gameObject.name} 은(는) PoolType에 없습니다."); return; }
 
         UnitData = DataManager.PlayerUnitData.GetData((int)poolType);
-        // 컨트롤러 자동추가 테스트
-        if(UnitController == null) // 컨트롤러 없다면
+        // 컨트롤러 자동추가 테스트 -> 251017: 테스트 완료, 이제 유닛마다 컨트롤러 수동 추가 안해도 됨
+        //if (UnitController == null) // 컨트롤러 없다면
+        if (UnitData.unitType != UnitType.Healer) // 힐러는 따로
         {
-            if(UnitData.unitType != UnitType.Healer) // 힐러는 따로
+            switch (UnitData.attackType)
             {
-                switch (UnitData.attackType)
-                {
-                    case UnitAttackType.Target:
-                        UnitController = gameObject.AddComponent<PlayerUnitController>();
-                        break;
-                    case UnitAttackType.Area:
-                        UnitController = gameObject.AddComponent<PlayerRangedSplashController>();
-                        break;
-                    case UnitAttackType.PierceArea:
-                        UnitController = gameObject.AddComponent<PlayerMeleeSplashController>();
-                        break;
-                }
+                case UnitAttackType.Target:
+                    UnitController = gameObject.AddComponent<PlayerUnitController>();
+                    break;
+                case UnitAttackType.Area:
+                    UnitController = gameObject.AddComponent<PlayerRangedSplashController>();
+                    break;
+                case UnitAttackType.PierceArea:
+                    UnitController = gameObject.AddComponent<PlayerMeleeSplashController>();
+                    break;
             }
-            else
-            {
-                switch (UnitData.attackType)
-                {
-                    case UnitAttackType.Target:
-                        UnitController = gameObject.AddComponent<PlayerHealerUnitController>();
-                        break;
-                    case UnitAttackType.Area:
-                        UnitController = gameObject.AddComponent<PlayerHealerSplashController>();
-                        break;
-                }
-                
-            }
-            
         }
+        else
+        {
+            switch (UnitData.attackType)
+            {
+                case UnitAttackType.Target:
+                    UnitController = gameObject.AddComponent<PlayerHealerUnitController>();
+                    break;
+                case UnitAttackType.Area:
+                    UnitController = gameObject.AddComponent<PlayerHealerSplashController>();
+                    break;
+            }
+
+        }
+
     }
     protected override float GetStatBonus(StatType type)
     {

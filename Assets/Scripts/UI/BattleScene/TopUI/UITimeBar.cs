@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Collections;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
@@ -23,7 +24,7 @@ public class UITimeBar : MonoBehaviour
     void StartTimer(TimeSyncEvent timerSyncEvent)
     {
         float waitTime = timerSyncEvent.waveTime / 4;
-        Debug.Log($"타이머 시작:{timerSyncEvent.waveTime} => {waitTime}");
+        //Debug.Log($"타이머 시작:{timerSyncEvent.waveTime} => {waitTime}");
         wait30s = new WaitForSeconds(waitTime);
         StartCoroutine(thirtySeconds());
     }
@@ -42,5 +43,6 @@ public class UITimeBar : MonoBehaviour
 public struct TimeSyncEvent
 {
     public float waveTime;
+    public int maxWaveCount;
 }
 #endregion

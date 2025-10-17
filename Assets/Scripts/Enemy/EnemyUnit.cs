@@ -35,9 +35,10 @@ public class EnemyUnit : BaseUnit
         AttackRange = UnitData.attackRange * tmpstatMultiplier;
         CognizanceRange = UnitData.cognizanceRange * tmpstatMultiplier;
 
-        CapsuleCollider2D col = GetComponent<CapsuleCollider2D>();
+        /*CapsuleCollider2D col = GetComponent<CapsuleCollider2D>();
         // 사이즈는 달라질 수 있으니 활성화 시마다 갱신
-        knockbackHandler.Init(col.size.x * statMultiplier);
+        knockbackHandler.Init(col.size.x * statMultiplier);*/
+        knockbackHandler.Init((TmpSize * tmpstatMultiplier).x);
         // ex: 최대 체력 = 300 / HitBackCount = 3 => 데미지 100이 누적될때마다 히트백
         hitbackHp = MaxHp / UnitData.hitBack;
         // ex: curHp / hitbackHp  => 2 -> 1 -> 0에서만 히트백이 발생하도록
@@ -49,6 +50,35 @@ public class EnemyUnit : BaseUnit
         { Debug.LogError($"변환 실패: {gameObject.name} 은(는) PoolType에 없습니다."); return; }
 
         UnitData = DataManager.EnemyUnitData.GetData((int)poolType);
+        if (UnitData.unitType != UnitType.Healer) // 힐러는 따로
+        {
+            switch (UnitData.attackType)
+            {
+                case UnitAttackType.Target:
+                    UnitController = gameObject.AddComponent<EnemyUnitController>();
+                    break;
+                case UnitAttackType.Area:
+                    UnitController = gameObject.AddComponent<EnemyRangedSplashController>();
+                    break;
+                case UnitAttackType.PierceArea:
+                    UnitController = gameObject.AddComponent<EnemyMeleeSplashController>();
+                    break;
+            }
+        }
+        else
+        {
+            Debug.LogError("힐러 유닛 컨트롤러 추가 필요");
+            switch (UnitData.attackType)
+            {
+                case UnitAttackType.Target:
+                    //UnitController = gameObject.AddComponent<EnemyHealerUnitController>();
+                    break;
+                case UnitAttackType.Area:
+                    //UnitController = gameObject.AddComponent<EnemyHealerSplashController>();
+                    break;
+            }
+
+        }
     }
 
     protected override void Start()

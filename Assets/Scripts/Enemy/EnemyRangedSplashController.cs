@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
+
 
 public class EnemyRangedSplashController : BaseUnitController
 {
@@ -41,9 +43,8 @@ public class EnemyRangedSplashController : BaseUnitController
         base.Attack();
 
         List<BaseCharacter> allPlayers = UnitManager.Instance.PlayerUnitList;
-        List<IDamageable> takeDamages = new List<IDamageable>();
+        List<BaseCharacter> playersInRange = new List<BaseCharacter>();
         int hitCount = 0;
-
         foreach (BaseCharacter player in allPlayers)
         {
             if (player == null || player.IsDead) continue;
@@ -51,13 +52,18 @@ public class EnemyRangedSplashController : BaseUnitController
             float distance = Mathf.Abs(targetPos.position.x - player.transform.position.x);
             if (distance <= enemyUnit.AttackRange / 2)
             {
-                takeDamages.Add(player.Damageable);
+                playersInRange.Add(player);
                 hitCount++;
             }
         }
-        foreach (IDamageable player in takeDamages)
+        List<BaseCharacter> hitPlayers = playersInRange
+            .OrderBy(enemy => enemy.transform.position.x)
+            .Take(5)
+            .ToList();
+        foreach (BaseCharacter enemy in hitPlayers)
         {
-            player.TakeDamage(enemyUnit.AtkPower);
+            enemy.Damageable.TakeDamage(enemyUnit.AtkPower);
+            hitCount++;
         }
         if (hitCount > 0)
         {

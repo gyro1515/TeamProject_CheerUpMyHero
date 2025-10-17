@@ -31,8 +31,6 @@ public class UIPause : BaseUI, IBackButtonHandler
         }); 
         InitSpeedBtn();
         EventManager.Publish(new AddUIStackEvent { ui = this });
-        Debug.Log("너 왜 안돼");
-
     }
     private void Start()
     {
