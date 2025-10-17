@@ -9,13 +9,14 @@ public class TileDataHandler
     public BuildingUpgradeData[,] BuildingGridData { get; set; }
     public TileStatus[,] TileStatusGrid { get; private set; }
     public int[,] TileRepairTurnsGrid { get; private set; }
-
+    public DateTime[,] CooldownEndTimeGrid { get; private set; }
 
     public TileDataHandler()
     {
         BuildingGridData = new BuildingUpgradeData[5, 5];
         TileStatusGrid = new TileStatus[5, 5];
         TileRepairTurnsGrid = new int[5, 5];
+        CooldownEndTimeGrid = new DateTime[5, 5];
 
         for (int y = 0; y < 5; y++)
         {
@@ -23,6 +24,7 @@ public class TileDataHandler
             {
                 TileStatusGrid[x, y] = TileStatus.Normal;
                 TileRepairTurnsGrid[x, y] = 0;
+                CooldownEndTimeGrid[x, y] = DateTime.MinValue;
             }
         }
     }
@@ -31,6 +33,10 @@ public class TileDataHandler
         var temp = BuildingGridData[destX, destY];
         BuildingGridData[destX, destY] = BuildingGridData[sourceX, sourceY];
         BuildingGridData[sourceX, sourceY] = temp;
+
+        var tempCooldown = CooldownEndTimeGrid[destX, destY];
+        CooldownEndTimeGrid[destX, destY] = CooldownEndTimeGrid[sourceX, sourceY];
+        CooldownEndTimeGrid[sourceX, sourceY] = tempCooldown;
 
         Debug.Log($"건물 위치 교체: ({sourceX},{sourceY}) <-> ({destX},{destY})");
         EventManager.GetPublisher<GridStateChangedEvent>().Publish(new GridStateChangedEvent());
@@ -42,9 +48,22 @@ public class TileDataHandler
             BuildingGridData[destX, destY] = BuildingGridData[sourceX, sourceY];
             BuildingGridData[sourceX, sourceY] = null;
 
+            CooldownEndTimeGrid[destX, destY] = CooldownEndTimeGrid[sourceX, sourceY];
+            CooldownEndTimeGrid[sourceX, sourceY] = DateTime.MinValue; // 원래 위치는 초기화
+
             Debug.Log($"건물 위치 이동: ({sourceX},{sourceY}) -> ({destX},{destY})");
             EventManager.GetPublisher<GridStateChangedEvent>().Publish(new GridStateChangedEvent());
         }
+    }
+    public void StartCooldownForBuildingAt(int x, int y)
+    {
+        var building = BuildingGridData[x, y];
+        if (building == null || building.level <= 0) return;
+
+        var cooldownDuration = TimeSpan.FromMinutes(building.level * 3);
+        CooldownEndTimeGrid[x, y] = DateTime.UtcNow + cooldownDuration;
+
+        Debug.Log($"[쿨타임] ({x},{y}) 타일의 {building.buildingName} 쿨타임 시작.");
     }
     public void CalculateTotalBuildingEffects(
     out int bonusMaxFood,

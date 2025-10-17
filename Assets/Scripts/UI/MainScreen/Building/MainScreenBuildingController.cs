@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -40,6 +41,7 @@ public class MainScreenBuildingController : MonoBehaviour
         {
             Instance = this;
         }
+        CreateGrid();
     }
     private void OnDestroy()
     {
@@ -50,7 +52,23 @@ public class MainScreenBuildingController : MonoBehaviour
     }
     private void Start()
     {
-        CreateGrid();
+        UpdateAllTilesUI();
+    }
+    void Update()
+    {
+        foreach (var tile in _tiles)
+        {
+            if (tile == null) continue;
+
+            var dataHandler = PlayerDataManager.Instance._TileDataHandler;
+            DateTime cooldownEndTime = dataHandler.CooldownEndTimeGrid[tile.X, tile.Y];
+
+            if (cooldownEndTime > DateTime.UtcNow)
+            {
+                TimeSpan remainingTime = cooldownEndTime - DateTime.UtcNow;
+                tile.UpdateTimerText(remainingTime);
+            }
+        }
     }
     private void OnEnable()
     {
@@ -97,10 +115,25 @@ public class MainScreenBuildingController : MonoBehaviour
                 tile.OnTileClicked += HandleTileClick;
             }
         }
-
+        UpdateAllTilesUI();
         Debug.Log("타일 그리드 생성 완료!");
     }
+    private void UpdateAllTilesUI()
+    {
+        if (_tiles == null) return;
+        foreach (var tile in _tiles)
+        {
+            if (tile != null) UpdateTileUI(tile);
+        }
+    }
 
+    private void UpdateTileUI(BuildingTile tile)
+    {
+        var buildingData = PlayerDataManager.Instance._TileDataHandler.BuildingGridData[tile.X, tile.Y];
+        tile.SetBuilding(buildingData);
+        tile.UpdateStatusVisual();
+        tile.UpdateCooldownStatus(); // 이 함수는 이제 UI를 켜고 끄는 역할만 합니다.
+    }
     //private void OnDisable()
     //{
     //    if (_tiles == null) return;
@@ -360,9 +393,18 @@ public class MainScreenBuildingController : MonoBehaviour
 
     public void StartDrag(BuildingTile sourceTile)
     {
+        var dataHandler = PlayerDataManager.Instance._TileDataHandler;
         if (sourceTile == null) return;
-        _sourceDragTile = sourceTile;
 
+        DateTime cooldownEndTime = dataHandler.CooldownEndTimeGrid[sourceTile.X, sourceTile.Y];
+
+        if (cooldownEndTime > DateTime.UtcNow)
+        {
+            Debug.Log($"[드래그 불가] 해당 건물은 쿨타임 중입니다.");
+            return;
+        }
+
+        _sourceDragTile = sourceTile;
         dragIcon.sprite = sourceTile.GetBuildingData().buildingSprite;
         dragIcon.gameObject.SetActive(true);
         dragIcon.transform.position = Input.mousePosition;
@@ -393,8 +435,15 @@ public class MainScreenBuildingController : MonoBehaviour
     public void HandleDrop(BuildingTile destinationTile)
     {
         var dataHandler = PlayerDataManager.Instance._TileDataHandler;
-        var destStatus = dataHandler.TileStatusGrid[destinationTile.X, destinationTile.Y];
 
+        DateTime destCooldownEndTime = dataHandler.CooldownEndTimeGrid[destinationTile.X, destinationTile.Y];
+        if (destCooldownEndTime > DateTime.UtcNow)
+        {
+            Debug.Log($"[드랍 불가] 목표 타일이 쿨타임 중입니다.");
+            return;
+        }
+
+        var destStatus = dataHandler.TileStatusGrid[destinationTile.X, destinationTile.Y];
         // 목표 타일의 상태가 'Normal'이 아닐 경우 드랍을 무효
         if (_sourceDragTile == null || _sourceDragTile == destinationTile || destinationTile.MyTileType == TileType.Special || destStatus != TileStatus.Normal)
         {
@@ -405,10 +454,13 @@ public class MainScreenBuildingController : MonoBehaviour
 
         if (destBuilding == null) // Case 1: 빈 타일로 이동
         {
+            dataHandler.StartCooldownForBuildingAt(_sourceDragTile.X, _sourceDragTile.Y);
             dataHandler.MoveBuildingData(_sourceDragTile.X, _sourceDragTile.Y, destinationTile.X, destinationTile.Y);
         }
         else // Case 2: 다른 건물과 위치 교체
         {
+            dataHandler.StartCooldownForBuildingAt(_sourceDragTile.X, _sourceDragTile.Y);
+            dataHandler.StartCooldownForBuildingAt(destinationTile.X, destinationTile.Y);
             dataHandler.SwapBuildingData(_sourceDragTile.X, _sourceDragTile.Y, destinationTile.X, destinationTile.Y);
         }
         PlayerDataManager.Instance.UpdateAllSynergyEffects();
@@ -420,13 +472,6 @@ public class MainScreenBuildingController : MonoBehaviour
         UpdateTileUI(destinationTile);
         _sourceDragTile = null;
         dragIcon.gameObject.SetActive(false);
-    }
-
-    private void UpdateTileUI(BuildingTile tile)
-    {
-        var buildingData = PlayerDataManager.Instance._TileDataHandler.BuildingGridData[tile.X, tile.Y];
-        tile.SetBuilding(buildingData);
-        tile.UpdateStatusVisual(); // 색상과 상태를 모두 원래대로 복원
     }
     #endregion
 }
