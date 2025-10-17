@@ -78,6 +78,8 @@ public class EnemyUnit : BaseUnit
             }
 
         }
+        BaseController = UnitController;
+        Damageable = GetComponent<IDamageable>();
     }
 
     protected override void Start()

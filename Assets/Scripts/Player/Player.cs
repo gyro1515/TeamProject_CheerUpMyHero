@@ -107,7 +107,8 @@ public class Player : BaseUnit
     {
         PlayerData = DataManager.PlayerData.GetData(curLevel);
         UnitData = PlayerData;
-
+        Damageable = GetComponent<IDamageable>();
+        BaseController = UnitController;
     }
     protected override float GetStatBonus(StatType type)
     {

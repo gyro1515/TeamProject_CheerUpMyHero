@@ -90,7 +90,8 @@ public class PlayerUnit : BaseUnit
             }
 
         }
-
+        BaseController = UnitController;
+        Damageable = GetComponent<IDamageable>();
     }
     protected override float GetStatBonus(StatType type)
     {
