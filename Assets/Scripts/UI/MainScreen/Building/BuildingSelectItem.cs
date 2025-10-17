@@ -5,6 +5,7 @@ using UnityEngine.UI;
 public class BuildingSelectItem : BaseUI
 {
     [SerializeField] private Button selectButton;
+    [SerializeField] private Button descriptionSelectButton;
     [SerializeField] private Image buildingImage;
     //[SerializeField] private TextMeshProUGUI buildingNameText;
     [SerializeField] private TextMeshProUGUI costText;
@@ -49,6 +50,7 @@ public class BuildingSelectItem : BaseUI
         }
 
         selectButton.onClick.AddListener(OnSelect);
+        descriptionSelectButton.onClick.AddListener(OnSelect);
     }
 
     private void OnSelect()

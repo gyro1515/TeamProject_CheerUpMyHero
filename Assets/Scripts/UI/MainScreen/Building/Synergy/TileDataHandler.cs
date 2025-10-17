@@ -131,9 +131,7 @@ public class TileDataHandler
         if (currentEndTime > DateTime.UtcNow)
         {
             var reduction = TimeSpan.FromMinutes(minutesToReduce);
-
             CooldownEndTimeGrid[x, y] -= reduction;
-
             Debug.Log($"({x},{y}) 타일의 쿨타임이 {minutesToReduce}분 감소되었습니다.");
         }
     }

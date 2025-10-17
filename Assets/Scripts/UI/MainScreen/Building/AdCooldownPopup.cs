@@ -1,15 +1,14 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-// 1. MonoBehaviour 대신 BasePopUpUI를 상속받습니다.
 public class AdCooldownPopup : BasePopUpUI
 {
     [SerializeField] private Button yesButton;
     [SerializeField] private Button noButton;
 
-    private int _tileX, _tileY;
+    private BuildingTile _sourceTile;
+    private BuildingTile _destinationTile;
     private MainScreenBuildingController _controller;
-
     protected override void Awake()
     {
         base.Awake(); 
@@ -17,10 +16,10 @@ public class AdCooldownPopup : BasePopUpUI
         noButton.onClick.AddListener(OnNoButtonClicked);
     }
 
-    public void OpenPopup(int x, int y, MainScreenBuildingController controller)
+    public void OpenPopup(BuildingTile source, BuildingTile destination, MainScreenBuildingController controller)
     {
-        _tileX = x;
-        _tileY = y;
+        _sourceTile = source;
+        _destinationTile = destination;
         _controller = controller;
 
         base.OpenUI();
@@ -30,7 +29,7 @@ public class AdCooldownPopup : BasePopUpUI
     {
         if (_controller != null)
         {
-            _controller.RequestAdForCooldownReduction(_tileX, _tileY);
+            _controller.ConfirmAdAndMove(_sourceTile, _destinationTile);
         }
         base.CloseUI();
     }
