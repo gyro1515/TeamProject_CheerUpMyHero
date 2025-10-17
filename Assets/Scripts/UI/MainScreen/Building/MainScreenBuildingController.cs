@@ -14,7 +14,7 @@ public class MainScreenBuildingController : MonoBehaviour
     [SerializeField] private ConstructionSelectPanel selectPanel;   // 건설 선택 패널
     [SerializeField] private ConstructionUpgradePanel upgradePanel; // 업그레이드 패널
     [SerializeField] private BuildingSynergyPanel synergyPanel; // 시너지 패널
-
+    [SerializeField] private AdCooldownPopup adCooldownPopup; // 팝업 UI
     [Header("드래그 앤 드랍")]
     [SerializeField] private Image dragIcon;
 
