@@ -71,10 +71,10 @@ public class EnemyUnit : BaseUnit
             switch (UnitData.attackType)
             {
                 case UnitAttackType.Target:
-                    //UnitController = gameObject.AddComponent<EnemyHealerUnitController>();
+                    UnitController = gameObject.AddComponent<EnemyHealerUnitController>();
                     break;
                 case UnitAttackType.Area:
-                    //UnitController = gameObject.AddComponent<EnemyHealerSplashController>();
+                    UnitController = gameObject.AddComponent<EnemyHealerSplashController>();
                     break;
             }
 
