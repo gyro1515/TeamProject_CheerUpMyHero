@@ -17,7 +17,6 @@ public class StageModifierSO : MonoSO<StageModifierData>
 
     public override void SetData(Dictionary<int, StageModifierData> DB)
     {
-        Debug.Log("셋 데이터 시작했음");
         for (int i = 0; i < DestinyEffects.Count; i++)
         {
             var data = DestinyEffects[i];
@@ -36,7 +35,6 @@ public class StageModifierSO : MonoSO<StageModifierData>
 
         for (int i = 0; i < DestinyEffectModifier.Count; i++)
         {
-            Debug.Log("모디파이어 값 넣기 시작했음");
             var data = DestinyEffectModifier[i];
             if (data == null) continue;
             if (DB[data.idNumber] is StageDestinyData destiny)

@@ -9,27 +9,36 @@ public enum GameMode
     Hard
 }
 
-public class UIStageDestinyRoullette : MonoBehaviour
+public class UIDestinyRoullette : BaseUI
 {
-    [Header("UI 참조")]
+    [Header("UI 참조 - 돌림판")]
     [SerializeField] private Transform _wheelContainer;
     [SerializeField] private Image _fortuneSlice;
     [SerializeField] private Image _misfortuneSlice;
     [SerializeField] private Button _startSpinButton;
 
-    [Header("회전 관련 수치")]
+    [Header("UI 참조 - 기타")]
+    [SerializeField] private Button _nextButton;
+    [SerializeField] private GameObject _introPanel;
+    [SerializeField] private UIDestinyEffectPopup _effectPopup;
+
+    [Header("수치 설정")]
+    [SerializeField] private float _introShowTime = 3.0f;
     [SerializeField] private float _spinDuration = 1.0f;
     [SerializeField] private int _minSpins = 5;
     [SerializeField] private AnimationCurve _spinCurve;
 
-    [Header("임시값")]
+    [Header("임시값")]     // 임시값은 나중에 삭제해야 함.
     [SerializeField] private GameMode _gameMode = GameMode.Normal;
-    [SerializeField] private int _mainStage = 2;
-    [SerializeField] private int _subStage = 3;
+    [SerializeField] private int _mainStage = 0;
+    [SerializeField] private int _subStage = 0;
 
+    private StageDestinyData _selectedDestiny;
     private float fortuneProbability;
     private bool isSpinning = false;
     private (int, int) _stage;
+
+    private CanvasGroup _introCanvasGroup;
 
     private const float NormalBaseProbability = 0.50f;
     private const float NormalMinProbability = 0.32f;
@@ -38,31 +47,33 @@ public class UIStageDestinyRoullette : MonoBehaviour
 
     private void Awake()
     {
+        gameObject.SetActive(false);
+
         _startSpinButton.onClick.AddListener(OnStartSpinButtonClicked);
+        _nextButton.onClick.AddListener(OnNextButtonClicked);
     }
 
     private void OnEnable()
     {
         // _stage = PlayerDataManager.Instance.SelectedStageIdx;
-        _stage = (_mainStage, _subStage); 
+        _stage = (_mainStage, _subStage); // 나중에 삭제
         SetWheel(_gameMode);
+        _nextButton.interactable = false;
+
+        StartCoroutine(DestinySelectSequenceCoroutine());
     }
 
-    #region  값 설정 메서드 : 확률 계산 + 돌림판 파이 설정
+    #region  값 설정 메서드 : 확률 계산 + 돌림판 세팅
     private void SetWheel(GameMode gameMode)
     {
         fortuneProbability = SetProbability(gameMode, _stage);
-        SetWheelVisual();
 
-        float randomStartAngle = Random.Range(0f, 360f);
-        _wheelContainer.localEulerAngles = new Vector3(0, 0, randomStartAngle);
-    }
-
-    private void SetWheelVisual()
-    {
         _fortuneSlice.fillAmount = fortuneProbability;
         _misfortuneSlice.fillAmount = 1.0f - fortuneProbability;
         // _misfortuneSlice.transform.localEulerAngles = new Vector3(0, 0, fortuneProbability * 360f);
+
+        float randomStartAngle = Random.Range(0f, 360f);
+        _wheelContainer.localEulerAngles = new Vector3(0, 0, randomStartAngle);
     }
 
     private float SetProbability(GameMode mode, (int mainStageIdx, int subStageIdx) stage)
@@ -84,7 +95,7 @@ public class UIStageDestinyRoullette : MonoBehaviour
         }
         else
         {
-            Debug.Log("확률 정하는 로직에 문제 있어요");
+            Debug.Log("돌림판 확률 정하는 로직에 문제 있어요");
         }
 
         float penalty = stageNum * 0.02f;
@@ -94,13 +105,17 @@ public class UIStageDestinyRoullette : MonoBehaviour
     }
     #endregion
 
-    #region 돌림판 돌리는 메서드
-    public void StartSpin()
+    #region 돌림판 메서드 : 인트로 -> 돌림판 돌림 -> 결과 추첨 -> 버튼 누르면 효과 적용
+
+    private IEnumerator DestinySelectSequenceCoroutine()
     {
-        if (!isSpinning)
-        {
-            StartCoroutine(SpinCoroutine());
-        }
+        _introPanel.SetActive(true);
+
+        yield return new WaitForSeconds(_introShowTime);
+        _introPanel.SetActive(false);
+
+        yield return StartCoroutine(SpinCoroutine());
+        _nextButton.interactable = true;
     }
 
     private IEnumerator SpinCoroutine()
@@ -130,19 +145,53 @@ public class UIStageDestinyRoullette : MonoBehaviour
     {
         float finalAngle = _wheelContainer.localEulerAngles.z;
         float arrowPoint = (360 - finalAngle) % 360;
-
         float fortuneAngleRange = fortuneProbability * 360;
 
-        if (arrowPoint <= fortuneAngleRange)
+        _selectedDestiny = null;
+        DestinyType destinyType = arrowPoint <= fortuneAngleRange ? DestinyType.Fortune : DestinyType.Misfortune;
+
+        List<StageDestinyData> destinyList = new List<StageDestinyData>();
+        foreach (StageModifierData modifier in DataManager.Instance.StageModifierData.Values)
         {
-            Debug.Log($"멈춘 각도 : {finalAngle}, 결과 : 행운");
+            if (modifier is StageDestinyData destiny && destiny.destinyType == destinyType)
+            {
+                destinyList.Add(destiny);
+            }
+        }
+
+        if (destinyList.Count > 0)
+        {
+            int randomIndex = Random.Range(0, destinyList.Count);
+            _selectedDestiny = destinyList[randomIndex];
+            Debug.Log($"결과 : {destinyType} {_selectedDestiny.name} 효과 추첨");
         }
         else
         {
-            Debug.Log($"멈춘 각도 : {finalAngle}, 결과 : 불행");
+            Debug.Log("운명 뽑아오는 로직 오류 있음");
+            return;
+        }
+
+        _effectPopup.OpenPanel(_selectedDestiny);
+    }
+
+    private void OnNextButtonClicked()
+    {
+        if (_selectedDestiny == null) Debug.Log("추첨 유물 null임 로직 문제 있어요");
+
+        PlayerDataManager.Instance.SetDestiny(_selectedDestiny);
+        Debug.Log($"{_selectedDestiny.name} 효과 잘 들어감");
+    }
+    #endregion 
+
+
+    // ▼▼▼▼▼▼▼▼ 여기 테스트용 임시 코드 ▼▼▼▼▼▼▼▼
+    public void StartSpin()
+    {
+        if (!isSpinning)
+        {
+            StartCoroutine(SpinCoroutine());
         }
     }
-    #endregion
 
     private void OnStartSpinButtonClicked()
     {
