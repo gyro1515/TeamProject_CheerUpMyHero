@@ -124,7 +124,19 @@ public class TileDataHandler
         }
 
     }
+    public void ReduceCooldownForBuildingAt(int x, int y, int minutesToReduce)
+    {
+        DateTime currentEndTime = CooldownEndTimeGrid[x, y];
 
+        if (currentEndTime > DateTime.UtcNow)
+        {
+            var reduction = TimeSpan.FromMinutes(minutesToReduce);
+
+            CooldownEndTimeGrid[x, y] -= reduction;
+
+            Debug.Log($"({x},{y}) 타일의 쿨타임이 {minutesToReduce}분 감소되었습니다.");
+        }
+    }
 public void DamageRandomTile()
     {
         List<(int x, int y)> availableTiles = new List<(int, int)>();

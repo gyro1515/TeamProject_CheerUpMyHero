@@ -450,18 +450,22 @@ public class MainScreenBuildingController : MonoBehaviour
             return;
         }
 
+        var sourceBuilding = dataHandler.BuildingGridData[_sourceDragTile.X, _sourceDragTile.Y];
         var destBuilding = dataHandler.BuildingGridData[destinationTile.X, destinationTile.Y];
 
         if (destBuilding == null) // Case 1: 빈 타일로 이동
         {
             dataHandler.StartCooldownForBuildingAt(_sourceDragTile.X, _sourceDragTile.Y);
             dataHandler.MoveBuildingData(_sourceDragTile.X, _sourceDragTile.Y, destinationTile.X, destinationTile.Y);
+            CheckAndShowAdPopup(sourceBuilding, destinationTile.X, destinationTile.Y);
         }
         else // Case 2: 다른 건물과 위치 교체
         {
             dataHandler.StartCooldownForBuildingAt(_sourceDragTile.X, _sourceDragTile.Y);
             dataHandler.StartCooldownForBuildingAt(destinationTile.X, destinationTile.Y);
             dataHandler.SwapBuildingData(_sourceDragTile.X, _sourceDragTile.Y, destinationTile.X, destinationTile.Y);
+            CheckAndShowAdPopup(sourceBuilding, destinationTile.X, destinationTile.Y);
+            CheckAndShowAdPopup(destBuilding, _sourceDragTile.X, _sourceDragTile.Y);
         }
         PlayerDataManager.Instance.UpdateAllSynergyEffects();
         if (synergyPanel != null)
@@ -474,5 +478,24 @@ public class MainScreenBuildingController : MonoBehaviour
         dragIcon.gameObject.SetActive(false);
     }
     #endregion
+    public void RequestAdForCooldownReduction(int x, int y)
+    {
+        AdManager.Instance.ShowRewardedAd(() =>
+        {
+            PlayerDataManager.Instance._TileDataHandler.ReduceCooldownForBuildingAt(x, y, 30);
+
+            if (_tiles[x, y] != null)
+            {
+                UpdateTileUI(_tiles[x, y]);
+            }
+        });
+    }
+    private void CheckAndShowAdPopup(BuildingUpgradeData building, int newX, int newY)
+    {
+        if (building != null && adCooldownPopup != null)
+        {
+            adCooldownPopup.OpenPopup(newX, newY, this);
+        }
+    }
 }
 
