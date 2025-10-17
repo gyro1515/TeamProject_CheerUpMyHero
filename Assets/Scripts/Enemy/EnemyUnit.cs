@@ -67,7 +67,6 @@ public class EnemyUnit : BaseUnit
         }
         else
         {
-            Debug.LogError("힐러 유닛 컨트롤러 추가 필요");
             switch (UnitData.attackType)
             {
                 case UnitAttackType.Target:
