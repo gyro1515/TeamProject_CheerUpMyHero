@@ -296,6 +296,66 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
         }
         return _buildableList;
     }
+    //건물 비용 합산
+    public List<Cost> CalculateTotalInvestedCost(BuildingUpgradeData currentBuildingData)
+    {
+        var totalCostMap = new Dictionary<ResourceType, int>();
+
+        BuildingUpgradeData level1Data = DataManager.Instance.BuildingUpgradeData.Values
+            .FirstOrDefault(data => data.buildingType == currentBuildingData.buildingType && data.level == 1);
+
+        if (level1Data == null) return new List<Cost>();
+
+        BuildingUpgradeData buildData = DataManager.Instance.BuildingUpgradeData.Values
+            .FirstOrDefault(data => data.nextLevel == level1Data.idNumber);
+
+        if (buildData != null)
+        {
+            foreach (var cost in buildData.costs)
+            {
+                totalCostMap[cost.resourceType] = totalCostMap.GetValueOrDefault(cost.resourceType, 0) + cost.amount;
+            }
+        }
+
+        BuildingUpgradeData current = level1Data;
+        while (current != null && current.level < currentBuildingData.level)
+        {
+            foreach (var cost in current.costs)
+            {
+                totalCostMap[cost.resourceType] = totalCostMap.GetValueOrDefault(cost.resourceType, 0) + cost.amount;
+            }
+
+            if (current.nextLevel > 0)
+            {
+                current = DataManager.Instance.BuildingUpgradeData.GetData(current.nextLevel);
+            }
+            else
+            {
+                break;
+            }
+        }
+
+        return totalCostMap.Select(pair => new Cost { resourceType = pair.Key, amount = pair.Value }).ToList();
+    }
+
+    public void DestroyBuildingAt(int x, int y)
+    {
+        var buildingData = _TileDataHandler.BuildingGridData[x, y];
+        if (buildingData == null) return;
+
+        List<Cost> totalCost = CalculateTotalInvestedCost(buildingData);
+        foreach (var cost in totalCost)
+        {
+            int refundAmount = Mathf.FloorToInt(cost.amount * 0.5f);
+            AddResource(cost.resourceType, refundAmount);
+        }
+
+        _TileDataHandler.BuildingGridData[x, y] = null;
+        _TileDataHandler.CooldownEndTimeGrid[x, y] = DateTime.MinValue;
+
+        Debug.Log($"({x},{y}) 위치의 {buildingData.buildingName} 파괴 완료 및 자원 환급.");
+    }
+
     #endregion
 
     //덱 편성 관련
@@ -417,7 +477,7 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
 
     //private readonly int[] maxFoodByFarmLevel = { 500, 750, 1000, 1250, 1500, 1750, 2000, 2250, 2500 };
     //private readonly int[] farmFoodGainPercentByLevel = { 5, 10, 15, 20, 25, 30, 35, 40, 50 };
-    private readonly int[] baseFoodGainBySupplyLevel = { 25, 29, 37, 47, 59, 75, 95, 119, 147 };
+    private readonly int[] baseFoodGainBySupplyLevel = { 35, 39, 47, 57, 74, 115, 155, 200, 255 };
     private readonly int[] supplyUpgradeCosts = { 100, 220, 450, 900, 1800, 3500, 5500, 8000 };
 
     public void UpgradeSupplyLevel()

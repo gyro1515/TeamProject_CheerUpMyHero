@@ -3451,7 +3451,6 @@ GameObject:
   - component: {fileID: -7307097619041437047}
   - component: {fileID: -227179290429603040}
   - component: {fileID: -3339563003366436255}
-  - component: {fileID: 4826288761441237960}
   m_Layer: 7
   m_Name: EnemyUnit20
   m_TagString: Untagged
@@ -3488,6 +3487,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 808adad36016f064c86076c50b68208f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  idNumber: 0
   <MaxHp>k__BackingField: 30000
   <AtkPower>k__BackingField: 750
   <MoveSpeed>k__BackingField: 1
@@ -3504,7 +3504,28 @@ MonoBehaviour:
   <StartAttackNormalizedTime>k__BackingField: 0.36
   <HitBackCount>k__BackingField: 1
   <SpawnCooldown>k__BackingField: 0
+  <UnitData>k__BackingField:
+    idNumber: 0
+    rarity: 0
+    unitName: 
+    unitType: 0
+    poolType: 0
+    health: 0
+    hitBack: 0
+    atkPower: 0
+    cognizanceRange: 0
+    attackRange: 0
+    moveSpeed: 0
+    attackDelayTime: 0
+    attackRate: 0
+    isRangedAttack: 0
+    attackType: 0
+    spawnCooldown: 0
+    synergyType: 0
+    cost: 0
+    description: "\uC124\uBA85 \uCD94\uAC00\uD574\uC57C \uD569\uB2C8\uB2E4!!"
   <UnitType>k__BackingField: 1
+  <UnitRarity>k__BackingField: 0
 --- !u!114 &3663210988550714101
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3596,19 +3617,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e66f8437f03a6ba48b2d1352efd14383, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &4826288761441237960
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6903239234365258212}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 878a23eefaff27940b9ae434e337abbd, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  animator: {fileID: 5834078362208515889}
 --- !u!1 &7053531097267065092
 GameObject:
   m_ObjectHideFlags: 0
