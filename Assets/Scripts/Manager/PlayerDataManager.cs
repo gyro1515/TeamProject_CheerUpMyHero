@@ -417,7 +417,7 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
 
     //private readonly int[] maxFoodByFarmLevel = { 500, 750, 1000, 1250, 1500, 1750, 2000, 2250, 2500 };
     //private readonly int[] farmFoodGainPercentByLevel = { 5, 10, 15, 20, 25, 30, 35, 40, 50 };
-    private readonly int[] baseFoodGainBySupplyLevel = { 25, 29, 37, 47, 59, 75, 95, 119, 147 };
+    private readonly int[] baseFoodGainBySupplyLevel = { 35, 39, 47, 57, 74, 115, 155, 200, 255 };
     private readonly int[] supplyUpgradeCosts = { 100, 220, 450, 900, 1800, 3500, 5500, 8000 };
 
     public void UpgradeSupplyLevel()
