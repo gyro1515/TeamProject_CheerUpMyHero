@@ -12,7 +12,8 @@ public class MainScreenBuildingController : MonoBehaviour
     [SerializeField] private Transform gridParent;                  // 타일 그리드 부모 (GridLayoutGroup이 붙은 오브젝트)
     [SerializeField] private ConstructionSelectPanel selectPanel;   // 건설 선택 패널
     [SerializeField] private ConstructionUpgradePanel upgradePanel; // 업그레이드 패널
-   
+    [SerializeField] private BuildingSynergyPanel synergyPanel; // 시너지 패널
+
     [Header("드래그 앤 드랍")]
     [SerializeField] private Image dragIcon;
 
@@ -113,6 +114,9 @@ public class MainScreenBuildingController : MonoBehaviour
     // ---------------- 타일 선택 ----------------
     private void HandleTileClick(BuildingTile tile)
     {
+        if (synergyPanel != null)
+            synergyPanel.gameObject.SetActive(false);
+
         _selectedTile = tile;
         selectedFrameObject.SetActive(true);
         selectedFrameObject.transform.position = tile.transform.position;
@@ -168,6 +172,9 @@ public class MainScreenBuildingController : MonoBehaviour
             _selectedTile = null;
             selectedFrameObject.SetActive(false);
         }
+
+        if (synergyPanel != null)
+            synergyPanel.gameObject.SetActive(true);
     }
 
     // ---------------- 건설 ----------------
@@ -379,7 +386,6 @@ public class MainScreenBuildingController : MonoBehaviour
             // 드랍이 성공하지 못하고 끝났을 경우, 원래 타일의 모습을 복원
             UpdateTileUI(_sourceDragTile);
         }
-
         _sourceDragTile = null;
         dragIcon.gameObject.SetActive(false);
     }
@@ -405,10 +411,13 @@ public class MainScreenBuildingController : MonoBehaviour
         {
             dataHandler.SwapBuildingData(_sourceDragTile.X, _sourceDragTile.Y, destinationTile.X, destinationTile.Y);
         }
-
+        PlayerDataManager.Instance.UpdateAllSynergyEffects();
+        if (synergyPanel != null)
+        {
+            synergyPanel.UpdateDisplay();
+        }
         UpdateTileUI(_sourceDragTile);
         UpdateTileUI(destinationTile);
-
         _sourceDragTile = null;
         dragIcon.gameObject.SetActive(false);
     }

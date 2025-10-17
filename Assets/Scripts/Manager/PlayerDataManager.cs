@@ -6,6 +6,7 @@ using System.Text;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
+public struct SynergyDataUpdatedEvent { }
 public enum ResourceType
 {
     Gold,
@@ -60,7 +61,9 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
 
     private Dictionary<(int x, int y), float> _tileEfficiencyBonuses;
     public IReadOnlyDictionary<(int x, int y), float> TileEfficiencyBonuses => _tileEfficiencyBonuses;
+    public List<DetectedSynergy> ActiveSynergies { get; private set; }
 
+    private IEventPublisher<SynergyDataUpdatedEvent> _synergyDataUpdatedPublisher;
     #endregion
 
     protected override void Awake()
@@ -70,7 +73,7 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
         {
             _TileDataHandler = new TileDataHandler();
             _tileEfficiencyBonuses = new Dictionary<(int, int), float>();
-
+            _synergyDataUpdatedPublisher = EventManager.GetPublisher<SynergyDataUpdatedEvent>();
             InitializeResources();
             LoadDecks();
             TestCardGenerate();
@@ -153,10 +156,9 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
     {
         //모든 보너스 값을 0으로 초기화
         ResetSynergyBonuses();
-
+        ActiveSynergies = _TileDataHandler.DetectAllSynergies();
         //TileDataHandler에게 시너지 분석을 요청
         List<DetectedSynergy> activeSynergies = _TileDataHandler.DetectAllSynergies();
-
         if (activeSynergies.Count > 0)
         {
             Debug.Log($"[시너지] {activeSynergies.Count}개의 시너지 감지!");
@@ -181,7 +183,8 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
         }
 
         // 시너지 계산 후 건물 효과를 다시 계산해야 시너지 보너스가 반영됨
-        UpdateAllBuildingEffects();
+        UpdateAllBuildingEffects(); 
+        _synergyDataUpdatedPublisher.Publish(new SynergyDataUpdatedEvent());
     }
 
     private void ResetSynergyBonuses()
@@ -197,6 +200,7 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
         SynergyUnitAttackCooldownReduction = 0f;
         SynergyBlockBonusPercent = 0f;
         _tileEfficiencyBonuses.Clear();
+        ActiveSynergies?.Clear();
     }
 
     private void ApplySynergyEffect(DetectedSynergy synergy)
@@ -343,11 +347,11 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
     private void InitializeResources()
     {
         // 5가지 자원을 모두 딕셔너리에 추가하고 초기 수량을 설정.
-        _resources[ResourceType.Gold] = 100;
-        _resources[ResourceType.Wood] = 0;
-        _resources[ResourceType.Iron] = 0;
+        _resources[ResourceType.Gold] = 10000;
+        _resources[ResourceType.Wood] = 10000;
+        _resources[ResourceType.Iron] = 10000;
         _resources[ResourceType.Food] = CurrentFood;
-        _resources[ResourceType.MagicStone] = 0;
+        _resources[ResourceType.MagicStone] = 10000;
         _resources[ResourceType.Bm] = 0; 
         _resources[ResourceType.Ticket] = 0;
     }
@@ -526,6 +530,7 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
 
         OnResourceChangedEvent?.Invoke(ResourceType.Food, CurrentFood);
         Debug.Log($"모든 건물+시너지 효과 계산 완료: 최대 식량={_calculatedMaxFood}, 식량 보너스={currentFarmGainPercent}%, 유닛 쿨감={TotalUnitCooldownReduction}%");
+        EventManager.GetPublisher<SynergyDataUpdatedEvent>().Publish(new SynergyDataUpdatedEvent());
     }
 
     #endregion

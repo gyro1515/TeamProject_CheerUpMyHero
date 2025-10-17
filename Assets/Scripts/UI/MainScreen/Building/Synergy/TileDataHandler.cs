@@ -33,7 +33,7 @@ public class TileDataHandler
         BuildingGridData[sourceX, sourceY] = temp;
 
         Debug.Log($"건물 위치 교체: ({sourceX},{sourceY}) <-> ({destX},{destY})");
-        EventManager.Publish(new GridStateChangedEvent());
+        EventManager.GetPublisher<GridStateChangedEvent>().Publish(new GridStateChangedEvent());
     }
     public void MoveBuildingData(int sourceX, int sourceY, int destX, int destY)
     {
@@ -43,7 +43,7 @@ public class TileDataHandler
             BuildingGridData[sourceX, sourceY] = null;
 
             Debug.Log($"건물 위치 이동: ({sourceX},{sourceY}) -> ({destX},{destY})");
-            EventManager.Publish(new GridStateChangedEvent());
+            EventManager.GetPublisher<GridStateChangedEvent>().Publish(new GridStateChangedEvent());
         }
     }
     public void CalculateTotalBuildingEffects(
