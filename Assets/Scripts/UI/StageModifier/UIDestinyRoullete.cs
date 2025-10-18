@@ -11,16 +11,21 @@ public enum GameMode
 
 public class UIDestinyRoullette : BaseUI
 {
+    [Header("UI 참조 - 인트로")]
+    [SerializeField] private GameObject _introPanel;
+    [SerializeField] private CanvasGroup _introCanvasGroup;
+
     [Header("UI 참조 - 돌림판")]
     [SerializeField] private Transform _wheelContainer;
     [SerializeField] private Image _fortuneSlice;
     [SerializeField] private Image _misfortuneSlice;
     [SerializeField] private Button _startSpinButton;
 
-    [Header("UI 참조 - 기타")]
-    [SerializeField] private Button _nextButton;
-    [SerializeField] private GameObject _introPanel;
+    [Header("UI 참조 - 팝업")]
     [SerializeField] private UIDestinyEffectPopup _effectPopup;
+    [SerializeField] private UIChallengePopup _challengePopup;
+    [SerializeField] private Button _challengeButton;
+    [SerializeField] private Button _confirmButton;
 
     [Header("수치 설정")]
     [SerializeField] private float _introShowTime = 3.0f;
@@ -38,8 +43,6 @@ public class UIDestinyRoullette : BaseUI
     private bool isSpinning = false;
     private (int, int) _stage;
 
-    private CanvasGroup _introCanvasGroup;
-
     private const float NormalBaseProbability = 0.50f;
     private const float NormalMinProbability = 0.32f;
     private const float HardBaseProbability = 0.30f;
@@ -47,10 +50,11 @@ public class UIDestinyRoullette : BaseUI
 
     private void Awake()
     {
-        gameObject.SetActive(false);
+        //gameObject.SetActive(false);
 
         _startSpinButton.onClick.AddListener(OnStartSpinButtonClicked);
-        _nextButton.onClick.AddListener(OnNextButtonClicked);
+        _confirmButton.onClick.AddListener(OnConfirmButtonClicked);
+        _challengeButton.onClick.AddListener(OnChallengeButtonClicked);
     }
 
     private void OnEnable()
@@ -58,7 +62,11 @@ public class UIDestinyRoullette : BaseUI
         // _stage = PlayerDataManager.Instance.SelectedStageIdx;
         _stage = (_mainStage, _subStage); // 나중에 삭제
         SetWheel(_gameMode);
-        _nextButton.interactable = false;
+        _confirmButton.interactable = false;
+
+        _introCanvasGroup.alpha = 0f;
+        _introCanvasGroup.interactable = false;
+        _introCanvasGroup.blocksRaycasts = false;
 
         StartCoroutine(DestinySelectSequenceCoroutine());
     }
@@ -109,13 +117,16 @@ public class UIDestinyRoullette : BaseUI
 
     private IEnumerator DestinySelectSequenceCoroutine()
     {
-        _introPanel.SetActive(true);
+        FadeManager.FadeInUI(_introCanvasGroup);
+        yield return new WaitForSeconds(FadeManager.fadeDuration);
 
-        yield return new WaitForSeconds(_introShowTime);
-        _introPanel.SetActive(false);
+        yield return new WaitForSeconds(_introShowTime - (2 * FadeManager.fadeDuration));
+        
+        FadeManager.FadeOutUI(_introCanvasGroup);
+        yield return new WaitForSeconds(FadeManager.fadeDuration);
 
         yield return StartCoroutine(SpinCoroutine());
-        _nextButton.interactable = true;
+        _confirmButton.interactable = true;
     }
 
     private IEnumerator SpinCoroutine()
@@ -138,7 +149,6 @@ public class UIDestinyRoullette : BaseUI
 
         CheckResult();
         isSpinning = false;
-        _startSpinButton.interactable = true;
     }
 
     private void CheckResult()
@@ -171,17 +181,35 @@ public class UIDestinyRoullette : BaseUI
             return;
         }
 
+
         _effectPopup.OpenPanel(_selectedDestiny);
+        _startSpinButton.interactable = true;
     }
+    #endregion
 
-    private void OnNextButtonClicked()
+    #region 버튼 메서드
+    private void OnConfirmButtonClicked()
     {
-        if (_selectedDestiny == null) Debug.Log("추첨 유물 null임 로직 문제 있어요");
-
+        if (_selectedDestiny == null)
+        {
+            Debug.Log("추첨 유물 null임 로직 문제 있어요");
+            return;
+        }
+        _challengePopup.ApplyChanges();
         PlayerDataManager.Instance.SetDestiny(_selectedDestiny);
         Debug.Log($"{_selectedDestiny.name} 효과 잘 들어감");
+
+        CloseUI();
+
+        // 여기서 스테이지로 연결하든 뭐로 연결하든 연결 로직 넣으면 됨.
     }
-    #endregion 
+
+    private void OnChallengeButtonClicked()
+    {
+        _challengePopup.OpenUI();
+        _effectPopup.CloseUI();
+    }
+    #endregion
 
 
     // ▼▼▼▼▼▼▼▼ 여기 테스트용 임시 코드 ▼▼▼▼▼▼▼▼

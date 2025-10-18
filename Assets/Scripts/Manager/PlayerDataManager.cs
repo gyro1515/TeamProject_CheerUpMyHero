@@ -399,7 +399,7 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
     }
 
     // 지금 선택된 도전 기능
-    public Dictionary<int, int> activeChallenges { get; private set; }
+    public Dictionary<int, int> activeChallenges { get; private set; } = new Dictionary<int, int>();
 
     // 도전 기능 설정 메서드
     public void SetChallenges(int id, int lv)

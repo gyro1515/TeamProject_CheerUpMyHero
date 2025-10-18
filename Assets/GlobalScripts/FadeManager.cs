@@ -9,7 +9,7 @@ using UnityEngine.UI;
 public class FadeManager : SingletonMono<FadeManager>
 {
     private Image fadeImage;
-    private const float fadeDuration = 0.3f; // 페이드 시간
+    public const float fadeDuration = 0.3f; // 페이드 시간
 
     // 페이드 인 아웃 체크용
     [HideInInspector] public bool isFadeOut = false;
