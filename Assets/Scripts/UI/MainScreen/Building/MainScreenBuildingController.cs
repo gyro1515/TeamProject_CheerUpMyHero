@@ -255,6 +255,7 @@ public class MainScreenBuildingController : MonoBehaviour
         EventManager.Publish(new GridStateChangedEvent());
 
         Debug.Log($"{tile.X},{tile.Y}에 {level1Data.buildingName} 건설 완료!");
+        DeselectTile();
     }
 
     // ---------------- 업그레이드 ----------------
@@ -319,6 +320,7 @@ public class MainScreenBuildingController : MonoBehaviour
         EventManager.Publish(new GridStateChangedEvent());
 
         Debug.Log($"{current.buildingName} Lv.{current.level} → Lv.{next.level} 업그레이드 완료!");
+        DeselectTile();
     }
 
     // ------수리------
@@ -371,6 +373,7 @@ public class MainScreenBuildingController : MonoBehaviour
 
         tile.UpdateStatusVisual();
         Debug.Log($"타일 ({tile.X},{tile.Y})의 수리를 시작합니다. 남은 턴: {PlayerDataManager.Instance._TileDataHandler.TileStatusGrid[tile.X, tile.Y]}");
+        DeselectTile();
     }
 
     public void InitiateDestruction(BuildingTile tile)

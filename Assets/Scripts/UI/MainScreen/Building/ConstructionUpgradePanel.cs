@@ -381,33 +381,4 @@ public class ConstructionUpgradePanel : BasePopUpUI
 
     private string GetEffectNameInKorean(BuildingEffectType type) // 딕셔너리에서 한글 이름을 가져오는 헬퍼 메서드
         => EffectNames.TryGetValue(type, out var name) ? name : type.ToString();
-
-    // --- 애니메이션 ---
-    /*public override void OpenUI()
-    {
-        base.OpenUI();
-        FadeManager.FadeInUI(_canvasGroup);
-    }*/
-    //public override void CloseUI()
-    //{
-    //    /*if (_isClosing) return;
-    //    _isClosing = true;*/
-    //    base.CloseUI();
-
-    //    if (_targetTile != null)
-    //    {
-    //        MainScreenBuildingController.Instance.DeselectTile();
-    //        _targetTile = null;
-    //    }
-
-    //    /*FadeManager.FadeOutUI(_canvasGroup);
-    //    StartCoroutine(CoCloseAfterDelay(0.3f));*/
-    //}
-
-    /*private IEnumerator CoCloseAfterDelay(float delay)
-    {
-        yield return new WaitForSecondsRealtime(delay);
-        base.CloseUI();
-        _isClosing = false;
-    }*/
 }
