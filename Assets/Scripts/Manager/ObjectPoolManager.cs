@@ -12,9 +12,10 @@ using UnityEngine.SceneManagement;
 //3. ObjectPoolManager.Instance.Get(PoolType)으로 오브젝트 불러오기
 //4. 오브젝트 반납 로직 작성 필수: BasePoolable을 GetComponet해서 ReleaseSelf 호출
 
-public enum PoolType
+public enum PoolType // *******251016: 새로운 풀링 오브젝트 추가시 아군 밑에 추가할 것 *******
 {
     None,
+    #region 테스트, 비사용, 추후 삭제 예정
     TestBulletV2,
     PlayerUnit1,
     PlayerUnit2,
@@ -31,7 +32,9 @@ public enum PoolType
     PlayerUnit2_1,
     PlayerUnit3_1,
     EnemyUnit99,
+    #endregion
     UIMinimapIcon,
+    #region 적 유닛 리스트, 적 유닛은 여기에 추가할 것
     EnemyUnit1,
     EnemyUnit2,
     EnemyUnit3,
@@ -54,6 +57,40 @@ public enum PoolType
     EnemyUnit19,
     EnemyUnit20,
     EnemyUnit20_1,
+    EnemyUnit21,
+    EnemyUnit22,
+    EnemyUnit23,
+    EnemyUnit24,
+    EnemyUnit25,
+    EnemyUnit26,
+    EnemyUnit27,
+    EnemyUnit28,
+    EnemyUnit29,
+    EnemyUnit30_1,
+    EnemyUnit30,
+    EnemyUnit31,
+    EnemyUnit32,
+    EnemyUnit33,
+    EnemyUnit34,
+    EnemyUnit35,
+    EnemyUnit36,
+    EnemyUnit37,
+    EnemyUnit38,
+    EnemyUnit39,
+    EnemyUnit40_1,
+    EnemyUnit40,
+    EnemyUnit41,
+    EnemyUnit42,
+    EnemyUnit43,
+    EnemyUnit44,
+    EnemyUnit45,
+    EnemyUnit46,
+    EnemyUnit47,
+    EnemyUnit48,
+    EnemyUnit49,
+    EnemyUnit50,
+    #endregion
+    #region 아군 유닛 리스트, 아군 유닛은 여기에 추가할 것
     Allies_Unit1,
     Allies_Unit2,
     Allies_Unit3,
@@ -74,7 +111,33 @@ public enum PoolType
     Allies_Unit18,
     Allies_Unit19,
     Allies_Unit20,
-
+    Allies_Unit21,
+    Allies_Unit22,
+    Allies_Unit23,
+    Allies_Unit24,
+    Allies_Unit25,
+    Allies_Unit26,
+    Allies_Unit27,
+    Allies_Unit28,
+    Allies_Unit29,
+    Allies_Unit30,
+    Allies_Unit31,
+    Allies_Unit32,
+    Allies_Unit33,
+    Allies_Unit34,
+    Allies_Unit35,
+    Allies_Unit36,
+    Allies_Unit37,
+    #endregion
+    #region 영웅 유닛 리스트, 영웅 유닛은 여기에 추가할 것
+    Hero_Unit1,
+    Hero_Unit2,
+    Hero_Unit3,
+    Hero_Unit4,
+    Hero_Unit5,
+    #endregion
+    Player,
+    SynergyInfoItem
 }
 
 public class ObjectPoolManager : SingletonMono<ObjectPoolManager>, ISceneResettable
@@ -150,7 +213,9 @@ public class ObjectPoolManager : SingletonMono<ObjectPoolManager>, ISceneResetta
             GameObject prefab = Resources.Load<GameObject>(POOLPATH + type.ToString());
             if (prefab == null)
             {
-                Debug.LogError($"[ObjectPoolManager] 프리팹 로드 실패: Resources/{POOLPATH + type.ToString()}");
+                Debug.LogWarning($"[ObjectPoolManager] 프리팹 로드 실패: Resources/{POOLPATH + type.ToString()}");
+                // 251016: 현재 유닛 프리팹 다 안넣은 상태라 경고가 많이 뜨는 상태입니다.
+                continue; // 다음 오브젝트로
             }
 
             //2. 오브젝트를 담을 빈 게임 오브젝트 생성

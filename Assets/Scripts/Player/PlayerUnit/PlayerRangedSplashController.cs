@@ -1,5 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class PlayerRangedSplashController : BaseUnitController
@@ -42,7 +44,7 @@ public class PlayerRangedSplashController : BaseUnitController
 
         // UnitManager가 관리하는 전체 적 리스트를 가져옴
         List<BaseCharacter> allEnemies = UnitManager.Instance.EnemyUnitList;
-        List<IDamageable> takeDamages = new List<IDamageable>();
+        List<BaseCharacter> enemiesInRange = new List<BaseCharacter>();
         int hitCount = 0;
 
         // 모든 적을 순회하며 폭발 지점과의 거리를 비교
@@ -52,15 +54,21 @@ public class PlayerRangedSplashController : BaseUnitController
             float distance = Mathf.Abs(targetPos.position.x - enemy.transform.position.x);
             if (distance <= playerUnit.AttackRange / 2)
             {
-                takeDamages.Add(enemy.Damageable);
-                hitCount++;
+                enemiesInRange.Add(enemy);
             }
         }
-        foreach (IDamageable enemy in takeDamages)
-        {
-            enemy.TakeDamage(playerUnit.AtkPower);
-        }
+        // 거리 가까운 5명의 적을 선별
 
+        List<BaseCharacter> hitEnemies = enemiesInRange
+            .OrderBy(enemy => enemy.transform.position.x)
+            .Take(5)
+            .ToList();
+        foreach (BaseCharacter enemy in hitEnemies)
+        {
+            enemy.Damageable.TakeDamage(playerUnit.AtkPower);
+            hitCount++;
+        }
+        
         if (hitCount > 0)
         {
             Debug.Log($"{gameObject.name}이(가) {hitCount}명의 적에게 원거리 범위 공격!");
@@ -149,7 +157,7 @@ public class PlayerRangedSplashController : BaseUnitController
             yield return null;
         } while (normalizedTime < 0f);
 
-        animator.speed = playerUnit.StartAttackTime / playerUnit.AttackDelayTime;
+        animator.speed = playerUnit.StartAttackTime / playerUnit.UnitData.attackDelayTime;
 
         while (normalizedTime < playerUnit.StartAttackNormalizedTime)
         {
@@ -186,6 +194,7 @@ public class PlayerRangedSplashController : BaseUnitController
     private void OnDrawGizmos()
     {
         if (!Application.isPlaying) return;
+        if (gameObject.IsDestroyed()) return;
 
         Gizmos.color = Color.cyan; // 색상 지정
         Vector3 pos = transform.position;
@@ -194,6 +203,7 @@ public class PlayerRangedSplashController : BaseUnitController
         Gizmos.DrawWireCube(pos, new Vector3(playerUnit.CognizanceRange, 2f));
         if (!isAttacking ) return;
         Gizmos.color = Color.red;
+        if (targetPos == null) return;
         pos = targetPos.position;
         pos.y += 0.75f;
         Gizmos.DrawWireCube(pos, new Vector3(playerUnit.AttackRange, 2f));

@@ -17,7 +17,7 @@ public class DeckUnitSlot : MonoBehaviour
         _defaultSprite = _buttonImage.sprite;
     }
 
-    public void SetData(TempCardData unitData, int slotNumber)
+    public void SetData(BaseUnitData unitData, int slotNumber)
     {
         if (unitData == null) // 빈 슬롯일 때
         {

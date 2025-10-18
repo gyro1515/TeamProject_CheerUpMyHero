@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -13,6 +15,11 @@ public enum TileType
 
 public class BuildingTile : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IDropHandler
 {
+
+    [Header("쿨타임 UI")]
+    [SerializeField] private Image cooldownOverlay;
+    [SerializeField] private TextMeshProUGUI cooldownTimerText;
+
     public int X { get; private set; }
     public int Y { get; private set; }
     public TileType MyTileType { get; private set; }
@@ -156,5 +163,26 @@ public class BuildingTile : MonoBehaviour, IBeginDragHandler, IDragHandler, IEnd
                 tileImage.color = Color.white;
                 break;
         }
+    }
+
+    public void UpdateCooldownStatus()
+    {
+        DateTime cooldownEndTime = PlayerDataManager.Instance._TileDataHandler.CooldownEndTimeGrid[X, Y];
+
+        if (cooldownEndTime > DateTime.UtcNow)
+        {
+            cooldownOverlay.gameObject.SetActive(true);
+            cooldownTimerText.gameObject.SetActive(true);
+        }
+        else
+        {
+            cooldownOverlay.gameObject.SetActive(false);
+            cooldownTimerText.gameObject.SetActive(false);
+        }
+    }
+
+    public void UpdateTimerText(TimeSpan remainingTime)
+    {
+        cooldownTimerText.text = remainingTime.ToString(@"mm\:ss");
     }
 }

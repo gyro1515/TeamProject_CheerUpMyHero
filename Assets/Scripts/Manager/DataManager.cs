@@ -122,6 +122,42 @@ public class DataManager : SingletonMono<DataManager>
             return Instance._stageModifierData;
         }
     }
+    private DataBase<BaseUnitData, EnemyUnitSO> _enemyUnitData;
+    public static DataBase<BaseUnitData, EnemyUnitSO> EnemyUnitData
+    {
+        get
+        {
+            if (Instance._enemyUnitData == null)
+            {
+                Instance._enemyUnitData = new DataBase<BaseUnitData, EnemyUnitSO>();
+            }
+            return Instance._enemyUnitData;
+        }
+    }
+    private DataBase<BaseUnitData, PlayerUnitSO> _playerUnitData;
+    public static DataBase<BaseUnitData, PlayerUnitSO> PlayerUnitData
+    {
+        get
+        {
+            if (Instance._playerUnitData == null)
+            {
+                Instance._playerUnitData = new DataBase<BaseUnitData, PlayerUnitSO>();
+            }
+            return Instance._playerUnitData;
+        }
+    }
+    private DataBase<PlayerData, PlayerSO> _playerData;
+    public static DataBase<PlayerData, PlayerSO> PlayerData
+    {
+        get
+        {
+            if (Instance._playerData == null)
+            {
+                Instance._playerData = new DataBase<PlayerData, PlayerSO>();
+            }
+            return Instance._playerData;
+        }
+    }
 
     protected override void Awake()
     {

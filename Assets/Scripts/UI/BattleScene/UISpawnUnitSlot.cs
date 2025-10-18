@@ -21,6 +21,8 @@ public class UISpawnUnitSlot : MonoBehaviour
     PoolType playerUnitType;
     private void Awake()
     {
+        costText.gameObject.SetActive(true); // 현재 왜 꺼져있는지 모르겠음
+        outlineForCanSpawnLegendary.enabled = false;
         spawnUnitBtn.onClick.AddListener(OnSpawnUnit);
     }
     private void Update()
@@ -37,8 +39,16 @@ public class UISpawnUnitSlot : MonoBehaviour
     {
         _foodConsumption = foodConsumption;
         unitIcon.sprite = sprite;
-        _cooldown = cooldown;
+        //_cooldown = cooldown;
         playerUnitType = poolType; // 소환할 유닛 타입을 직접 받음
+        
+        float totalReductionPercent = PlayerDataManager.Instance.TotalUnitCooldownReduction;
+
+        //최종 쿨타임을 계산합니다. (기본 쿨타임 * (1 - 할인율))
+        float finalCooldown = cooldown * (1.0f - totalReductionPercent / 100.0f);
+
+        //계산된 최종 쿨타임을 이 슬롯의 쿨타임(_cooldown)으로 설정
+        _cooldown = finalCooldown;
 
         if (unitId == -1) // 빈 슬롯 처리
         {
@@ -60,10 +70,12 @@ public class UISpawnUnitSlot : MonoBehaviour
         if (GameManager.Instance.PlayerHQ == null) return;
         if (PlayerDataManager.Instance.CurrentFood < _foodConsumption) return;
 
+        if(outlineForCanSpawnLegendary.enabled) outlineForCanSpawnLegendary.enabled = false;
+
         PlayerDataManager.Instance.AddResource(ResourceType.Food, -_foodConsumption);
         SetTimerIconActive(true);
 
-        GameManager.Instance.PlayerHQ.SpawnUnit(playerUnitType);
+        GameManager.Instance.PlayerHQ.SpawnUnit(playerUnitType, this);
     }
 
     //public void InitSpawnUnitSlot(Sprite sprite, int cardIdx, float cooldown, int foodConsumption)
@@ -101,7 +113,10 @@ public class UISpawnUnitSlot : MonoBehaviour
         unitIconTimer.gameObject.SetActive(active);
         unitIconTimer.fillAmount = active ? 1f : 0f;
     }
+    
+    public void SetOutLineForSpawnLegendaryUnit()
+    {
+        outlineForCanSpawnLegendary.enabled = true;
+    }
 }
-#region 전설 유닛 소환 아웃라인 이벤트
-struct CanSpawnLegendaryUnitEvent {}
-#endregion
+

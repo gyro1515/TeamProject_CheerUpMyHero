@@ -6,6 +6,7 @@ using System.Text;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
+public struct SynergyDataUpdatedEvent { }
 public enum ResourceType
 {
     Gold,
@@ -42,7 +43,28 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
     public TileDataHandler _TileDataHandler { get; private set; }
 
     //테스트용 카드 데이터(유닛 테이블로 교체될 예정
-    public Dictionary<int, TempCardData> cardDic;
+    //public Dictionary<int, TempCardData> cardDic;
+    public Dictionary<int, BaseUnitData> OwnedCardData { get; private set; } = new Dictionary<int, BaseUnitData>();
+
+    #region 시너지 보너스
+    //모든 시너지 효과를 합산하여 저장할 프로퍼티들
+    public float SynergyUnitCooldownReduction { get; private set; }
+    public float SynergyFoodProductionBonus { get; private set; }
+    public float SynergyAllUnitAttackBonus { get; private set; }
+    public float SynergyAllUnitHealthBonus { get; private set; }
+    public float SynergyWoodCostReduction { get; private set; }
+    public float SynergyIronCostReduction { get; private set; }
+    public float SynergyMagicStoneCostReduction { get; private set; }
+    public float SynergyMaxFoodBonus { get; private set; }
+    public float SynergyUnitAttackCooldownReduction { get; private set; }
+    public float SynergyBlockBonusPercent { get; private set; } // 전문 기술 단지
+
+    private Dictionary<(int x, int y), float> _tileEfficiencyBonuses;
+    public IReadOnlyDictionary<(int x, int y), float> TileEfficiencyBonuses => _tileEfficiencyBonuses;
+    public List<DetectedSynergy> ActiveSynergies { get; private set; }
+
+    private IEventPublisher<SynergyDataUpdatedEvent> _synergyDataUpdatedPublisher;
+    #endregion
 
     protected override void Awake()
     {
@@ -50,7 +72,8 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
         if (Instance == this)
         {
             _TileDataHandler = new TileDataHandler();
-
+            _tileEfficiencyBonuses = new Dictionary<(int, int), float>();
+            _synergyDataUpdatedPublisher = EventManager.GetPublisher<SynergyDataUpdatedEvent>();
             InitializeResources();
             LoadDecks();
             TestCardGenerate();
@@ -66,11 +89,10 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
     {
         EventManager.Unsubscribe<GridStateChangedEvent>(OnGridStateChanged);
         EventManager.Unsubscribe<BattleEndedEvent>(OnBattleEnded);
-
     }
     private void OnGridStateChanged(GridStateChangedEvent e)
     {
-        UpdateAllBuildingEffects();
+        UpdateAllSynergyEffects();
     }
     private void OnBattleEnded(BattleEndedEvent e)
     {
@@ -82,13 +104,15 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
         }
 
     }
+
     //테스트용 카드 생성
+    // ToDo: 엑셀 데이터로 교체 필요**************
     void TestCardGenerate()
     {
-        cardDic = new() 
+        /*cardDic = new() 
         {
             {100001, new TempCardData(100001, "징집병", UnitType.Dealer, 250f, 75, 20f, 6f, PoolType.Allies_Unit1)},
-            {100002, new TempCardData(100002, "방패병", UnitType.Tanker, 1000f, 150, 5f, 6f, PoolType.Allies_Unit2)},
+            {100002, new TempCardData(100002, "방패병", UnitType.Tanker, 1000f, 150, 5f, 6f, PoolType.Allies_Unit2, Rarity.rare)},
             {100003, new TempCardData(100003, "도끼병", UnitType.Dealer, 500f, 300, 62f, 6f, PoolType.Allies_Unit3)},
             {100004, new TempCardData(100004, "궁수", UnitType.Dealer, 1000f, 600, 250f, 6.6f, PoolType.Allies_Unit4)},
             {100005, new TempCardData(100005, "기마병", UnitType.Dealer, 1250f, 750, 32f, 6f, PoolType.Allies_Unit5)},
@@ -107,12 +131,17 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
             {105008, new TempCardData(105008, "큰 도끼 광전사", UnitType.Dealer, 1500f, 1490, 1000f, 17.3f, PoolType.Allies_Unit18)},
             {105009, new TempCardData(105009, "마법사", UnitType.Dealer, 1000f, 1050, 450f, 6f, PoolType.Allies_Unit19)},
             {105010, new TempCardData(105010, "자경단원", UnitType.Dealer, 600f, 300, 35f, 6f, PoolType.Allies_Unit20)},
-        };
+        };*/
+        List<BaseUnitData> unitList = DataManager.PlayerUnitData.SO.allianceCommon;
+        for(int i = 0; i < unitList.Count; i++)
+        {
+            OwnedCardData[unitList[i].idNumber] = unitList[i];
+        }
     }
-
-    public TempCardData GetUnitData(int cardId)
+    //public TempCardData GetUnitData(int cardId)
+    public BaseUnitData GetUnitData(int cardId)
     {
-        if (cardDic.TryGetValue(cardId, out TempCardData data))
+        if (OwnedCardData.TryGetValue(cardId, out BaseUnitData data))
         {
             return data;
         }
@@ -120,7 +149,127 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
         Debug.LogWarning($"Card ID {cardId}에 해당하는 임시 데이터를 찾을 수 없습니다.");
         return null;
     }
+    //영지 시너지
+    #region 시너지 로직
 
+    public void UpdateAllSynergyEffects()
+    {
+        //모든 보너스 값을 0으로 초기화
+        ResetSynergyBonuses();
+        ActiveSynergies = _TileDataHandler.DetectAllSynergies();
+        //TileDataHandler에게 시너지 분석을 요청
+        List<DetectedSynergy> activeSynergies = _TileDataHandler.DetectAllSynergies();
+        if (activeSynergies.Count > 0)
+        {
+            Debug.Log($"[시너지] {activeSynergies.Count}개의 시너지 감지!");
+
+            var synergyLog = new System.Text.StringBuilder();
+            synergyLog.AppendLine("--- 활성화된 시너지 목록 ---");
+
+            foreach (var synergy in activeSynergies)
+            {
+                // 각 시너지의 타일 좌표를 (x,y) 형태의 문자열로 변환
+                string positions = string.Join(", ", synergy.TilePositions.Select(p => $"({p.x},{p.y})"));
+                synergyLog.AppendLine($"-> 종류: {synergy.Type}, 위치: [{positions}]");
+            }
+
+            Debug.Log(synergyLog.ToString());
+        }
+
+        // 분석 결과를 바탕으로 보너스 값 합산
+        foreach (var synergy in activeSynergies)
+        {
+            ApplySynergyEffect(synergy);
+        }
+
+        // 시너지 계산 후 건물 효과를 다시 계산해야 시너지 보너스가 반영됨
+        UpdateAllBuildingEffects(); 
+        _synergyDataUpdatedPublisher.Publish();
+    }
+
+    private void ResetSynergyBonuses()
+    {
+        SynergyUnitCooldownReduction = 0f;
+        SynergyFoodProductionBonus = 0f;
+        SynergyAllUnitAttackBonus = 0f;
+        SynergyAllUnitHealthBonus = 0f;
+        SynergyWoodCostReduction = 0f;
+        SynergyIronCostReduction = 0f;
+        SynergyMagicStoneCostReduction = 0f;
+        SynergyMaxFoodBonus = 0f;
+        SynergyUnitAttackCooldownReduction = 0f;
+        SynergyBlockBonusPercent = 0f;
+        _tileEfficiencyBonuses.Clear();
+        ActiveSynergies?.Clear();
+    }
+
+    private void ApplySynergyEffect(DetectedSynergy synergy)
+    {
+        switch (synergy.Type)
+        {
+            // 인접 시너지
+            case BuildingSynergyType.Farm_Barracks:
+                SynergyUnitCooldownReduction += 2.5f;
+                SynergyFoodProductionBonus -= 2.5f; 
+                break;
+            case BuildingSynergyType.Barracks_Mine:
+                SynergyAllUnitAttackBonus += 1.5f;
+                break;
+            case BuildingSynergyType.Barracks_LumberMill:
+                SynergyAllUnitHealthBonus += 1.5f;
+                break;
+            case BuildingSynergyType.Mine_LumberMill:
+                foreach (var pos in synergy.TilePositions)
+                {
+                    _tileEfficiencyBonuses.TryAdd(pos, 0);
+                    _tileEfficiencyBonuses[pos] += 2.5f;
+                }
+                break;
+
+            case BuildingSynergyType.Farm_Mine:
+            case BuildingSynergyType.Farm_LumberMill:
+                foreach (var pos in synergy.TilePositions)
+                {
+                    var building = _TileDataHandler.BuildingGridData[pos.x, pos.y];
+                    if (building != null && building.buildingType == BuildingType.Farm)
+                    {
+                        _tileEfficiencyBonuses.TryAdd(pos, 0);
+                        _tileEfficiencyBonuses[pos] += 2.5f;
+                    }
+                }
+                break;
+
+            // 라인 시너지
+            case BuildingSynergyType.Farm_Line:
+                SynergyMaxFoodBonus += 5f;
+                SynergyFoodProductionBonus += 2.5f;
+                break;
+            case BuildingSynergyType.LumberMill_Line:
+                SynergyWoodCostReduction += 5f;
+                break;
+            case BuildingSynergyType.Mine_Line:
+                SynergyIronCostReduction += 5f;
+                SynergyMagicStoneCostReduction += 2.5f;
+                break;
+            case BuildingSynergyType.Barracks_Line:
+                SynergyUnitAttackCooldownReduction += 10f;
+                break;
+
+            //블록 시너지
+            case BuildingSynergyType.Specialized_Block:
+                SynergyBlockBonusPercent += 10f;
+                break;
+            case BuildingSynergyType.Balanced_Block:
+                foreach (var pos in synergy.TilePositions)
+                {
+                    _tileEfficiencyBonuses.TryAdd(pos, 0);
+                    _tileEfficiencyBonuses[pos] += 5f; // 효율 5% 증가
+                }
+                break;
+        }
+
+    }
+    #endregion
     //빌딩 데이터
     #region Building
     //public void DamageRandomTile() => _TileHandler.DamageRandomTile();
@@ -147,6 +296,66 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
         }
         return _buildableList;
     }
+    //건물 비용 합산
+    public List<Cost> CalculateTotalInvestedCost(BuildingUpgradeData currentBuildingData)
+    {
+        var totalCostMap = new Dictionary<ResourceType, int>();
+
+        BuildingUpgradeData level1Data = DataManager.Instance.BuildingUpgradeData.Values
+            .FirstOrDefault(data => data.buildingType == currentBuildingData.buildingType && data.level == 1);
+
+        if (level1Data == null) return new List<Cost>();
+
+        BuildingUpgradeData buildData = DataManager.Instance.BuildingUpgradeData.Values
+            .FirstOrDefault(data => data.nextLevel == level1Data.idNumber);
+
+        if (buildData != null)
+        {
+            foreach (var cost in buildData.costs)
+            {
+                totalCostMap[cost.resourceType] = totalCostMap.GetValueOrDefault(cost.resourceType, 0) + cost.amount;
+            }
+        }
+
+        BuildingUpgradeData current = level1Data;
+        while (current != null && current.level < currentBuildingData.level)
+        {
+            foreach (var cost in current.costs)
+            {
+                totalCostMap[cost.resourceType] = totalCostMap.GetValueOrDefault(cost.resourceType, 0) + cost.amount;
+            }
+
+            if (current.nextLevel > 0)
+            {
+                current = DataManager.Instance.BuildingUpgradeData.GetData(current.nextLevel);
+            }
+            else
+            {
+                break;
+            }
+        }
+
+        return totalCostMap.Select(pair => new Cost { resourceType = pair.Key, amount = pair.Value }).ToList();
+    }
+
+    public void DestroyBuildingAt(int x, int y)
+    {
+        var buildingData = _TileDataHandler.BuildingGridData[x, y];
+        if (buildingData == null) return;
+
+        List<Cost> totalCost = CalculateTotalInvestedCost(buildingData);
+        foreach (var cost in totalCost)
+        {
+            int refundAmount = Mathf.FloorToInt(cost.amount * 0.5f);
+            AddResource(cost.resourceType, refundAmount);
+        }
+
+        _TileDataHandler.BuildingGridData[x, y] = null;
+        _TileDataHandler.CooldownEndTimeGrid[x, y] = DateTime.MinValue;
+
+        Debug.Log($"({x},{y}) 위치의 {buildingData.buildingName} 파괴 완료 및 자원 환급.");
+    }
+
     #endregion
 
     //덱 편성 관련
@@ -202,7 +411,7 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
         _resources[ResourceType.Wood] = 10000;
         _resources[ResourceType.Iron] = 10000;
         _resources[ResourceType.Food] = CurrentFood;
-        _resources[ResourceType.MagicStone] = 100;
+        _resources[ResourceType.MagicStone] = 10000;
         _resources[ResourceType.Bm] = 0; 
         _resources[ResourceType.Ticket] = 0;
     }
@@ -268,7 +477,7 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
 
     //private readonly int[] maxFoodByFarmLevel = { 500, 750, 1000, 1250, 1500, 1750, 2000, 2250, 2500 };
     //private readonly int[] farmFoodGainPercentByLevel = { 5, 10, 15, 20, 25, 30, 35, 40, 50 };
-    private readonly int[] baseFoodGainBySupplyLevel = { 25, 29, 37, 47, 59, 75, 95, 119, 147 };
+    private readonly int[] baseFoodGainBySupplyLevel = { 35, 39, 47, 57, 74, 115, 155, 200, 255 };
     private readonly int[] supplyUpgradeCosts = { 100, 220, 450, 900, 1800, 3500, 5500, 8000 };
 
     public void UpgradeSupplyLevel()
@@ -351,27 +560,39 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
     public void UpdateAllBuildingEffects()
     {
         _TileDataHandler.CalculateTotalBuildingEffects(
-            out int bonusMaxFood,
-            out float foodGainPercent,
-            out float cooldownReduction,
-            out int rareSlots,
-            out int epicSlots
+            out int buildingBonusMaxFood,
+            out float buildingFoodGainPercent,
+            out float buildingCooldownReduction,
+            out int buildingRareSlots,
+            out int buildingEpicSlots,
+            _tileEfficiencyBonuses
         );
 
-        _calculatedMaxFood = 20000 + bonusMaxFood;
-        currentFarmGainPercent = foodGainPercent;
-        if (MaxFood > _calculatedMaxFood)
-        {
-            MaxFood = _calculatedMaxFood;
-        }
+        int baseMaxFood = 20000;
 
-        TotalUnitCooldownReduction = cooldownReduction;
-        RareUnitSlots = rareSlots;
-        EpicUnitSlots = epicSlots;
+        // 기본값에 건물들의 '플랫(flat)' 보너스를 더함 (블록 시너지 포함)
+        float blockMultiplier = 1.0f + (SynergyBlockBonusPercent / 100.0f);
+        int bonusFromBuildings = Mathf.CeilToInt(buildingBonusMaxFood * blockMultiplier); // 결과: 2200
+
+
+        // (기본값 + 플랫 보너스)에 시너지 '퍼센트(%)' 보너스를 적용
+        float globalMultiplier = 1.0f + (SynergyMaxFoodBonus / 100.0f);
+
+        _calculatedMaxFood = Mathf.CeilToInt((baseMaxFood + bonusFromBuildings) * globalMultiplier);
+
+        // --- 나머지 효과들도 전역 시너지 보너스를 최종 합산 ---
+        currentFarmGainPercent = buildingFoodGainPercent + SynergyFoodProductionBonus + SynergyBlockBonusPercent;
+        TotalUnitCooldownReduction = buildingCooldownReduction + SynergyUnitCooldownReduction;
+        RareUnitSlots = buildingRareSlots;
+        EpicUnitSlots = buildingEpicSlots;
+
+        if (MaxFood > _calculatedMaxFood) { MaxFood = _calculatedMaxFood; }
 
         OnResourceChangedEvent?.Invoke(ResourceType.Food, CurrentFood);
-        Debug.Log($"모든 건물 효과 계산 완료: 최대 식량={_calculatedMaxFood}, 식량 보너스={currentFarmGainPercent}%, 유닛 쿨감={TotalUnitCooldownReduction}%, 레어 슬롯={RareUnitSlots}, 에픽 슬롯={EpicUnitSlots}");
+        Debug.Log($"모든 건물+시너지 효과 계산 완료: 최대 식량={_calculatedMaxFood}, 식량 보너스={currentFarmGainPercent}%, 유닛 쿨감={TotalUnitCooldownReduction}%");
+        EventManager.GetPublisher<SynergyDataUpdatedEvent>().Publish(new SynergyDataUpdatedEvent());
     }
+
     #endregion
 
     // 스테이지 클리어 기록

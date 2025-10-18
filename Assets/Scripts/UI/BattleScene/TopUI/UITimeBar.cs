@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Collections;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
@@ -10,16 +11,20 @@ public class UITimeBar : MonoBehaviour
     
     private WaitForSeconds wait30s;
     private int timeIndex = 0;
-
+    IEventSubscriber<TimeSyncEvent> timeSyncEventSub;
     private void Awake()
     {
-        EventManager.Subscribe<TimeSyncEvent>(StartTimer);
+        timeSyncEventSub = EventManager.GetSubscriber<TimeSyncEvent>();
+        timeSyncEventSub.Subscribe(StartTimer);
     }
-    
+    private void OnDisable()
+    {
+        timeSyncEventSub.Unsubscribe(StartTimer);
+    }
     void StartTimer(TimeSyncEvent timerSyncEvent)
     {
         float waitTime = timerSyncEvent.waveTime / 4;
-        Debug.Log($"타이머 시작:{timerSyncEvent.waveTime} => {waitTime}");
+        //Debug.Log($"타이머 시작:{timerSyncEvent.waveTime} => {waitTime}");
         wait30s = new WaitForSeconds(waitTime);
         StartCoroutine(thirtySeconds());
     }
@@ -38,5 +43,6 @@ public class UITimeBar : MonoBehaviour
 public struct TimeSyncEvent
 {
     public float waveTime;
+    public int maxWaveCount;
 }
 #endregion

@@ -79,14 +79,10 @@ public class EnemyHQ : BaseHQ
     {
         for (int i = 0; i < enemyUnits.Count; i++)
         {
-            GameObject enemyUnitPrefab = Resources.Load<GameObject>(POOLPATH + enemyUnits[i].ToString());
-            if(enemyUnitPrefab == null)
-            {
-                Debug.LogError($"EnemyHQ: {enemyUnits[i]} 프리팹을 로드하지 못했습니다.");
-                continue;
-            }
-            float cooltime = enemyUnitPrefab.GetComponent<BaseUnit>().SpawnCooldown;
+            float cooltime = DataManager.EnemyUnitData.GetData((int)enemyUnits[i]).spawnCooldown;
+
             enemyUnitCoolTimes[enemyUnits[i]] = cooltime;
+            //Debug.Log($"{enemyUnits[i]} 쿨타임 {cooltime}초로 세팅");
             StartCoroutine(EnemyCoolTimeRoutin(enemyUnits[i], cooltime));
         }
     }

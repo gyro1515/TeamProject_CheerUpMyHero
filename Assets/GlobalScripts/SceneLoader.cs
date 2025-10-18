@@ -10,7 +10,8 @@ public enum SceneState
     MainScene,
     BattleScene,
     EmptyScene,
-    WonJinTestScene
+    WonJinTestScene,
+    StartScene
 }
 
 // 씬 전환을 관리하는 스크립트, 게임 시작 시 자동으로 생성되며, 씬 전환을 담당
@@ -26,7 +27,8 @@ public class SceneLoader : SingletonMono<SceneLoader>
         // 추가
         { SceneState.MainScene,   "MainScene"   },
         { SceneState.BattleScene, "BattleScene" },
-        { SceneState.EmptyScene,  "EmptyScene"  }
+        { SceneState.EmptyScene,  "EmptyScene"  },
+        { SceneState.StartScene,  "StartScene"  },
 
     };
     // 매니저 오브젝트 정리 용
