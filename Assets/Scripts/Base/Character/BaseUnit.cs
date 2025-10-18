@@ -20,7 +20,7 @@ public abstract class BaseUnit : BaseCharacter
     [field: SerializeField] public float SpawnCooldown { get; set; } = 5f;
     [field: SerializeField] public virtual BaseUnitData UnitData { get; protected set; } 
 
-    public BaseUnitController UnitController { get; private set; }
+    public BaseUnitController UnitController { get; protected set; }
 
     [field: SerializeField] public UnitType UnitType { get; private set; } // 유닛 타입
     [field: SerializeField] public Rarity UnitRarity { get; private set; } // 유닛 등급

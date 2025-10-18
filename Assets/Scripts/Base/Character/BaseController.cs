@@ -16,6 +16,12 @@ public class BaseController : MonoBehaviour, IAttackable, IDamageable
     {
         poolable = GetComponent<BasePoolable>();
         baseCharacter = GetComponent<BaseCharacter>();
+        if (animator == null)
+        {
+            Debug.Log($"Animator가 비어있습니다. {gameObject.name}의 자식 오브젝트에서 탐색합니다.");
+            animator = GetComponentInChildren<Animator>();
+            if(animator == null) Debug.LogError("Animator탐색 실패. Animator가 Null입니다.");
+        }
     }
     protected virtual void OnEnable()
     {

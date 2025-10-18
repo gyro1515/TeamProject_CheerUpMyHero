@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class EnemyMeleeSplashController : BaseUnitController
@@ -43,7 +44,7 @@ public class EnemyMeleeSplashController : BaseUnitController
         base.Attack();
 
         List<BaseCharacter> allPlayers = UnitManager.Instance.PlayerUnitList;
-        List<IDamageable> takeDamages = new List<IDamageable>();
+        List<BaseCharacter> playersInRange = new List<BaseCharacter>();
         int hitCount = 0;
 
         foreach (BaseCharacter player in allPlayers)
@@ -53,19 +54,21 @@ public class EnemyMeleeSplashController : BaseUnitController
             float distance = Mathf.Abs(transform.position.x - player.transform.position.x);
             if (distance <= enemyUnit.CognizanceRange)
             {
-                takeDamages.Add(player.Damageable);
-                hitCount++;
+                playersInRange.Add(player);
             }
         }
-
+        List<BaseCharacter> hitPlayers = playersInRange
+            .OrderBy(enemy => enemy.transform.position.x)
+            .Take(5)
+            .ToList();
+        foreach (BaseCharacter enemy in hitPlayers)
+        {
+            enemy.Damageable.TakeDamage(enemyUnit.AtkPower);
+            hitCount++;
+        }
         if (hitCount > 0)
         {
             Debug.Log($"{gameObject.name}이(가) {hitCount}명의 아군에게 범위 공격!");
-        }
-
-        foreach (IDamageable player in takeDamages)
-        {
-            player.TakeDamage(enemyUnit.AtkPower);
         }
     }
 

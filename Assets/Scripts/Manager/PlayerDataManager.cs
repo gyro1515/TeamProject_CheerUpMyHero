@@ -184,7 +184,7 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
 
         // 시너지 계산 후 건물 효과를 다시 계산해야 시너지 보너스가 반영됨
         UpdateAllBuildingEffects(); 
-        _synergyDataUpdatedPublisher.Publish(new SynergyDataUpdatedEvent());
+        _synergyDataUpdatedPublisher.Publish();
     }
 
     private void ResetSynergyBonuses()

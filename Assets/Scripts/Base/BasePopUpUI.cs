@@ -19,6 +19,8 @@ public class BasePopUpUI : BaseUI, IBackButtonHandler
         _canvasGroup.blocksRaycasts = false;
         onAddUIStack = EventManager.GetPublisher<AddUIStackEvent>();
         onRemoveUIStack = EventManager.GetPublisher<RemoveUIStackEvent>();
+
+        // 게임 오브젝트 비활성화해야 합니다. 그래야 뒤로가기가 정상 작동합니다.
     }
     protected virtual void OnEnable()
     {

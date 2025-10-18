@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class PlayerMeleeSplashController : BaseUnitController
@@ -44,31 +45,35 @@ public class PlayerMeleeSplashController : BaseUnitController
 
         // UnitManager가 관리하는 전체 적 리스트를 가져옴
         List<BaseCharacter> allEnemies = UnitManager.Instance.EnemyUnitList;
-        List<IDamageable> takeDamages = new List<IDamageable>();
+        List<BaseCharacter> enemiesInRange = new List<BaseCharacter>();
         int hitCount = 0;
 
         // 모든 적을 순회하며 거리와 공격 범위를 비교
         foreach (BaseCharacter enemy in allEnemies)
         {
             if (enemy == null || enemy.IsDead) continue;
-
             // 적 사이의 거리를 계산
             float distance = Mathf.Abs(transform.position.x - enemy.transform.position.x);
             if (distance <= playerUnit.CognizanceRange)
             {
-                takeDamages.Add(enemy.Damageable);
-                hitCount++;
+                enemiesInRange.Add(enemy);
             }
+        }
+        // 거리 가까운 5명의 적을 선별
+
+        List<BaseCharacter> hitEnemies = enemiesInRange
+            .OrderBy(enemy => enemy.transform.position.x)
+            .Take(5)
+            .ToList();
+        foreach (BaseCharacter enemy in hitEnemies)
+        {
+            enemy.Damageable.TakeDamage(playerUnit.AtkPower);
+            hitCount++;
         }
 
         if (hitCount > 0)
         {
             Debug.Log($"{gameObject.name}이(가) {hitCount}명의 적에게 범위 공격!");
-        }
-
-        foreach (IDamageable enemy in takeDamages)
-        {
-            enemy.TakeDamage(playerUnit.AtkPower);
         }
     }
     public override void Dead()
@@ -155,8 +160,10 @@ public class PlayerMeleeSplashController : BaseUnitController
             normalizedTime = GetNormalizedTime(attackStateHash);
             yield return null;
         } while (normalizedTime < 0f);
-
+        // 선딜 설정
         animator.speed = playerUnit.StartAttackTime / playerUnit.UnitData.attackDelayTime;
+
+
 
         while (normalizedTime < playerUnit.StartAttackNormalizedTime)
         {
@@ -178,7 +185,7 @@ public class PlayerMeleeSplashController : BaseUnitController
             normalizedTime = GetNormalizedTime(attackStateHash);
             yield return null;
         }
-
+        playerUnit.TargetUnit = null; // 다른 컨트롤러도 추가 필요@@@@
         findTargetRoutine = StartCoroutine(TargetingRoutine());
         isAttacking = false;
     }
