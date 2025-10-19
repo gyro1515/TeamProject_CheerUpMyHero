@@ -11,7 +11,6 @@ public class UIChallengePopup : BasePopUpUI
     [SerializeField] private Transform _challengeElementsCreatePosition;
     [SerializeField] private TextMeshProUGUI _rewardBonusText;
     [SerializeField] private Button _resetButton;
-    [SerializeField] private Button _confirmButton;
 
     private ChallengeModel _model;
     private ChallengePopupViewModel _viewModel;
@@ -28,7 +27,6 @@ public class UIChallengePopup : BasePopUpUI
         _viewModel.OnRewardTextChanged += OnRewardTextNeedChange;
 
         _resetButton.onClick.AddListener(OnResetButtonClicked);
-        _confirmButton.onClick.AddListener(ApplyChanges);
 
         CreateElements();
     }

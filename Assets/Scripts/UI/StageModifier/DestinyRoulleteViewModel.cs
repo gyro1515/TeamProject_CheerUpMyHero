@@ -3,6 +3,7 @@ using UnityEngine;
 
 public class DestinyRoulleteViewModel
 {
+    #region 이벤트 시스템
     public event Action<bool> OnIntroStateChanged;              // 인트로 상태 변경 이벤트 -> 끝나면 스핀 시작
     public event Action<float, float, float> OnWheelVisualSet;  // 돌림판 다 그려졌는지 여부 이벤트
     public event Action<float> OnWheelStartAngleSet;            // 돌림판 시작 각도 계산되었는지 여부 이벤트
@@ -15,6 +16,7 @@ public class DestinyRoulleteViewModel
     public event Action<bool> OnSpinTestChanged;                // 테스트 -> 삭제 예정
     
     public event Action OnCloseView;                             // 전체 UI 닫기 이벤트
+    #endregion
 
     private DestinyModel _model;
     private StageDestinyData _selectedDestiny;
@@ -86,8 +88,8 @@ public class DestinyRoulleteViewModel
         OnSpinTestChanged?.Invoke(true);
     }
 
-    // 랜덤 운명 뽑아서 결과창 띄움 -> 운명 적용 + 전체 UI 닫기
-    public void OnConfirmButtonClicked()
+    // 랜덤 운명 뽑아서 결과창 띄움 -> 운명 적용
+    public void ApplyDestiny()
     {
         if (_selectedDestiny == null)
         {
@@ -96,7 +98,11 @@ public class DestinyRoulleteViewModel
         }
 
         _model.ApplyDestiny(_selectedDestiny);  // 추첨된 운명 적용
+    }
 
-        OnCloseView?.Invoke();                  // 운명 UI 모두 닫기
+    //  전체 UI 닫기
+    public void CloseView()
+    {
+        OnCloseView?.Invoke();
     }
 }

@@ -34,8 +34,8 @@ public class UIDestinyRoullette : BaseUI
 
     [Header("임시값")]     // 임시값은 나중에 삭제해야 함.
     [SerializeField] private GameMode _gameMode = GameMode.Normal;
-    [SerializeField] private int _mainStage = 0;
-    [SerializeField] private int _subStage = 0;
+
+    private (int mainStage, int subStage) _stage;
 
     private DestinyModel _model;
     private DestinyRoulleteViewModel _viewModel;
@@ -59,15 +59,15 @@ public class UIDestinyRoullette : BaseUI
         _viewModel.OnConfirmStateChanged += (interactable) => { _confirmButton.interactable = interactable; };
         _viewModel.OnChallengeStateChanged += (interactable) => { _challengeButton.interactable = interactable; };
 
-        _confirmButton.onClick.AddListener(_viewModel.OnConfirmButtonClicked);
+        _confirmButton.onClick.AddListener(OnConfirmButtonClicked);
         _challengeButton.onClick.AddListener(OnChallengeButtonClicked);
     }
 
     private void OnEnable()
     {
-        var stage = (_mainStage, _subStage);
+        _stage = PlayerDataManager.Instance.SelectedStageIdx;
 
-        _viewModel.OnviewEnabled(_gameMode, stage);
+        _viewModel.OnviewEnabled(_gameMode, _stage);
 
         StartCoroutine(DestinySequenceCoroutine());
     }
@@ -133,5 +133,14 @@ public class UIDestinyRoullette : BaseUI
     {
         _challengePopup.OpenUI();
         _effectPopup.CloseUI();
+    }
+
+    private void OnConfirmButtonClicked()
+    {
+        _viewModel.ApplyDestiny();
+        _challengePopup.ApplyChanges();
+        _viewModel.CloseView();
+
+        SceneLoader.Instance.StartLoadScene(SceneState.BattleScene);
     }
 }
