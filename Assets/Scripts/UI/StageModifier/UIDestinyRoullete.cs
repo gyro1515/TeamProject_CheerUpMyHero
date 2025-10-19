@@ -11,15 +11,14 @@ public enum GameMode
 
 public class UIDestinyRoullette : BaseUI
 {
+    #region 변수 참조
     [Header("UI 참조 - 인트로")]
-    [SerializeField] private GameObject _introPanel;
-    [SerializeField] private CanvasGroup _introCanvasGroup;
+    [SerializeField] private BasePopUpUI _introPanel;
 
     [Header("UI 참조 - 돌림판")]
     [SerializeField] private Transform _wheelContainer;
     [SerializeField] private Image _fortuneSlice;
     [SerializeField] private Image _misfortuneSlice;
-    [SerializeField] private Button _startSpinButton;
 
     [Header("UI 참조 - 팝업")]
     [SerializeField] private UIDestinyEffectPopup _effectPopup;
@@ -38,191 +37,101 @@ public class UIDestinyRoullette : BaseUI
     [SerializeField] private int _mainStage = 0;
     [SerializeField] private int _subStage = 0;
 
-    private StageDestinyData _selectedDestiny;
-    private float fortuneProbability;
-    private bool isSpinning = false;
-    private (int, int) _stage;
+    private DestinyModel _model;
+    private DestinyRoulleteViewModel _viewModel;
 
-    private const float NormalBaseProbability = 0.50f;
-    private const float NormalMinProbability = 0.32f;
-    private const float HardBaseProbability = 0.30f;
-    private const float HardMinProbability = 0.12f;
+    private float fadeDuration = FadeManager.fadeDuration;  // 이거 없애고 싶은데
+    #endregion
 
     private void Awake()
     {
-        //gameObject.SetActive(false);
+        _model = new DestinyModel();
+        _viewModel = new DestinyRoulleteViewModel(_model);
 
-        _startSpinButton.onClick.AddListener(OnStartSpinButtonClicked);
-        _confirmButton.onClick.AddListener(OnConfirmButtonClicked);
+        _viewModel.OnIntroStateChanged += SetIntroPanel;
+        _viewModel.OnWheelStartAngleSet += SetWheelStartAngel;
+        _viewModel.OnWheelVisualSet += SetWheelVisuals;
+        _viewModel.OnStartSpin += StartSpin;
+        _viewModel.OnResultSet += _effectPopup.OpenPanel;
+        _viewModel.OnCloseView += CloseUI;
+
+        // 버튼 활성화 or 비활성화용 구독
+        _viewModel.OnConfirmStateChanged += (interactable) => { _confirmButton.interactable = interactable; };
+        _viewModel.OnChallengeStateChanged += (interactable) => { _challengeButton.interactable = interactable; };
+
+        _confirmButton.onClick.AddListener(_viewModel.OnConfirmButtonClicked);
         _challengeButton.onClick.AddListener(OnChallengeButtonClicked);
     }
 
     private void OnEnable()
     {
-        // _stage = PlayerDataManager.Instance.SelectedStageIdx;
-        _stage = (_mainStage, _subStage); // 나중에 삭제
-        SetWheel(_gameMode);
-        _confirmButton.interactable = false;
+        var stage = (_mainStage, _subStage);
 
-        _introCanvasGroup.alpha = 0f;
-        _introCanvasGroup.interactable = false;
-        _introCanvasGroup.blocksRaycasts = false;
+        _viewModel.OnviewEnabled(_gameMode, stage);
 
-        StartCoroutine(DestinySelectSequenceCoroutine());
+        StartCoroutine(DestinySequenceCoroutine());
     }
-
-    #region  값 설정 메서드 : 확률 계산 + 돌림판 세팅
-    private void SetWheel(GameMode gameMode)
-    {
-        fortuneProbability = SetProbability(gameMode, _stage);
-
-        _fortuneSlice.fillAmount = fortuneProbability;
-        _misfortuneSlice.fillAmount = 1.0f - fortuneProbability;
-        // _misfortuneSlice.transform.localEulerAngles = new Vector3(0, 0, fortuneProbability * 360f);
-
-        float randomStartAngle = Random.Range(0f, 360f);
-        _wheelContainer.localEulerAngles = new Vector3(0, 0, randomStartAngle);
-    }
-
-    private float SetProbability(GameMode mode, (int mainStageIdx, int subStageIdx) stage)
-    {
-        float baseProbability = 0.00f;
-        float minProbability = 0.00f;
-
-        int stageNum = stage.mainStageIdx * 9 + stage.subStageIdx;
-
-        if (mode == GameMode.Normal)
-        {
-            baseProbability = NormalBaseProbability;
-            minProbability = NormalMinProbability;
-        }
-        else if (mode == GameMode.Hard)
-        {
-            baseProbability = HardBaseProbability;
-            minProbability = HardMinProbability;
-        }
-        else
-        {
-            Debug.Log("돌림판 확률 정하는 로직에 문제 있어요");
-        }
-
-        float penalty = stageNum * 0.02f;
-        float finalProbability = baseProbability - penalty;
-
-        return Mathf.Max(finalProbability, minProbability);
-    }
-    #endregion
 
     #region 돌림판 메서드 : 인트로 -> 돌림판 돌림 -> 결과 추첨 -> 버튼 누르면 효과 적용
 
-    private IEnumerator DestinySelectSequenceCoroutine()
+    private IEnumerator DestinySequenceCoroutine()
     {
-        FadeManager.FadeInUI(_introCanvasGroup);
-        yield return new WaitForSeconds(FadeManager.fadeDuration);
-
-        yield return new WaitForSeconds(_introShowTime - (2 * FadeManager.fadeDuration));
+        yield return new WaitForSeconds(_introShowTime);
         
-        FadeManager.FadeOutUI(_introCanvasGroup);
-        yield return new WaitForSeconds(FadeManager.fadeDuration);
+        _introPanel.CloseUI();
+        yield return new WaitForSeconds(fadeDuration);
 
-        yield return StartCoroutine(SpinCoroutine());
-        _confirmButton.interactable = true;
+        _viewModel.OnIntroFinished(_wheelContainer.localEulerAngles.z, _minSpins);
     }
 
-    private IEnumerator SpinCoroutine()
+    private void StartSpin(float totalDegree, float startAngle)
     {
-        isSpinning = true;
-        _startSpinButton.interactable = false;
-        float elapsedTime = 0f;
-        float startAngle = _wheelContainer.localEulerAngles.z;
-        float totalDegree = 360f * _minSpins + Random.Range(0, 360f);
+        StartCoroutine(SpinCoroutine(totalDegree, startAngle));
+    }
 
+    private IEnumerator SpinCoroutine(float totalDegree, float startAngle)
+    {
+        float elapsedTime = 0f;
         while (elapsedTime < _spinDuration)
         {
             elapsedTime += Time.deltaTime;
-            float progressRate = elapsedTime / _spinDuration;               // progressRate : 진행률
-            float curveProgress = _spinCurve.Evaluate(progressRate);        // 애니메이션 커브에 넣어서 커브가 진행률 따라서 진행되도록 함
-            float currentAngle = Mathf.Lerp(0, totalDegree, curveProgress); 
+            float progressRate = elapsedTime / _spinDuration;
+            float curveProgress = _spinCurve.Evaluate(progressRate);
+            float currentAngle = Mathf.Lerp(0, totalDegree, curveProgress);
             _wheelContainer.localEulerAngles = new Vector3(0, 0, startAngle + currentAngle);
+
             yield return null;
         }
 
-        CheckResult();
-        isSpinning = false;
-    }
-
-    private void CheckResult()
-    {
-        float finalAngle = _wheelContainer.localEulerAngles.z;
-        float arrowPoint = (360 - finalAngle) % 360;
-        float fortuneAngleRange = fortuneProbability * 360;
-
-        _selectedDestiny = null;
-        DestinyType destinyType = arrowPoint <= fortuneAngleRange ? DestinyType.Fortune : DestinyType.Misfortune;
-
-        List<StageDestinyData> destinyList = new List<StageDestinyData>();
-        foreach (StageModifierData modifier in DataManager.Instance.StageModifierData.Values)
-        {
-            if (modifier is StageDestinyData destiny && destiny.destinyType == destinyType)
-            {
-                destinyList.Add(destiny);
-            }
-        }
-
-        if (destinyList.Count > 0)
-        {
-            int randomIndex = Random.Range(0, destinyList.Count);
-            _selectedDestiny = destinyList[randomIndex];
-            Debug.Log($"결과 : {destinyType} {_selectedDestiny.name} 효과 추첨");
-        }
-        else
-        {
-            Debug.Log("운명 뽑아오는 로직 오류 있음");
-            return;
-        }
-
-
-        _effectPopup.OpenPanel(_selectedDestiny);
-        _startSpinButton.interactable = true;
+        _viewModel.OnSpinFinished(_wheelContainer.localEulerAngles.z);
     }
     #endregion
 
-    #region 버튼 메서드
-    private void OnConfirmButtonClicked()
+    #region UI 세팅 메서드 : 최초 위치 랜덤 + 돌림판 그리기 + 인트로 띄우기
+    private void SetWheelStartAngel(float angle)
     {
-        if (_selectedDestiny == null)
-        {
-            Debug.Log("추첨 유물 null임 로직 문제 있어요");
-            return;
-        }
-        _challengePopup.ApplyChanges();
-        PlayerDataManager.Instance.SetDestiny(_selectedDestiny);
-        Debug.Log($"{_selectedDestiny.name} 효과 잘 들어감");
-
-        CloseUI();
-
-        // 여기서 스테이지로 연결하든 뭐로 연결하든 연결 로직 넣으면 됨.
+        _wheelContainer.localEulerAngles = new Vector3(0, 0, angle);
     }
+
+    private void SetWheelVisuals(float fortune, float misfortune, float misfortuneRotation)
+    {
+        _fortuneSlice.fillAmount = fortune;
+        _misfortuneSlice.fillAmount = misfortune;
+        _misfortuneSlice.transform.localEulerAngles = new Vector3(0, 0, misfortuneRotation);
+    }
+
+    private void SetIntroPanel(bool show)
+    {
+        if (show)
+        {
+            _introPanel.OpenUI();
+        }
+    }
+    #endregion
 
     private void OnChallengeButtonClicked()
     {
         _challengePopup.OpenUI();
         _effectPopup.CloseUI();
-    }
-    #endregion
-
-
-    // ▼▼▼▼▼▼▼▼ 여기 테스트용 임시 코드 ▼▼▼▼▼▼▼▼
-    public void StartSpin()
-    {
-        if (!isSpinning)
-        {
-            StartCoroutine(SpinCoroutine());
-        }
-    }
-
-    private void OnStartSpinButtonClicked()
-    {
-        StartSpin();
     }
 }

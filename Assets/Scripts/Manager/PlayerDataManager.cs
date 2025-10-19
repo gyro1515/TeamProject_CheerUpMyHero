@@ -602,46 +602,8 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
 
     #endregion
 
-    // 현재 운명 + 현재 도전 기능 데이터 + Set 메서드, Clear 메서드
-    #region Destiny + Challenge
-    // 지금 선택된 운명 기능
-    public StageDestinyData currentDastiny { get; private set; }
-
-    // 운명 설정 메서드 : 운명은 하나만 설정됨
-    public void SetDestiny(StageDestinyData destiny)
-    {
-        currentDastiny = destiny;
-    }
-
-    // 운명 비우는 기능 -> 매 스테이지마다 
-    public void ClearDestiny()
-    {
-        currentDastiny = null;
-    }
-
-    // 지금 선택된 도전 기능
+    public StageDestinyData currentDastiny { get; set; } = new StageDestinyData();
     public Dictionary<int, int> activeChallenges { get; private set; } = new Dictionary<int, int>();
-
-    // 도전 기능 설정 메서드
-    public void SetChallenges(int id, int lv)
-    {
-        if (lv > 0)
-        {
-            activeChallenges[id] = lv;
-        }
-        else
-        {
-            activeChallenges.Remove(id);
-        }
-    }
-
-    // 도전 기능 비우는 기능
-    public void ClearChallenge()
-    {
-        activeChallenges.Clear();
-    }
-    #endregion
-
 }
 
 
