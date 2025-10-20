@@ -35,6 +35,7 @@ public class ArtifactUIPresenter
         _model.OnOwnedArtifactsChanged += HandleOwnedArtifactsChanged;
 
         _mainView.OnRequestAutoEquip += HandleAutoEquipRequest;
+        _mainView.OnRequestUnEquipAll += HandleUnEquipAllRequest;
 
         _inventoryPanelView.OnRequestEquip += HandleEquipRequest;
         _inventoryPanelView.OnRequestUnEquip += HandleUnEquipRequest;
@@ -51,6 +52,7 @@ public class ArtifactUIPresenter
         _model.OnOwnedArtifactsChanged -= HandleOwnedArtifactsChanged;
 
         _mainView.OnRequestAutoEquip -= HandleAutoEquipRequest;
+        _mainView.OnRequestUnEquipAll -= HandleUnEquipAllRequest;
 
         _inventoryPanelView.OnRequestEquip -= HandleEquipRequest;
         _inventoryPanelView.OnRequestUnEquip -= HandleUnEquipRequest;
@@ -136,6 +138,11 @@ public class ArtifactUIPresenter
     private void HandleAutoEquipRequest(ArtifactType type)
     {
         _model.AutoEquipArtifacts(type);
+    }
+
+    private void HandleUnEquipAllRequest()
+    {
+        _model.UnEquipAllArtifacts();
     }
     #endregion
 

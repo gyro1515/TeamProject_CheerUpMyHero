@@ -33,6 +33,18 @@ public class DestinyModel
         return Mathf.Max(finalProbability, minProbability);
     }
 
+    public StageDestinyData GetSpecificDestiny(int destinyID)
+    {
+        foreach(StageModifierData modifier in DataManager.Instance.StageModifierData.Values)
+        {
+            if (modifier.idNumber == destinyID && modifier is StageDestinyData destiny)
+            {
+                return destiny;
+            }
+        }
+        return null;
+    }
+
     // 랜덤 운명 추첨하는 메서드
     public StageDestinyData GetRandomDestiny(DestinyType type)
     {
