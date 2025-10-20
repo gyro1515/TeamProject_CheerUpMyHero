@@ -87,6 +87,22 @@ public class ArtifactManager : SingletonMono<ArtifactManager>
         EquippedArtifacts[slotIndex] = null;
         OnEquippedArtifactChanged?.Invoke();
     }
+
+    // 유물 전체 장착 해제하는 메서드
+    public void UnEquipAllArtifacts()
+    {
+        bool emptied = false;
+        for (int i = 0; i < EquippedArtifacts.Count; i++)
+        {
+            if (EquippedArtifacts[i] != null)
+            {
+                EquippedArtifacts[i] = null;
+                emptied = true;
+            }
+        }
+
+        if (emptied) OnEquippedArtifactChanged?.Invoke();
+    }
     #endregion
 
     #region 유물 : 특정 값 얻어오는 메서드
