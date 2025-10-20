@@ -59,7 +59,7 @@ public class UnitManager : SingletonMono<UnitManager>
     {
         List<BaseCharacter> unitList = isPlayer ? playerUnitList : enemyUnitList;
 
-        onUnitDeSpawn?.Invoke(unit, isPlayer);
+        if (unit is BaseUnit) onUnitDeSpawn?.Invoke(unit, isPlayer);
 
         // List삭제가 O(1)이 되도록
         int index = unit.ListIndex;
