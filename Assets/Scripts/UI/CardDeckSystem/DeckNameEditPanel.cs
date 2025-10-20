@@ -6,9 +6,12 @@ public class DeckNameEditPanel : BaseUI, IBackButtonHandler
     private CanvasGroup _canvasGroup;
     [SerializeField] DeckPresetController _controller;
     bool _isFade = false;
+
+    
     private void Awake()
     {
         _canvasGroup = GetComponent<CanvasGroup>();
+        
     }
 
     public override void OpenUI()
@@ -17,7 +20,7 @@ public class DeckNameEditPanel : BaseUI, IBackButtonHandler
         base.OpenUI();
         _isFade = true;
         FadeManager.FadeInUI(_canvasGroup, SetFadeFalse);
-        EventManager.Publish(new AddUIStackEvent { ui = this });
+        UIManager.PubishAddUIStackEvent(this);
     }
 
     public override void CloseUI()
@@ -25,7 +28,7 @@ public class DeckNameEditPanel : BaseUI, IBackButtonHandler
         if (_isFade) return;
         _isFade = true;
         FadeManager.FadeOutUI(_canvasGroup, SetFadeFalse);
-        EventManager.Publish(new RemoveUIStackEvent());
+        UIManager.PublishRemoveUIStackEvent();
         _controller.ExitEditMode();
     }
     void SetFadeFalse()

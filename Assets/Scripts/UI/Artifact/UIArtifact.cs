@@ -25,6 +25,7 @@ public class UIArtifact : BaseUI, IBackButtonHandler
     public event Action<ArtifactType> OnRequestAutoEquip;
     #endregion
 
+    
     #region 생명주기
     private void Awake()
     {
@@ -43,10 +44,11 @@ public class UIArtifact : BaseUI, IBackButtonHandler
 
         if (_passiveOutline != null) _passiveOutline.enabled = false;
         if (_activeOutline != null) _activeOutline.enabled = false;
+        
     }
     private void OnEnable()
     {
-        EventManager.Publish(new AddUIStackEvent { ui = this });
+        UIManager.PubishAddUIStackEvent(this);
     }
     private void Start()
     {
@@ -55,7 +57,7 @@ public class UIArtifact : BaseUI, IBackButtonHandler
     }
     private void OnDisable()
     {
-        EventManager.Publish(new RemoveUIStackEvent());
+        UIManager.PublishRemoveUIStackEvent();
     }
 
     private void OnDestroy()

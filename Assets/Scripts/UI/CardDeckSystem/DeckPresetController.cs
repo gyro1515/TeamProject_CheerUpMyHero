@@ -54,6 +54,7 @@ public class DeckPresetController : BaseUI, IBackButtonHandler
     private UIArtifact _uIArtifact;
     private int _currentDeckIndex = 1;
 
+    
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.Space)) //테스트 코드
@@ -63,9 +64,9 @@ public class DeckPresetController : BaseUI, IBackButtonHandler
     }
     private void OnEnable()
     {
-        EventManager.Publish(new AddUIStackEvent { ui = this });
+        UIManager.PubishAddUIStackEvent(this);
     }
-    
+
     private void Start()
     {
         _currentDeckIndex = PlayerDataManager.Instance.ActiveDeckIndex;
@@ -101,7 +102,7 @@ public class DeckPresetController : BaseUI, IBackButtonHandler
     }
     private void OnDisable()
     {
-        EventManager.Publish(new RemoveUIStackEvent());
+        UIManager.PublishRemoveUIStackEvent();
     }
     #region UI 생성 및 업데이트
 

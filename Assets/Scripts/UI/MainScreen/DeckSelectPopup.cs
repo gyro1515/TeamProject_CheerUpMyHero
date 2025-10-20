@@ -7,20 +7,22 @@ public class DeckSelectPopup : BaseUI, IBackButtonHandler
    [SerializeField] private CanvasGroup _canvasGroup;
 
     bool isInit = false;
+    
     private void Awake()
     {
         if(_canvasGroup == null)
         _canvasGroup = GetComponent<CanvasGroup>();
-        
+
         //if(gameObject.activeSelf) base.CloseUI();
+        
     }
     private void OnEnable()
     {
         _canvasGroup.alpha = 0.0f;
         //CloseUI(); 이걸 안 쓰는 이유는 CloseUI()는 페이드 아웃을 하기 때문에
         
-        EventManager.Publish(new AddUIStackEvent { ui = this });
-        if (!isInit)
+        UIManager.PubishAddUIStackEvent(this);
+\        if (!isInit)
         {
             isInit = true;
             base.CloseUI();
@@ -28,7 +30,7 @@ public class DeckSelectPopup : BaseUI, IBackButtonHandler
     }
     private void OnDisable()
     {
-        EventManager.Publish(new RemoveUIStackEvent());
+        UIManager.PublishRemoveUIStackEvent();
     }
     public override void OpenUI()
     {
