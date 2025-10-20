@@ -22,6 +22,7 @@ public class UISpawnUnitSlot : MonoBehaviour
     private void Awake()
     {
         costText.gameObject.SetActive(true); // 현재 왜 꺼져있는지 모르겠음
+        costText.raycastTarget = false; // 텍스트가 버튼 클릭 막는 현상 방지
         outlineForCanSpawnLegendary.enabled = false;
         spawnUnitBtn.onClick.AddListener(OnSpawnUnit);
     }
