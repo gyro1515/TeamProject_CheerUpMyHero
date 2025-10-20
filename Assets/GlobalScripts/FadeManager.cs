@@ -9,7 +9,7 @@ using UnityEngine.UI;
 public class FadeManager : SingletonMono<FadeManager>
 {
     private Image fadeImage;
-    private const float fadeDuration = 0.3f; // 페이드 시간
+    public const float fadeDuration = 0.3f; // 페이드 시간
 
     // 페이드 인 아웃 체크용
     [HideInInspector] public bool isFadeOut = false;
@@ -120,9 +120,9 @@ public class FadeManager : SingletonMono<FadeManager>
         isFadeOut = false;
 
     }
-    public static void FadeInUI(CanvasGroup target, TweenCallback afterFade = null)
+    public static void FadeInUI(CanvasGroup target, TweenCallback afterFade = null, bool isSetInteracte = true )
     {
-        Instance.SetInteractable(target, true);
+        if(isSetInteracte) Instance.SetInteractable(target, true);
         target.DOFade(1f, 0.3f).SetUpdate(true).onComplete += afterFade;
     }
 

@@ -6,7 +6,7 @@ using UnityEngine;
 [ExcelAsset(AssetPath = "Resources/DB")]
 public class PlayerUnitSO : MonoSO<BaseUnitData>
 {
-	public List<BaseUnitData> hero_unit; 
+	public List<HeroData> hero_unit;
 	public List<BaseUnitData> hiller_unit; 
 	public List<BaseUnitData> allianceCommon; 
 	public List<BaseUnitData> allianceRare; 

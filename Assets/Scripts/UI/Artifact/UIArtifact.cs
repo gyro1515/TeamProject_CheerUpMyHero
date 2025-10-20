@@ -23,8 +23,10 @@ public class UIArtifact : BaseUI, IBackButtonHandler
 
     #region 이벤트 시스템
     public event Action<ArtifactType> OnRequestAutoEquip;
+    public event Action OnRequestUnEquipAll;
     #endregion
 
+    
     #region 생명주기
     private void Awake()
     {
@@ -37,16 +39,31 @@ public class UIArtifact : BaseUI, IBackButtonHandler
         _canvasGroup = GetComponent<CanvasGroup>();
         _closeButton.onClick.AddListener(() => SceneLoader.Instance.StartLoadScene(SceneState.BattleScene));
 
-        _passiveEquipButton.onClick.AddListener(OnPassiveEquipButtonClicked);
-        _activeEquipButton.onClick.AddListener(OnActiveEquipButtonClicked);
-        _ConfirmEquipButton.onClick.AddListener(() => OnRequestAutoEquip?.Invoke(_selectedType));
+        _passiveEquipButton.onClick.AddListener(() =>
+        {
+            OnRequestAutoEquip?.Invoke(ArtifactType.Passive);
+            UpdateSelectionUI(ArtifactType.Passive);
+        });
+        _activeEquipButton.onClick.AddListener(() =>
+        {
+            OnRequestAutoEquip?.Invoke(ArtifactType.Active);
+            UpdateSelectionUI(ArtifactType.Active);
+        });
+        _UnEquipAllButton.onClick.AddListener(() =>
+        {
+            OnRequestUnEquipAll?.Invoke();
+            UpdateSelectionUI(null);
+        });
+
+        UpdateSelectionUI(null);
 
         if (_passiveOutline != null) _passiveOutline.enabled = false;
         if (_activeOutline != null) _activeOutline.enabled = false;
+        
     }
     private void OnEnable()
     {
-        EventManager.Publish(new AddUIStackEvent { ui = this });
+        UIManager.PubishAddUIStackEvent(this);
     }
     private void Start()
     {
@@ -55,7 +72,7 @@ public class UIArtifact : BaseUI, IBackButtonHandler
     }
     private void OnDisable()
     {
-        EventManager.Publish(new RemoveUIStackEvent());
+        UIManager.PublishRemoveUIStackEvent();
     }
 
     private void OnDestroy()
@@ -87,32 +104,32 @@ public class UIArtifact : BaseUI, IBackButtonHandler
     [Header("자동 장착 버튼")]
     [SerializeField] private Button _passiveEquipButton;
     [SerializeField] private Button _activeEquipButton;
-    [SerializeField] private Button _ConfirmEquipButton;
+    [SerializeField] private Button _UnEquipAllButton;
 
     [Header("선택 아웃라인")]
     [SerializeField] private Outline _passiveOutline;
     [SerializeField] private Outline _activeOutline;
-    private ArtifactType _selectedType;
+    //private ArtifactType _selectedType;
 
-    private void OnPassiveEquipButtonClicked()
-    {
-        _selectedType = ArtifactType.Passive;
-        UpdateSelectionUI();
-    }
+    //private void OnPassiveEquipButtonClicked()
+    //{
+    //    _selectedType = ArtifactType.Passive;
+    //    UpdateSelectionUI();
+    //}
 
-    private void OnActiveEquipButtonClicked()
-    {
-        _selectedType = ArtifactType.Active;
-        UpdateSelectionUI();
-    }
+    //private void OnActiveEquipButtonClicked()
+    //{
+    //    _selectedType = ArtifactType.Active;
+    //    UpdateSelectionUI();
+    //}
 
-    private void UpdateSelectionUI()
+    private void UpdateSelectionUI(ArtifactType? selectedType)
     {
         if (_passiveOutline != null)
-            _passiveOutline.enabled = (_selectedType == ArtifactType.Passive);
+            _passiveOutline.enabled = (selectedType == ArtifactType.Passive);
 
         if (_activeOutline != null)
-            _activeOutline.enabled = (_selectedType == ArtifactType.Active);
+            _activeOutline.enabled = (selectedType == ArtifactType.Active);
     }
     #endregion
 }

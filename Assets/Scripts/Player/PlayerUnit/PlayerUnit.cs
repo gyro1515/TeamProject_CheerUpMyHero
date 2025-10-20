@@ -24,7 +24,7 @@ public class PlayerUnit : BaseUnit
         UnitManager.Instance.AddUnitList(this, true);
         
     }
-    public override void SetStatMultiplier(float statMultiplier)
+    public override void SetStatMultiplier(float statMultiplier, bool isSpawnHero = false)
     {
         if (UnitData == null) { Debug.LogError("데이터 없음"); return; }
 
@@ -32,20 +32,31 @@ public class PlayerUnit : BaseUnit
         float synergyAttackBonus = PlayerDataManager.Instance.SynergyAllUnitAttackBonus;
         float synergyAttackCooldownReduction = PlayerDataManager.Instance.SynergyUnitAttackCooldownReduction;
 
+        // 영웅 소환시, 소환될 유닛은 스탯 2배
+        float spawnHeroBonus = isSpawnHero ? 2f : 1f;
+
         // 배율에 따른 체력 공격력 세팅
-        MaxHp = UnitData.health * statMultiplier * (1.0f + synergyHealthBonus / 100.0f);
+        MaxHp = UnitData.health * statMultiplier * (1.0f + synergyHealthBonus / 100.0f) * spawnHeroBonus;
         curHp = MaxHp;
-        AtkPower = UnitData.atkPower * statMultiplier * (1.0f + synergyAttackBonus / 100.0f);
-        AttackRate = UnitData.attackRate * statMultiplier * (1.0f - synergyAttackCooldownReduction / 100.0f); // 공격 속도는 크기와 상관없이 배율에 비례
-        float tmpstatMultiplier = Math.Clamp(statMultiplier, 0.8f, 1.2f); // 크기는 너무 작아지거나 커지지 않도록 제한
+        AtkPower = UnitData.atkPower * statMultiplier * (1.0f + synergyAttackBonus / 100.0f) * spawnHeroBonus;
+
+        // 이 시너지 체크 필요
+        AttackRate = UnitData.attackRate / statMultiplier * (1.0f - synergyAttackCooldownReduction / 100.0f) / spawnHeroBonus; // 공격 속도는 시너지  배율에 비례
+        // ********* 공격 속도는 스탯과 비례하지 않죠?? ************
+        //AttackRate = UnitData.attackRate * (1.0f - synergyAttackCooldownReduction / 100.0f); // 공격 속도는 시너지  배율에 비례
+
+        float tmpstatMultiplier = Math.Clamp(statMultiplier * spawnHeroBonus, 0.8f, 1.2f); // 크기는 너무 작아지거나 커지지 않도록 제한
         // 아래는 다 tmpstatMultiplier로 세팅, 크기에 따라 인식/공격 범위도 달라지도록
         gameObject.transform.localScale = TmpSize * tmpstatMultiplier;
         AttackRange = UnitData.attackRange * tmpstatMultiplier;
         CognizanceRange = UnitData.cognizanceRange * tmpstatMultiplier;
 
-        CapsuleCollider2D col = GetComponent<CapsuleCollider2D>();
+        // 현재 캡슐 사용 x
+        /*CapsuleCollider2D col = GetComponent<CapsuleCollider2D>();
         // 사이즈는 달라질 수 있으니 활성화 시마다 갱신
-        knockbackHandler.Init(col.size.x * statMultiplier);
+        knockbackHandler.Init(col.size.x * statMultiplier);*/
+        // 그저 유닛 크기에 비례하도록
+        knockbackHandler.Init((TmpSize * tmpstatMultiplier).x);
         // ex: 최대 체력 = 300 / HitBackCount = 3 => 데미지 100이 누적될때마다 히트백
         hitbackHp = MaxHp / UnitData.hitBack;
         // ex: curHp / hitbackHp  => 2 -> 1 -> 0에서만 히트백이 발생하도록
@@ -57,6 +68,43 @@ public class PlayerUnit : BaseUnit
         { Debug.LogError($"변환 실패: {gameObject.name} 은(는) PoolType에 없습니다."); return; }
 
         UnitData = DataManager.PlayerUnitData.GetData((int)poolType);
+        // 컨트롤러 자동추가 테스트 -> 251017: 테스트 완료, 이제 유닛마다 컨트롤러 수동 추가 안해도 됨
+        //if (UnitController == null) // 컨트롤러 없다면
+        if (UnitData.unitType != UnitType.Healer) // 힐러는 따로
+        {
+            switch (UnitData.attackType)
+            {
+                case UnitAttackType.Target:
+                    UnitController = gameObject.AddComponent<PlayerUnitController>();
+                    break;
+                case UnitAttackType.Area:
+                    UnitController = gameObject.AddComponent<PlayerRangedSplashController>();
+                    break;
+                case UnitAttackType.PierceArea:
+                    UnitController = gameObject.AddComponent<PlayerMeleeSplashController>();
+                    break;
+            }
+        }
+        else
+        {
+            switch (UnitData.attackType)
+            {
+                case UnitAttackType.Target:
+                    UnitController = gameObject.AddComponent<EnemyHealerUnitController>();
+                    break;
+                case UnitAttackType.Area:
+                case UnitAttackType.PierceArea:
+                    UnitController = gameObject.AddComponent<PlayerHealerSplashController>();
+                    break;
+                default:
+                    Debug.LogError("유닛 데이터 테이블 오류, 일단 단일 타겟 힐러 컨트롤러 부착");
+                    UnitController = gameObject.AddComponent<PlayerHealerUnitController>();
+                    break;
+            }
+
+        }
+        BaseController = UnitController;
+        Damageable = GetComponent<IDamageable>();
     }
     protected override float GetStatBonus(StatType type)
     {

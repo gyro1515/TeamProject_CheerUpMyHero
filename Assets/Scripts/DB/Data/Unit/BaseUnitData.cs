@@ -24,6 +24,7 @@ public class BaseUnitData : MonoData
     public UnitSynergyType synergyType; // 비트마스크 방식 도입
     public int cost;
     public string description = "설명 추가해야 합니다!!";
+    public UnitClass unitClass = UnitClass.Normal;
 }
 public enum Rarity
 {
@@ -50,16 +51,22 @@ public enum UnitSynergyType
 {
     None = 0,
     // 세력 계열
-    Kingdom = 1 << 0,  // 왕국   
-    Empire = 1 << 1,  // 황국
+    Kingdom     = 1 << 0,  // 왕국   
+    Empire      = 1 << 1,  // 황국
     // 직업 계열
-    Mage = 1 << 2,  // 마법사
-    Cleric = 1 << 3,  // 성직자
-    Berserker = 1 << 4,  // 버서커
-    Archer = 1 << 5,  // 궁수
-    Hero = 1 << 6,  // 영웅
+    Mage        = 1 << 2,  // 마법사
+    Cleric      = 1 << 3,  // 성직자
+    Berserker   = 1 << 4,  // 버서커
+    Archer      = 1 << 5,  // 궁수
+    Hero        = 1 << 6,  // 영웅
     //  속성 계열
-    Frost = 1 << 7,  // 냉기
-    Burn = 1 << 8,  // 화상
-    Poison = 1 << 9,  // 중독
+    Frost       = 1 << 7,  // 냉기
+    Burn        = 1 << 8,  // 화상
+    Poison      = 1 << 9,  // 중독
+}
+public enum UnitClass
+{
+    Normal,
+    Hero,
+    Boss
 }

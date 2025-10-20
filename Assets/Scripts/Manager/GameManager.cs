@@ -130,7 +130,7 @@ public class GameManager : SingletonMono<GameManager>
 
     public void ShowResultUI(bool isVictory)
     {
-        EventManager.Publish(new BattleEndedEvent { IsVictory = isVictory });
+        EventManager.GetPublisher<BattleEndedEvent>().Publish(new BattleEndedEvent { IsVictory = isVictory });
 
         //NeedsTileVisualUpdate = true;
 

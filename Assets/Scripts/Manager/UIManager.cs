@@ -16,14 +16,16 @@ public class UIManager : SingletonMono<UIManager>, ISceneResettable
     //private BaseUI _currentOpenedPopup = null;
     private readonly Stack<IBackButtonHandler> _uiStack = new Stack<IBackButtonHandler>();
 
+    
+
     protected override void Awake()
     {
         base.Awake();
         InputManager.Instance.gameObject.SetActive(true); // InputManager 강제 초기화
         //SceneManager.sceneLoaded += OnSceneLoaded;
-        EventManager.Subscribe<BackButtonPressedEvent>(_ => BackButtonPressed());
-        EventManager.Subscribe<AddUIStackEvent>(PushUI);
-        EventManager.Subscribe<RemoveUIStackEvent>(_ => PopUI());
+        EventManager.GetSubscriber<BackButtonPressedEvent>().Subscribe(_ => BackButtonPressed());
+        EventManager.GetSubscriber<AddUIStackEvent>().Subscribe(PushUI);
+        EventManager.GetSubscriber<RemoveUIStackEvent>().Subscribe(_ => PopUI());
     }
     /*private void OnEnable()
     {
@@ -67,6 +69,16 @@ public class UIManager : SingletonMono<UIManager>, ISceneResettable
     }
 
     // UI 순서 관리
+    public static void PubishAddUIStackEvent(IBackButtonHandler ui)
+    {
+        Instance.PushUI(new AddUIStackEvent { ui = ui });
+        //Instance.onAddUIStackEventPub.Publish(new AddUIStackEvent { ui = ui });
+    }
+    public static void PublishRemoveUIStackEvent()
+    {
+        Instance.PopUI();
+        //Instance.onRemoveUIStackEventPub.Publish();
+    }
     void PushUI(AddUIStackEvent eventStruct)
     {
         _uiStack.Push(eventStruct.ui);

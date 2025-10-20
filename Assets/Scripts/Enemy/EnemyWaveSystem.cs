@@ -24,11 +24,13 @@ public class EnemyWaveSystem : MonoBehaviour
     float warningTime = -1f; // 경고 시간
     float timeUntilWave = -1f; // 경고 시간 후 소환까지 걸리는 시간
     int waveIdx = -1;
-    public int WaveIdx { get { return waveIdx; } }
+    const int maxWaveIdx = 5; // 최대 웨이브 인덱스(0~4)
+    //public int WaveIdx { get { return waveIdx; } }
 
     public event Action OnWarningDisplayed; // 웨이브 경고가 화면에 표시될 때 발생하는 이벤트
 
     IEventPublisher<TimeSyncEvent> onTimeSyncEvent;
+    IEventPublisher<StartWaveEvent> onStartWave;
     private void Awake()
     {
         enemyHQ = GetComponent<EnemyHQ>();
@@ -39,10 +41,11 @@ public class EnemyWaveSystem : MonoBehaviour
         SetWaveData();
         waitForSpawnInterval = new WaitForSeconds(spawnWaveInterval);
         onTimeSyncEvent = EventManager.GetPublisher<TimeSyncEvent>();
+        onStartWave = EventManager.GetPublisher<StartWaveEvent>();
     }
     private void Start()
     {
-        onTimeSyncEvent.Publish(new TimeSyncEvent { waveTime = waveTime });
+        onTimeSyncEvent.Publish(new TimeSyncEvent { waveTime = waveTime, maxWaveCount = maxWaveIdx });
         // 웨이브 코루틴
         StartCoroutine(WaveTimeRoutine());
     }
@@ -60,7 +63,7 @@ public class EnemyWaveSystem : MonoBehaviour
     {
         waveIdx = 0;
 
-        while (waveIdx < 5) // 5번째 웨이브까지 실행하기(실제 7분 30)
+        while (waveIdx < maxWaveIdx) // 5번째 웨이브까지 실행하기(실제 7분 30)
         {
             // warningTime까지 대기
             yield return new WaitForSeconds(warningTime);
@@ -76,6 +79,7 @@ public class EnemyWaveSystem : MonoBehaviour
             // 웨이브 시작
             StartCoroutine(WaveRoutine(waveIdx++));
             Debug.Log($"{waveIdx}번째 웨이브 시작");
+            onStartWave.Publish(new StartWaveEvent { waveIdx = waveIdx });
         }
     }
 
@@ -129,9 +133,10 @@ public class EnemyWaveSystem : MonoBehaviour
         if (waveDataList == null) 
         { 
             selectedMainStageIdx = 0;
+            selectedSubStageIdx = 0;
             waveDataList = waveSO.GetStageWaveDataList(selectedMainStageIdx);
             Debug.LogWarning("웨이브 정보 없어 -> 스테이지1 데이터로 세팅");
-            PlayerDataManager.Instance.SelectedStageIdx = (0 , 0);
+            PlayerDataManager.Instance.SelectedStageIdx = (selectedMainStageIdx, selectedSubStageIdx);
             //return; 나중에는 그냥 리턴하기
         }
 
@@ -156,6 +161,7 @@ public class EnemyWaveSystem : MonoBehaviour
     {
         warningUI.OnWarningEnd += onWarningEndEvent;
     }
+    
     #region 테스트용
     // 데이터 테이블에 따라 아래 형식 사용할 수 있어서 일단 주석처리
     /*void TestWaveDateInit()
@@ -269,3 +275,9 @@ public class EnemyWaveSystem : MonoBehaviour
     }*/
     #endregion
 }
+#region 웨이브 이벤트
+public struct StartWaveEvent
+{
+    public int waveIdx;
+}
+#endregion

@@ -1,8 +1,11 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using static Unity.VisualScripting.Member;
 
 
 public class MainScreenBuildingController : MonoBehaviour
@@ -12,7 +15,10 @@ public class MainScreenBuildingController : MonoBehaviour
     [SerializeField] private Transform gridParent;                  // 타일 그리드 부모 (GridLayoutGroup이 붙은 오브젝트)
     [SerializeField] private ConstructionSelectPanel selectPanel;   // 건설 선택 패널
     [SerializeField] private ConstructionUpgradePanel upgradePanel; // 업그레이드 패널
-   
+    [SerializeField] private BuildingSynergyPanel synergyPanel; // 시너지 패널
+    [SerializeField] private AdCooldownPopup adCooldownPopup; // 팝업 UI
+    [SerializeField] private DestroyConfirmPopup destroyPopup;
+
     [Header("드래그 앤 드랍")]
     [SerializeField] private Image dragIcon;
 
@@ -28,7 +34,7 @@ public class MainScreenBuildingController : MonoBehaviour
 
     public bool IsDragging() => _sourceDragTile != null; // 현재 드래그 중인지 확인하는 프로퍼티
 
-
+    IEventPublisher<GridStateChangedEvent> onGridStateChangedEventPub;
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -39,6 +45,9 @@ public class MainScreenBuildingController : MonoBehaviour
         {
             Instance = this;
         }
+        onGridStateChangedEventPub = EventManager.GetPublisher<GridStateChangedEvent>();
+        CreateGrid();
+
     }
     private void OnDestroy()
     {
@@ -49,7 +58,23 @@ public class MainScreenBuildingController : MonoBehaviour
     }
     private void Start()
     {
-        CreateGrid();
+        UpdateAllTilesUI();
+    }
+    void Update()
+    {
+        foreach (var tile in _tiles)
+        {
+            if (tile == null) continue;
+
+            var dataHandler = PlayerDataManager.Instance._TileDataHandler;
+            DateTime cooldownEndTime = dataHandler.CooldownEndTimeGrid[tile.X, tile.Y];
+
+            if (cooldownEndTime > DateTime.UtcNow)
+            {
+                TimeSpan remainingTime = cooldownEndTime - DateTime.UtcNow;
+                tile.UpdateTimerText(remainingTime);
+            }
+        }
     }
     private void OnEnable()
     {
@@ -96,10 +121,25 @@ public class MainScreenBuildingController : MonoBehaviour
                 tile.OnTileClicked += HandleTileClick;
             }
         }
-
+        UpdateAllTilesUI();
         Debug.Log("타일 그리드 생성 완료!");
     }
+    private void UpdateAllTilesUI()
+    {
+        if (_tiles == null) return;
+        foreach (var tile in _tiles)
+        {
+            if (tile != null) UpdateTileUI(tile);
+        }
+    }
 
+    private void UpdateTileUI(BuildingTile tile)
+    {
+        var buildingData = PlayerDataManager.Instance._TileDataHandler.BuildingGridData[tile.X, tile.Y];
+        tile.SetBuilding(buildingData);
+        tile.UpdateStatusVisual();
+        tile.UpdateCooldownStatus();
+    }
     //private void OnDisable()
     //{
     //    if (_tiles == null) return;
@@ -113,6 +153,9 @@ public class MainScreenBuildingController : MonoBehaviour
     // ---------------- 타일 선택 ----------------
     private void HandleTileClick(BuildingTile tile)
     {
+        if (synergyPanel != null)
+            synergyPanel.gameObject.SetActive(false);
+
         _selectedTile = tile;
         selectedFrameObject.SetActive(true);
         selectedFrameObject.transform.position = tile.transform.position;
@@ -168,6 +211,9 @@ public class MainScreenBuildingController : MonoBehaviour
             _selectedTile = null;
             selectedFrameObject.SetActive(false);
         }
+
+        if (synergyPanel != null)
+            synergyPanel.gameObject.SetActive(true);
     }
 
     // ---------------- 건설 ----------------
@@ -208,9 +254,10 @@ public class MainScreenBuildingController : MonoBehaviour
         PlayerDataManager.Instance._TileDataHandler.BuildingGridData[tile.X, tile.Y] = level1Data;
         tile.SetBuilding(level1Data);
 
-        EventManager.Publish(new GridStateChangedEvent());
+        onGridStateChangedEventPub.Publish();
 
         Debug.Log($"{tile.X},{tile.Y}에 {level1Data.buildingName} 건설 완료!");
+        DeselectTile();
     }
 
     // ---------------- 업그레이드 ----------------
@@ -272,9 +319,10 @@ public class MainScreenBuildingController : MonoBehaviour
         PlayerDataManager.Instance._TileDataHandler.BuildingGridData[tile.X, tile.Y] = next;
         tile.SetBuilding(next);
 
-        EventManager.Publish(new GridStateChangedEvent());
+        onGridStateChangedEventPub.Publish();
 
         Debug.Log($"{current.buildingName} Lv.{current.level} → Lv.{next.level} 업그레이드 완료!");
+        DeselectTile();
     }
 
     // ------수리------
@@ -327,8 +375,42 @@ public class MainScreenBuildingController : MonoBehaviour
 
         tile.UpdateStatusVisual();
         Debug.Log($"타일 ({tile.X},{tile.Y})의 수리를 시작합니다. 남은 턴: {PlayerDataManager.Instance._TileDataHandler.TileStatusGrid[tile.X, tile.Y]}");
+        DeselectTile();
     }
 
+    public void InitiateDestruction(BuildingTile tile)
+    {
+        var buildingData = PlayerDataManager.Instance._TileDataHandler.BuildingGridData[tile.X, tile.Y];
+        if (buildingData == null) return;
+
+        List<Cost> totalCost = PlayerDataManager.Instance.CalculateTotalInvestedCost(buildingData);
+
+        var refundAmounts = new Dictionary<ResourceType, int>();
+
+        foreach (var cost in totalCost)
+        {
+            int refundAmount = Mathf.FloorToInt(cost.amount * 0.5f);
+            if (refundAmount > 0)
+            {
+                refundAmounts[cost.resourceType] = refundAmount;
+            }
+        }
+        string buildingInfo = $"{buildingData.buildingName} Lv.{buildingData.level} 파괴";
+
+        destroyPopup.OpenPopup(tile, buildingInfo, refundAmounts, this);
+    }
+
+    public void ConfirmDestruction(BuildingTile tile)
+    {
+        PlayerDataManager.Instance.DestroyBuildingAt(tile.X, tile.Y);
+
+        UpdateTileUI(tile);
+        PlayerDataManager.Instance.UpdateAllSynergyEffects();
+        if (synergyPanel != null)
+        {
+            synergyPanel.UpdateDisplay();
+        }
+    }
     public void UpdateAllTileVisuals()
     {
         if (_tiles == null) return;
@@ -353,17 +435,21 @@ public class MainScreenBuildingController : MonoBehaviour
 
     public void StartDrag(BuildingTile sourceTile)
     {
+        var dataHandler = PlayerDataManager.Instance._TileDataHandler;
         if (sourceTile == null) return;
+
         _sourceDragTile = sourceTile;
+        var buildingData = sourceTile.GetBuildingData();
 
-        dragIcon.sprite = sourceTile.GetBuildingData().buildingSprite;
-        dragIcon.gameObject.SetActive(true);
-        dragIcon.transform.position = Input.mousePosition;
+        if (buildingData != null)
+        {
+            dragIcon.sprite = buildingData.buildingSprite;
+            dragIcon.gameObject.SetActive(true);
+            dragIcon.transform.position = Input.mousePosition;
 
-        // 원래 타일의 이미지를 약간 투명하게
-        sourceTile.GetComponent<Image>().color = new Color(1, 1, 1, 0.5f);
+            sourceTile.GetComponent<Image>().color = new Color(1, 1, 1, 0.5f);
+        }
     }
-
     public void UpdateDrag(PointerEventData eventData)
     {
         if (dragIcon.gameObject.activeInHierarchy)
@@ -379,7 +465,6 @@ public class MainScreenBuildingController : MonoBehaviour
             // 드랍이 성공하지 못하고 끝났을 경우, 원래 타일의 모습을 복원
             UpdateTileUI(_sourceDragTile);
         }
-
         _sourceDragTile = null;
         dragIcon.gameObject.SetActive(false);
     }
@@ -387,38 +472,97 @@ public class MainScreenBuildingController : MonoBehaviour
     public void HandleDrop(BuildingTile destinationTile)
     {
         var dataHandler = PlayerDataManager.Instance._TileDataHandler;
-        var destStatus = dataHandler.TileStatusGrid[destinationTile.X, destinationTile.Y];
 
-        // 목표 타일의 상태가 'Normal'이 아닐 경우 드랍을 무효
-        if (_sourceDragTile == null || _sourceDragTile == destinationTile || destinationTile.MyTileType == TileType.Special || destStatus != TileStatus.Normal)
+        if (_sourceDragTile == null || _sourceDragTile == destinationTile) return;
+
+        var destStatus = dataHandler.TileStatusGrid[destinationTile.X, destinationTile.Y];
+        if (destinationTile.MyTileType == TileType.Special || destStatus != TileStatus.Normal) return;
+
+        DateTime sourceCooldownEndTime = dataHandler.CooldownEndTimeGrid[_sourceDragTile.X, _sourceDragTile.Y];
+        bool isSourceOnCooldown = (sourceCooldownEndTime > DateTime.UtcNow);
+
+        DateTime destCooldownEndTime = dataHandler.CooldownEndTimeGrid[destinationTile.X, destinationTile.Y];
+        bool isDestOnCooldown = (destCooldownEndTime > DateTime.UtcNow);
+
+        if (!isSourceOnCooldown && !isDestOnCooldown)
         {
+            PerformMoveOrSwap(destinationTile, true); // 새 쿨타임 적용
             return;
         }
 
+        var sourceBuilding = dataHandler.BuildingGridData[_sourceDragTile.X, _sourceDragTile.Y];
+        if (sourceBuilding != null && adCooldownPopup != null)
+        {
+            adCooldownPopup.OpenPopup(_sourceDragTile, destinationTile, this);
+        }
+        else
+        {
+            _sourceDragTile = null;
+            dragIcon.gameObject.SetActive(false);
+        }
+    }
+    #endregion
+
+    private void PerformMoveOrSwap(BuildingTile destinationTile, bool applyNewCooldown = true)
+    {
+        var dataHandler = PlayerDataManager.Instance._TileDataHandler;
         var destBuilding = dataHandler.BuildingGridData[destinationTile.X, destinationTile.Y];
 
         if (destBuilding == null) // Case 1: 빈 타일로 이동
         {
+            if (applyNewCooldown)
+            {
+                dataHandler.StartCooldownForBuildingAt(_sourceDragTile.X, _sourceDragTile.Y);
+            }
             dataHandler.MoveBuildingData(_sourceDragTile.X, _sourceDragTile.Y, destinationTile.X, destinationTile.Y);
         }
+    
         else // Case 2: 다른 건물과 위치 교체
         {
+            if (applyNewCooldown)
+            {
+                dataHandler.StartCooldownForBuildingAt(_sourceDragTile.X, _sourceDragTile.Y);
+                dataHandler.StartCooldownForBuildingAt(destinationTile.X, destinationTile.Y);
+            }
             dataHandler.SwapBuildingData(_sourceDragTile.X, _sourceDragTile.Y, destinationTile.X, destinationTile.Y);
+        }
+   
+
+        // 시너지 및 타일 UI 갱신
+        PlayerDataManager.Instance.UpdateAllSynergyEffects();
+        if (synergyPanel != null)
+        {
+            synergyPanel.UpdateDisplay();
         }
 
         UpdateTileUI(_sourceDragTile);
         UpdateTileUI(destinationTile);
 
+        // 드래그 상태 초기화
         _sourceDragTile = null;
         dragIcon.gameObject.SetActive(false);
     }
 
-    private void UpdateTileUI(BuildingTile tile)
+
+    public void ConfirmAdAndMove(BuildingTile source, BuildingTile destination)
     {
-        var buildingData = PlayerDataManager.Instance._TileDataHandler.BuildingGridData[tile.X, tile.Y];
-        tile.SetBuilding(buildingData);
-        tile.UpdateStatusVisual(); // 색상과 상태를 모두 원래대로 복원
+        AdManager.Instance.ShowRewardedAd(() =>
+        {
+            var dataHandler = PlayerDataManager.Instance._TileDataHandler;
+            var destBuilding = dataHandler.BuildingGridData[destination.X, destination.Y];
+
+            dataHandler.ReduceCooldownForBuildingAt(source.X, source.Y, 30);
+            if (destBuilding != null)
+            {
+                dataHandler.ReduceCooldownForBuildingAt(destination.X, destination.Y, 30);
+            }
+
+            UpdateTileUI(source);
+            UpdateTileUI(destination);
+
+            _sourceDragTile = source;
+            PerformMoveOrSwap(destination, false);
+        });
     }
-    #endregion
 }
 

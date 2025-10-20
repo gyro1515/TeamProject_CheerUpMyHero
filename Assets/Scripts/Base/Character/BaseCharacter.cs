@@ -15,7 +15,7 @@ public class BaseCharacter : MonoBehaviour
     [field: SerializeField] public float MoveSpeed {  get; private set; }
     [field: SerializeField] public Vector3 HpBarPosByCharacter { get; private set; } // 보정용
     [field: SerializeField] public Vector2 HpBarSize { get; private set; } // 체력바 사이즈용
-    public BaseController BaseController { get; private set; }
+    public BaseController BaseController { get; protected set; }
 
     // 데이터 용 변수, 데이터 테이블 완성시 테이블에서 가져오기  -> 251016 테이블에서 가져오도록 수정
     /*public float TmpMaxHp { get; protected set; }
@@ -35,7 +35,7 @@ public class BaseCharacter : MonoBehaviour
         get { return _moveDir; }
         set { _moveDir = value; }
     }
-    public IDamageable Damageable { get; private set; }
+    public IDamageable Damageable { get; protected set; }
     [SerializeField] protected float curHp;
     public virtual float CurHp { get { return curHp; }
         set

@@ -22,9 +22,11 @@ public class UnitManager : SingletonMono<UnitManager>
     LayerMask enemyLayerMask;
 
     //미니맵에서 유닛이 스폰될때와 죽을때를 구독 중
-    public event Action<BaseCharacter, bool> onUnitSpawn;
+    public event Action<BaseUnit, bool> onUnitSpawn;
     public event Action<BaseCharacter, bool> onUnitDeSpawn;
 
+    IEventSubscriber<HeroSpawnEvent> onHeroSpawnEventSub;
+    IEventSubscriber<SpawnHQEvent> onSpawnHQEventSub;
 
 
     protected override void Awake()
@@ -34,11 +36,14 @@ public class UnitManager : SingletonMono<UnitManager>
         playerLayerMask = LayerMask.GetMask("Player");
         enemyLayerMask = LayerMask.GetMask("Enemy");
 
-        EventManager.Subscribe<SpawnHQEvent>(AddUnitList);
+        onSpawnHQEventSub = EventManager.GetSubscriber<SpawnHQEvent>();
+        onSpawnHQEventSub.Subscribe(AddUnitList);
+        onHeroSpawnEventSub = EventManager.GetSubscriber<HeroSpawnEvent>();
+        onHeroSpawnEventSub.Subscribe(ApplyHeroSummonStatBoost);
     }
     private void OnDisable()
     {
-        EventManager.Unsubscribe<SpawnHQEvent>(AddUnitList);
+        onSpawnHQEventSub.Unsubscribe(AddUnitList);
     }
     void AddUnitList(SpawnHQEvent eventStruct)
     {
@@ -50,13 +55,16 @@ public class UnitManager : SingletonMono<UnitManager>
 
         unit.ListIndex = unitList.Count;
         unitList.Add(unit);
-        onUnitSpawn?.Invoke(unit, isPlayer);
+        if(unit is BaseUnit baseUnit && !(unit is Player))
+        {
+            onUnitSpawn?.Invoke(baseUnit, isPlayer);
+        }
     }
     public void RemoveUnitFromList(BaseCharacter unit, bool isPlayer)
     {
         List<BaseCharacter> unitList = isPlayer ? playerUnitList : enemyUnitList;
 
-        onUnitDeSpawn?.Invoke(unit, isPlayer);
+        if (unit is BaseUnit) onUnitDeSpawn?.Invoke(unit, isPlayer);
 
         // List삭제가 O(1)이 되도록
         int index = unit.ListIndex;
@@ -108,7 +116,18 @@ public class UnitManager : SingletonMono<UnitManager>
     {
         return FindClosestTarget(target, isPlayer, out _);
     }
-
+    
+    void ApplyHeroSummonStatBoost(HeroSpawnEvent heroSpawnEvent)
+    {
+        // 용사 소환 시 아군 유닛 전체 스탯 200% 버프 적용
+        for (int i = 0; i < playerUnitList.Count; i++)
+        {
+            if(playerUnitList[i] is BaseUnit unit)
+            {
+                unit.SetStatMultiplier(2f);
+            }
+        }
+    }
     #region Legacy Attack Methods
     ////위치(x좌표) 중심 폭발형 범위공격
     ////나중엔 공격자의 정보를 넣어서 매개변수를 한번에 처리 예정
@@ -116,7 +135,7 @@ public class UnitManager : SingletonMono<UnitManager>
     //public void ExplosiveAttackTarget(Vector2 targetPos, bool isPlayer, float atkPower, float bound)
     //{
     //    Vector2 boxSize = new Vector2(bound, 6); //6은 일단 아무 숫자 넣음. 적절한 세로 박스 크기는 얼마??
-        
+
     //    //일단 awake로 레이어마스크 캐싱으로 불러옴
     //    LayerMask targetLayerMask = isPlayer ? enemyLayerMask : playerLayerMask;
 
@@ -135,7 +154,7 @@ public class UnitManager : SingletonMono<UnitManager>
     //{
     //    float leftOrRight = isPlayer ? target.AttackRange : -target.AttackRange;
     //    Vector2 rangeCenter = new Vector2(target.transform.position.x + (leftOrRight / 2), target.transform.position.y);
-        
+
     //    Vector2 boxSize = new Vector2(target.AttackRange, 6); //6은 일단 아무 숫자 넣음. 적절한 세로 박스 크기는 얼마??
 
     //    LayerMask targetLayerMask = isPlayer ? enemyLayerMask : playerLayerMask;

@@ -14,11 +14,13 @@ public class CameraController : MonoBehaviour
     private float _idleTimer = 0f;
     private bool _isAutoFollowing = false;
     private bool _hasInitializedCamera = false;
-
-    //private void Start()
-    //{
-    //    playerGO = GameManager.Instance.Player.gameObject;
-    //}
+    Vector3 targetCamPos;
+    IEventSubscriber<HeroSpawnEvent> heroSpawnEventSub;
+    private void Awake()
+    {
+        heroSpawnEventSub = EventManager.GetSubscriber<HeroSpawnEvent>();
+        heroSpawnEventSub.Subscribe(SpawnHero);
+    }
     private void Start()
     {
         if (GameManager.Instance != null && GameManager.Instance.Player != null)
@@ -39,15 +41,16 @@ public class CameraController : MonoBehaviour
     }
     void Update()
     {
-        // 조이스틱 직접 입력 감지
-        if (Input.GetAxisRaw("Horizontal") != 0 || Input.GetAxisRaw("Vertical") != 0)
+        // 조이스틱 직접 입력 감지 -> 251017: 왜 안지우셨죠?????
+        /*if (Input.GetAxisRaw("Horizontal") != 0 || Input.GetAxisRaw("Vertical") != 0)
         {
             ResetIdleTimer();
         }
         else
         {
             _idleTimer += Time.deltaTime;
-        }
+        }*/
+        _idleTimer += Time.deltaTime;
 
         if (_idleTimer >= IDLE_THRESHOLD && !_isAutoFollowing)
         {
@@ -58,6 +61,7 @@ public class CameraController : MonoBehaviour
     private void OnDisable()
     {
         PlayerController.OnPlayerAction -= ResetIdleTimer;
+        heroSpawnEventSub.Unsubscribe(SpawnHero);
     }
     //private void FixedUpdate()
     //{
@@ -89,7 +93,7 @@ public class CameraController : MonoBehaviour
 
 
         Vector3 currentCamPos = transform.position;
-        Vector3 targetCamPos = new Vector3(currentTarget.position.x, currentCamPos.y, currentCamPos.z);
+        targetCamPos = new Vector3(currentTarget.position.x, currentCamPos.y, currentCamPos.z);
 
         //transform.position = targetCamPos; 
         if (!_hasInitializedCamera)
@@ -104,8 +108,24 @@ public class CameraController : MonoBehaviour
             transform.position = Vector3.Lerp(currentCamPos, targetCamPos, Time.unscaledDeltaTime * _cameraMoveSpeed);
         }
     }
-
-
+    void SpawnHero(HeroSpawnEvent heroSpawnEvent)
+    {
+        // 타겟 캠포스에 용사 소환
+        //Debug.Log($"테스트로 용사1을 카메라 최종 추적 위치에 소환");
+        PoolType heroPoolType = heroSpawnEvent.selectedHero.poolType;
+        // 현재 프리팹에 용사 2개만 구현됨
+        if (heroPoolType != PoolType.Hero_Unit1 && heroPoolType != PoolType.Hero_Unit2)
+        {
+            Debug.Log($"{heroSpawnEvent.selectedHero.unitName}이 선택되었으나 미구현인 관계로 용사1이 소환됩니다.");
+            heroPoolType = PoolType.Hero_Unit1;
+        }
+        Debug.Log($"용사 {heroPoolType} 소환");
+        GameObject heroGO = ObjectPoolManager.Instance.Get(heroPoolType);
+        Vector3 spawnPos = targetCamPos;
+        spawnPos.y += UnityEngine.Random.Range(20, 80) / 100f;
+        spawnPos.z = 0f;
+        heroGO.transform.position = spawnPos;
+    }
     // 플레이어가 행동했을 때 호출될 함수
     private void ResetIdleTimer()
     {

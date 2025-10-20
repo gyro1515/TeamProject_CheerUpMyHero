@@ -4124,7 +4124,6 @@ GameObject:
   - component: {fileID: 6026240409640893552}
   - component: {fileID: 3663210988550714101}
   - component: {fileID: 8467023460888286503}
-  - component: {fileID: 4453755380532900293}
   - component: {fileID: -7307097619041437047}
   - component: {fileID: -227179290429603040}
   - component: {fileID: -3339563003366436255}
@@ -4164,6 +4163,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 808adad36016f064c86076c50b68208f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  idNumber: 0
   <MaxHp>k__BackingField: 1500
   <AtkPower>k__BackingField: 200
   <MoveSpeed>k__BackingField: 1.5
@@ -4180,7 +4180,28 @@ MonoBehaviour:
   <StartAttackNormalizedTime>k__BackingField: 0.62
   <HitBackCount>k__BackingField: 3
   <SpawnCooldown>k__BackingField: 14.5
+  <UnitData>k__BackingField:
+    idNumber: 0
+    rarity: 0
+    unitName: 
+    unitType: 0
+    poolType: 0
+    health: 0
+    hitBack: 0
+    atkPower: 0
+    cognizanceRange: 0
+    attackRange: 0
+    moveSpeed: 0
+    attackDelayTime: 0
+    attackRate: 0
+    isRangedAttack: 0
+    attackType: 0
+    spawnCooldown: 0
+    synergyType: 0
+    cost: 0
+    description: "\uC124\uBA85 \uCD94\uAC00\uD574\uC57C \uD569\uB2C8\uB2E4!!"
   <UnitType>k__BackingField: 1
+  <UnitRarity>k__BackingField: 0
 --- !u!114 &3663210988550714101
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4213,19 +4234,6 @@ MonoBehaviour:
   knockBackScale: 0.1
   yPower: 1
   easeType: 6
---- !u!114 &4453755380532900293
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6903239234365258212}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 421c4e88b566f5e4cb1d1787024563e4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  animator: {fileID: 5824679016809350045}
 --- !u!70 &-7307097619041437047
 CapsuleCollider2D:
   m_ObjectHideFlags: 0

@@ -75,7 +75,7 @@ public class PlayerHealerUnitController : BaseUnitController
 
     private IEnumerator TargetingRoutine()
     {
-        WaitForSeconds wait = new WaitForSeconds(0.2f);
+        WaitForSeconds wait = new WaitForSeconds(0.1f);
         yield return null;
         while (true)
         {
@@ -175,7 +175,7 @@ public class PlayerHealerUnitController : BaseUnitController
         while (normalizedTime < playerUnit.StartAttackNormalizedTime)
         {
             // 공격 애니메이션 중에 타겟이 죽으면 즉시 행동 리셋
-            if (HealTarget == null || HealTarget.GetComponent<IDamageable>().IsDead())
+            if (HealTarget == null || HealTarget.Damageable.IsDead())
             {
                 ResetPlayerUnitController();
                 findTargetRoutine = StartCoroutine(TargetingRoutine());
@@ -184,7 +184,7 @@ public class PlayerHealerUnitController : BaseUnitController
             normalizedTime = GetNormalizedTime(attackStateHash);
             yield return null;
         }
-        HealTarget.GetComponent<BaseController>().TakeHeal(playerUnit.AtkPower * 0.5f);
+        HealTarget.Damageable.TakeHeal(playerUnit.AtkPower * 0.5f);
         animator.speed = 1f;
         while (normalizedTime >= 0f && normalizedTime < 1f)
         {
@@ -216,6 +216,7 @@ public class PlayerHealerUnitController : BaseUnitController
             yield return null;
         }
         Attack();
+        playerUnit.TargetUnit = null; // 다른 컨트롤러도 추가 필요@@@@
         animator.speed = 1f;
         while (normalizedTime >= 0f && normalizedTime < 1f)
         {

@@ -6,6 +6,7 @@ using System.Text;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
+public struct SynergyDataUpdatedEvent { }
 public enum ResourceType
 {
     Gold,
@@ -44,7 +45,8 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
     //테스트용 카드 데이터(유닛 테이블로 교체될 예정
     //public Dictionary<int, TempCardData> cardDic;
     public Dictionary<int, BaseUnitData> OwnedCardData { get; private set; } = new Dictionary<int, BaseUnitData>();
-
+    IEventSubscriber<GridStateChangedEvent> onGridStateChangedEvent;
+    IEventSubscriber<BattleEndedEvent> onBattleEndedEvent;
     #region 시너지 보너스
     //모든 시너지 효과를 합산하여 저장할 프로퍼티들
     public float SynergyUnitCooldownReduction { get; private set; }
@@ -60,7 +62,9 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
 
     private Dictionary<(int x, int y), float> _tileEfficiencyBonuses;
     public IReadOnlyDictionary<(int x, int y), float> TileEfficiencyBonuses => _tileEfficiencyBonuses;
+    public List<DetectedSynergy> ActiveSynergies { get; private set; }
 
+    private IEventPublisher<SynergyDataUpdatedEvent> _synergyDataUpdatedPublisher;
     #endregion
 
     protected override void Awake()
@@ -70,22 +74,24 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
         {
             _TileDataHandler = new TileDataHandler();
             _tileEfficiencyBonuses = new Dictionary<(int, int), float>();
-
+            _synergyDataUpdatedPublisher = EventManager.GetPublisher<SynergyDataUpdatedEvent>();
             InitializeResources();
             LoadDecks();
             TestCardGenerate();
+            onGridStateChangedEvent = EventManager.GetSubscriber<GridStateChangedEvent>();
+            onBattleEndedEvent = EventManager.GetSubscriber<BattleEndedEvent>();
         }
     }
     private void OnEnable()
     {
-        EventManager.Subscribe<GridStateChangedEvent>(OnGridStateChanged);
-        EventManager.Subscribe<BattleEndedEvent>(OnBattleEnded);
+        onGridStateChangedEvent.Subscribe(OnGridStateChanged);
+        onBattleEndedEvent.Subscribe(OnBattleEnded);
     }
 
     private void OnDisable()
     {
-        EventManager.Unsubscribe<GridStateChangedEvent>(OnGridStateChanged);
-        EventManager.Unsubscribe<BattleEndedEvent>(OnBattleEnded);
+        onGridStateChangedEvent.Unsubscribe(OnGridStateChanged);
+        onBattleEndedEvent.Unsubscribe(OnBattleEnded);
     }
     private void OnGridStateChanged(GridStateChangedEvent e)
     {
@@ -153,10 +159,9 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
     {
         //모든 보너스 값을 0으로 초기화
         ResetSynergyBonuses();
-
+        ActiveSynergies = _TileDataHandler.DetectAllSynergies();
         //TileDataHandler에게 시너지 분석을 요청
         List<DetectedSynergy> activeSynergies = _TileDataHandler.DetectAllSynergies();
-
         if (activeSynergies.Count > 0)
         {
             Debug.Log($"[시너지] {activeSynergies.Count}개의 시너지 감지!");
@@ -181,7 +186,8 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
         }
 
         // 시너지 계산 후 건물 효과를 다시 계산해야 시너지 보너스가 반영됨
-        UpdateAllBuildingEffects();
+        UpdateAllBuildingEffects(); 
+        _synergyDataUpdatedPublisher.Publish();
     }
 
     private void ResetSynergyBonuses()
@@ -197,6 +203,7 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
         SynergyUnitAttackCooldownReduction = 0f;
         SynergyBlockBonusPercent = 0f;
         _tileEfficiencyBonuses.Clear();
+        ActiveSynergies?.Clear();
     }
 
     private void ApplySynergyEffect(DetectedSynergy synergy)
@@ -292,6 +299,66 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
         }
         return _buildableList;
     }
+    //건물 비용 합산
+    public List<Cost> CalculateTotalInvestedCost(BuildingUpgradeData currentBuildingData)
+    {
+        var totalCostMap = new Dictionary<ResourceType, int>();
+
+        BuildingUpgradeData level1Data = DataManager.Instance.BuildingUpgradeData.Values
+            .FirstOrDefault(data => data.buildingType == currentBuildingData.buildingType && data.level == 1);
+
+        if (level1Data == null) return new List<Cost>();
+
+        BuildingUpgradeData buildData = DataManager.Instance.BuildingUpgradeData.Values
+            .FirstOrDefault(data => data.nextLevel == level1Data.idNumber);
+
+        if (buildData != null)
+        {
+            foreach (var cost in buildData.costs)
+            {
+                totalCostMap[cost.resourceType] = totalCostMap.GetValueOrDefault(cost.resourceType, 0) + cost.amount;
+            }
+        }
+
+        BuildingUpgradeData current = level1Data;
+        while (current != null && current.level < currentBuildingData.level)
+        {
+            foreach (var cost in current.costs)
+            {
+                totalCostMap[cost.resourceType] = totalCostMap.GetValueOrDefault(cost.resourceType, 0) + cost.amount;
+            }
+
+            if (current.nextLevel > 0)
+            {
+                current = DataManager.Instance.BuildingUpgradeData.GetData(current.nextLevel);
+            }
+            else
+            {
+                break;
+            }
+        }
+
+        return totalCostMap.Select(pair => new Cost { resourceType = pair.Key, amount = pair.Value }).ToList();
+    }
+
+    public void DestroyBuildingAt(int x, int y)
+    {
+        var buildingData = _TileDataHandler.BuildingGridData[x, y];
+        if (buildingData == null) return;
+
+        List<Cost> totalCost = CalculateTotalInvestedCost(buildingData);
+        foreach (var cost in totalCost)
+        {
+            int refundAmount = Mathf.FloorToInt(cost.amount * 0.5f);
+            AddResource(cost.resourceType, refundAmount);
+        }
+
+        _TileDataHandler.BuildingGridData[x, y] = null;
+        _TileDataHandler.CooldownEndTimeGrid[x, y] = DateTime.MinValue;
+
+        Debug.Log($"({x},{y}) 위치의 {buildingData.buildingName} 파괴 완료 및 자원 환급.");
+    }
+
     #endregion
 
     //덱 편성 관련
@@ -343,11 +410,11 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
     private void InitializeResources()
     {
         // 5가지 자원을 모두 딕셔너리에 추가하고 초기 수량을 설정.
-        _resources[ResourceType.Gold] = 100;
-        _resources[ResourceType.Wood] = 0;
-        _resources[ResourceType.Iron] = 0;
+        _resources[ResourceType.Gold] = 10000;
+        _resources[ResourceType.Wood] = 10000;
+        _resources[ResourceType.Iron] = 10000;
         _resources[ResourceType.Food] = CurrentFood;
-        _resources[ResourceType.MagicStone] = 0;
+        _resources[ResourceType.MagicStone] = 10000;
         _resources[ResourceType.Bm] = 0; 
         _resources[ResourceType.Ticket] = 0;
     }
@@ -413,7 +480,7 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
 
     //private readonly int[] maxFoodByFarmLevel = { 500, 750, 1000, 1250, 1500, 1750, 2000, 2250, 2500 };
     //private readonly int[] farmFoodGainPercentByLevel = { 5, 10, 15, 20, 25, 30, 35, 40, 50 };
-    private readonly int[] baseFoodGainBySupplyLevel = { 25, 29, 37, 47, 59, 75, 95, 119, 147 };
+    private readonly int[] baseFoodGainBySupplyLevel = { 35, 39, 47, 57, 74, 115, 155, 200, 255 };
     private readonly int[] supplyUpgradeCosts = { 100, 220, 450, 900, 1800, 3500, 5500, 8000 };
 
     public void UpgradeSupplyLevel()
@@ -526,6 +593,7 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
 
         OnResourceChangedEvent?.Invoke(ResourceType.Food, CurrentFood);
         Debug.Log($"모든 건물+시너지 효과 계산 완료: 최대 식량={_calculatedMaxFood}, 식량 보너스={currentFarmGainPercent}%, 유닛 쿨감={TotalUnitCooldownReduction}%");
+        EventManager.GetPublisher<SynergyDataUpdatedEvent>().Publish(new SynergyDataUpdatedEvent());
     }
 
     #endregion
@@ -536,6 +604,9 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
 
 
     #endregion
+
+    public StageDestinyData currentDastiny { get; set; } = new StageDestinyData();
+    public Dictionary<int, int> activeChallenges { get; private set; } = new Dictionary<int, int>();
 }
 
 

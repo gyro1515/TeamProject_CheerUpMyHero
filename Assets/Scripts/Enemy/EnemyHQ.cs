@@ -51,11 +51,19 @@ public class EnemyHQ : BaseHQ
     protected override void Start()
     {
         // 이벤트 발행 => OnAction?.Invoke() 방식과 동일
-        EventManager.Publish(new SpawnHQEvent { baseHQ = this, type = EUIHpBarType.EnemyUnit, hpBarSize = new Vector2(300f, 16.5f), isPlayer = false });
+        EventManager.GetPublisher<SpawnHQEvent>().Publish(new SpawnHQEvent { baseHQ = this, type = EUIHpBarType.EnemyUnit, hpBarSize = new Vector2(300f, 16.5f), isPlayer = false });
         base.Start();
 
         // 계속해서 유닛을 스폰하도록
         SetSpawnEnemyActive(true);
+        // 아래는 테스트 코드
+        /*GameObject hero = ObjectPoolManager.Instance.Get(PoolType.EnemyUnit10);
+        hero.transform.position = GetRandomSpawnPos();
+        for (int i = 0; i < 30; i++)
+        {
+            hero = ObjectPoolManager.Instance.Get(PoolType.EnemyUnit1);
+            hero.transform.position = GetRandomSpawnPos();
+        }*/
     }
     protected override void Update()
     {
@@ -82,7 +90,7 @@ public class EnemyHQ : BaseHQ
             float cooltime = DataManager.EnemyUnitData.GetData((int)enemyUnits[i]).spawnCooldown;
 
             enemyUnitCoolTimes[enemyUnits[i]] = cooltime;
-            Debug.Log($"{enemyUnits[i]} 쿨타임 {cooltime}초로 세팅");
+            //Debug.Log($"{enemyUnits[i]} 쿨타임 {cooltime}초로 세팅");
             StartCoroutine(EnemyCoolTimeRoutin(enemyUnits[i], cooltime));
         }
     }
@@ -107,7 +115,7 @@ public class EnemyHQ : BaseHQ
     }
     IEnumerator SpawnUnitRoutine()
     {
-        yield return new WaitForSeconds(0.2f); // 잠깐 유예시간 주기
+        yield return new WaitForSeconds(0.1f); // 잠깐 유예시간 주기
 
         WaitForSeconds wait = new WaitForSeconds(spawnInterval);
         while (true)

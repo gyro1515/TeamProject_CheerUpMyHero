@@ -18,6 +18,7 @@ public class UIPause : BaseUI, IBackButtonHandler
     private CanvasGroup _settingPanelCanvasGroup;
     BasePopUpUI _settingPanelPopUpUI;
 
+
     private void Awake()
     {
         _pauseButton.onClick.AddListener(OnPauseButtonClicked);
@@ -30,9 +31,6 @@ public class UIPause : BaseUI, IBackButtonHandler
             //_settingMenuScript.showPanel(null);
         }); 
         InitSpeedBtn();
-        EventManager.Publish(new AddUIStackEvent { ui = this });
-        Debug.Log("너 왜 안돼");
-
     }
     private void Start()
     {
@@ -41,6 +39,7 @@ public class UIPause : BaseUI, IBackButtonHandler
             ApplySpeed(SpeedState.X1); // 웨이브 경고 시 배속 초기화
         };
         GameManager.Instance.enemyHQ.WaveSystem.SetOnWarningEnd(() => ApplySpeed(CurrentSpeed));
+        UIManager.PubishAddUIStackEvent(this);
     }
     private void OnPauseButtonClicked()
     {

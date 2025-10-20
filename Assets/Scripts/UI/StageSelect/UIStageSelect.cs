@@ -28,9 +28,13 @@ public class UIStageSelect : BaseUI, IBackButtonHandler
     [SerializeField] private ScrollRect scrollRect;
     [SerializeField] private RectTransform contentRect; // stageSlotsParent와 동일한 오브젝트 연결
 
+    [Header("운명, 도전 UI")]
+    [SerializeField] private UIDestinyRoullette _destinyUI;
+
     private DeckPresetController _deckPresetController;
     private List<UISelecStageSlot> _allStageSlots = new List<UISelecStageSlot>();
 
+    
     private void Awake()
     {
         _deckPresetController = UIManager.Instance.GetUI<DeckPresetController>();
@@ -40,17 +44,18 @@ public class UIStageSelect : BaseUI, IBackButtonHandler
 
         // 모든 스테이지 슬롯을 생성하고 초기화
         CreateAllStageSlots();
+        
     }
 
     private void OnEnable()
     {
         StartCoroutine(CoScrollToLatestClearedStage());
-        EventManager.Publish(new AddUIStackEvent { ui = this });
+        UIManager.PubishAddUIStackEvent(this);
 
     }
     private void OnDisable()
     {
-        EventManager.Publish(new RemoveUIStackEvent());
+        UIManager.PublishRemoveUIStackEvent();
     }
     /// 모든 메인/서브 스테이지를 하나의 목록으로 생성하는 함수
     private void CreateAllStageSlots()
@@ -149,9 +154,18 @@ public class UIStageSelect : BaseUI, IBackButtonHandler
 
         // PlayerDataManager에 선택된 스테이지 정보를 저장
         PlayerDataManager.Instance.SelectedStageIdx = (mainIdx, subIdx);
- 
+
         // 전투 씬을 로드
-        SceneLoader.Instance.StartLoadScene(SceneState.BattleScene);
+        // SceneLoader.Instance.StartLoadScene(SceneState.BattleScene);
+
+        if (_destinyUI != null)
+        {
+            FadeManager.Instance.SwitchGameObjects(gameObject, UIManager.Instance.GetUI<UIDestinyRoullette>().gameObject);
+        }
+        else
+        {
+            Debug.Log("운명 UI null임");
+        }
     }
 
     void MoveToSelDeck()

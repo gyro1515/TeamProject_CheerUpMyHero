@@ -15,6 +15,7 @@ public class ConstructionUpgradePanel : BasePopUpUI
     [SerializeField] private Button actionButton;
     [SerializeField] private TextMeshProUGUI actionButtonText;
     [SerializeField] private Button closeButton;
+    [SerializeField] private Button destroyButton;
 
     [Header("이미지 및 레벨 텍스트")]
     [SerializeField] private Image currentImage;
@@ -46,6 +47,7 @@ public class ConstructionUpgradePanel : BasePopUpUI
         //_canvasGroup = GetComponent<CanvasGroup>();
         actionButton.onClick.AddListener(OnActionButtonClick);
         closeButton.onClick.AddListener(() => CloseUI());
+        destroyButton.onClick.AddListener(OnDestroyButtonClicked);
     }
 
     // --- 업그레이드 초기화 ---
@@ -53,12 +55,12 @@ public class ConstructionUpgradePanel : BasePopUpUI
     {
         _targetTile = tile;
         _mode = PanelMode.Upgrade;
-
         BuildingUpgradeData currentData = PlayerDataManager.Instance._TileDataHandler.BuildingGridData[tile.X, tile.Y];
         if (currentData == null) return;
 
         _upgradeData = DataManager.Instance.BuildingUpgradeData.GetData(currentData.nextLevel);
 
+        destroyButton.gameObject.SetActive(true);
         UpdatePanelContents();
     }
 
@@ -70,6 +72,7 @@ public class ConstructionUpgradePanel : BasePopUpUI
 
         _constructionData = DataManager.Instance.BuildingUpgradeData.GetData(buildingBaseID);
         currentImage.sprite = tile.emptyTileSprite;
+        destroyButton.gameObject.SetActive(false);
         UpdatePanelContents();
     }
 
@@ -306,7 +309,17 @@ public class ConstructionUpgradePanel : BasePopUpUI
 
         CloseUI();
     }
+    private void OnDestroyButtonClicked()
+    {
+        if (_targetTile != null)
+        {
+            gameObject.SetActive(false);
+            MainScreenBuildingController.Instance.InitiateDestruction(_targetTile);
 
+                MainScreenBuildingController.Instance.DeselectTile();
+                _targetTile = null;
+        }
+    }
     // --- 헬퍼 함수 ---
     private string FormatBuildingName(BuildingUpgradeData data)
         => $"{data.buildingName} Lv.{data.level}";
@@ -318,16 +331,16 @@ public class ConstructionUpgradePanel : BasePopUpUI
         return $"{effectName}: +{valueString}";
     }
 
-    private static readonly Dictionary<ResourceType, string> ResourceNames = new()
+    public static readonly Dictionary<ResourceType, string> ResourceNames = new()
     {
         { ResourceType.Gold, "골드" },
         { ResourceType.Food, "식량" },
         { ResourceType.Wood, "목재" },
-        { ResourceType.Iron, "철" },
+        { ResourceType.Iron, "철괴" },
         { ResourceType.MagicStone, "마력석" }
     };
 
-    private string GetResourceNameInKorean(ResourceType type)                                                          
+    public static string GetResourceNameInKorean(ResourceType type)                                                          
         => ResourceNames.TryGetValue(type, out var name) ? name : type.ToString();
 
 
@@ -368,33 +381,4 @@ public class ConstructionUpgradePanel : BasePopUpUI
 
     private string GetEffectNameInKorean(BuildingEffectType type) // 딕셔너리에서 한글 이름을 가져오는 헬퍼 메서드
         => EffectNames.TryGetValue(type, out var name) ? name : type.ToString();
-
-    // --- 애니메이션 ---
-    /*public override void OpenUI()
-    {
-        base.OpenUI();
-        FadeManager.FadeInUI(_canvasGroup);
-    }*/
-    public override void CloseUI()
-    {
-        /*if (_isClosing) return;
-        _isClosing = true;*/
-        base.CloseUI();
-
-        if (_targetTile != null)
-        {
-            MainScreenBuildingController.Instance.DeselectTile();
-            _targetTile = null;
-        }
-
-        /*FadeManager.FadeOutUI(_canvasGroup);
-        StartCoroutine(CoCloseAfterDelay(0.3f));*/
-    }
-
-    /*private IEnumerator CoCloseAfterDelay(float delay)
-    {
-        yield return new WaitForSecondsRealtime(delay);
-        base.CloseUI();
-        _isClosing = false;
-    }*/
 }

@@ -20,9 +20,9 @@ public abstract class BaseUnit : BaseCharacter
     [field: SerializeField] public float SpawnCooldown { get; set; } = 5f;
     [field: SerializeField] public virtual BaseUnitData UnitData { get; protected set; } 
 
-    public BaseUnitController UnitController { get; private set; }
+    public BaseUnitController UnitController { get; protected set; }
 
-    [field: SerializeField] public UnitType UnitType { get; private set; } // 유닛 타입
+    [field: SerializeField] public UnitType UnitType { get; private set; } // 유닛 타입 ******* 참조된거 다 데이터 테이블에서 가져오도록 수정 필요 *******
     [field: SerializeField] public Rarity UnitRarity { get; private set; } // 유닛 등급
 
     public IDamageable TargetUnit { get; set; }
@@ -81,12 +81,13 @@ public abstract class BaseUnit : BaseCharacter
     protected override void OnEnable()
     {
         base.OnEnable();
+        SetStatMultiplier(1f);
         TargetUnit = null;
     }
     protected override void OnDisable()
     {
         base.OnDisable();
-        SetStatMultiplier(1f); // 몬스터 비활성화시 초기화
+        //SetStatMultiplier(1f); // 몬스터 비활성화시 초기화
         TargetUnit = null;
     }
     protected abstract void SetDataFromExcelData();
@@ -100,6 +101,6 @@ public abstract class BaseUnit : BaseCharacter
         if (IsInvincible) return; // 이미 히트백이라면 리턴
         OnHitBack?.Invoke();
     }
-    public abstract void SetStatMultiplier(float statMultiplier);
+    public abstract void SetStatMultiplier(float statMultiplier, bool isSpawnHero = false);
     
 }

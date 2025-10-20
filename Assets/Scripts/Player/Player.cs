@@ -79,7 +79,7 @@ public class Player : BaseUnit
         SetDataFromExcelData();
         SetStatMultiplier();
     }
-    public override void SetStatMultiplier(float statMultiplier = 1f)
+    public override void SetStatMultiplier(float statMultiplier = 1f, bool isSpawnHero = false)
     {
         if (PlayerData == null) { Debug.LogError("데이터 없음"); return; }
         // 배율에 따른 체력 공격력 세팅
@@ -94,9 +94,10 @@ public class Player : BaseUnit
         CognizanceRange = PlayerData.cognizanceRange * tmpstatMultiplier;
         curMana = MaxMana;
 
-        CapsuleCollider2D col = GetComponent<CapsuleCollider2D>();
+        /*CapsuleCollider2D col = GetComponent<CapsuleCollider2D>();
         // 사이즈는 달라질 수 있으니 활성화 시마다 갱신
-        knockbackHandler.Init(col.size.x * statMultiplier);
+        knockbackHandler.Init(col.size.x * statMultiplier);*/
+        knockbackHandler.Init((TmpSize * tmpstatMultiplier).x);
         // ex: 최대 체력 = 300 / HitBackCount = 3 => 데미지 100이 누적될때마다 히트백
         hitbackHp = MaxHp / PlayerData.hitBack;
         // ex: curHp / hitbackHp  => 2 -> 1 -> 0에서만 히트백이 발생하도록
@@ -104,8 +105,10 @@ public class Player : BaseUnit
     }
     protected override void SetDataFromExcelData()
     {
-        UnitData = DataManager.PlayerData.GetData(curLevel);
-        PlayerData = (PlayerData)UnitData;
+        PlayerData = DataManager.PlayerData.GetData(curLevel);
+        UnitData = PlayerData;
+        Damageable = GetComponent<IDamageable>();
+        BaseController = UnitController;
     }
     protected override float GetStatBonus(StatType type)
     {

@@ -10,5 +10,6 @@ public class StageChallengeData : StageModifierData
     public ValueModificationType valueModificationType;
     public int maxLevel;
     public float valuePerLevel;
+    public int pointPerLevel;
     public ModifierSpecialEffect modifierSpecialEffect;
 }

@@ -9,13 +9,15 @@ public class TileDataHandler
     public BuildingUpgradeData[,] BuildingGridData { get; set; }
     public TileStatus[,] TileStatusGrid { get; private set; }
     public int[,] TileRepairTurnsGrid { get; private set; }
+    public DateTime[,] CooldownEndTimeGrid { get; private set; }
 
-
+    IEventPublisher<GridStateChangedEvent> onGridStateChangedEventPub;
     public TileDataHandler()
     {
         BuildingGridData = new BuildingUpgradeData[5, 5];
         TileStatusGrid = new TileStatus[5, 5];
         TileRepairTurnsGrid = new int[5, 5];
+        CooldownEndTimeGrid = new DateTime[5, 5];
 
         for (int y = 0; y < 5; y++)
         {
@@ -23,8 +25,10 @@ public class TileDataHandler
             {
                 TileStatusGrid[x, y] = TileStatus.Normal;
                 TileRepairTurnsGrid[x, y] = 0;
+                CooldownEndTimeGrid[x, y] = DateTime.MinValue;
             }
         }
+        onGridStateChangedEventPub = EventManager.GetPublisher<GridStateChangedEvent>();
     }
     public void SwapBuildingData(int sourceX, int sourceY, int destX, int destY)
     {
@@ -32,8 +36,12 @@ public class TileDataHandler
         BuildingGridData[destX, destY] = BuildingGridData[sourceX, sourceY];
         BuildingGridData[sourceX, sourceY] = temp;
 
+        var tempCooldown = CooldownEndTimeGrid[destX, destY];
+        CooldownEndTimeGrid[destX, destY] = CooldownEndTimeGrid[sourceX, sourceY];
+        CooldownEndTimeGrid[sourceX, sourceY] = tempCooldown;
+
         Debug.Log($"건물 위치 교체: ({sourceX},{sourceY}) <-> ({destX},{destY})");
-        EventManager.Publish(new GridStateChangedEvent());
+        onGridStateChangedEventPub?.Publish();
     }
     public void MoveBuildingData(int sourceX, int sourceY, int destX, int destY)
     {
@@ -42,9 +50,22 @@ public class TileDataHandler
             BuildingGridData[destX, destY] = BuildingGridData[sourceX, sourceY];
             BuildingGridData[sourceX, sourceY] = null;
 
+            CooldownEndTimeGrid[destX, destY] = CooldownEndTimeGrid[sourceX, sourceY];
+            CooldownEndTimeGrid[sourceX, sourceY] = DateTime.MinValue; // 원래 위치는 초기화
+
             Debug.Log($"건물 위치 이동: ({sourceX},{sourceY}) -> ({destX},{destY})");
-            EventManager.Publish(new GridStateChangedEvent());
+            onGridStateChangedEventPub?.Publish();
         }
+    }
+    public void StartCooldownForBuildingAt(int x, int y)
+    {
+        var building = BuildingGridData[x, y];
+        if (building == null || building.level <= 0) return;
+
+        var cooldownDuration = TimeSpan.FromMinutes(building.level * 3);
+        CooldownEndTimeGrid[x, y] = DateTime.UtcNow + cooldownDuration;
+
+        Debug.Log($"[쿨타임] ({x},{y}) 타일의 {building.buildingName} 쿨타임 시작.");
     }
     public void CalculateTotalBuildingEffects(
     out int bonusMaxFood,
@@ -105,7 +126,17 @@ public class TileDataHandler
         }
 
     }
+    public void ReduceCooldownForBuildingAt(int x, int y, int minutesToReduce)
+    {
+        DateTime currentEndTime = CooldownEndTimeGrid[x, y];
 
+        if (currentEndTime > DateTime.UtcNow)
+        {
+            var reduction = TimeSpan.FromMinutes(minutesToReduce);
+            CooldownEndTimeGrid[x, y] -= reduction;
+            Debug.Log($"({x},{y}) 타일의 쿨타임이 {minutesToReduce}분 감소되었습니다.");
+        }
+    }
 public void DamageRandomTile()
     {
         List<(int x, int y)> availableTiles = new List<(int, int)>();
@@ -141,7 +172,7 @@ public void DamageRandomTile()
         {
             Debug.Log($"패배 페널티: ({randomX}, {randomY}) 타일이 '황폐화'되었습니다.");
         }
-        EventManager.Publish(new GridStateChangedEvent());
+        onGridStateChangedEventPub?.Publish();
     }
 
     public void AdvanceRepairTurn()
@@ -173,7 +204,7 @@ public void DamageRandomTile()
 
         if (wasAnyTileRepaired)
         {
-            EventManager.Publish(new GridStateChangedEvent());
+            onGridStateChangedEventPub?.Publish();
         }
     }
     public List<DetectedSynergy> DetectAllSynergies()

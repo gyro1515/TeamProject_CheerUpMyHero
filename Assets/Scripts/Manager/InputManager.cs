@@ -7,12 +7,14 @@ public class InputManager : SingletonMono<InputManager>
 {
     public struct BackButtonPressedEvent { }
     PlayerInput inputActions;
+    IEventPublisher<BackButtonPressedEvent> OnBackButtonPressedEventPub;
     protected override void Awake()
     {
         base.Awake();
         inputActions = new PlayerInput();
         inputActions.ReturnBtn.Enable();
         inputActions.ReturnBtn.Return.started += OnBack;
+        OnBackButtonPressedEventPub = EventManager.GetPublisher<BackButtonPressedEvent>();
     }
     protected override void OnDestroy()
     {
@@ -23,6 +25,6 @@ public class InputManager : SingletonMono<InputManager>
     void OnBack(InputAction.CallbackContext context)
     {
         Debug.Log("뒤로가기");
-        EventManager.Publish(new BackButtonPressedEvent() );
+        OnBackButtonPressedEventPub.Publish();
     }
 }

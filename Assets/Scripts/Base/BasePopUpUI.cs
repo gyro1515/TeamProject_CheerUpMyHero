@@ -9,24 +9,28 @@ public class BasePopUpUI : BaseUI, IBackButtonHandler
 {
     protected CanvasGroup _canvasGroup;
     bool _isFade = false;
-    IEventPublisher<AddUIStackEvent> onAddUIStack;
-    IEventPublisher<RemoveUIStackEvent> onRemoveUIStack;
+    /*IEventPublisher<AddUIStackEvent> onAddUIStack;
+    IEventPublisher<RemoveUIStackEvent> onRemoveUIStack;*/
     protected virtual void Awake()
     {
         _canvasGroup = GetComponent<CanvasGroup>();
         _canvasGroup.alpha = 0f;
         _canvasGroup.interactable = false;
         _canvasGroup.blocksRaycasts = false;
-        onAddUIStack = EventManager.GetPublisher<AddUIStackEvent>();
-        onRemoveUIStack = EventManager.GetPublisher<RemoveUIStackEvent>();
+        /*onAddUIStack = EventManager.GetPublisher<AddUIStackEvent>();
+        onRemoveUIStack = EventManager.GetPublisher<RemoveUIStackEvent>();*/
+
+        // 게임 오브젝트 비활성화해야 합니다. 그래야 뒤로가기가 정상 작동합니다.
     }
     protected virtual void OnEnable()
     {
-        onAddUIStack.Publish(new AddUIStackEvent { ui = this });
+        //onAddUIStack.Publish(new AddUIStackEvent { ui = this });
+        UIManager.PubishAddUIStackEvent(this);
     }
     protected virtual void OnDisable()
     {
-        onRemoveUIStack.Publish(new RemoveUIStackEvent());
+        //onRemoveUIStack.Publish(new RemoveUIStackEvent());
+        UIManager.PublishRemoveUIStackEvent();
     }
     public override void OpenUI()
     {
