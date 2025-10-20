@@ -24,7 +24,7 @@ public class PlayerUnit : BaseUnit
         UnitManager.Instance.AddUnitList(this, true);
         
     }
-    public override void SetStatMultiplier(float statMultiplier)
+    public override void SetStatMultiplier(float statMultiplier, bool isSpawnHero = false)
     {
         if (UnitData == null) { Debug.LogError("데이터 없음"); return; }
 
@@ -32,12 +32,20 @@ public class PlayerUnit : BaseUnit
         float synergyAttackBonus = PlayerDataManager.Instance.SynergyAllUnitAttackBonus;
         float synergyAttackCooldownReduction = PlayerDataManager.Instance.SynergyUnitAttackCooldownReduction;
 
+        // 영웅 소환시, 소환될 유닛은 스탯 2배
+        float spawnHeroBonus = isSpawnHero ? 2f : 1f;
+
         // 배율에 따른 체력 공격력 세팅
-        MaxHp = UnitData.health * statMultiplier * (1.0f + synergyHealthBonus / 100.0f);
+        MaxHp = UnitData.health * statMultiplier * (1.0f + synergyHealthBonus / 100.0f) * spawnHeroBonus;
         curHp = MaxHp;
-        AtkPower = UnitData.atkPower * statMultiplier * (1.0f + synergyAttackBonus / 100.0f);
-        AttackRate = UnitData.attackRate * statMultiplier * (1.0f - synergyAttackCooldownReduction / 100.0f); // 공격 속도는 크기와 상관없이 배율에 비례
-        float tmpstatMultiplier = Math.Clamp(statMultiplier, 0.8f, 1.2f); // 크기는 너무 작아지거나 커지지 않도록 제한
+        AtkPower = UnitData.atkPower * statMultiplier * (1.0f + synergyAttackBonus / 100.0f) * spawnHeroBonus;
+
+        // 이 시너지 체크 필요
+        AttackRate = UnitData.attackRate / statMultiplier * (1.0f - synergyAttackCooldownReduction / 100.0f) / spawnHeroBonus; // 공격 속도는 시너지  배율에 비례
+        // ********* 공격 속도는 스탯과 비례하지 않죠?? ************
+        //AttackRate = UnitData.attackRate * (1.0f - synergyAttackCooldownReduction / 100.0f); // 공격 속도는 시너지  배율에 비례
+
+        float tmpstatMultiplier = Math.Clamp(statMultiplier * spawnHeroBonus, 0.8f, 1.2f); // 크기는 너무 작아지거나 커지지 않도록 제한
         // 아래는 다 tmpstatMultiplier로 세팅, 크기에 따라 인식/공격 범위도 달라지도록
         gameObject.transform.localScale = TmpSize * tmpstatMultiplier;
         AttackRange = UnitData.attackRange * tmpstatMultiplier;

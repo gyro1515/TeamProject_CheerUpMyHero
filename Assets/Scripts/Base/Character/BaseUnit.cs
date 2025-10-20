@@ -100,6 +100,6 @@ public abstract class BaseUnit : BaseCharacter
         if (IsInvincible) return; // 이미 히트백이라면 리턴
         OnHitBack?.Invoke();
     }
-    public abstract void SetStatMultiplier(float statMultiplier);
+    public abstract void SetStatMultiplier(float statMultiplier, bool isSpawnHero = false);
     
 }

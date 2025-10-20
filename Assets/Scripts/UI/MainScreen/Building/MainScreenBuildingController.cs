@@ -34,7 +34,7 @@ public class MainScreenBuildingController : MonoBehaviour
 
     public bool IsDragging() => _sourceDragTile != null; // 현재 드래그 중인지 확인하는 프로퍼티
 
-
+    IEventPublisher<GridStateChangedEvent> onGridStateChangedEventPub;
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -45,7 +45,9 @@ public class MainScreenBuildingController : MonoBehaviour
         {
             Instance = this;
         }
+        onGridStateChangedEventPub = EventManager.GetPublisher<GridStateChangedEvent>();
         CreateGrid();
+
     }
     private void OnDestroy()
     {
@@ -252,7 +254,7 @@ public class MainScreenBuildingController : MonoBehaviour
         PlayerDataManager.Instance._TileDataHandler.BuildingGridData[tile.X, tile.Y] = level1Data;
         tile.SetBuilding(level1Data);
 
-        EventManager.Publish(new GridStateChangedEvent());
+        onGridStateChangedEventPub.Publish();
 
         Debug.Log($"{tile.X},{tile.Y}에 {level1Data.buildingName} 건설 완료!");
         DeselectTile();
@@ -317,7 +319,7 @@ public class MainScreenBuildingController : MonoBehaviour
         PlayerDataManager.Instance._TileDataHandler.BuildingGridData[tile.X, tile.Y] = next;
         tile.SetBuilding(next);
 
-        EventManager.Publish(new GridStateChangedEvent());
+        onGridStateChangedEventPub.Publish();
 
         Debug.Log($"{current.buildingName} Lv.{current.level} → Lv.{next.level} 업그레이드 완료!");
         DeselectTile();

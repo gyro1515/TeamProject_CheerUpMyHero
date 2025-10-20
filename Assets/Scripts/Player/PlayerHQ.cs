@@ -19,6 +19,9 @@ public class PlayerHQ : BaseHQ
     // 강화 횟수 체크용
     const int upgradeCnt = 3;
 
+    IEventSubscriber<HeroSpawnEvent> onHeroSpawnEventSub;
+
+    bool isSpawnHero = false;
     protected override void Awake()
     {
         base.Awake();
@@ -31,6 +34,8 @@ public class PlayerHQ : BaseHQ
         // 이벤트 채널 캐싱
         onSpawn = EventManager.GetPublisher<SpawnHQEvent>();
         SetUnitDataFromCardDatd();
+        onHeroSpawnEventSub = EventManager.GetSubscriber<HeroSpawnEvent>();
+        onHeroSpawnEventSub.Subscribe(SetIsSpawnHeroActive);
     }
     protected override void Start()
     {
@@ -84,7 +89,7 @@ public class PlayerHQ : BaseHQ
         if (unitSpawnCnt[poolType] >= tmpUpgradeCntByRarity)
         {
             unitSpawnCnt[poolType] = 0;
-            playerUnitGO.GetComponent<BaseUnit>().SetStatMultiplier(statMultiplier);
+            playerUnitGO.GetComponent<BaseUnit>().SetStatMultiplier(statMultiplier, isSpawnHero);
         }
         else if (unitSpawnCnt[poolType] == tmpUpgradeCntByRarity - 1)
         {
@@ -107,5 +112,9 @@ public class PlayerHQ : BaseHQ
             uunitRarityType[cardData.poolType] = cardData.rarity;
             unitSpawnCnt[cardData.poolType] = 0;
         }
+    }
+    void SetIsSpawnHeroActive(HeroSpawnEvent heroSpawnEvent)
+    {
+        isSpawnHero = true;
     }
 }

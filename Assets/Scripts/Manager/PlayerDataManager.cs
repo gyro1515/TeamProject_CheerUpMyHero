@@ -45,7 +45,8 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
     //테스트용 카드 데이터(유닛 테이블로 교체될 예정
     //public Dictionary<int, TempCardData> cardDic;
     public Dictionary<int, BaseUnitData> OwnedCardData { get; private set; } = new Dictionary<int, BaseUnitData>();
-
+    IEventSubscriber<GridStateChangedEvent> onGridStateChangedEvent;
+    IEventSubscriber<BattleEndedEvent> onBattleEndedEvent;
     #region 시너지 보너스
     //모든 시너지 효과를 합산하여 저장할 프로퍼티들
     public float SynergyUnitCooldownReduction { get; private set; }
@@ -77,18 +78,20 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
             InitializeResources();
             LoadDecks();
             TestCardGenerate();
+            onGridStateChangedEvent = EventManager.GetSubscriber<GridStateChangedEvent>();
+            onBattleEndedEvent = EventManager.GetSubscriber<BattleEndedEvent>();
         }
     }
     private void OnEnable()
     {
-        EventManager.Subscribe<GridStateChangedEvent>(OnGridStateChanged);
-        EventManager.Subscribe<BattleEndedEvent>(OnBattleEnded);
+        onGridStateChangedEvent.Subscribe(OnGridStateChanged);
+        onBattleEndedEvent.Subscribe(OnBattleEnded);
     }
 
     private void OnDisable()
     {
-        EventManager.Unsubscribe<GridStateChangedEvent>(OnGridStateChanged);
-        EventManager.Unsubscribe<BattleEndedEvent>(OnBattleEnded);
+        onGridStateChangedEvent.Unsubscribe(OnGridStateChanged);
+        onBattleEndedEvent.Unsubscribe(OnBattleEnded);
     }
     private void OnGridStateChanged(GridStateChangedEvent e)
     {

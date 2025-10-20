@@ -34,6 +34,8 @@ public class UIStageSelect : BaseUI, IBackButtonHandler
     private DeckPresetController _deckPresetController;
     private List<UISelecStageSlot> _allStageSlots = new List<UISelecStageSlot>();
 
+    IEventPublisher<AddUIStackEvent> onAddUIStackEventPub;
+    IEventPublisher<RemoveUIStackEvent> onRemoveUIStackEventPub;
     private void Awake()
     {
         _deckPresetController = UIManager.Instance.GetUI<DeckPresetController>();
@@ -43,17 +45,19 @@ public class UIStageSelect : BaseUI, IBackButtonHandler
 
         // 모든 스테이지 슬롯을 생성하고 초기화
         CreateAllStageSlots();
+        onAddUIStackEventPub = EventManager.GetPublisher<AddUIStackEvent>();
+        onRemoveUIStackEventPub = EventManager.GetPublisher<RemoveUIStackEvent>();
     }
 
     private void OnEnable()
     {
         StartCoroutine(CoScrollToLatestClearedStage());
-        EventManager.Publish(new AddUIStackEvent { ui = this });
+        onAddUIStackEventPub.Publish(new AddUIStackEvent { ui = this });
 
     }
     private void OnDisable()
     {
-        EventManager.Publish(new RemoveUIStackEvent());
+        onRemoveUIStackEventPub.Publish();
     }
     /// 모든 메인/서브 스테이지를 하나의 목록으로 생성하는 함수
     private void CreateAllStageSlots()
