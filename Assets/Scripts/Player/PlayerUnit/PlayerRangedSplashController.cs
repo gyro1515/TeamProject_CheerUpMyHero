@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
+//using System.Diagnostics;
+//using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -13,6 +14,15 @@ public class PlayerRangedSplashController : BaseUnitController
     private Coroutine atkAnimRoutine;
     private bool isAttacking = false;
     Transform targetPos = null;
+
+    // 범위 범위 판별용 우선순위 큐
+    // 플레이어는 최대 힙, 적은 최소 힙 생성해야 함
+    // 플레이어는 x 좌표가 작은 적 우선 선택,
+    // 적은 x 좌표가 큰 플레이어 우선 선택하기 때문
+    PriorityQueue<BaseCharacter, float> selectedUnitPQ = new PriorityQueue<BaseCharacter, float>(isMinHeap: false);
+    const int maxTargets = 5;
+    // 시간 비교용
+    //Stopwatch sw = new Stopwatch();
 
     protected override void Awake()
     {
@@ -41,9 +51,10 @@ public class PlayerRangedSplashController : BaseUnitController
     public override void Attack()
     {
         base.Attack();
+        if (targetPos == null) return;
 
         // UnitManager가 관리하는 전체 적 리스트를 가져옴
-        List<BaseCharacter> allEnemies = UnitManager.Instance.EnemyUnitList;
+        /*List<BaseCharacter> allEnemies = UnitManager.Instance.EnemyUnitList;
         List<BaseCharacter> enemiesInRange = new List<BaseCharacter>();
         int hitCount = 0;
 
@@ -67,11 +78,50 @@ public class PlayerRangedSplashController : BaseUnitController
         {
             enemy.Damageable.TakeDamage(playerUnit.AtkPower);
             hitCount++;
+        }*/
+        // 251020 우선순위 큐로 로직 변경 -> O(n log n) -> O(n log k)
+        // 시간 비교
+        //sw.Restart();
+        // UnitManager가 관리하는 전체 적 리스트를 가져옴
+        List<BaseCharacter> allEnemies = UnitManager.Instance.EnemyUnitList;
+        int hitCount = 0;
+        // 우선 큐 비우기
+        selectedUnitPQ.Clear();
+        // 모든 적을 순회하며 폭발 지점과의 거리를 비교
+        foreach (BaseCharacter enemy in allEnemies)
+        {
+            // 적이 유효한지 검사
+            if (enemy == null || enemy.IsDead) continue;
+            float distance = Mathf.Abs(targetPos.position.x - enemy.transform.position.x);
+            // 공격 범위 내에 있는 적만 우선순위 큐 체크
+            if (distance > playerUnit.AttackRange / 2) continue;
+
+            float priority = enemy.transform.position.x; // x 좌표가 작을수록 우선순위 높음
+            // 최대 타겟 수보다 적게 선택된 경우 무조건 추가
+            if (selectedUnitPQ.Count < maxTargets)
+            {
+                selectedUnitPQ.Enqueue(enemy, priority);
+            }
+            // 최대 타겟 수에 도달한 경우 우선순위 비교 후 교체
+            else if (priority < selectedUnitPQ.Peek().Priority) 
+            {
+                selectedUnitPQ.Dequeue(); // 가장 오른쪽 유닛 제거
+                selectedUnitPQ.Enqueue(enemy, priority); // 새 유닛 추가
+            }
         }
-        
+        hitCount = selectedUnitPQ.Count;
+        // 우선순위 큐에 남아있는 유닛들에게 피해 적용
+        while (selectedUnitPQ.Count > 0)
+        {
+            BaseCharacter target = selectedUnitPQ.Dequeue().Element;
+            target.Damageable.TakeDamage(playerUnit.AtkPower);
+        }
+        // 시간 측정 종료
+        //sw.Stop();
+        //UnityEngine.Debug.Log($"이번 로직 실행시간: {sw.Elapsed.TotalMilliseconds:F6} ms");
         if (hitCount > 0)
         {
-            Debug.Log($"{gameObject.name}이(가) {hitCount}명의 적에게 원거리 범위 공격!");
+            UnityEngine.Debug.Log($"{gameObject.name}이(가) {hitCount}명의 적에게 원거리 범위 공격!");
         }
     }
 

@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class EnemyHealerSplashController : BaseUnitController
@@ -15,6 +16,10 @@ public class EnemyHealerSplashController : BaseUnitController
     private Transform targetPos = null;
     private BaseCharacter HealTarget;
     private float healCognizanceRange = 2f;
+
+    // 자세한 설명은 PlayerRangedSplashController.cs 참고
+    PriorityQueue<BaseCharacter, float> selectedUnitPQ = new PriorityQueue<BaseCharacter, float>(isMinHeap: true);
+    const int maxTargets = 5;
 
     protected override void Awake()
     {
@@ -71,26 +76,57 @@ public class EnemyHealerSplashController : BaseUnitController
         base.Attack();
         if (targetPos == null) return;
 
-        List<BaseCharacter> allPlayerUnits = UnitManager.Instance.PlayerUnitList;
-        List<IDamageable> takeDamages = new List<IDamageable>();
+        /*List<BaseCharacter> allPlayers = UnitManager.Instance.PlayerUnitList;
+        List<BaseCharacter> playersInRange = new List<BaseCharacter>();
         int hitCount = 0;
-
-        // 모든 플레이어 유닛을 순회하며 폭발 지점과의 거리를 비교
-        foreach (BaseCharacter playerUnit in allPlayerUnits)
+        foreach (BaseCharacter player in allPlayers)
         {
-            if (playerUnit == null || playerUnit.IsDead) continue;
-            float distance = Mathf.Abs(targetPos.position.x - playerUnit.transform.position.x);
-            if (distance <= enemyUnit.AttackRange / 2) // 공격 범위의 절반을 폭발 반경으로 사용
+            if (player == null || player.IsDead) continue;
+
+            float distance = Mathf.Abs(targetPos.position.x - player.transform.position.x);
+            if (distance <= enemyUnit.AttackRange / 2)
             {
-                takeDamages.Add(playerUnit.Damageable);
+                playersInRange.Add(player);
                 hitCount++;
             }
         }
-        foreach (IDamageable playerUnit in takeDamages)
+        List<BaseCharacter> hitPlayers = playersInRange
+            .OrderByDescending(player => player.transform.position.x)
+            .Take(5)
+            .ToList();
+        foreach (BaseCharacter enemy in hitPlayers)
         {
-            playerUnit.TakeDamage(enemyUnit.AtkPower);
-        }
+            enemy.Damageable.TakeDamage(enemyUnit.AtkPower);
+            hitCount++;
+        }*/
+        List<BaseCharacter> allPlayers = UnitManager.Instance.PlayerUnitList;
+        int hitCount = 0;
+        selectedUnitPQ.Clear();
+        foreach (BaseCharacter player in allPlayers)
+        {
+            if (player == null || player.IsDead) continue;
 
+            float distance = Mathf.Abs(transform.position.x - player.transform.position.x);
+            if (distance > enemyUnit.AttackRange) continue;
+            float priority = player.transform.position.x; // x 좌표가 클수록 우선순위 높음
+            // 최대 타겟 수보다 적게 선택된 경우 무조건 추가
+            if (selectedUnitPQ.Count < maxTargets)
+            {
+                selectedUnitPQ.Enqueue(player, priority);
+            }
+            // 최대 타겟 수에 도달한 경우 우선순위 비교 후 교체
+            else if (priority < selectedUnitPQ.Peek().Priority)
+            {
+                selectedUnitPQ.Dequeue(); // 가장 오른쪽 유닛 제거
+                selectedUnitPQ.Enqueue(player, priority); // 새 유닛 추가
+            }
+        }
+        hitCount = selectedUnitPQ.Count;
+        while (selectedUnitPQ.Count > 0)
+        {
+            BaseCharacter target = selectedUnitPQ.Dequeue().Element;
+            target.Damageable.TakeDamage(enemyUnit.AtkPower);
+        }
         if (hitCount > 0)
         {
             Debug.Log($"{gameObject.name}이(가) {hitCount}명의 플레이어 유닛에게 원거리 범위 공격!");
@@ -171,7 +207,7 @@ public class EnemyHealerSplashController : BaseUnitController
             yield return null;
         }
 
-        HealTarget.GetComponent<BaseController>().TakeHeal(enemyUnit.AtkPower * 0.5f);
+        HealTarget.Damageable.TakeHeal(enemyUnit.AtkPower * 0.5f);
         animator.speed = 1f;
 
         while (normalizedTime >= 0f && normalizedTime < 1f)

@@ -146,7 +146,7 @@ public class EnemyHealerUnitController : BaseUnitController
             yield return null;
         }
 
-        HealTarget.GetComponent<BaseController>().TakeHeal(enemyUnit.AtkPower * 0.5f);
+        HealTarget.Damageable.TakeHeal(enemyUnit.AtkPower * 0.5f);
         animator.speed = 1f;
 
         while (normalizedTime >= 0f && normalizedTime < 1f)

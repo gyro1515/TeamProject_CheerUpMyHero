@@ -53,4 +53,9 @@ public abstract class BaseHQ : BaseCharacter, IDamageable
     {
         return IsDead;
     }
+
+    public void TakeHeal(float amount)
+    {
+        Debug.LogError("로직 오류 HQ는 힐 대상 아님");
+    }
 }

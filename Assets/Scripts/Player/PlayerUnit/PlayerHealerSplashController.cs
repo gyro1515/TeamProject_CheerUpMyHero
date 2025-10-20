@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class PlayerHealerSplashController : BaseUnitController
@@ -16,6 +17,10 @@ public class PlayerHealerSplashController : BaseUnitController
     IDamageable targetForAttack;
     BaseCharacter HealTarget;
     float healCognizanceRange = 2f;
+
+    // 자세한 설명은 PlayerRangedSplashController.cs 참고
+    PriorityQueue<BaseCharacter, float> selectedUnitPQ = new PriorityQueue<BaseCharacter, float>(isMinHeap: false);
+    const int maxTargets = 5;
     protected override void Awake()
     {
         playerUnit = GetComponent<PlayerUnit>();
@@ -69,8 +74,11 @@ public class PlayerHealerSplashController : BaseUnitController
     public override void Attack()
     {
         base.Attack();
-        List<BaseCharacter> allEnemies = UnitManager.Instance.EnemyUnitList;
-        List<IDamageable> takeDamages = new List<IDamageable>();
+        if (targetPos == null) return;
+
+        // UnitManager가 관리하는 전체 적 리스트를 가져옴
+        /*List<BaseCharacter> allEnemies = UnitManager.Instance.EnemyUnitList;
+        List<BaseCharacter> enemiesInRange = new List<BaseCharacter>();
         int hitCount = 0;
 
         // 모든 적을 순회하며 폭발 지점과의 거리를 비교
@@ -80,14 +88,54 @@ public class PlayerHealerSplashController : BaseUnitController
             float distance = Mathf.Abs(targetPos.position.x - enemy.transform.position.x);
             if (distance <= playerUnit.AttackRange / 2)
             {
-                takeDamages.Add(enemy.Damageable);
-                hitCount++;
+                enemiesInRange.Add(enemy);
             }
         }
-        foreach (IDamageable enemy in takeDamages)
+        // 거리 가까운 5명의 적을 선별
+
+        List<BaseCharacter> hitEnemies = enemiesInRange
+            .OrderBy(enemy => enemy.transform.position.x)
+            .Take(5)
+            .ToList();
+        foreach (BaseCharacter enemy in hitEnemies)
         {
-            enemy.TakeDamage(playerUnit.AtkPower);
+            enemy.Damageable.TakeDamage(playerUnit.AtkPower);
+            hitCount++;
+        }*/
+        List<BaseCharacter> allEnemies = UnitManager.Instance.EnemyUnitList;
+        int hitCount = 0;
+        // 우선 큐 비우기
+        selectedUnitPQ.Clear();
+        // 모든 적을 순회하며 폭발 지점과의 거리를 비교
+        foreach (BaseCharacter enemy in allEnemies)
+        {
+            // 적이 유효한지 검사
+            if (enemy == null || enemy.IsDead) continue;
+            float distance = Mathf.Abs(targetPos.position.x - enemy.transform.position.x);
+            // 공격 범위 내에 있는 적만 우선순위 큐 체크
+            if (distance > playerUnit.AttackRange / 2) continue;
+
+            float priority = enemy.transform.position.x; // x 좌표가 작을수록 우선순위 높음
+            // 최대 타겟 수보다 적게 선택된 경우 무조건 추가
+            if (selectedUnitPQ.Count < maxTargets)
+            {
+                selectedUnitPQ.Enqueue(enemy, priority);
+            }
+            // 최대 타겟 수에 도달한 경우 우선순위 비교 후 교체
+            else if (priority < selectedUnitPQ.Peek().Priority)
+            {
+                selectedUnitPQ.Dequeue(); // 가장 오른쪽 유닛 제거
+                selectedUnitPQ.Enqueue(enemy, priority); // 새 유닛 추가
+            }
         }
+        hitCount = selectedUnitPQ.Count;
+        // 우선순위 큐에 남아있는 유닛들에게 피해 적용
+        while (selectedUnitPQ.Count > 0)
+        {
+            BaseCharacter target = selectedUnitPQ.Dequeue().Element;
+            target.Damageable.TakeDamage(playerUnit.AtkPower);
+        }
+
 
         if (hitCount > 0)
         {
@@ -200,7 +248,7 @@ public class PlayerHealerSplashController : BaseUnitController
         while (normalizedTime < playerUnit.StartAttackNormalizedTime)
         {
             // 공격 애니메이션 중에 타겟이 죽으면 즉시 행동 리셋
-            if (HealTarget == null || HealTarget.GetComponent<IDamageable>().IsDead())
+            if (HealTarget == null || HealTarget.Damageable.IsDead())
             {
                 ResetPlayerUnitController();
                 findTargetRoutine = StartCoroutine(TargetingRoutine());
@@ -209,7 +257,7 @@ public class PlayerHealerSplashController : BaseUnitController
             normalizedTime = GetNormalizedTime(attackStateHash);
             yield return null;
         }
-        HealTarget.GetComponent<BaseController>().TakeHeal(playerUnit.AtkPower * 0.5f);
+        HealTarget.Damageable.TakeHeal(playerUnit.AtkPower * 0.5f);
         animator.speed = 1f;
         while (normalizedTime >= 0f && normalizedTime < 1f)
         {
