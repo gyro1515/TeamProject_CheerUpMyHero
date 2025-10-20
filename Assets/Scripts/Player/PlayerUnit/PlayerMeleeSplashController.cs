@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using UnityEngine;
 
@@ -12,6 +13,11 @@ public class PlayerMeleeSplashController : BaseUnitController
     private Coroutine atkAnimRoutine;
     private bool isAttacking = false;
 
+    // 자세한 설명은 PlayerRangedSplashController.cs 참고
+    PriorityQueue<BaseCharacter, float> selectedUnitPQ = new PriorityQueue<BaseCharacter, float>(isMinHeap: false);
+    const int maxTargets = 5;
+    // 시간 비교용
+    Stopwatch sw = new Stopwatch();
     protected override void Awake()
     {
         playerUnit = GetComponent<PlayerUnit>();
@@ -44,7 +50,7 @@ public class PlayerMeleeSplashController : BaseUnitController
         base.Attack();
 
         // UnitManager가 관리하는 전체 적 리스트를 가져옴
-        List<BaseCharacter> allEnemies = UnitManager.Instance.EnemyUnitList;
+        /*List<BaseCharacter> allEnemies = UnitManager.Instance.EnemyUnitList;
         List<BaseCharacter> enemiesInRange = new List<BaseCharacter>();
         int hitCount = 0;
 
@@ -69,11 +75,44 @@ public class PlayerMeleeSplashController : BaseUnitController
         {
             enemy.Damageable.TakeDamage(playerUnit.AtkPower);
             hitCount++;
-        }
+        }*/
+        // 251020 우선순위 큐로 로직 변경 -> O(n log n) -> O(n log k)
+        List<BaseCharacter> allEnemies = UnitManager.Instance.EnemyUnitList;
+        int hitCount = 0;
+        // 우선 큐 비우기
+        selectedUnitPQ.Clear();
+        // 모든 적을 순회하며 폭발 지점과의 거리를 비교
+        foreach (BaseCharacter enemy in allEnemies)
+        {
+            // 적이 유효한지 검사
+            if (enemy == null || enemy.IsDead) continue;
+            float distance = Mathf.Abs(transform.position.x - enemy.transform.position.x);
+            // 공격 범위 내에 있는 적만 우선순위 큐 체크
+            if (distance > playerUnit.AttackRange) continue;
 
+            float priority = enemy.transform.position.x; // x 좌표가 작을수록 우선순위 높음
+            // 최대 타겟 수보다 적게 선택된 경우 무조건 추가
+            if (selectedUnitPQ.Count < maxTargets)
+            {
+                selectedUnitPQ.Enqueue(enemy, priority);
+            }
+            // 최대 타겟 수에 도달한 경우 우선순위 비교 후 교체
+            else if (priority < selectedUnitPQ.Peek().Priority)
+            {
+                selectedUnitPQ.Dequeue(); // 가장 오른쪽 유닛 제거
+                selectedUnitPQ.Enqueue(enemy, priority); // 새 유닛 추가
+            }
+        }
+        hitCount = selectedUnitPQ.Count;
+        // 우선순위 큐에 남아있는 유닛들에게 피해 적용
+        while (selectedUnitPQ.Count > 0)
+        {
+            BaseCharacter target = selectedUnitPQ.Dequeue().Element;
+            target.Damageable.TakeDamage(playerUnit.AtkPower);
+        }
         if (hitCount > 0)
         {
-            Debug.Log($"{gameObject.name}이(가) {hitCount}명의 적에게 범위 공격!");
+            UnityEngine.Debug.Log($"{gameObject.name}이(가) {hitCount}명의 적에게 범위 공격!");
         }
     }
     public override void Dead()
@@ -110,7 +149,7 @@ public class PlayerMeleeSplashController : BaseUnitController
     #region Coroutines
     private IEnumerator TargetingRoutine()
     {
-        WaitForSeconds wait = new WaitForSeconds(0.2f);
+        WaitForSeconds wait = new WaitForSeconds(0.1f);
         yield return null;
         while (true)
         {
@@ -178,6 +217,7 @@ public class PlayerMeleeSplashController : BaseUnitController
         }
 
         Attack();
+        playerUnit.TargetUnit = null; // 다른 컨트롤러도 추가 필요@@@@
 
         animator.speed = 1f;
         while (normalizedTime >= 0f && normalizedTime < 1f)
@@ -185,7 +225,6 @@ public class PlayerMeleeSplashController : BaseUnitController
             normalizedTime = GetNormalizedTime(attackStateHash);
             yield return null;
         }
-        playerUnit.TargetUnit = null; // 다른 컨트롤러도 추가 필요@@@@
         findTargetRoutine = StartCoroutine(TargetingRoutine());
         isAttacking = false;
     }

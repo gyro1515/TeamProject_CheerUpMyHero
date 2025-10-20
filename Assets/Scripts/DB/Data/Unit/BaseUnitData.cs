@@ -24,6 +24,7 @@ public class BaseUnitData : MonoData
     public UnitSynergyType synergyType; // 비트마스크 방식 도입
     public int cost;
     public string description = "설명 추가해야 합니다!!";
+    public UnitClass unitClass = UnitClass.Normal;
 }
 public enum Rarity
 {
@@ -62,4 +63,10 @@ public enum UnitSynergyType
     Frost       = 1 << 7,  // 냉기
     Burn        = 1 << 8,  // 화상
     Poison      = 1 << 9,  // 중독
+}
+public enum UnitClass
+{
+    Normal,
+    Hero,
+    Boss
 }

@@ -75,7 +75,7 @@ public class EnemyHealerUnitController : BaseUnitController
 
     private IEnumerator TargetingRoutine()
     {
-        WaitForSeconds wait = new WaitForSeconds(0.2f);
+        WaitForSeconds wait = new WaitForSeconds(0.1f);
         yield return null;
         while (true)
         {
@@ -146,7 +146,7 @@ public class EnemyHealerUnitController : BaseUnitController
             yield return null;
         }
 
-        HealTarget.GetComponent<BaseController>().TakeHeal(enemyUnit.AtkPower * 0.5f);
+        HealTarget.Damageable.TakeHeal(enemyUnit.AtkPower * 0.5f);
         animator.speed = 1f;
 
         while (normalizedTime >= 0f && normalizedTime < 1f)
@@ -179,6 +179,7 @@ public class EnemyHealerUnitController : BaseUnitController
         }
         Attack();
         animator.speed = 1f;
+        enemyUnit.TargetUnit = null;
 
         while (normalizedTime >= 0f && normalizedTime < 1f)
         {

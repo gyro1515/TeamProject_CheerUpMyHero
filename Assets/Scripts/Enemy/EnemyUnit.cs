@@ -20,7 +20,7 @@ public class EnemyUnit : BaseUnit
         UnitManager.Instance.AddUnitList(this, false);
         //EventManager.Instance.Publish(new SpawnUnitEvent { baseUnit = this, isPlayer = false });
     }
-    public override void SetStatMultiplier(float statMultiplier)
+    public override void SetStatMultiplier(float statMultiplier, bool isSpawnHero = false)
     {
         if (UnitData == null) { Debug.LogError("데이터 없음"); return; }
 

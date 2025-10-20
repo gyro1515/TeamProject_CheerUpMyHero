@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+//using System.Diagnostics;
 using System.Linq;
 using UnityEngine;
 
@@ -13,7 +14,11 @@ public class EnemyRangedSplashController : BaseUnitController
     private Coroutine atkAnimRoutine;
     private bool isAttacking = false;
     Transform targetPos = null;
-
+    // 자세한 설명은 PlayerRangedSplashController.cs 참고
+    PriorityQueue<BaseCharacter, float> selectedUnitPQ = new PriorityQueue<BaseCharacter, float>(isMinHeap: true);
+    const int maxTargets = 5;
+    // 시간 비교용
+    //Stopwatch sw = new Stopwatch();
     protected override void Awake()
     {
         enemyUnit = GetComponent<EnemyUnit>();
@@ -41,8 +46,9 @@ public class EnemyRangedSplashController : BaseUnitController
     public override void Attack()
     {
         base.Attack();
+        if (targetPos == null) return;
 
-        List<BaseCharacter> allPlayers = UnitManager.Instance.PlayerUnitList;
+        /*List<BaseCharacter> allPlayers = UnitManager.Instance.PlayerUnitList;
         List<BaseCharacter> playersInRange = new List<BaseCharacter>();
         int hitCount = 0;
         foreach (BaseCharacter player in allPlayers)
@@ -57,17 +63,46 @@ public class EnemyRangedSplashController : BaseUnitController
             }
         }
         List<BaseCharacter> hitPlayers = playersInRange
-            .OrderBy(enemy => enemy.transform.position.x)
+            .OrderByDescending(player => player.transform.position.x)
             .Take(5)
             .ToList();
         foreach (BaseCharacter enemy in hitPlayers)
         {
             enemy.Damageable.TakeDamage(enemyUnit.AtkPower);
             hitCount++;
+        }*/
+        // 251020 우선순위 큐로 로직 변경 -> O(n log n) -> O(n log k)
+        List<BaseCharacter> allPlayers = UnitManager.Instance.PlayerUnitList;
+        int hitCount = 0;
+        selectedUnitPQ.Clear();
+        foreach (BaseCharacter player in allPlayers)
+        {
+            if (player == null || player.IsDead) continue;
+
+            float distance = Mathf.Abs(targetPos.position.x - player.transform.position.x);
+            if (distance > enemyUnit.AttackRange / 2) continue;
+            float priority = player.transform.position.x; // x 좌표가 클수록 우선순위 높음
+            // 최대 타겟 수보다 적게 선택된 경우 무조건 추가
+            if (selectedUnitPQ.Count < maxTargets)
+            {
+                selectedUnitPQ.Enqueue(player, priority);
+            }
+            // 최대 타겟 수에 도달한 경우 우선순위 비교 후 교체
+            else if (priority < selectedUnitPQ.Peek().Priority)
+            {
+                selectedUnitPQ.Dequeue(); // 가장 오른쪽 유닛 제거
+                selectedUnitPQ.Enqueue(player, priority); // 새 유닛 추가
+            }
+        }
+        hitCount = selectedUnitPQ.Count;
+        while (selectedUnitPQ.Count > 0)
+        {
+            BaseCharacter target = selectedUnitPQ.Dequeue().Element;
+            target.Damageable.TakeDamage(enemyUnit.AtkPower);
         }
         if (hitCount > 0)
         {
-            Debug.Log($"{gameObject.name}이(가) {hitCount}명의 아군에게 원거리 범위 공격!");
+            UnityEngine.Debug.Log($"{gameObject.name}이(가) {hitCount}명의 아군에게 원거리 범위 공격!");
         }
     }
 
@@ -98,7 +133,7 @@ public class EnemyRangedSplashController : BaseUnitController
 
     private IEnumerator TargetingRoutine()
     {
-        WaitForSeconds wait = new WaitForSeconds(0.2f);
+        WaitForSeconds wait = new WaitForSeconds(0.1f);
         yield return null;
         while (true)
         {
@@ -165,6 +200,7 @@ public class EnemyRangedSplashController : BaseUnitController
         }
 
         Attack();
+        enemyUnit.TargetUnit = null;
 
         animator.speed = 1f;
         while (normalizedTime >= 0f && normalizedTime < 1f)

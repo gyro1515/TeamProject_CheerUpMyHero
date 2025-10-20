@@ -22,7 +22,7 @@ public abstract class BaseUnit : BaseCharacter
 
     public BaseUnitController UnitController { get; protected set; }
 
-    [field: SerializeField] public UnitType UnitType { get; private set; } // 유닛 타입
+    [field: SerializeField] public UnitType UnitType { get; private set; } // 유닛 타입 ******* 참조된거 다 데이터 테이블에서 가져오도록 수정 필요 *******
     [field: SerializeField] public Rarity UnitRarity { get; private set; } // 유닛 등급
 
     public IDamageable TargetUnit { get; set; }
@@ -100,6 +100,6 @@ public abstract class BaseUnit : BaseCharacter
         if (IsInvincible) return; // 이미 히트백이라면 리턴
         OnHitBack?.Invoke();
     }
-    public abstract void SetStatMultiplier(float statMultiplier);
+    public abstract void SetStatMultiplier(float statMultiplier, bool isSpawnHero = false);
     
 }

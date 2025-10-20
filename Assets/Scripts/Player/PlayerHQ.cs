@@ -19,6 +19,9 @@ public class PlayerHQ : BaseHQ
     // 강화 횟수 체크용
     const int upgradeCnt = 3;
 
+    IEventSubscriber<HeroSpawnEvent> onHeroSpawnEventSub;
+
+    bool isSpawnHero = false;
     protected override void Awake()
     {
         base.Awake();
@@ -31,6 +34,8 @@ public class PlayerHQ : BaseHQ
         // 이벤트 채널 캐싱
         onSpawn = EventManager.GetPublisher<SpawnHQEvent>();
         SetUnitDataFromCardDatd();
+        onHeroSpawnEventSub = EventManager.GetSubscriber<HeroSpawnEvent>();
+        onHeroSpawnEventSub.Subscribe(SetIsSpawnHeroActive);
     }
     protected override void Start()
     {
@@ -42,6 +47,14 @@ public class PlayerHQ : BaseHQ
         ev.isPlayer = true;
         onSpawn.Publish(ev);
         base.Start();
+        // 아래는 테스트 코드
+        /*GameObject hero = ObjectPoolManager.Instance.Get(PoolType.Hero_Unit1);
+        hero.transform.position = GetRandomSpawnPos();*/
+        /*for (int i = 0; i < 20; i++)
+        {
+            hero = ObjectPoolManager.Instance.Get(PoolType.Allies_Unit1);
+            hero.transform.position = GetRandomSpawnPos();
+        }*/
     }
     public override void Dead()
     {
@@ -76,7 +89,7 @@ public class PlayerHQ : BaseHQ
         if (unitSpawnCnt[poolType] >= tmpUpgradeCntByRarity)
         {
             unitSpawnCnt[poolType] = 0;
-            playerUnitGO.GetComponent<BaseUnit>().SetStatMultiplier(statMultiplier);
+            playerUnitGO.GetComponent<BaseUnit>().SetStatMultiplier(statMultiplier, isSpawnHero);
         }
         else if (unitSpawnCnt[poolType] == tmpUpgradeCntByRarity - 1)
         {
@@ -99,5 +112,9 @@ public class PlayerHQ : BaseHQ
             uunitRarityType[cardData.poolType] = cardData.rarity;
             unitSpawnCnt[cardData.poolType] = 0;
         }
+    }
+    void SetIsSpawnHeroActive(HeroSpawnEvent heroSpawnEvent)
+    {
+        isSpawnHero = true;
     }
 }

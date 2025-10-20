@@ -17,13 +17,15 @@ public interface IEventPublisher<T> where T : struct
     void Publish(T eventData);
     public void Publish();
 }
-public interface IEventClearable
-{
-    void Clear();
-}
+
 //public class EventManager : SingletonMono<EventManager>, ISceneResettable // 2안
 public class EventManager : SingletonMono<EventManager>
 {
+    // 이 인터페이스는 내부에서만 사용
+    private interface IEventClearable
+    {
+        void Clear();
+    }
     // EventChannel은 두 인터페이스를 모두 구현
     private class EventChannel<T> : IEventClearable, IEventSubscriber<T>, IEventPublisher<T> where T : struct
     {
@@ -115,13 +117,14 @@ public class EventManager : SingletonMono<EventManager>
     {
         GetChannel<T>().Subscribe(callback);
     }
-    public static void Unsubscribe<T>(Action<T> callback) where T : struct
+    // 제거 완
+    /*public static void Unsubscribe<T>(Action<T> callback) where T : struct
     {
         if (Instance._channels.TryGetValue(typeof(T), out var channel))
         {
             (channel as EventChannel<T>)?.Unsubscribe(callback);
         }
-    }
+    }*/
     // 이벤트 발행, 한 번만 실행할 때 사용
     public static void Publish<T>(T eventData) where T : struct
     {
