@@ -22,7 +22,7 @@ public class UnitManager : SingletonMono<UnitManager>
     LayerMask enemyLayerMask;
 
     //미니맵에서 유닛이 스폰될때와 죽을때를 구독 중
-    public event Action<BaseCharacter, bool> onUnitSpawn;
+    public event Action<BaseUnit, bool> onUnitSpawn;
     public event Action<BaseCharacter, bool> onUnitDeSpawn;
 
 
@@ -50,7 +50,10 @@ public class UnitManager : SingletonMono<UnitManager>
 
         unit.ListIndex = unitList.Count;
         unitList.Add(unit);
-        onUnitSpawn?.Invoke(unit, isPlayer);
+        if(unit is BaseUnit baseUnit)
+        {
+            onUnitSpawn?.Invoke(baseUnit, isPlayer);
+        }
     }
     public void RemoveUnitFromList(BaseCharacter unit, bool isPlayer)
     {

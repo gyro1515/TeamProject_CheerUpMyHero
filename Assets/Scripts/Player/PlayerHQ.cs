@@ -42,6 +42,7 @@ public class PlayerHQ : BaseHQ
         ev.isPlayer = true;
         onSpawn.Publish(ev);
         base.Start();
+        
     }
     public override void Dead()
     {

@@ -17,7 +17,9 @@ public class UIMiniMap : MonoBehaviour
     //private float offsetPlus = 3.5f;
 
     private Color32 playerColor = new Color32(0, 0, 255, 100);
+    private Color32 heroColor = new Color32(0, 0, 130, 255);
     private Color32 enemyColor = new Color32(255, 0, 0, 135);
+    private Color32 bossColor = new Color32(130, 0, 0, 255);
 
     private float wordWidth;
     private float uIWidth;
@@ -94,11 +96,21 @@ public class UIMiniMap : MonoBehaviour
         return minmapPos;
     }
 
-    void AddToMinMapUnitList(BaseCharacter unit, bool isPlayer)
+    //void AddToMinMapUnitList(BaseCharacter unit, bool isPlayer)
+    void AddToMinMapUnitList(BaseUnit unit, bool isPlayer)
     {
         Dictionary<BaseCharacter, UIMiniMapIcon> unitPair = isPlayer ? playerUnitIconsPair : enemyUnitIconsPair;
         Color unitColor = isPlayer ? playerColor : enemyColor;
-
+        // 영웅/보스는 색상 다르게
+        switch (unit.UnitData.unitClass)
+        {
+            case UnitClass.Hero:
+                unitColor = heroColor;
+                break;
+            case UnitClass.Boss:
+                unitColor = bossColor;
+                break;
+        }
         GameObject obj = ObjectPoolManager.Instance.Get(PoolType.UIMinimapIcon);
 
         //부모 변경해야 캔버스에 표시됨. 반대로 반납할 때는 부모 원위치 필요
