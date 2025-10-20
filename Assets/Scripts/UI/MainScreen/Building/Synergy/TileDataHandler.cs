@@ -28,6 +28,7 @@ public class TileDataHandler
                 CooldownEndTimeGrid[x, y] = DateTime.MinValue;
             }
         }
+        onGridStateChangedEventPub = EventManager.GetPublisher<GridStateChangedEvent>();
     }
     public void SwapBuildingData(int sourceX, int sourceY, int destX, int destY)
     {
@@ -40,8 +41,7 @@ public class TileDataHandler
         CooldownEndTimeGrid[sourceX, sourceY] = tempCooldown;
 
         Debug.Log($"건물 위치 교체: ({sourceX},{sourceY}) <-> ({destX},{destY})");
-        if(onGridStateChangedEventPub == null) onGridStateChangedEventPub = EventManager.GetPublisher<GridStateChangedEvent>();
-        onGridStateChangedEventPub.Publish();
+        onGridStateChangedEventPub?.Publish();
     }
     public void MoveBuildingData(int sourceX, int sourceY, int destX, int destY)
     {
@@ -54,8 +54,7 @@ public class TileDataHandler
             CooldownEndTimeGrid[sourceX, sourceY] = DateTime.MinValue; // 원래 위치는 초기화
 
             Debug.Log($"건물 위치 이동: ({sourceX},{sourceY}) -> ({destX},{destY})");
-            if (onGridStateChangedEventPub == null) onGridStateChangedEventPub = EventManager.GetPublisher<GridStateChangedEvent>();
-            onGridStateChangedEventPub.Publish();
+            onGridStateChangedEventPub?.Publish();
         }
     }
     public void StartCooldownForBuildingAt(int x, int y)
@@ -173,8 +172,7 @@ public void DamageRandomTile()
         {
             Debug.Log($"패배 페널티: ({randomX}, {randomY}) 타일이 '황폐화'되었습니다.");
         }
-        if (onGridStateChangedEventPub == null) onGridStateChangedEventPub = EventManager.GetPublisher<GridStateChangedEvent>();
-        onGridStateChangedEventPub.Publish();
+        onGridStateChangedEventPub?.Publish();
     }
 
     public void AdvanceRepairTurn()
@@ -206,8 +204,7 @@ public void DamageRandomTile()
 
         if (wasAnyTileRepaired)
         {
-            if (onGridStateChangedEventPub == null) onGridStateChangedEventPub = EventManager.GetPublisher<GridStateChangedEvent>();
-            onGridStateChangedEventPub.Publish();
+            onGridStateChangedEventPub?.Publish();
         }
     }
     public List<DetectedSynergy> DetectAllSynergies()

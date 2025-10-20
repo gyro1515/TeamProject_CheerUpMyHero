@@ -81,12 +81,13 @@ public abstract class BaseUnit : BaseCharacter
     protected override void OnEnable()
     {
         base.OnEnable();
+        SetStatMultiplier(1f);
         TargetUnit = null;
     }
     protected override void OnDisable()
     {
         base.OnDisable();
-        SetStatMultiplier(1f); // 몬스터 비활성화시 초기화
+        //SetStatMultiplier(1f); // 몬스터 비활성화시 초기화
         TargetUnit = null;
     }
     protected abstract void SetDataFromExcelData();

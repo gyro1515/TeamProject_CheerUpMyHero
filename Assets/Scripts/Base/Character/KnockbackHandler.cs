@@ -95,7 +95,7 @@ public class KnockbackHandler : MonoBehaviour
         // 일어서야 할 때 캐릭터가 죽은 상태라면
         if (baseUnit && baseUnit.IsDead)
         {
-            Debug.Log("죽음");
+            //Debug.Log("죽음");
             OnHitBackActive?.Invoke(false);
             if (baseUnit.TryGetComponent<Player>(out Player player))
                 Debug.Log("플레이어 넉백 후 사망");
@@ -104,7 +104,7 @@ public class KnockbackHandler : MonoBehaviour
             yield break;
         }
         // 죽지 않았다면
-        if(baseUnit.BaseController.Animator) 
+        if(baseUnit && baseUnit.BaseController && baseUnit.BaseController.Animator) 
             baseUnit.BaseController.Animator.SetBool(baseUnit.AnimationData.GetUpParameterHash, true);
         yield return new WaitForSeconds(getUpTime);
         if (baseUnit == null || baseUnit.gameObject == null) yield break;

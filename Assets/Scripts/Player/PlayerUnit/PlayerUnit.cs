@@ -90,10 +90,15 @@ public class PlayerUnit : BaseUnit
             switch (UnitData.attackType)
             {
                 case UnitAttackType.Target:
-                    UnitController = gameObject.AddComponent<PlayerHealerUnitController>();
+                    UnitController = gameObject.AddComponent<EnemyHealerUnitController>();
                     break;
                 case UnitAttackType.Area:
+                case UnitAttackType.PierceArea:
                     UnitController = gameObject.AddComponent<PlayerHealerSplashController>();
+                    break;
+                default:
+                    Debug.LogError("유닛 데이터 테이블 오류, 일단 단일 타겟 힐러 컨트롤러 부착");
+                    UnitController = gameObject.AddComponent<PlayerHealerUnitController>();
                     break;
             }
 

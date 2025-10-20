@@ -86,10 +86,11 @@ public class PlayerHQ : BaseHQ
         // 4번 소환할 때마다 강화
         // 251015 변경 -> 커먼 유닛은 8번, 레어는 4번
         int tmpUpgradeCntByRarity = upgradeCntByRarity[(int)unitRarity];
+        bool isLegendary = false;
         if (unitSpawnCnt[poolType] >= tmpUpgradeCntByRarity)
         {
             unitSpawnCnt[poolType] = 0;
-            playerUnitGO.GetComponent<BaseUnit>().SetStatMultiplier(statMultiplier, isSpawnHero);
+            isLegendary = true;
         }
         else if (unitSpawnCnt[poolType] == tmpUpgradeCntByRarity - 1)
         {
@@ -97,6 +98,8 @@ public class PlayerHQ : BaseHQ
             uiSlot.SetOutLineForSpawnLegendaryUnit();
             Debug.Log("다음 소환시 전설 유닛 소환");
         }
+        playerUnitGO.GetComponent<BaseUnit>().SetStatMultiplier(isLegendary ? statMultiplier : 1f, isSpawnHero);
+
     }
     void SetUnitDataFromCardDatd()
     {
