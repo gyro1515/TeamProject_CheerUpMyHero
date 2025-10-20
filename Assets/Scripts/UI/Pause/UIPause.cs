@@ -105,7 +105,7 @@ public class UIPause : BaseUI, IBackButtonHandler
     {
         Time.timeScale = (int)speed;
         speedText.text = $"x{(int)speed}";
-        Debug.Log($"[SpeedBtn] 현재 배속: {speed}");
+        //Debug.Log($"[SpeedBtn] 현재 배속: {speed}");
     }
 
     public void OnBackPressed()
