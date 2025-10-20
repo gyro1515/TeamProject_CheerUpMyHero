@@ -42,7 +42,14 @@ public class PlayerHQ : BaseHQ
         ev.isPlayer = true;
         onSpawn.Publish(ev);
         base.Start();
-        
+        // 아래는 테스트 코드
+        /*GameObject hero = ObjectPoolManager.Instance.Get(PoolType.Hero_Unit1);
+        hero.transform.position = GetRandomSpawnPos();*/
+        /*for (int i = 0; i < 20; i++)
+        {
+            hero = ObjectPoolManager.Instance.Get(PoolType.Allies_Unit1);
+            hero.transform.position = GetRandomSpawnPos();
+        }*/
     }
     public override void Dead()
     {

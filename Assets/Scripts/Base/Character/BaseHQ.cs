@@ -45,6 +45,7 @@ public abstract class BaseHQ : BaseCharacter, IDamageable
     public Vector3 GetRandomSpawnPos()
     {
         Vector3 spawnPos = gameObject.transform.position;
+        //spawnPos.x += UnityEngine.Random.Range(-0.5f, 0.5f); // 테스트용 코드, 한번에 소환할 떄 x축 약간 랜덤하게 퍼지도록
         spawnPos.y += UnityEngine.Random.Range(tmpMinY, tmpMaxY) / 100f;
         return spawnPos;
     }

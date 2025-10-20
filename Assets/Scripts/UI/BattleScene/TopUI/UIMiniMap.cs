@@ -17,9 +17,9 @@ public class UIMiniMap : MonoBehaviour
     //private float offsetPlus = 3.5f;
 
     private Color32 playerColor = new Color32(0, 0, 255, 100);
-    private Color32 heroColor = new Color32(0, 0, 130, 255);
+    private Color32 heroColor = new Color32(255, 255, 0, 255);
     private Color32 enemyColor = new Color32(255, 0, 0, 135);
-    private Color32 bossColor = new Color32(130, 0, 0, 255);
+    private Color32 bossColor = new Color32(180, 0, 255, 255);
 
     private float wordWidth;
     private float uIWidth;
@@ -101,23 +101,36 @@ public class UIMiniMap : MonoBehaviour
     {
         Dictionary<BaseCharacter, UIMiniMapIcon> unitPair = isPlayer ? playerUnitIconsPair : enemyUnitIconsPair;
         Color unitColor = isPlayer ? playerColor : enemyColor;
+        bool isHeroOrBoss = false;
         // 영웅/보스는 색상 다르게
         switch (unit.UnitData.unitClass)
         {
             case UnitClass.Hero:
                 unitColor = heroColor;
+                isHeroOrBoss = true;
                 break;
             case UnitClass.Boss:
                 unitColor = bossColor;
+                isHeroOrBoss = true;
                 break;
         }
         GameObject obj = ObjectPoolManager.Instance.Get(PoolType.UIMinimapIcon);
 
         //부모 변경해야 캔버스에 표시됨. 반대로 반납할 때는 부모 원위치 필요
         //obj.transform.SetParent(unitsTransform, false); // 두번째 인자 false 하면 기존 월드좌표를 리셋하고 부모를 바꿈
-        obj.transform.SetParent(unitsTransform); // 두번째 인자 false 하면 기존 월드좌표를 리셋하고 부모를 바꿈
+        //obj.transform.SetParent(unitsTransform); // 두번째 인자 false 하면 기존 월드좌표를 리셋하고 부모를 바꿈
         UIMiniMapIcon icon = obj.GetComponent<UIMiniMapIcon>();
-        icon.ResetRectTransform();
+        // 보스 및 영웅 아이콘 크기 조정, 트랜스폼 부모도 다르게
+        if (isHeroOrBoss)
+        {
+            obj.transform.SetParent(playerTransform); // 두번째 인자 false 하면 기존 월드좌표를 리셋하고 부모를 바꿈
+            icon.ResetRectTransformForHeroAndBoss();
+        }
+        else
+        {
+            obj.transform.SetParent(unitsTransform); // 두번째 인자 false 하면 기존 월드좌표를 리셋하고 부모를 바꿈
+            icon.ResetRectTransform();
+        }
         icon.SetColor(unitColor);
         unitPair.Add(unit, icon);
     }

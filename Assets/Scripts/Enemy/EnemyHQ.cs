@@ -56,7 +56,14 @@ public class EnemyHQ : BaseHQ
 
         // 계속해서 유닛을 스폰하도록
         SetSpawnEnemyActive(true);
-        
+        // 아래는 테스트 코드
+        /*GameObject hero = ObjectPoolManager.Instance.Get(PoolType.EnemyUnit10);
+        hero.transform.position = GetRandomSpawnPos();
+        for (int i = 0; i < 30; i++)
+        {
+            hero = ObjectPoolManager.Instance.Get(PoolType.EnemyUnit1);
+            hero.transform.position = GetRandomSpawnPos();
+        }*/
     }
     protected override void Update()
     {
