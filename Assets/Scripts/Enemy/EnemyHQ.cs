@@ -56,6 +56,26 @@ public class EnemyHQ : BaseHQ
 
         // 계속해서 유닛을 스폰하도록
         SetSpawnEnemyActive(true);
+        for (int i = 0; i < 10; i++)
+        {
+            GameObject playerUnitGO = ObjectPoolManager.Instance.Get(PoolType.EnemyUnit1);
+            playerUnitGO.transform.position = GetRandomSpawnPos();
+
+            Vector3 testPos = playerUnitGO.transform.position;
+            testPos.x += i * 1f;
+            playerUnitGO.transform.position = testPos; // 테스트용
+
+            playerUnitGO = ObjectPoolManager.Instance.Get(PoolType.EnemyUnit2);
+            playerUnitGO.transform.position = GetRandomSpawnPos();
+            testPos = playerUnitGO.transform.position;
+            testPos.x += i * 1f;
+            playerUnitGO.transform.position = testPos; // 테스트용
+            playerUnitGO = ObjectPoolManager.Instance.Get(PoolType.EnemyUnit3);
+            playerUnitGO.transform.position = GetRandomSpawnPos();
+            testPos = playerUnitGO.transform.position;
+            testPos.x += i * 1f;
+            playerUnitGO.transform.position = testPos; // 테스트용
+        }
     }
     protected override void Update()
     {
@@ -107,7 +127,7 @@ public class EnemyHQ : BaseHQ
     }
     IEnumerator SpawnUnitRoutine()
     {
-        yield return new WaitForSeconds(0.2f); // 잠깐 유예시간 주기
+        yield return new WaitForSeconds(0.1f); // 잠깐 유예시간 주기
 
         WaitForSeconds wait = new WaitForSeconds(spawnInterval);
         while (true)

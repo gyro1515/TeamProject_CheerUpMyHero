@@ -152,7 +152,7 @@ public class PlayerRangedSplashController : BaseUnitController
 
     private IEnumerator TargetingRoutine()
     {
-        WaitForSeconds wait = new WaitForSeconds(0.2f);
+        WaitForSeconds wait = new WaitForSeconds(0.1f);
         yield return null;
         while (true)
         {
@@ -222,7 +222,7 @@ public class PlayerRangedSplashController : BaseUnitController
         }
 
         Attack();
-
+        playerUnit.TargetUnit = null;
         animator.speed = 1f;
         while (normalizedTime >= 0f && normalizedTime < 1f)
         {

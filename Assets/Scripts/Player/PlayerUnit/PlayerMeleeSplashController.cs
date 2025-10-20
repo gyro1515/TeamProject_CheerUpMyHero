@@ -149,7 +149,7 @@ public class PlayerMeleeSplashController : BaseUnitController
     #region Coroutines
     private IEnumerator TargetingRoutine()
     {
-        WaitForSeconds wait = new WaitForSeconds(0.2f);
+        WaitForSeconds wait = new WaitForSeconds(0.1f);
         yield return null;
         while (true)
         {
@@ -217,6 +217,7 @@ public class PlayerMeleeSplashController : BaseUnitController
         }
 
         Attack();
+        playerUnit.TargetUnit = null; // 다른 컨트롤러도 추가 필요@@@@
 
         animator.speed = 1f;
         while (normalizedTime >= 0f && normalizedTime < 1f)
@@ -224,7 +225,6 @@ public class PlayerMeleeSplashController : BaseUnitController
             normalizedTime = GetNormalizedTime(attackStateHash);
             yield return null;
         }
-        playerUnit.TargetUnit = null; // 다른 컨트롤러도 추가 필요@@@@
         findTargetRoutine = StartCoroutine(TargetingRoutine());
         isAttacking = false;
     }

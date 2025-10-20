@@ -148,7 +148,7 @@ public class PlayerHealerSplashController : BaseUnitController
 
     private IEnumerator TargetingRoutine()
     {
-        WaitForSeconds wait = new WaitForSeconds(0.2f);
+        WaitForSeconds wait = new WaitForSeconds(0.1f);
         yield return null;
         while (true)
         {
@@ -289,6 +289,7 @@ public class PlayerHealerSplashController : BaseUnitController
             yield return null;
         }
         Attack();
+        playerUnit.TargetUnit = null; // 다른 컨트롤러도 추가 필요@@@@
         animator.speed = 1f;
         while (normalizedTime >= 0f && normalizedTime < 1f)
         {
