@@ -25,7 +25,6 @@ public class UIArtifact : BaseUI, IBackButtonHandler
     public event Action<ArtifactType> OnRequestAutoEquip;
     public event Action OnRequestUnEquipAll;
     #endregion
-
     
     #region 생명주기
     private void Awake()
