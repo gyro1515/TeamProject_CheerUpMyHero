@@ -37,6 +37,7 @@ public class UIArtifactInventoryPanel : BasePopUpUI
     [SerializeField] private TextMeshProUGUI descriptionType;
     [SerializeField] private TextMeshProUGUI descriptionValue;
     [SerializeField] private TextMeshProUGUI description;
+    [SerializeField] private Button descriptionPanelButton;
 
     [Header("유물 설명창 비활성화 버튼")]
     [SerializeField] private Button _outerButton;
@@ -69,6 +70,7 @@ public class UIArtifactInventoryPanel : BasePopUpUI
         _unEquipButton.onClick.AddListener(OnUnEquipButtonClicked);
         _sortButton.onClick.AddListener(OnSortButtonClicked);
 
+        descriptionPanelButton.onClick.AddListener(CloseDescriptionPanel);
         _outerButton.onClick.AddListener(CloseDescriptionPanel);
         _InnerButton.onClick.AddListener(CloseDescriptionPanel);
     }
