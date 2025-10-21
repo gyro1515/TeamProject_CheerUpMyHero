@@ -45,7 +45,7 @@ public class UIStageSelect : BaseUI, IBackButtonHandler
         // 모든 스테이지 슬롯을 생성하고 초기화
         CreateAllStageSlots();
         _destinyUI = UIManager.Instance.GetUI<UIDestinyRoullette>();
-        _destinyUI.CloseUI();
+        //_destinyUI.CloseUI();
     }
 
     private void OnEnable()

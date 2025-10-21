@@ -25,16 +25,7 @@ public class KnockbackHandler : MonoBehaviour
     float hitBackDir = 0;
     private void Awake()
     {
-        /*baseUnit = GetComponent<BaseUnit>();
-        baseUnit.OnHitBack += ApplyHitBack;
-        baseUnit.OnKnockBack += ApplyKnockBack;
-        // 추후 리팩토링 필요 **************
-        hitBackDir = baseUnit is EnemyUnit ? 1f : -1f;*/
-    }
-    // 유닛 활성화때마다 초기화 과정 필수, 유닛 크기, 체력이 달라질 수 있기 때문
-    public void Init(float unitSize)
-    {
-        if(hitBackDir == 0f)
+        if (hitBackDir == 0f)
         {
             //Debug.LogWarning("KnockbackHandler Awake()안됨");
             baseUnit = GetComponent<BaseUnit>();
@@ -43,6 +34,19 @@ public class KnockbackHandler : MonoBehaviour
             // 추후 리팩토링 필요 **************
             hitBackDir = baseUnit is EnemyUnit ? 1f : -1f;
         }
+    }
+    // 유닛 활성화때마다 초기화 과정 필수, 유닛 크기, 체력이 달라질 수 있기 때문
+    public void Init(float unitSize)
+    {
+        /*if(hitBackDir == 0f)
+        {
+            //Debug.LogWarning("KnockbackHandler Awake()안됨");
+            baseUnit = GetComponent<BaseUnit>();
+            baseUnit.OnHitBack += ApplyHitBack;
+            baseUnit.OnKnockBack += ApplyKnockBack;
+            // 추후 리팩토링 필요 **************
+            hitBackDir = baseUnit is EnemyUnit ? 1f : -1f;
+        }*/
         hitBackDistance = unitSize * hitBackScale * hitBackDir;
         knockBackDistance = unitSize * knockBackScale * hitBackDir;
     }
@@ -64,7 +68,7 @@ public class KnockbackHandler : MonoBehaviour
     }
     IEnumerator HitBackRoutine()
     {
-        if (baseUnit == null || baseUnit.gameObject == null) yield break;
+        if (baseUnit == null || baseUnit.gameObject == null) { OnHitBackActive?.Invoke(false); yield break; } // 히트백/코루틴 중지
 
         //hitBackTimer = 0f;
         float getUpTime = 0.4f; // 애니메이션 일어나는 시간
@@ -77,43 +81,40 @@ public class KnockbackHandler : MonoBehaviour
         baseUnit.gameObject.transform.DOMoveX(endPosX, hitBackTime).SetEase(easeType);
         baseUnit.gameObject.transform.DOMoveY(endPosY, hitBackTime / 2).SetEase(easeType);
         yield return new WaitForSeconds(hitBackTime / 2);
-        if (baseUnit == null || baseUnit.gameObject == null) yield break;
+        if (baseUnit == null || baseUnit.gameObject == null) { OnHitBackActive?.Invoke(false); yield break; } // 히트백/코루틴 중지
 
         baseUnit.gameObject.transform.DOMoveY(startPosY, hitBackTime / 2).SetEase(Ease.OutBounce);
         yield return new WaitForSeconds(hitBackTime / 2);
 
-        // 수동으로?
-        /*while (hitBackTimer < hitBackTime) // 날아가는 시간
+        if(baseUnit == null || baseUnit.gameObject == null || baseUnit.BaseController == null || baseUnit.BaseController.Animator == null)
         {
-            hitBackTimer += Time.fixedDeltaTime;
-            targetPosX = Mathf.Lerp(startPosX, endPosX, hitBackTimer / hitBackTime);
-            nextPos = baseUnit.gameObject.transform.position;
-            nextPos.x = targetPosX;
-            baseUnit.gameObject.transform.position = nextPos;
-            yield return new WaitForFixedUpdate();
-        }*/
+            Debug.LogError("히트백 도중 유닛 또는 애니메이터 소멸. Why????");
+            OnHitBackActive?.Invoke(false); // 히트백 끝
+            yield break;
+        }
         // 일어서야 할 때 캐릭터가 죽은 상태라면
-        if (baseUnit && baseUnit.IsDead)
+        if (baseUnit.IsDead)
         {
             //Debug.Log("죽음");
             OnHitBackActive?.Invoke(false);
-            if (baseUnit.TryGetComponent<Player>(out Player player))
+            //if (baseUnit.TryGetComponent<Player>(out Player player))
+            if (baseUnit is Player player)
                 Debug.Log("플레이어 넉백 후 사망");
             else
                 baseUnit.UnitController.SetDead();
             yield break;
         }
         // 죽지 않았다면
-        if(baseUnit && baseUnit.BaseController && baseUnit.BaseController.Animator) 
+        //if(baseUnit && baseUnit.BaseController && baseUnit.BaseController.Animator) 
             baseUnit.BaseController.Animator.SetBool(baseUnit.AnimationData.GetUpParameterHash, true);
         yield return new WaitForSeconds(getUpTime);
-        if (baseUnit == null || baseUnit.gameObject == null) yield break;
-        if (baseUnit.BaseController.Animator)
+        //if (baseUnit && baseUnit.BaseController && baseUnit.BaseController.Animator)
             baseUnit.BaseController.Animator.SetBool(baseUnit.AnimationData.GetUpParameterHash, false);
         OnHitBackActive?.Invoke(false); // 히트백 끝
         //Debug.Log("히트백 끝!!!");
 
     }
+
     /*IEnumerator KnockBackRoutine()
     {
         knockBackTimer = 0f;
