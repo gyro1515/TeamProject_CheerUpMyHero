@@ -49,7 +49,7 @@ public class UISpawnUnitSlot : MonoBehaviour
     {
         _foodConsumption = foodConsumption;
         unitTextureHandler = UnitRenderManager.GetUnitTextureHandlerByPoolType(poolType);
-        unitIcon.texture = unitTextureHandler.UnitRT;
+        if(unitTextureHandler) unitIcon.texture = unitTextureHandler.UnitRT;
         //_cooldown = cooldown;
         playerUnitType = poolType; // 소환할 유닛 타입을 직접 받음
         
