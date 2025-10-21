@@ -10,9 +10,9 @@ public class UISpawnUnitSlot : MonoBehaviour
     [SerializeField] RawImage unitIcon;
     [SerializeField] Image unitIconTimer; // 쿨타임 표시, 버튼 클릭 방지용
     [SerializeField] Button spawnUnitBtn;
-    [SerializeField] TextMeshProUGUI text; // 추후 아이콘만 설정하면 될 듯 합니다.
+    //[SerializeField] TextMeshProUGUI text; // 추후 아이콘만 설정하면 될 듯 합니다.
     [SerializeField] TextMeshProUGUI costText;
-    [SerializeField] Outline outlineForCanSpawnLegendary; // 전설 등급 소환 가능시 아웃라인 효과
+    [SerializeField] GameObject outlineGOForCanSpawnLegendary; // 전설 등급 소환 가능시 아웃라인 효과
 
     float _cooldown = -1f;
     float _cooldownTimer = -1f;
@@ -29,7 +29,7 @@ public class UISpawnUnitSlot : MonoBehaviour
     {
         costText.gameObject.SetActive(true); // 현재 왜 꺼져있는지 모르겠음
         costText.raycastTarget = false; // 텍스트가 버튼 클릭 막는 현상 방지
-        outlineForCanSpawnLegendary.enabled = false;
+        outlineGOForCanSpawnLegendary.SetActive(false);
         spawnUnitBtn.onClick.AddListener(OnSpawnUnit);
     }
     private void Update()
@@ -60,8 +60,6 @@ public class UISpawnUnitSlot : MonoBehaviour
 
         //계산된 최종 쿨타임을 이 슬롯의 쿨타임(_cooldown)으로 설정
         _cooldown = finalCooldown;
-        text.enabled = false;
-        //text.text = unitName;
 
         if (unitId == -1) // 빈 슬롯 처리
         {
@@ -83,7 +81,7 @@ public class UISpawnUnitSlot : MonoBehaviour
         if (GameManager.Instance.PlayerHQ == null) return;
         if (PlayerDataManager.Instance.CurrentFood < _foodConsumption) return;
 
-        if(outlineForCanSpawnLegendary.enabled) outlineForCanSpawnLegendary.enabled = false;
+        if(outlineGOForCanSpawnLegendary.activeSelf) outlineGOForCanSpawnLegendary.SetActive(false);
 
         PlayerDataManager.Instance.AddResource(ResourceType.Food, -_foodConsumption);
         SetTimerIconActive(true);
@@ -106,7 +104,7 @@ public class UISpawnUnitSlot : MonoBehaviour
     {
         if (canSpawn == canSpawnUnit) return; // 상태 변화 없으면 리턴
         unitTextureHandler.SetCanSpawnUnit(canSpawn);
-        unitIcon.color = canSpawn? whiteCol : grayCol;
+        unitIcon.color = canSpawn && !isCooldown ? whiteCol : grayCol;
         canSpawnUnit = canSpawn;
         spawnUnitBtn.enabled = canSpawn;
     }
@@ -117,11 +115,12 @@ public class UISpawnUnitSlot : MonoBehaviour
         //enabled = active;
         unitIconTimer.gameObject.SetActive(active);
         unitIconTimer.fillAmount = active ? 1f : 0f;
+        unitIcon.color = canSpawnUnit && !isCooldown ? whiteCol : grayCol;
     }
-    
+
     public void SetOutLineForSpawnLegendaryUnit()
     {
-        outlineForCanSpawnLegendary.enabled = true;
+        outlineGOForCanSpawnLegendary.SetActive(true);
     }
     //public void InitSpawnUnitSlot(Sprite sprite, int cardIdx, float cooldown, int foodConsumption)
     //{
