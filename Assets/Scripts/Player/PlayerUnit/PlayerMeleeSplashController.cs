@@ -45,6 +45,13 @@ public class PlayerMeleeSplashController : BaseUnitController
             transform.position += playerUnit.MoveDir * playerUnit.MoveSpeed * Time.fixedDeltaTime;
         }
     }
+    protected override void OnDisable()
+    {
+        base.OnDisable();
+        if (findTargetRoutine != null) StopCoroutine(findTargetRoutine);
+        if (attackRoutine != null) StopCoroutine(attackRoutine);
+        if (atkAnimRoutine != null) StopCoroutine(atkAnimRoutine);
+    }
     public override void Attack()
     {
         base.Attack();
@@ -121,14 +128,6 @@ public class PlayerMeleeSplashController : BaseUnitController
         if (findTargetRoutine != null) StopCoroutine(findTargetRoutine);
         if (attackRoutine != null) StopCoroutine(attackRoutine);
         if (atkAnimRoutine != null) StopCoroutine(atkAnimRoutine);
-    }
-
-    protected override void OnDisable()
-    {
-        base.OnDisable();
-        /*
-        if (findTargetRoutine != null) StopCoroutine(findTargetRoutine);
-        if (attackRoutine != null) StopCoroutine(attackRoutine);*/
     }
     protected override void HitBackActive(bool active)
     {

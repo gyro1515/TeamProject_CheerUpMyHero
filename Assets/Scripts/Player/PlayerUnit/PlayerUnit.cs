@@ -90,7 +90,7 @@ public class PlayerUnit : BaseUnit
             switch (UnitData.attackType)
             {
                 case UnitAttackType.Target:
-                    UnitController = gameObject.AddComponent<EnemyHealerUnitController>();
+                    UnitController = gameObject.AddComponent<PlayerHealerUnitController>();
                     break;
                 case UnitAttackType.Area:
                 case UnitAttackType.PierceArea:
@@ -115,5 +115,8 @@ public class PlayerUnit : BaseUnit
     {
         // 렌더 텍스처용 세팅
         UnitManager.Instance.RemoveUnitFromList(this, true);
+        UnitController.enabled = false;
+        MoveDir = Vector3.zero;
+
     }
 }

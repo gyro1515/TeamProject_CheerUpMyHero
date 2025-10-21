@@ -28,7 +28,7 @@ public class UnitRenderManager : SingletonMono<UnitRenderManager>
             
             GameObject unitTextureHandlerGO = new GameObject($"UnitTextureHandler_{cardData.poolType.ToString()}");
             unitTextureHandlerGO.transform.SetParent(gameObject.transform);
-            unitTextureHandlerGO.transform.localPosition = startPos + new Vector3(2f * i, 0f);
+            unitTextureHandlerGO.transform.localPosition = startPos + new Vector3(4f * i, 0f);
 
             UnitTextureHandler unitTextureHandler = unitTextureHandlerGO.AddComponent<UnitTextureHandler>();
             unitTextureHandler.Init(cardData.poolType);
