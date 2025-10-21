@@ -116,10 +116,10 @@ public class CameraController : MonoBehaviour
         // 현재 프리팹에 용사 2개만 구현됨
         if (heroPoolType != PoolType.Hero_Unit1 && heroPoolType != PoolType.Hero_Unit2)
         {
-            Debug.Log($"{heroSpawnEvent.selectedHero.unitName}이 선택되었으나 미구현인 관계로 용사1이 소환됩니다.");
-            heroPoolType = PoolType.Hero_Unit1;
+            int tmpRand = Random.Range(0, 3);
+            heroPoolType = (PoolType.Hero_Unit1 + tmpRand);
+            Debug.Log($"{heroSpawnEvent.selectedHero.poolType}이 선택되었으나 미구현인 관계로 {heroPoolType.ToString()}이 소환됩니다.");
         }
-        Debug.Log($"용사 {heroPoolType} 소환");
         GameObject heroGO = ObjectPoolManager.Instance.Get(heroPoolType);
         Vector3 spawnPos = targetCamPos;
         spawnPos.y += UnityEngine.Random.Range(20, 80) / 100f;
