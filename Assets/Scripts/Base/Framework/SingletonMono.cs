@@ -15,7 +15,6 @@ public class SingletonMono<T> : MonoBehaviour where T : MonoBehaviour
         {
             // 씬에 없더라도 생성되도록
             if (instance == null && !isDestroyed)
-            //if (instance == null || (instance == null && !System.Object.ReferenceEquals(instance, null)))
             {
                 var singletonGO = new GameObject($"{typeof(T)}");
                 instance = singletonGO.AddComponent<T>(); // Awake() 실행
@@ -72,6 +71,7 @@ public class SingletonMono<T> : MonoBehaviour where T : MonoBehaviour
             Destroy(instance);
             Destroy(instance.gameObject);
         }*/
+        if (IsPersistent) isDestroyed = true; // 파시 생성 안되도록
         instance = null;
 
     }

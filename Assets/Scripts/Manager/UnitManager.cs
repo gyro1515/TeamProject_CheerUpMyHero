@@ -44,6 +44,8 @@ public class UnitManager : SingletonMono<UnitManager>
     private void OnDisable()
     {
         onSpawnHQEventSub.Unsubscribe(AddUnitList);
+        onUnitSpawn = null;
+        onUnitDeSpawn = null;
     }
     void AddUnitList(SpawnHQEvent eventStruct)
     {

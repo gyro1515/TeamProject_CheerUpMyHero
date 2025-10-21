@@ -7,7 +7,7 @@ public class UnitRenderManager : SingletonMono<UnitRenderManager>
 {
     // 싱글톤 인스턴스 접근 안되게 하기
     private new static UnitRenderManager Instance => SingletonMono<UnitRenderManager>.Instance;
-    protected override bool IsPersistent => false;
+    protected override bool IsPersistent => false; // 파괴 가능으로 설정
     Dictionary<PoolType, UnitTextureHandler> UnitRenderTextureByPoolType = new Dictionary<PoolType, UnitTextureHandler>();
 
     Vector3 startPos = new Vector3(0, -50f, 0); // 카메라 렌더링 방해 안하도록 시작 위치를 멀리 설정
@@ -34,6 +34,15 @@ public class UnitRenderManager : SingletonMono<UnitRenderManager>
             unitTextureHandler.Init(cardData.poolType);
             UnitRenderTextureByPoolType[cardData.poolType] = unitTextureHandler;
         }
+    }
+    protected override void OnDestroy()
+    {
+        base.OnDestroy();
+        foreach (var handler in UnitRenderTextureByPoolType.Values)
+        {
+            if (handler) Destroy(handler.gameObject);
+        }
+        UnitRenderTextureByPoolType.Clear();
     }
     public static UnitTextureHandler GetUnitTextureHandlerByPoolType(PoolType poolType)
     {
