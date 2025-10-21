@@ -11,7 +11,8 @@ public struct DescriptionViewModel
 {
     public bool IsPanelActive;
     public ArtifactData ArtifactData;
-
+    public Sprite Icon;
+    public Color BorderColor;
     public string GradeOrLevelText;
     public string StatTypeText;
     public string ValueOrCostText;
@@ -32,6 +33,8 @@ public class UIArtifactInventoryPanel : BasePopUpUI
 
     [Header("유물 설명창")]
     [SerializeField] private GameObject descriptionPanel;
+    [SerializeField] private Image descriptionIcon;
+    [SerializeField] private Outline descriptionIconOutline;
     [SerializeField] private TextMeshProUGUI descriptionName;
     [SerializeField] private TextMeshProUGUI descriptionGrade;
     [SerializeField] private TextMeshProUGUI descriptionType;
@@ -125,6 +128,8 @@ public class UIArtifactInventoryPanel : BasePopUpUI
         if (!vm.IsPanelActive) return;
 
         descriptionName.text = vm.ArtifactData.name;
+        descriptionIcon.sprite = Resources.Load<Sprite>(vm.ArtifactData.iconSpritePath);
+        descriptionIconOutline.effectColor = vm.BorderColor;
         description.text = vm.ArtifactData.description;
         descriptionGrade.text = vm.GradeOrLevelText;
         descriptionType.text = vm.StatTypeText;

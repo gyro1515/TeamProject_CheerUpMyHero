@@ -182,7 +182,11 @@ public class ArtifactUIPresenter
     {
         if (artifact == null) return new EquipSlotViewModel { Name = null };
 
-        EquipSlotViewModel vm = new EquipSlotViewModel { Name = artifact.name };
+        EquipSlotViewModel vm = new EquipSlotViewModel 
+        { 
+            Name = artifact.name,
+            Icon = Resources.Load<Sprite>(artifact.iconSpritePath)
+        };
         if (artifact is PassiveArtifactData p)
         {
             vm.StatType = p.statType.ToString();
@@ -205,6 +209,8 @@ public class ArtifactUIPresenter
         {
             Artifact = artifact,
             Name = artifact.name,
+            Icon = Resources.Load<Sprite>(artifact.iconSpritePath),
+
             IsEquippedInCurrentSlot = (artifact == equippedInCurrentSlot)
         };
 
@@ -232,6 +238,8 @@ public class ArtifactUIPresenter
         {
             IsPanelActive = true,
             ArtifactData = artifact,
+            Icon = Resources.Load<Sprite>(artifact.iconSpritePath),
+
             IsEquipped = _model.EquippedArtifacts.Contains(artifact)
         };
 
@@ -240,12 +248,14 @@ public class ArtifactUIPresenter
             vm.GradeOrLevelText = $"등급 : {p.grade}";
             vm.StatTypeText = $"스탯 타입 : {p.statType}";
             vm.ValueOrCostText = $"효과 : + {p.value}%";
+            vm.BorderColor = GetGradeColor(p.grade);
         }
         else if (artifact is ActiveArtifactData a)
         {
             vm.GradeOrLevelText = $"Lv. {a.levelData[a.curLevel].level}";
             vm.StatTypeText = $"유형 : {a.type}";
             vm.ValueOrCostText = $"Cost : {a.cost}";
+            vm.BorderColor = GetGradeColor(PassiveArtifactGrade.Legendary);
         }
         return vm;
     }
