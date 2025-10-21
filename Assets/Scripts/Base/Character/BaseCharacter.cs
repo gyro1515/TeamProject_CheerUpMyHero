@@ -90,7 +90,7 @@ public class BaseCharacter : MonoBehaviour
     }
     protected virtual void OnDisable()
     {
-        ArtifactManager.Instance.OnEquippedArtifactChanged -= UpdateStat;
+        if(ArtifactManager.Instance) ArtifactManager.Instance.OnEquippedArtifactChanged -= UpdateStat;
     }
 
     protected virtual void UpdateStat()

@@ -37,9 +37,10 @@ public class PlayerUnitController : BaseUnitController
     protected override void OnDisable()
     {
         base.OnDisable();
-        /*
+
         if (findTargetRoutine != null) StopCoroutine(findTargetRoutine);
-        if (attackRoutine != null) StopCoroutine(attackRoutine);*/
+        if (attackRoutine != null) StopCoroutine(attackRoutine);
+        if (atkAnimRoutine != null) StopCoroutine(atkAnimRoutine);
     }
     public override void Attack()
     {

@@ -37,8 +37,9 @@ public class UIMiniMap : MonoBehaviour
     }
     private void OnDisable()
     {
-        UnitManager.Instance.onUnitSpawn -= AddToMinMapUnitList;
-        UnitManager.Instance.onUnitDeSpawn -= RemoveFromMiniMapUnitList;
+        // 251021 수정: 씬 전환과 함께 유닛 매니저도 이 오브젝트도 파괴되므로 구독 해제 불필요
+        /*UnitManager.Instance.onUnitSpawn -= AddToMinMapUnitList;
+        UnitManager.Instance.onUnitDeSpawn -= RemoveFromMiniMapUnitList;*/
     }
 
 

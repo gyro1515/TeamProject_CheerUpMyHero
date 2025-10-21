@@ -7,6 +7,8 @@ using UnityEngine.UI;
 [RequireComponent(typeof(CanvasGroup))]
 public class BasePopUpUI : BaseUI, IBackButtonHandler
 {
+    [Header("해당 UI는 팝업입니다. 작업 후 비활성화 해주세요.")]
+    [SerializeField, ReadOnly] string POPUP_UI_WARNING = "해당 UI는 팝업입니다. 작업 후 비활성화 해주세요.";
     protected CanvasGroup _canvasGroup;
     bool _isFade = false;
     /*IEventPublisher<AddUIStackEvent> onAddUIStack;

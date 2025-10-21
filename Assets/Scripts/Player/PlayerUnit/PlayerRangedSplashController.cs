@@ -37,6 +37,7 @@ public class PlayerRangedSplashController : BaseUnitController
         findTargetRoutine = StartCoroutine(TargetingRoutine());
         attackRoutine = StartCoroutine(AttackRoutine());
     }
+    
 
     protected override void FixedUpdate()
     {
@@ -45,6 +46,13 @@ public class PlayerRangedSplashController : BaseUnitController
         {
             transform.position += playerUnit.MoveDir * playerUnit.MoveSpeed * Time.fixedDeltaTime;
         }
+    }
+    protected override void OnDisable()
+    {
+        base.OnDisable();
+        if (findTargetRoutine != null) StopCoroutine(findTargetRoutine);
+        if (attackRoutine != null) StopCoroutine(attackRoutine);
+        if (atkAnimRoutine != null) StopCoroutine(atkAnimRoutine);
     }
 
     /// 타겟의 위치를 중심으로 범위 피해를 입히는 공격 함수

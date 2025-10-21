@@ -27,7 +27,7 @@ public class SupplyUI : BaseUI
     private void OnDisable()
     {
         //**************** 현재 씬 종료시에도 호출되며 매니저 싱글톤 다시 생성되는 문제 발생, 구독 해제는 필요없음 ***********
-        PlayerDataManager.Instance.OnResourceChangedEvent -= OnResourceChanged;
+        if(PlayerDataManager.Instance) PlayerDataManager.Instance.OnResourceChangedEvent -= OnResourceChanged;
     }
 
     private void Start()
