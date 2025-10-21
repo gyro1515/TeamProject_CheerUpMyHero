@@ -111,4 +111,9 @@ public class PlayerUnit : BaseUnit
         return ArtifactManager.Instance.GetPassiveArtifactStatBonus(EffectTarget.MeleeUnit, type);
         // 이거 일단 임시로 Melee 유닛으로 만들어두긴 했는데 유닛을 어떻게 구분할 지에 대한 것도 생각해봐야 함
     }
+    public void SetForRenderTexture()
+    {
+        // 렌더 텍스처용 세팅
+        UnitManager.Instance.RemoveUnitFromList(this, true);
+    }
 }

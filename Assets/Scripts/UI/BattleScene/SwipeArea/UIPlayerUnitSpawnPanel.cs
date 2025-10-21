@@ -37,7 +37,7 @@ public class UIPlayerUnitSpawnPanel : BaseUI
 
             if (unitId == -1) // 빈 슬롯은 비활성화
             {
-                unitSlot.InitSpawnUnitSlot(null, "비었음", -1, PoolType.None, 0, -1);
+                unitSlot.InitSpawnUnitSlot("비었음", -1, PoolType.None, 0, -1);
                 continue;
             }
             // ToDo: 엑셀 데이터로 교체 필요**************
@@ -47,7 +47,7 @@ public class UIPlayerUnitSpawnPanel : BaseUI
             if (cardData != null)
             {
                 // 카드 데이터를 사용해 전투 소환 슬롯을 초기화합니다.
-                unitSlot.InitSpawnUnitSlot(null, cardData.unitName, unitId, cardData.poolType, cardData.spawnCooldown, cardData.cost);
+                unitSlot.InitSpawnUnitSlot(cardData.unitName, unitId, cardData.poolType, cardData.spawnCooldown, cardData.cost);
             }
         }
 

@@ -75,22 +75,4 @@ public class SingletonMono<T> : MonoBehaviour where T : MonoBehaviour
         instance = null;
 
     }
-    /*#if UNITY_EDITOR
-        // 이 코드는 에디터에서 플레이 모드 시작 시 Awake보다 먼저 실행됩니다.
-        // '페이크 널'의 원인이 되는 static 변수를 깨끗하게 초기화합니다.
-        [UnityEngine.RuntimeInitializeOnLoadMethod(UnityEngine.RuntimeInitializeLoadType.SubsystemRegistration)]
-        private static void ResetStatics()
-        {
-            instance = null;
-        }
-    #endif*/
-    /*if (typeof(T) == typeof(EventManager) && test.t.manager != instance)
-            {
-                Debug.Log("이번 플레이에서 생성된 것이 아님, 파괴함");
-
-                Destroy(instance.gameObject);
-instance = null;
-
-                return Instance;
-            }*/
 }

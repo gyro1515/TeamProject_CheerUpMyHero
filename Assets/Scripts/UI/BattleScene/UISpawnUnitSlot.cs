@@ -7,7 +7,7 @@ using UnityEngine.UI;
 public class UISpawnUnitSlot : MonoBehaviour
 {
     [Header("유닛 선택 소환 아이콘 설정")]
-    [SerializeField] Image unitIcon;
+    [SerializeField] RawImage unitIcon;
     [SerializeField] Image unitIconTimer; // 쿨타임 표시, 버튼 클릭 방지용
     [SerializeField] Button spawnUnitBtn;
     [SerializeField] TextMeshProUGUI text; // 추후 아이콘만 설정하면 될 듯 합니다.
@@ -19,6 +19,8 @@ public class UISpawnUnitSlot : MonoBehaviour
     bool isCooldown = false;
     int _foodConsumption = 0;
     PoolType playerUnitType;
+
+    UnitTextureHandler unitTextureHandler;
     private void Awake()
     {
         costText.gameObject.SetActive(true); // 현재 왜 꺼져있는지 모르겠음
@@ -36,10 +38,11 @@ public class UISpawnUnitSlot : MonoBehaviour
         SetTimerIconActive(false);
     }
 
-    public void InitSpawnUnitSlot(Sprite sprite, string unitName, int unitId, PoolType poolType, float cooldown, int foodConsumption)
+    public void InitSpawnUnitSlot(string unitName, int unitId, PoolType poolType, float cooldown, int foodConsumption)
     {
         _foodConsumption = foodConsumption;
-        unitIcon.sprite = sprite;
+        unitTextureHandler = UnitRenderManager.GetUnitTextureHandlerByPoolType(poolType);
+        unitIcon.texture = unitTextureHandler.UnitRT;
         //_cooldown = cooldown;
         playerUnitType = poolType; // 소환할 유닛 타입을 직접 받음
         
