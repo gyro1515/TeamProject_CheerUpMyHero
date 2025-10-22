@@ -20,7 +20,7 @@ public class TestSceneSpawnUI : MonoBehaviour
             if (i >= playerUnitList.Count)
             {
                // unitSlot.InitSpawnUnitSlot(null, -1, 0, -1);
-                unitSlot.InitSpawnUnitSlot(null, "비었음", -1, PoolType.None, 0, -1);
+                unitSlot.InitSpawnUnitSlot("비었음", -1, PoolType.None, 0, -1);
 
                 continue;
             }

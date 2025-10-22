@@ -21,9 +21,9 @@ public class HeroSpeachForPreSpawn : MonoBehaviour
         FadeManager.FadeInUI(heroSpeachCanvasGroup, null, false);
         StartCoroutine(FadeOutRoutine());
     }
-    public void InitHeroSpeachForPreSpawn(string speachText)
+    public void InitHeroSpeachForPreSpawn(HeroData data)
     {
-        heroSpeachText.text = speachText;
+        //heroSpeachText.text = data.preSpawnSpeech;
     }
     IEnumerator FadeOutRoutine()
     {

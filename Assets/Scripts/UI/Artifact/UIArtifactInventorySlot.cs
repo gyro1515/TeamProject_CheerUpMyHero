@@ -17,11 +17,12 @@ public struct InventorySlotViewModel
     public bool IsEquippedInCurrentSlot;
 }
 
-public class UIArtifactInvInventorySlot : MonoBehaviour
+public class UIArtifactInventorySlot : MonoBehaviour
 {
     #region UI요소 참조 변수
     [Header("유물 데이터 적용")]
     [SerializeField] private Image _artifactIcon;
+    [SerializeField] private Outline _iconOutline;
     [SerializeField] private TextMeshProUGUI _nameText;
     [SerializeField] private TextMeshProUGUI _statTypeText;
     [SerializeField] private TextMeshProUGUI _statValueText;
@@ -51,7 +52,8 @@ public class UIArtifactInvInventorySlot : MonoBehaviour
         _nameText.text = vm.Name;
         _statTypeText.text = vm.StatType;
         _statValueText.text = vm.StatValue;
-        _outline.effectColor = vm.BorderColor;
+        //_outline.effectColor = vm.BorderColor;
+        _iconOutline.effectColor = vm.BorderColor;
         _artifactIcon.sprite = vm.Icon;
         _equippedImage.SetActive(vm.IsEquippedInCurrentSlot);
 

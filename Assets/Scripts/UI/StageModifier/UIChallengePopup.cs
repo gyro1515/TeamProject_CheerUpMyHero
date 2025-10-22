@@ -63,7 +63,7 @@ public class UIChallengePopup : BasePopUpUI
 
     public void ApplyChanges()
     {
-        _viewModel.ApplyChallenges();
+        _viewModel?.ApplyChallenges();
     }
 
     private void OnResetButtonClicked()

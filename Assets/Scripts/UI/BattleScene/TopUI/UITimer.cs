@@ -37,9 +37,12 @@ public class UITimer : MonoBehaviour
         List<HeroData> hero_unit = DataManager.PlayerUnitData.SO.hero_unit;
         int randomIdx = Random.Range(0, hero_unit.Count);
         selectedHeroData = hero_unit[randomIdx];
+        Debug.Log($"선택된 영웅: {selectedHeroData.poolType} / {selectedHeroData.unitName}");
         // 만약 랜덤요소로 용사 알수 없음이 뜬다면 여기서 처리
         bool checkUnknownHero = true; // 데이터 가져와서 체크
-        if (checkUnknownHero) return; // 용사 알 수 없음이면 UI 초기화X, 기본UI로 둠, 기본UI는 기본 베이스가 알수 없음 용사
+        // 알 수 없음 미구현으로 일단 초기화
+        //if (checkUnknownHero) return; // 용사 알 수 없음이면 UI 초기화X, 기본UI로 둠, 기본UI는 기본 베이스가 알수 없음 용사
+
         // 용사 컷씬 초기화
         uIHeroCinematic.InitHeroCinematic(selectedHeroData);
     }

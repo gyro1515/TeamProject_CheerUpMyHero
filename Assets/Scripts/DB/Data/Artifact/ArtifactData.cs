@@ -7,6 +7,6 @@ public class ArtifactData : MonoData
 {
     public string name;
     public string description;
-    public Sprite icon;
     public ArtifactType artifactType;
+    public string iconSpritePath;
 }

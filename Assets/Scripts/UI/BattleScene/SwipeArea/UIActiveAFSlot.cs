@@ -80,7 +80,7 @@ public class UIActiveAFSlot : MonoBehaviour
     void SetSlotByType(ArtifactData data)
     {
         afNameText.text = data.name;
-        slotIcon.sprite = data.icon;
+        slotIcon.sprite = Resources.Load<Sprite>(data.iconSpritePath);
         switch (data.artifactType)
         {
             case ArtifactType.Active:

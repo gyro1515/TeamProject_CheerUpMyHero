@@ -12,9 +12,9 @@ public class UIHeroCinematic : BaseUI
     public void InitHeroCinematic(HeroData heroData)
     {
         // 사용될 용사 정보 받아와서 초기화
-        cutSceneForFirstWave.InitCutSceneForFirstWave(heroData.firstWaveSprite, heroData.firstWaveSpeech);
-        heroSpeachForPreSpawn.InitHeroSpeachForPreSpawn(heroData.preSpawnSpeech);
-        cutSceneForHeroSpawn.InitCutSceneForHeroSpawn(heroData.spawnSprite);
+        cutSceneForFirstWave.InitCutSceneForFirstWave(heroData);
+        heroSpeachForPreSpawn.InitHeroSpeachForPreSpawn(heroData);
+        cutSceneForHeroSpawn.InitCutSceneForHeroSpawn(heroData);
     }
     public void OpenHeroCinematic(HeroCinematicType openType)
     {

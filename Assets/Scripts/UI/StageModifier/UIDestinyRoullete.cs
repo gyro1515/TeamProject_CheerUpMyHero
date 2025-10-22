@@ -2,6 +2,7 @@ using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 public enum GameMode
 {
@@ -19,6 +20,12 @@ public class UIDestinyRoullette : BaseUI
     [SerializeField] private Transform _wheelContainer;
     [SerializeField] private Image _fortuneSlice;
     [SerializeField] private Image _misfortuneSlice;
+    [SerializeField] private float _textDistance = 300f;
+    [SerializeField] private TextMeshProUGUI _fortuneText;
+    [SerializeField] private TextMeshProUGUI _misfortuneText;
+    [SerializeField] private float _perTextDistance = 150f;
+    [SerializeField] private TextMeshProUGUI _fortunePerText;
+    [SerializeField] private TextMeshProUGUI _misfortunePerText;
 
     [Header("UI 참조 - 팝업")]
     [SerializeField] private UIDestinyEffectPopup _effectPopup;
@@ -54,6 +61,9 @@ public class UIDestinyRoullette : BaseUI
         _viewModel.OnStartSpin += StartSpin;
         _viewModel.OnResultSet += _effectPopup.OpenPanel;
         _viewModel.OnCloseView += CloseUI;
+
+        _fortuneText.text = "행운";
+        _misfortuneText.text = "불행";
 
         // 버튼 활성화 or 비활성화용 구독
         _viewModel.OnConfirmStateChanged += (interactable) => { _confirmButton.interactable = interactable; };
@@ -118,6 +128,33 @@ public class UIDestinyRoullette : BaseUI
         _fortuneSlice.fillAmount = fortune;
         _misfortuneSlice.fillAmount = misfortune;
         _misfortuneSlice.transform.localEulerAngles = new Vector3(0, 0, misfortuneRotation);
+
+        float fortuneCenterDegree = (fortune * 360f) / 2f;
+        float misfortuneCenterDegree = misfortuneRotation + (misfortune * 360f) / 2f;
+
+        _fortuneText.rectTransform.localPosition = SetTextPosition(fortuneCenterDegree, _textDistance);
+        _fortuneText.rectTransform.localEulerAngles = new Vector3(0, 0, -fortuneCenterDegree);
+
+        _misfortuneText.rectTransform.localPosition = SetTextPosition(misfortuneCenterDegree, _textDistance);
+        _misfortuneText.rectTransform.localEulerAngles = new Vector3(0, 0, -misfortuneCenterDegree);
+
+        _fortunePerText.rectTransform.localPosition = SetTextPosition(fortuneCenterDegree, _perTextDistance);
+        _fortunePerText.rectTransform.localEulerAngles = new Vector3(0, 0, -fortuneCenterDegree);
+        _fortunePerText.text = $"{fortune * 100}%";
+
+        _misfortunePerText.rectTransform.localPosition = SetTextPosition(misfortuneCenterDegree, _perTextDistance);
+        _misfortunePerText.rectTransform.localEulerAngles = new Vector3(0, 0, -misfortuneCenterDegree);
+        _misfortunePerText.text = $"{misfortune * 100}%";
+    }
+
+    private Vector2 SetTextPosition(float angle, float distance)
+    {
+        float radianAngle = angle * Mathf.Deg2Rad;
+
+        float x = distance * Mathf.Sin(radianAngle);
+        float y = distance * Mathf.Cos(radianAngle);
+
+        return new Vector2(x, y);
     }
 
     private void SetIntroPanel(bool show)

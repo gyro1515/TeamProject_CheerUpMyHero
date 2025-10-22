@@ -43,9 +43,9 @@ public class CutSceneForHeroSpawn : MonoBehaviour
             gameObject.SetActive(false);
         });
     }
-    public void InitCutSceneForHeroSpawn(Sprite sprite)
+    public void InitCutSceneForHeroSpawn(HeroData data)
     {
-        cutSceneImg.sprite = sprite;
+        //cutSceneImg.sprite = data.spawnSprite;
     }
 
 

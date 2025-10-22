@@ -1,3 +1,4 @@
+using DG.Tweening;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -7,8 +8,10 @@ using UnityEngine.UI;
 [RequireComponent(typeof(CanvasGroup))]
 public class BasePopUpUI : BaseUI, IBackButtonHandler
 {
+    [Header("해당 UI는 팝업입니다. 작업 후 비활성화 해주세요.")]
+    [SerializeField, ReadOnly] string POPUP_UI_WARNING = "해당 UI는 팝업입니다. 작업 후 비활성화 해주세요.";
     protected CanvasGroup _canvasGroup;
-    bool _isFade = false;
+    protected bool _isFade = false;
     /*IEventPublisher<AddUIStackEvent> onAddUIStack;
     IEventPublisher<RemoveUIStackEvent> onRemoveUIStack;*/
     protected virtual void Awake()
@@ -19,8 +22,6 @@ public class BasePopUpUI : BaseUI, IBackButtonHandler
         _canvasGroup.blocksRaycasts = false;
         /*onAddUIStack = EventManager.GetPublisher<AddUIStackEvent>();
         onRemoveUIStack = EventManager.GetPublisher<RemoveUIStackEvent>();*/
-
-        // 게임 오브젝트 비활성화해야 합니다. 그래야 뒤로가기가 정상 작동합니다.
     }
     protected virtual void OnEnable()
     {
@@ -39,7 +40,15 @@ public class BasePopUpUI : BaseUI, IBackButtonHandler
         _isFade = true;
         FadeManager.FadeInUI(_canvasGroup, SetFadeFalse);
     }
-
+    // 다른 효과 후에 페이드 인을 하고 싶을 때 사용하는 오픈 함수
+    public void OpenUI(TweenCallback afterFade)
+    {
+        if (_isFade) return;
+        base.OpenUI();
+        _isFade = true;
+        afterFade += SetFadeFalse;
+        FadeManager.FadeInUI(_canvasGroup, afterFade);
+    }
     public override void CloseUI()
     {
         if (_isFade) return;
@@ -54,5 +63,12 @@ public class BasePopUpUI : BaseUI, IBackButtonHandler
     void SetFadeFalse()
     {
         _isFade = false;
+    }
+    protected void JustOpenUI() // 페이드 없이 열기
+    {
+        base.OpenUI();
+        _canvasGroup.alpha = 1f;
+        _canvasGroup.interactable = true;
+        _canvasGroup.blocksRaycasts = true;
     }
 }

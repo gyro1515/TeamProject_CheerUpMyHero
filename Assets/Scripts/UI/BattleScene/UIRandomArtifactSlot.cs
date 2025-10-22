@@ -10,6 +10,7 @@ public class UIRandomArtifactSlot : BaseUI
     [Header("유물 정보")]
     [SerializeField] private TextMeshProUGUI _nameText;
     [SerializeField] private TextMeshProUGUI _descriptionText;
+    [SerializeField] private Image _icon;
 
     [Header("테두리")]
     [SerializeField] private Outline _iconOutline;
@@ -65,6 +66,7 @@ public class UIRandomArtifactSlot : BaseUI
 
         gameObject.SetActive(true);
         _nameText.text = _data.name;
+        _icon.sprite = Resources.Load<Sprite>(_data.iconSpritePath);
         _descriptionText.text = _data.description;
 
         // 유물 이미지 넣는 로직 추가해야 함.

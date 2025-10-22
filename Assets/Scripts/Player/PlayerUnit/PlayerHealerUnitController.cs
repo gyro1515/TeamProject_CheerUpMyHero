@@ -38,7 +38,13 @@ public class PlayerHealerUnitController : BaseUnitController
             transform.position += playerUnit.MoveDir * playerUnit.MoveSpeed * Time.fixedDeltaTime;
         }
     }
-
+    protected override void OnDisable()
+    {
+        base.OnDisable();
+        if (findTargetRoutine != null) StopCoroutine(findTargetRoutine);
+        if (attackRoutine != null) StopCoroutine(attackRoutine);
+        if (atkAnimRoutine != null) StopCoroutine(atkAnimRoutine);
+    }
     public override void Dead()
     {
         base.Dead();

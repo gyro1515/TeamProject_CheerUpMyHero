@@ -11,7 +11,8 @@ public struct DescriptionViewModel
 {
     public bool IsPanelActive;
     public ArtifactData ArtifactData;
-
+    public Sprite Icon;
+    public Color BorderColor;
     public string GradeOrLevelText;
     public string StatTypeText;
     public string ValueOrCostText;
@@ -32,11 +33,14 @@ public class UIArtifactInventoryPanel : BasePopUpUI
 
     [Header("유물 설명창")]
     [SerializeField] private GameObject descriptionPanel;
+    [SerializeField] private Image descriptionIcon;
+    [SerializeField] private Outline descriptionIconOutline;
     [SerializeField] private TextMeshProUGUI descriptionName;
     [SerializeField] private TextMeshProUGUI descriptionGrade;
     [SerializeField] private TextMeshProUGUI descriptionType;
     [SerializeField] private TextMeshProUGUI descriptionValue;
     [SerializeField] private TextMeshProUGUI description;
+    [SerializeField] private Button descriptionPanelButton;
 
     [Header("유물 설명창 비활성화 버튼")]
     [SerializeField] private Button _outerButton;
@@ -46,7 +50,7 @@ public class UIArtifactInventoryPanel : BasePopUpUI
     [SerializeField] private GameObject _slotPrefab;
     [SerializeField] private Transform _slotCreatPosition;
 
-    private List<UIArtifactInvInventorySlot> _slotList = new List<UIArtifactInvInventorySlot>();        // 인벤토리 안에 생성된 슬롯들 담아두는 리스트
+    private List<UIArtifactInventorySlot> _slotList = new List<UIArtifactInventorySlot>();        // 인벤토리 안에 생성된 슬롯들 담아두는 리스트
     
     public ArtifactData _selectedArtifact;
     private int _currentSlotIndex;
@@ -69,6 +73,7 @@ public class UIArtifactInventoryPanel : BasePopUpUI
         _unEquipButton.onClick.AddListener(OnUnEquipButtonClicked);
         _sortButton.onClick.AddListener(OnSortButtonClicked);
 
+        descriptionPanelButton.onClick.AddListener(CloseDescriptionPanel);
         _outerButton.onClick.AddListener(CloseDescriptionPanel);
         _InnerButton.onClick.AddListener(CloseDescriptionPanel);
     }
@@ -87,12 +92,12 @@ public class UIArtifactInventoryPanel : BasePopUpUI
     {
         for (int i = 0; i < viewModels.Count; i++)
         {
-            UIArtifactInvInventorySlot slot;
+            UIArtifactInventorySlot slot;
 
             if (i >= _slotList.Count)
             {
                 GameObject createdSlot = Instantiate(_slotPrefab, _slotCreatPosition);
-                slot = createdSlot.GetComponent<UIArtifactInvInventorySlot>();
+                slot = createdSlot.GetComponent<UIArtifactInventorySlot>();
                 slot.OnArtifactInventorySlotClicked += SelectArtifact;
                 _slotList.Add(slot);
             }
@@ -123,6 +128,8 @@ public class UIArtifactInventoryPanel : BasePopUpUI
         if (!vm.IsPanelActive) return;
 
         descriptionName.text = vm.ArtifactData.name;
+        descriptionIcon.sprite = Resources.Load<Sprite>(vm.ArtifactData.iconSpritePath);
+        descriptionIconOutline.effectColor = vm.BorderColor;
         description.text = vm.ArtifactData.description;
         descriptionGrade.text = vm.GradeOrLevelText;
         descriptionType.text = vm.StatTypeText;
