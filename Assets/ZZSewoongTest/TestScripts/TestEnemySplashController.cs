@@ -113,7 +113,7 @@ public class TestEnemySplashController : BaseController
     IEnumerator AttackRoutine()
     {
         // 0.2초마다 타겟 갱신
-        WaitForSeconds wait = new WaitForSeconds(10f / enemyUnit.AttackRate);
+        WaitForSeconds wait = new WaitForSeconds(enemyUnit.AttackRate);
         while (true)
         {
             if (enemyUnit.TargetUnit != null)

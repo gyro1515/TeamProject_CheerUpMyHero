@@ -89,7 +89,7 @@ public class PlayerUnitController : BaseUnitController
     IEnumerator AttackRoutine()
     {
         // 0.2초마다 타겟 갱신
-        WaitForSeconds wait = new WaitForSeconds(10f / playerUnit.AttackRate);
+        WaitForSeconds wait = new WaitForSeconds(playerUnit.AttackRate);
         while (true)
         {
             if (playerUnit.TargetUnit != null)
