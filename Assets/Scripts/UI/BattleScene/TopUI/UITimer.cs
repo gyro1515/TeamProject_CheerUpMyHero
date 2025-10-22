@@ -66,8 +66,8 @@ public class UITimer : MonoBehaviour
             {
                 // 대사 출력
                 //Debug.Log("3초 후 용사가 스폰됩니다!");
-                uIHeroCinematic.OpenHeroCinematic(HeroCinematicType.HeroSpeachForPreSpawn);
-                //if(!checkUnknownHero) uIHeroCinematic.OpenHeroCinematic(HeroCinematicType.HeroSpeachForPreSpawn);
+                //uIHeroCinematic.OpenHeroCinematic(HeroCinematicType.HeroSpeachForPreSpawn);
+                if(!checkUnknownHero) uIHeroCinematic.OpenHeroCinematic(HeroCinematicType.HeroSpeachForPreSpawn);
             }
             yield return null;
         }

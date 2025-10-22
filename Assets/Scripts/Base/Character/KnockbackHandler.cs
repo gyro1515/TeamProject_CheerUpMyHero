@@ -14,16 +14,17 @@ public class KnockbackHandler : MonoBehaviour
     [SerializeField] float knockBackScale = 0.3f;
     [SerializeField] float yPower = 2f;
     [SerializeField] Ease easeType = Ease.OutQuad;
+
     //float hitBackTimer = 0.0f;
-    float hitBackDistance = 0.0f;
+    [SerializeField] float hitBackDistance = 0.0f;
     //float knockBackTimer = 0.0f;
-    float knockBackDistance = 0.0f;
+    [SerializeField] float knockBackDistance = 0.0f;
 
     public event Action<bool> OnHitBackActive;
 
     BaseUnit baseUnit;
     float hitBackDir = 0;
-    private void Awake()
+    /*private void Awake()
     {
         if (hitBackDir == 0f)
         {
@@ -34,21 +35,26 @@ public class KnockbackHandler : MonoBehaviour
             // 추후 리팩토링 필요 **************
             hitBackDir = baseUnit is EnemyUnit ? 1f : -1f;
         }
-    }
+    }*/
     // 유닛 활성화때마다 초기화 과정 필수, 유닛 크기, 체력이 달라질 수 있기 때문
     public void Init(float unitSize)
     {
-        /*if(hitBackDir == 0f)
+        if (hitBackDir == 0f)
         {
-            //Debug.LogWarning("KnockbackHandler Awake()안됨");
-            baseUnit = GetComponent<BaseUnit>();
-            baseUnit.OnHitBack += ApplyHitBack;
-            baseUnit.OnKnockBack += ApplyKnockBack;
-            // 추후 리팩토링 필요 **************
+            if (baseUnit == null)
+            {
+                baseUnit = GetComponent<BaseUnit>();
+                baseUnit.OnHitBack += ApplyHitBack;
+                baseUnit.OnKnockBack += ApplyKnockBack;
+            }
             hitBackDir = baseUnit is EnemyUnit ? 1f : -1f;
-        }*/
+        }
         hitBackDistance = unitSize * hitBackScale * hitBackDir;
         knockBackDistance = unitSize * knockBackScale * hitBackDir;
+        if(hitBackDistance == 0f || knockBackDistance == 0f)
+        {
+            Debug.Log("왜 0이야.");
+        }
     }
     void ApplyHitBack()
     {

@@ -102,7 +102,7 @@ public class EnemyRangedSplashController : BaseUnitController
         }
         if (hitCount > 0)
         {
-            UnityEngine.Debug.Log($"{gameObject.name}이(가) {hitCount}명의 아군에게 원거리 범위 공격!");
+            //UnityEngine.Debug.Log($"{gameObject.name}이(가) {hitCount}명의 아군에게 원거리 범위 공격!");
         }
     }
 

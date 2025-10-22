@@ -82,7 +82,7 @@ public class UIManager : SingletonMono<UIManager>, ISceneResettable
     void PushUI(AddUIStackEvent eventStruct)
     {
         _uiStack.Push(eventStruct.ui);
-        Debug.Log($"UIManager: UI 스택에서 추가: {eventStruct.ui.ToString()} / {_uiStack.Count}");
+        //Debug.Log($"UIManager: UI 스택에서 추가: {eventStruct.ui.ToString()} / {_uiStack.Count}");
     }
 
     // UI가 닫힐 때 스택에서 제거
@@ -91,7 +91,7 @@ public class UIManager : SingletonMono<UIManager>, ISceneResettable
         if (_uiStack.Count > 0)
         {
             var tmp = _uiStack.Pop();
-            Debug.Log($"UIManager: UI 스택에서 제거: {tmp.ToString()} / {_uiStack.Count}");
+            //Debug.Log($"UIManager: UI 스택에서 제거: {tmp.ToString()} / {_uiStack.Count}");
         }
     }
     void BackButtonPressed()

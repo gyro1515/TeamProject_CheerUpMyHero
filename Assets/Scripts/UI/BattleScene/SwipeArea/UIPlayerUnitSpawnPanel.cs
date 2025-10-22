@@ -50,7 +50,10 @@ public class UIPlayerUnitSpawnPanel : BaseUI
                 unitSlot.InitSpawnUnitSlot(cardData.unitName, unitId, cardData.poolType, cardData.spawnCooldown, cardData.cost);
             }
         }
-
+        // *******테스트용 코드
+        /*BaseUnitData cardDatatt = DataManager.PlayerUnitData.GetData((int)PoolType.Allies_Unit4);
+        spawnUnitSlotList[0].InitSpawnUnitSlot(cardDatatt.unitName, cardDatatt.idNumber, cardDatatt.poolType, cardDatatt.spawnCooldown, cardDatatt.cost);*/
+        // **********
         //[Header("테스트용 플레이어 유닛")]
         //[SerializeField] List<PoolType> playerUnitList = new List<PoolType>();
         //private void Awake()

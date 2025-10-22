@@ -19,7 +19,6 @@ public class CameraController : MonoBehaviour
     private void Awake()
     {
         heroSpawnEventSub = EventManager.GetSubscriber<HeroSpawnEvent>();
-        heroSpawnEventSub.Subscribe(SpawnHero);
     }
     private void Start()
     {
@@ -38,6 +37,7 @@ public class CameraController : MonoBehaviour
     private void OnEnable()
     {
         PlayerController.OnPlayerAction += ResetIdleTimer;
+        heroSpawnEventSub.Subscribe(SpawnHero);
     }
     void Update()
     {

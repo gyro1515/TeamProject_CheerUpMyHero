@@ -96,7 +96,7 @@ public class PlayerHQ : BaseHQ
         {
             // 유닛 슬롯에 전설 유닛 소환 가능 알리기
             uiSlot.SetOutLineForSpawnLegendaryUnit();
-            Debug.Log("다음 소환시 전설 유닛 소환");
+            //Debug.Log("다음 소환시 전설 유닛 소환");
         }
         playerUnitGO.GetComponent<BaseUnit>().SetStatMultiplier(isLegendary ? statMultiplier : 1f, isSpawnHero);
 

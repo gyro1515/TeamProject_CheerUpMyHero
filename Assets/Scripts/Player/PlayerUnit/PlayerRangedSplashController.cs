@@ -129,7 +129,7 @@ public class PlayerRangedSplashController : BaseUnitController
         //UnityEngine.Debug.Log($"이번 로직 실행시간: {sw.Elapsed.TotalMilliseconds:F6} ms");
         if (hitCount > 0)
         {
-            UnityEngine.Debug.Log($"{gameObject.name}이(가) {hitCount}명의 적에게 원거리 범위 공격!");
+            //UnityEngine.Debug.Log($"{gameObject.name}이(가) {hitCount}명의 적에게 원거리 범위 공격!");
         }
     }
 

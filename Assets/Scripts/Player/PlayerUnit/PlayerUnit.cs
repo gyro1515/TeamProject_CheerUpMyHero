@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class PlayerUnit : BaseUnit
@@ -27,7 +28,11 @@ public class PlayerUnit : BaseUnit
     public override void SetStatMultiplier(float statMultiplier, bool isSpawnHero = false)
     {
         if (UnitData == null) { Debug.LogError("데이터 없음"); return; }
-        if (gameObject == null) {Debug.LogWarning($"{gameObject.ToString()} : 왜 파괴됐을까?"); return; } // 비활성화/파괴된 상태라면 리턴
+        if (gameObject.IsDestroyed() || gameObject == null) 
+        {
+            Debug.LogWarning($"왜 파괴됐을까?"); 
+            return; // 비활성화/파괴된 상태라면 리턴
+        } 
 
         float synergyHealthBonus = PlayerDataManager.Instance.SynergyAllUnitHealthBonus;
         float synergyAttackBonus = PlayerDataManager.Instance.SynergyAllUnitAttackBonus;

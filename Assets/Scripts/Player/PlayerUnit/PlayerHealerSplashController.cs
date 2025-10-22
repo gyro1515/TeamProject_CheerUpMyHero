@@ -145,7 +145,7 @@ public class PlayerHealerSplashController : BaseUnitController
 
         if (hitCount > 0)
         {
-            Debug.Log($"{gameObject.name}이(가) {hitCount}명의 적에게 원거리 범위 공격!");
+            //Debug.Log($"{gameObject.name}이(가) {hitCount}명의 적에게 원거리 범위 공격!");
         }
     }
 

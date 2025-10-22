@@ -119,7 +119,7 @@ public class PlayerMeleeSplashController : BaseUnitController
         }
         if (hitCount > 0)
         {
-            UnityEngine.Debug.Log($"{gameObject.name}이(가) {hitCount}명의 적에게 범위 공격!");
+            //UnityEngine.Debug.Log($"{gameObject.name}이(가) {hitCount}명의 적에게 범위 공격!");
         }
     }
     public override void Dead()
