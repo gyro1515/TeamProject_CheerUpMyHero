@@ -8,7 +8,7 @@ using UnityEngine;
 public class ScrambleText : MonoBehaviour
 {
     [Tooltip("스크램블 효과에 사용할 문자들")]
-    [SerializeField] string scrambleCharacters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    [SerializeField] string scrambleCharacters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*<>?";
 
     private TextMeshProUGUI tmpText;
     private string targetString; // 최종 목표 텍스트
