@@ -33,7 +33,7 @@ public class PlayerUnit : BaseUnit
         float synergyAttackCooldownReduction = PlayerDataManager.Instance.SynergyUnitAttackCooldownReduction;
 
         // 영웅 소환시, 소환될 유닛은 스탯 2배
-        float spawnHeroBonus = isSpawnHero ? 2f : 1f;
+        float spawnHeroBonus = isSpawnHero && UnitData.unitClass == UnitClass.Normal ? 2f : 1f;
 
         // 배율에 따른 체력 공격력 세팅
         MaxHp = UnitData.health * statMultiplier * (1.0f + synergyHealthBonus / 100.0f) * spawnHeroBonus;
