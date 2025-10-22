@@ -10,7 +10,7 @@ public class UITimer : MonoBehaviour
     [SerializeField] TMP_Text timerText;
 
     //시작 절대 시간
-    private float startTime;
+    //private float startTime;
 
     //7분 30초
     private float totalTime = 450f;
@@ -23,6 +23,7 @@ public class UITimer : MonoBehaviour
     IEventPublisher<HeroSpawnEvent> heroSpawnEventPub;
     UIHeroCinematic uIHeroCinematic; // 용사 컷씬 UI
     HeroData selectedHeroData; // 소환할 용사 데이터
+    bool checkUnknownHero = false; // 용사 알 수 없음 체크용
 
     private void Awake()
     {
@@ -38,12 +39,12 @@ public class UITimer : MonoBehaviour
         int randomIdx = Random.Range(0, hero_unit.Count);
         selectedHeroData = hero_unit[randomIdx];
         Debug.Log($"선택된 영웅: {selectedHeroData.poolType} / {selectedHeroData.unitName}");
-        // 만약 랜덤요소로 용사 알수 없음이 뜬다면 여기서 처리
-        bool checkUnknownHero = true; // 데이터 가져와서 체크
-        // 알 수 없음 미구현으로 일단 초기화
-        //if (checkUnknownHero) return; // 용사 알 수 없음이면 UI 초기화X, 기본UI로 둠, 기본UI는 기본 베이스가 알수 없음 용사
 
+        // 만약 랜덤요소로 용사 알수 없음이 뜬다면 여기서 처리
+        //checkUnknownHero = 용사 알 수 없음 체크는 여기서 // 데이터 가져와서 체크
+        //checkUnknownHero = true; // 트루면 마지막에만 뜸
         // 용사 컷씬 초기화
+        //selectedHeroData = hero_unit[3]; // 테스트로 4번째 용사로 고정
         uIHeroCinematic.InitHeroCinematic(selectedHeroData);
     }
     private void OnDisable()
@@ -61,12 +62,12 @@ public class UITimer : MonoBehaviour
             UpdateTimer();
             // 타이머 3초 전에 소환 예정 대사 출력
             // 용사 스폰 예정 대사 출력
-            if (!willSpawnHero && remainTime <= 3f)
+            if (remainTime <= 3f)
             {
-                willSpawnHero = true;
                 // 대사 출력
                 //Debug.Log("3초 후 용사가 스폰됩니다!");
                 uIHeroCinematic.OpenHeroCinematic(HeroCinematicType.HeroSpeachForPreSpawn);
+                //if(!checkUnknownHero) uIHeroCinematic.OpenHeroCinematic(HeroCinematicType.HeroSpeachForPreSpawn);
             }
             yield return null;
         }
@@ -102,7 +103,7 @@ public class UITimer : MonoBehaviour
         // TODO: totalTime은 게임 환경에 따라 여기서 길이를 조절할 수 있음 ********
         Debug.Log($"용사 타이머 세팅: {totalTime}초");
         // 타이머 시작
-        startTime = GameManager.Instance.StartTime;
+        //startTime = GameManager.Instance.StartTime;
         //Debug.Log($"용사 타이머 시작 시간: {startTime}초");
         
         remainTime = totalTime;
@@ -114,7 +115,7 @@ public class UITimer : MonoBehaviour
         if (startWaveEvent.waveIdx != 1) return;
         // 용사 컷씬 대사 출력
         //Debug.Log("첫 웨이브에 어떤 용사인지 출력");
-        uIHeroCinematic.OpenHeroCinematic(HeroCinematicType.CutSceneForFirstWave);
+        if (!checkUnknownHero) uIHeroCinematic.OpenHeroCinematic(HeroCinematicType.CutSceneForFirstWave);
 
     }
 }

@@ -104,7 +104,9 @@ public class UISpawnUnitSlot : MonoBehaviour
     {
         if (canSpawn == canSpawnUnit) return; // 상태 변화 없으면 리턴
         unitTextureHandler.SetCanSpawnUnit(canSpawn);
-        unitIcon.color = canSpawn && !isCooldown ? whiteCol : grayCol;
+        // 타이머와 아이콘 색상 동기화 코드
+        //unitIcon.color = canSpawn && !isCooldown ? whiteCol : grayCol;
+        unitIcon.color = canSpawn ? whiteCol : grayCol;
         canSpawnUnit = canSpawn;
         spawnUnitBtn.enabled = canSpawn;
     }
@@ -115,7 +117,8 @@ public class UISpawnUnitSlot : MonoBehaviour
         //enabled = active;
         unitIconTimer.gameObject.SetActive(active);
         unitIconTimer.fillAmount = active ? 1f : 0f;
-        unitIcon.color = canSpawnUnit && !isCooldown ? whiteCol : grayCol;
+        // 타이머와 아이콘 색상 동기화 코드
+        //unitIcon.color = canSpawnUnit && !isCooldown ? whiteCol : grayCol;
     }
 
     public void SetOutLineForSpawnLegendaryUnit()

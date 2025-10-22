@@ -42,6 +42,8 @@ public class UIArtifactEquipSlot : MonoBehaviour
         _outline = GetComponent<Outline>();
         _button = GetComponent<Button>();
         _button.onClick.AddListener(OnButtonClicked);
+
+        if (_artifactIcon != null ) _artifactIcon.preserveAspect = true;
     }
 
     // 슬롯에 유물 정보 넣어줌
@@ -50,18 +52,24 @@ public class UIArtifactEquipSlot : MonoBehaviour
         if (string.IsNullOrEmpty(vm.Name))
         {
             _artifactIcon.sprite = null;
+            _artifactIcon.color = Color.clear;
+            
             //_nameText.text = "";
             //_statTypeText.text = "";
             //_statValueText.text = "";
+            
             _outline.effectColor = Color.black;
-            _iconOutline.effectColor = Color.black;
+            _iconOutline.effectColor = Color.clear;
         }
         else
         {
             _artifactIcon.sprite = vm.Icon;
+            _artifactIcon.color = Color.white;
+
             //_nameText.text = vm.Name;
             //_statTypeText.text = vm.StatType;
             //_statValueText.text = vm.StatValue;
+
             _outline.effectColor = vm.BorderColor;
             _iconOutline.effectColor = vm.BorderColor;
         }

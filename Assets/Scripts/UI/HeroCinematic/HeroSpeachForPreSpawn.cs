@@ -23,7 +23,7 @@ public class HeroSpeachForPreSpawn : MonoBehaviour
     }
     public void InitHeroSpeachForPreSpawn(HeroData data)
     {
-        //heroSpeachText.text = data.preSpawnSpeech;
+        heroSpeachText.text = data.preSpawnSpeech;
     }
     IEnumerator FadeOutRoutine()
     {

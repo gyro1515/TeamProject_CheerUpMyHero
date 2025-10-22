@@ -37,24 +37,21 @@ public class UIArtifactInventorySlot : MonoBehaviour
     public event Action<ArtifactData> OnArtifactInventorySlotClicked;
     #endregion
 
-    private void Awake()
-    {
-        _outline = GetComponent<Outline>();
-
-        _button = GetComponent<Button>();
-        _button.onClick.AddListener(OnButtonClicked);
-    }
-
     public void Init(InventorySlotViewModel vm)
     {
+        _outline = GetComponent<Outline>();
+        _button = GetComponent<Button>();
+        _button.onClick.AddListener(OnButtonClicked);
+
         _data = vm.Artifact;
 
         _nameText.text = vm.Name;
         _statTypeText.text = vm.StatType;
         _statValueText.text = vm.StatValue;
-        //_outline.effectColor = vm.BorderColor;
+        _outline.effectColor = vm.BorderColor;
         _iconOutline.effectColor = vm.BorderColor;
         _artifactIcon.sprite = vm.Icon;
+        _artifactIcon.preserveAspect = true;
         _equippedImage.SetActive(vm.IsEquippedInCurrentSlot);
 
         gameObject.SetActive(true);

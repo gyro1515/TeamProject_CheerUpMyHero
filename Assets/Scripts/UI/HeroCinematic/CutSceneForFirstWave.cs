@@ -15,6 +15,14 @@ public class CutSceneForFirstWave : BasePopUpUI
     //[SerializeField] RectTransform cutSceneImgRectTransform;
     bool canClose = false;
     PoolType heroType = PoolType.None;
+
+    // 스크랩블 텍스트
+    ScrambleText scrambleTextCom;
+    protected override void Awake()
+    {
+        base.Awake();
+        scrambleTextCom = gameObject.AddComponent<ScrambleText>();
+    }
     public override void OpenUI()
     {
         // 이렇게 재정의하면 안되지만, 다양한 오프닝 이펙트를 주기 위해서 불가피하게 재정의
@@ -34,8 +42,9 @@ public class CutSceneForFirstWave : BasePopUpUI
                 // 델란 마법사 페이든인 후 스크램블 1초
 
                 // 페이든 인 끝나고 -> 스크램블 끝나고 -> StartFadeOutTimer 실행
-                // ********* 스크램블 구현하고 수정해야 함************
-                base.OpenUI(StartFadeOutTimer);
+                string tmpText = cutSceneText.text;
+                cutSceneText.text = "";
+                base.OpenUI(()=> scrambleTextCom.StartScramble(cutSceneText, tmpText, 1f, StartFadeOutTimer));
 
                 return;
             case PoolType.Hero_Unit5:
@@ -74,9 +83,8 @@ public class CutSceneForFirstWave : BasePopUpUI
     }
     public void InitCutSceneForFirstWave(HeroData data)
     {
-        // ********* 테스트로 기본 상태로 세팅 ************
-        /*cutSceneImg.sprite = data.firstWaveSprite;
-        cutSceneText.text = data.firstWaveSpeech;*/
+        cutSceneImg.sprite = data.firstWaveSprite;
+        cutSceneText.text = data.firstWaveSpeech;
         heroType = data.poolType;
     }
     void StartFadeOutTimer()

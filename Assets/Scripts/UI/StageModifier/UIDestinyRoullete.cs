@@ -126,11 +126,16 @@ public class UIDestinyRoullette : BaseUI
     private void SetWheelVisuals(float fortune, float misfortune, float misfortuneRotation)
     {
         _fortuneSlice.fillAmount = fortune;
-        _misfortuneSlice.fillAmount = misfortune;
-        _misfortuneSlice.transform.localEulerAngles = new Vector3(0, 0, misfortuneRotation);
+        _misfortuneSlice.fillAmount = 1.0f;
+        _misfortuneSlice.transform.localEulerAngles = Vector3.zero;
+        //_misfortuneSlice.fillAmount = misfortune;
+        //_misfortuneSlice.transform.localEulerAngles = new Vector3(0, 0, misfortuneRotation);
 
-        float fortuneCenterDegree = (fortune * 360f) / 2f;
-        float misfortuneCenterDegree = misfortuneRotation + (misfortune * 360f) / 2f;
+        float fortuneAngle = fortune * 360f;
+        float fortuneCenterDegree = fortuneAngle / 2f;
+        float misfortuneCenterDegree = fortuneAngle + (misfortune * 360f) / 2f;
+        //float misfortuneCenterDegree = misfortuneRotation + (misfortune * 360f) / 2f;
+
 
         _fortuneText.rectTransform.localPosition = SetTextPosition(fortuneCenterDegree, _textDistance);
         _fortuneText.rectTransform.localEulerAngles = new Vector3(0, 0, -fortuneCenterDegree);
