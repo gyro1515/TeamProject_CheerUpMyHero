@@ -27,7 +27,7 @@ public class PlayerUnit : BaseUnit
     public override void SetStatMultiplier(float statMultiplier, bool isSpawnHero = false)
     {
         if (UnitData == null) { Debug.LogError("데이터 없음"); return; }
-        if (gameObject == null) {Debug.LogError($"{gameObject.ToString()} : 왜 파괴됐을까?"); return; } // 비활성화/파괴된 상태라면 리턴
+        if (gameObject == null) {Debug.LogWarning($"{gameObject.ToString()} : 왜 파괴됐을까?"); return; } // 비활성화/파괴된 상태라면 리턴
 
         float synergyHealthBonus = PlayerDataManager.Instance.SynergyAllUnitHealthBonus;
         float synergyAttackBonus = PlayerDataManager.Instance.SynergyAllUnitAttackBonus;
@@ -117,6 +117,7 @@ public class PlayerUnit : BaseUnit
         // 렌더 텍스처용 세팅
         UnitManager.Instance.RemoveUnitFromList(this, true);
         UnitController.enabled = false;
+        enabled = false;
         MoveDir = Vector3.zero;
 
     }
