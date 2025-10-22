@@ -42,7 +42,7 @@ public class UITimer : MonoBehaviour
 
         // 만약 랜덤요소로 용사 알수 없음이 뜬다면 여기서 처리
         //checkUnknownHero = 용사 알 수 없음 체크는 여기서 // 데이터 가져와서 체크
-        checkUnknownHero = true;
+        //checkUnknownHero = true; // 트루면 마지막에만 뜸
         // 용사 컷씬 초기화
         uIHeroCinematic.InitHeroCinematic(selectedHeroData);
     }
