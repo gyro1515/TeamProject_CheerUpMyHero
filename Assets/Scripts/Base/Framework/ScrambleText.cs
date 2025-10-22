@@ -6,8 +6,6 @@ using System.Xml;
 using TMPro; 
 using UnityEngine;
 
-// 이 스크립트가 작동하려면 TextMeshProUGUI 컴포넌트가 반드시 필요
-[RequireComponent(typeof(TextMeshProUGUI))]
 public class ScrambleText : MonoBehaviour
 {
     [Tooltip("스크램블 효과에 사용할 문자들")]
@@ -23,7 +21,9 @@ public class ScrambleText : MonoBehaviour
         // 이미 실행 중인 스크램블이 있다면 중지
         if (scrambleCoroutine != null)
         {
+            // 기존거 다시 세팅하고
             StopCoroutine(scrambleCoroutine);
+            tmpText.text = targetString;
         }
         tmpText = textMPUGUI;
         targetString = _targetString;
