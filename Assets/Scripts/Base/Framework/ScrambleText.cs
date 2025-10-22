@@ -20,9 +20,9 @@ public class ScrambleText : MonoBehaviour
         // 이미 실행 중인 스크램블이 있다면 중지
         if (scrambleCoroutine != null)
         {
-            // 기존거 다시 세팅하고
             StopCoroutine(scrambleCoroutine);
-            tmpText.text = targetString;
+            // 기존거 다시 세팅
+            if (tmpText) tmpText.text = targetString;
         }
         tmpText = textMPUGUI;
         targetString = _targetString;
