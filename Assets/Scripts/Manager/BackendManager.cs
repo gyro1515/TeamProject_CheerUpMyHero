@@ -8,6 +8,7 @@ using Unity.Services.Authentication;
 using Unity.Services.CloudCode;
 using Unity.Services.CloudCode.GeneratedBindings;
 using Unity.Services.Core;
+using Unity.Services.Economy;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -31,6 +32,9 @@ public class BackendManager : SingletonMono<BackendManager>
     private const float NETWORK_CACHE_DURATION = 5.0f;
     // 인터넷 확인용 주소
     private const string NETWORK_CHECK_URL = "https://connectivitycheck.gstatic.com/generate_204";
+
+    //재화 ID값
+    public const string GOLD_ID = "TICKET";
 
     //분석 켜짐 or 꺼짐
     public static bool IsAnalyticsCollectionStarted { get; private set; } = false;
@@ -86,6 +90,9 @@ public class BackendManager : SingletonMono<BackendManager>
             //3. AnalyticsData 활성화
             StartAnalytics();
 
+            //4. 재화, 데이터 관련 세팅
+            await StartEconomyAndClound();
+
             _initializationTcs.TrySetResult(true);
         }
         catch (Exception e)
@@ -134,6 +141,13 @@ public class BackendManager : SingletonMono<BackendManager>
         IsAnalyticsCollectionStarted = true;
 
         Debug.Log($"<color=cyan>데이터 수집 동의 완료. 분석 데이터가 자동으로 서버에 전송됩니다.</color>");
+    }
+
+    //Economy, CloundSave 관련
+    async UniTask StartEconomyAndClound()
+    {
+        //Economy 서비스 초기화
+        await EconomyService.Instance.Configuration.SyncConfigurationAsync();
     }
 
 
