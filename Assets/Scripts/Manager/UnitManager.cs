@@ -124,7 +124,7 @@ public class UnitManager : SingletonMono<UnitManager>
         // 용사 소환 시 아군 유닛 전체 스탯 200% 버프 적용
         for (int i = 0; i < playerUnitList.Count; i++)
         {
-            if(playerUnitList[i] is BaseUnit unit)
+            if(playerUnitList[i] is BaseUnit unit && !(unit is Player))
             {
                 unit.SetStatMultiplier(2f);
             }

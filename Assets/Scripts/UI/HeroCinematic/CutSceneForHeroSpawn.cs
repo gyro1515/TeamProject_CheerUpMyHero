@@ -25,7 +25,6 @@ public class CutSceneForHeroSpawn : MonoBehaviour
     {
         gameObject.SetActive(true);
         orginPos = cutSceneImgRectTransform.anchoredPosition;
-        //cutSceneImgRectTransform.position = startMovePos;
         cutSceneImgRectTransform.anchoredPosition = startMovePos;
         cutSceneCanvasGroup.DOFade(1f, 0.2f);
         cutSceneImgRectTransform.DOAnchorPosX(orginPos.x, 0.2f).SetEase(startMoveEase).OnComplete(() =>
@@ -45,7 +44,7 @@ public class CutSceneForHeroSpawn : MonoBehaviour
     }
     public void InitCutSceneForHeroSpawn(HeroData data)
     {
-        //cutSceneImg.sprite = data.spawnSprite;
+        cutSceneImg.sprite = data.spawnSprite;
     }
 
 

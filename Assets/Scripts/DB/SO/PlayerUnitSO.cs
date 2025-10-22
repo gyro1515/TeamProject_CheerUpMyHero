@@ -25,6 +25,8 @@ public class PlayerUnitSO : MonoSO<BaseUnitData>
             if (data == null) continue;
 
             DB[(int)data.poolType] = data;
+            hero_unit[i].firstWaveSprite = Resources.Load<Sprite>(data.firstWaveSpritePath);
+            hero_unit[i].spawnSprite = Resources.Load<Sprite>(data.spawnSpritePath);
         }
         for (int i = 0; i < hiller_unit.Count; i++)
         {
