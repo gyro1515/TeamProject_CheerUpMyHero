@@ -8,6 +8,8 @@ using Unity.Services.Authentication;
 using Unity.Services.CloudCode;
 using Unity.Services.CloudCode.GeneratedBindings;
 using Unity.Services.Core;
+using Unity.Services.Economy;
+using Unity.Services.Economy.Model;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -15,11 +17,9 @@ public class BackendManager : SingletonMono<BackendManager>
 {
     //서버와 통신하는 함수를 모아둘 예정
 
-    //추가 예정
-    //플레이어 id
-    //플레이어 자원
-    //분석 결과 보내기
-    //...
+    //해야 할것: 고유한 재시도 로직
+    //예: 재화 관련의 경우 writelock 다시 받아오기
+
 
     #region 필드 모음
     //네트워크 캐시 변수들
@@ -31,6 +31,17 @@ public class BackendManager : SingletonMono<BackendManager>
     private const float NETWORK_CACHE_DURATION = 5.0f;
     // 인터넷 확인용 주소
     private const string NETWORK_CHECK_URL = "https://connectivitycheck.gstatic.com/generate_204";
+
+    //쓰기 제한 WriteLock
+    private Dictionary<string, string> writeLocks = new();
+
+    //재화 ID값
+    public const string GOLD_ID = "GOLD";
+    public const string WOOD_ID = "WOOD";
+    public const string IRON_ID = "IRON";
+    public const string TICKET_ID = "TICKET";
+    public const string MAGICSTONE_ID = "MAGICSTONE";
+    public const string BM_ID = "BM";
 
     //분석 켜짐 or 꺼짐
     public static bool IsAnalyticsCollectionStarted { get; private set; } = false;
@@ -73,7 +84,7 @@ public class BackendManager : SingletonMono<BackendManager>
             {
                 bool signInSuccess = await SignInAnonymouslyAsync();
 
-                if (!signInSuccess )
+                if (!signInSuccess)
                 {
                     throw new Exception("익명 로그인에 실패했습니다.");
                 }
@@ -86,7 +97,16 @@ public class BackendManager : SingletonMono<BackendManager>
             //3. AnalyticsData 활성화
             StartAnalytics();
 
+            //4. 재화, 데이터 관련 세팅
+            await StartEconomyAndClound();
+            
+
             _initializationTcs.TrySetResult(true);
+
+            Debug.Log($"<color=cyan>모든 서비스 준비 완료!</color>");
+
+            //플레이어 데이터 매니저가 비동기를 가질 때까지는 외부에서 자원 넣어줘야 할듯
+            await PlayerDataManager.Instance.InitializeResourcesAsync();
         }
         catch (Exception e)
         {
@@ -134,6 +154,15 @@ public class BackendManager : SingletonMono<BackendManager>
         IsAnalyticsCollectionStarted = true;
 
         Debug.Log($"<color=cyan>데이터 수집 동의 완료. 분석 데이터가 자동으로 서버에 전송됩니다.</color>");
+    }
+
+    //Economy, CloundSave 관련
+    async UniTask StartEconomyAndClound()
+    {
+        //Economy 서비스 초기화
+        await EconomyService.Instance.Configuration.SyncConfigurationAsync();
+
+        Debug.Log("Economy 서비스 초기화");
     }
 
 
@@ -243,14 +272,14 @@ public class BackendManager : SingletonMono<BackendManager>
         await Instance.InternalSaveDataAsync(data);
     }
 
-    //Analytic는 인터넷 연결 없이도 저장 후 데이터 전송
+    //Analytic는 현재 인터넷 연결 없이도 저장 후 데이터 전송
     public static async UniTask SendStageAnalyticsAsync(Dictionary<string, object> data) //일단 딕셔너리로 적긴 했는데, struct 활용 예정
     {
         //서비스 초기화 여부랑 Analytic 활성화 여부만 체크
         //Analytic는 사용자가 제공 거부를 할 수 있으므로 강제로 키지 않음
         if (!IsAnalyticsCollectionStarted)
         {
-            Debug.Log("Analytic가 실행되지 않아 통계가 전송되지 않습니다.");
+            Debug.Log("<color=green>Analytic가 실행되지 않아 통계가 전송되지 않습니다.</color>");
             return;
         }
 
@@ -263,10 +292,9 @@ public class BackendManager : SingletonMono<BackendManager>
 
     public static async UniTask<int> OneNormalGachaAsync()
     {
-        if (!await CanCommunicateAsync(nameof(SaveDataAsync)))
+        if (!await CanCommunicateAsync(nameof(OneNormalGachaAsync)))
         {
-            Debug.LogError("서버 연결 불가: 데이터 저장 불가");
-            //이유도 같이 나오게 할 예정
+            Debug.LogError("서버 연결 불가");
 
             return -1;
         }
@@ -275,6 +303,98 @@ public class BackendManager : SingletonMono<BackendManager>
     }
 
 
+    //현재 플레이어 데이터매니저를 통하는데, 리팩토링 예정
+    //받는쪽에서 널이면 팝업 띄워야함
+    //사실 이렇게 하지말고 팝업처리까지 백엔드매니저에서 해야함
+    public static async UniTask<Dictionary<ResourceType, int>> LoadEconomyData()
+    {
+        if (!await CanCommunicateAsync(nameof(LoadEconomyData)))
+        {
+            Debug.LogError("서버 연결 불가");
+            return null;
+        }
+
+        return await Instance.InternalLoadEconomyData();
+    }
+
+    //나중에 서버로 이사가야 함
+    //그니까 일단 void도 대충 하자
+    public static async void ChangeEnconmy(string id, int amount)
+    {
+        if (!await CanCommunicateAsync(nameof(ChangeEnconmy)))
+        {
+            Debug.LogError("서버 연결 불가");
+            return;
+        }
+
+        await Instance.InternalChangeEnconmyAsync(id, amount);
+    }
+
+
+    //서버 ID : 자원 enum 매칭 
+    public static string EconomyEnumToId(ResourceType resource)
+    {
+        string result = string.Empty;
+        switch (resource)
+        {
+            case ResourceType.Gold:
+                result = GOLD_ID;
+                break;
+            case ResourceType.Wood:
+                result = WOOD_ID;
+                break;
+            case ResourceType.Iron:
+                result = IRON_ID;
+                break;
+            case ResourceType.Ticket:
+                result = TICKET_ID;
+                break;
+            case ResourceType.MagicStone:
+                result = MAGICSTONE_ID;
+                break;
+            case ResourceType.Bm:
+                result = BM_ID;
+                break;
+            case ResourceType.Food:
+                result = string.Empty;
+                Debug.LogWarning("Food는 서버에 저장되지 않으므로 빈값을 반환합니다.");
+                break;
+        }
+        return result;
+    }
+
+    public static bool EconomyIdToEnum(string id, out ResourceType resource)
+    {
+        bool result = true;
+
+        switch (id)
+        {
+            case GOLD_ID:
+                resource = ResourceType.Gold;
+                break;
+            case WOOD_ID:
+                resource = ResourceType.Wood;
+                break;
+            case IRON_ID:
+                resource = ResourceType.Iron;
+                break;
+            case TICKET_ID:
+                resource = ResourceType.Ticket;
+                break;
+            case MAGICSTONE_ID:
+                resource = ResourceType.MagicStone;
+                break;
+            case BM_ID:
+                resource = ResourceType.Bm;
+                break;
+            default:
+                resource = ResourceType.Food;
+                Debug.LogWarning($"Unknown resource type: {id}");
+                result = false;
+                break;
+        }
+        return result;
+    }
 
     // ===================================================================
     //           ▼ Private Instance Implementations (실제 로직) ▼
@@ -317,6 +437,79 @@ public class BackendManager : SingletonMono<BackendManager>
             return -1;
         }
     }
+
+
+    private async UniTask<Dictionary<ResourceType, int>> InternalLoadEconomyData()
+    {
+        try 
+        {
+            GetBalancesResult initialBalancesResult = await EconomyService.Instance.PlayerBalances.GetBalancesAsync();
+            List<PlayerBalance> playerBalances = initialBalancesResult.Balances;
+
+            Dictionary<ResourceType, int> resourcesValue = new();
+            foreach (PlayerBalance balance in playerBalances)
+            {
+                if (EconomyIdToEnum(balance.CurrencyId, out ResourceType resource))
+                {
+                    resourcesValue.Add(resource, Convert.ToInt32(balance.Balance)); // economy 최대값을 설정해 두어서 int 초과할 일은 없음
+                    writeLocks[balance.CurrencyId] = balance.WriteLock;
+                }
+                else
+                {
+                    throw new System.InvalidOperationException("오류: 자원을 불러오는 내부 로직에 문제가 있습니다.");
+                }
+            }
+
+            return resourcesValue;
+        }
+        catch (Exception e)
+        {
+            Debug.LogException(e);
+            throw;
+        }
+    }
+
+
+
+    private async UniTask InternalChangeEnconmyAsync(string id, int amount)
+    {
+        if (!writeLocks.ContainsKey(id))
+        {
+            Debug.LogWarning("재화가 동기화되지 않았습니다");
+            return;
+        }
+
+        if (amount == 0)
+        {
+            Debug.LogWarning("0만큼 변할 수 없습니다.");
+            return;
+        }
+
+        string currentWriteLock = writeLocks[id];
+
+        try
+        {
+            if (amount > 0)
+            {
+                var incrementOptions = new IncrementBalanceOptions { WriteLock = currentWriteLock };
+                PlayerBalance incrementResult = await EconomyService.Instance.PlayerBalances.IncrementBalanceAsync(id, amount, incrementOptions);
+                incrementResult.WriteLock = writeLocks[id];
+            }
+            else
+            {
+                var decrementOptions = new DecrementBalanceOptions { WriteLock = currentWriteLock };
+                PlayerBalance decrementResult = await EconomyService.Instance.PlayerBalances.DecrementBalanceAsync(id, -amount, decrementOptions);
+                decrementResult.WriteLock = writeLocks[id];
+            }
+        }
+
+        catch (EconomyException e)
+        {
+            Debug.LogException(e);
+        }
+    }
+
+
 
 }
 

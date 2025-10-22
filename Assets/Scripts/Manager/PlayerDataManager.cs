@@ -1,3 +1,4 @@
+using Cysharp.Threading.Tasks;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -75,7 +76,6 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
             _TileDataHandler = new TileDataHandler();
             _tileEfficiencyBonuses = new Dictionary<(int, int), float>();
             _synergyDataUpdatedPublisher = EventManager.GetPublisher<SynergyDataUpdatedEvent>();
-            InitializeResources();
             LoadDecks();
             TestCardGenerate();
             onGridStateChangedEvent = EventManager.GetSubscriber<GridStateChangedEvent>();
@@ -407,16 +407,33 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
     // 각 자원 타입과 수량을 저장할 딕셔너리
     private Dictionary<ResourceType, int> _resources = new();
 
-    private void InitializeResources()
+    //비동기로 시작씬에서 호출.
+    public async UniTask InitializeResourcesAsync()
     {
         // 5가지 자원을 모두 딕셔너리에 추가하고 초기 수량을 설정.
-        _resources[ResourceType.Gold] = 10000;
-        _resources[ResourceType.Wood] = 10000;
-        _resources[ResourceType.Iron] = 10000;
-        _resources[ResourceType.Food] = CurrentFood;
-        _resources[ResourceType.MagicStone] = 10000;
-        _resources[ResourceType.Bm] = 0; 
-        _resources[ResourceType.Ticket] = 0;
+        //_resources[ResourceType.Gold] = 10000;
+        //_resources[ResourceType.Wood] = 10000;
+        //_resources[ResourceType.Iron] = 10000;
+        //_resources[ResourceType.Food] = CurrentFood;
+        //_resources[ResourceType.MagicStone] = 10000;
+        //_resources[ResourceType.Bm] = 0; 
+        //_resources[ResourceType.Ticket] = 0;
+
+        Dictionary<ResourceType, int> serverData = await BackendManager.LoadEconomyData();
+
+        if (serverData == null) 
+        {
+            Debug.LogError("인터넷 확인");
+        }
+        else
+        {
+            foreach(ResourceType resource in serverData.Keys)
+            {
+                _resources[resource] = serverData[resource];
+            }
+            Debug.Log("재화 불러오기 완료");
+        }
+
     }
 
     // 특정 자원의 현재 수량을 반환하는 메서드
@@ -443,6 +460,8 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
             }
 
             OnResourceChangedEvent?.Invoke(type, _resources[type]);
+
+            BackendManager.ChangeEnconmy(BackendManager.EconomyEnumToId(type), amount);
         }
         else
         {
