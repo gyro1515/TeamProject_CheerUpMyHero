@@ -50,7 +50,7 @@ public class UIArtifactInventoryPanel : BasePopUpUI
     [SerializeField] private GameObject _slotPrefab;
     [SerializeField] private Transform _slotCreatPosition;
 
-    private List<UIArtifactInvInventorySlot> _slotList = new List<UIArtifactInvInventorySlot>();        // 인벤토리 안에 생성된 슬롯들 담아두는 리스트
+    private List<UIArtifactInventorySlot> _slotList = new List<UIArtifactInventorySlot>();        // 인벤토리 안에 생성된 슬롯들 담아두는 리스트
     
     public ArtifactData _selectedArtifact;
     private int _currentSlotIndex;
@@ -92,12 +92,12 @@ public class UIArtifactInventoryPanel : BasePopUpUI
     {
         for (int i = 0; i < viewModels.Count; i++)
         {
-            UIArtifactInvInventorySlot slot;
+            UIArtifactInventorySlot slot;
 
             if (i >= _slotList.Count)
             {
                 GameObject createdSlot = Instantiate(_slotPrefab, _slotCreatPosition);
-                slot = createdSlot.GetComponent<UIArtifactInvInventorySlot>();
+                slot = createdSlot.GetComponent<UIArtifactInventorySlot>();
                 slot.OnArtifactInventorySlotClicked += SelectArtifact;
                 _slotList.Add(slot);
             }

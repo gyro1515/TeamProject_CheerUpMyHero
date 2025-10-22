@@ -21,9 +21,9 @@ public class UIArtifactEquipSlot : MonoBehaviour
     [Header("유물 데이터 적용")]
     [SerializeField] private Image _artifactIcon;
     [SerializeField] private Outline _iconOutline;
-    [SerializeField] private TextMeshProUGUI _nameText;
-    [SerializeField] private TextMeshProUGUI _statTypeText;
-    [SerializeField] private TextMeshProUGUI _statValueText;
+    //[SerializeField] private TextMeshProUGUI _nameText;
+    //[SerializeField] private TextMeshProUGUI _statTypeText;
+    //[SerializeField] private TextMeshProUGUI _statValueText;
 
     private Button _button;
     private Outline _outline;
@@ -50,18 +50,18 @@ public class UIArtifactEquipSlot : MonoBehaviour
         if (string.IsNullOrEmpty(vm.Name))
         {
             _artifactIcon.sprite = null;
-            _nameText.text = "";
-            _statTypeText.text = "";
-            _statValueText.text = "";
+            //_nameText.text = "";
+            //_statTypeText.text = "";
+            //_statValueText.text = "";
             _outline.effectColor = Color.black;
             _iconOutline.effectColor = Color.black;
         }
         else
         {
             _artifactIcon.sprite = vm.Icon;
-            _nameText.text = vm.Name;
-            _statTypeText.text = vm.StatType;
-            _statValueText.text = vm.StatValue;
+            //_nameText.text = vm.Name;
+            //_statTypeText.text = vm.StatType;
+            //_statValueText.text = vm.StatValue;
             _outline.effectColor = vm.BorderColor;
             _iconOutline.effectColor = vm.BorderColor;
         }
