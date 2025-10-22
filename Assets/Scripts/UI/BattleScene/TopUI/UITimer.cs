@@ -44,6 +44,7 @@ public class UITimer : MonoBehaviour
         //checkUnknownHero = 용사 알 수 없음 체크는 여기서 // 데이터 가져와서 체크
         //checkUnknownHero = true; // 트루면 마지막에만 뜸
         // 용사 컷씬 초기화
+        //selectedHeroData = hero_unit[3]; // 테스트로 4번째 용사로 고정
         uIHeroCinematic.InitHeroCinematic(selectedHeroData);
     }
     private void OnDisable()
