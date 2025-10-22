@@ -27,13 +27,14 @@ public class PlayerUnit : BaseUnit
     public override void SetStatMultiplier(float statMultiplier, bool isSpawnHero = false)
     {
         if (UnitData == null) { Debug.LogError("데이터 없음"); return; }
+        if (gameObject == null) {Debug.LogWarning($"{gameObject.ToString()} : 왜 파괴됐을까?"); return; } // 비활성화/파괴된 상태라면 리턴
 
         float synergyHealthBonus = PlayerDataManager.Instance.SynergyAllUnitHealthBonus;
         float synergyAttackBonus = PlayerDataManager.Instance.SynergyAllUnitAttackBonus;
         float synergyAttackCooldownReduction = PlayerDataManager.Instance.SynergyUnitAttackCooldownReduction;
 
         // 영웅 소환시, 소환될 유닛은 스탯 2배
-        float spawnHeroBonus = isSpawnHero ? 2f : 1f;
+        float spawnHeroBonus = isSpawnHero && UnitData.unitClass == UnitClass.Normal ? 2f : 1f;
 
         // 배율에 따른 체력 공격력 세팅
         MaxHp = UnitData.health * statMultiplier * (1.0f + synergyHealthBonus / 100.0f) * spawnHeroBonus;
@@ -116,6 +117,7 @@ public class PlayerUnit : BaseUnit
         // 렌더 텍스처용 세팅
         UnitManager.Instance.RemoveUnitFromList(this, true);
         UnitController.enabled = false;
+        enabled = false;
         MoveDir = Vector3.zero;
 
     }

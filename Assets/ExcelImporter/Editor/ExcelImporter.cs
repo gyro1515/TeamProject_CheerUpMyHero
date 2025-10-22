@@ -206,7 +206,7 @@ public class ExcelImporter : AssetPostprocessor
 			}
 			catch
 			{
-				throw new Exception(string.Format("Invalid excel cell type at row {0}, column {1}, {2} sheet.", row.RowNum, cell.ColumnIndex, sheetName));
+				throw new Exception(string.Format("Invalid excel cell type at row {0}, column {1}, {2} sheet. {3}", row.RowNum, cell.ColumnIndex, sheetName, cell.ToString()));
 			}
 		}
 		return entity;

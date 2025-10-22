@@ -87,17 +87,20 @@ public class Player : BaseUnit
         curHp = MaxHp;
         AtkPower = PlayerData.atkPower * statMultiplier;
         AttackRate = PlayerData.attackRate * statMultiplier; // 공격 속도는 크기와 상관없이 배율에 비례
-        float tmpstatMultiplier = Math.Clamp(statMultiplier, 0.8f, 1.2f); // 크기는 너무 작아지거나 커지지 않도록 제한
+        // 251022 주석처리
+        /*float tmpstatMultiplier = Math.Clamp(statMultiplier, 0.8f, 1.2f); // 크기는 너무 작아지거나 커지지 않도록 제한
         // 아래는 다 tmpstatMultiplier로 세팅, 크기에 따라 인식/공격 범위도 달라지도록
         gameObject.transform.localScale = TmpSize * tmpstatMultiplier;
         AttackRange = PlayerData.attackRange * tmpstatMultiplier;
-        CognizanceRange = PlayerData.cognizanceRange * tmpstatMultiplier;
+        CognizanceRange = PlayerData.cognizanceRange * tmpstatMultiplier;*/
         curMana = MaxMana;
 
         /*CapsuleCollider2D col = GetComponent<CapsuleCollider2D>();
         // 사이즈는 달라질 수 있으니 활성화 시마다 갱신
         knockbackHandler.Init(col.size.x * statMultiplier);*/
-        knockbackHandler.Init((TmpSize * tmpstatMultiplier).x);
+        // 251022 주석처리
+        // knockbackHandler.Init((TmpSize * tmpstatMultiplier).x); 
+        knockbackHandler.Init(TmpSize.x);
         // ex: 최대 체력 = 300 / HitBackCount = 3 => 데미지 100이 누적될때마다 히트백
         hitbackHp = MaxHp / PlayerData.hitBack;
         // ex: curHp / hitbackHp  => 2 -> 1 -> 0에서만 히트백이 발생하도록

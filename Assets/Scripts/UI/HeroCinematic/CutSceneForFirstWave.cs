@@ -74,9 +74,8 @@ public class CutSceneForFirstWave : BasePopUpUI
     }
     public void InitCutSceneForFirstWave(HeroData data)
     {
-        // ********* 테스트로 기본 상태로 세팅 ************
-        /*cutSceneImg.sprite = data.firstWaveSprite;
-        cutSceneText.text = data.firstWaveSpeech;*/
+        cutSceneImg.sprite = data.firstWaveSprite;
+        cutSceneText.text = data.firstWaveSpeech;
         heroType = data.poolType;
     }
     void StartFadeOutTimer()
