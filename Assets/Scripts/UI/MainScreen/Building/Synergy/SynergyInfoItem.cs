@@ -3,7 +3,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class SynergyInfoItem : BasePoolable
+public class SynergyInfoItem : BasePoolable 
 {
     [Header("UI 연결")]
     [SerializeField] private TextMeshProUGUI titleText;
@@ -15,48 +15,42 @@ public class SynergyInfoItem : BasePoolable
     [SerializeField] private GameObject horizontalLayout;
     [SerializeField] private GameObject gridIconLayout;
 
-    // --- Public 초기화 함수들 ---
+    [Header("아웃라인")]
+    [SerializeField] private Image outlineImage;
+
 
     public void Initialize(Sprite icon, string title, string description, int count = 0)
     {
         PrepareForInitialization(title, description);
-
-        // 단일 아이콘 레이아웃 활성화
-        singleIconLayout.SetActive(true);
-        var iconContainer = singleIconLayout.transform;
-
-        // 아이콘 생성 및 설정
-        var iconGO = CreateIcon(icon, iconContainer);
-        if (iconGO == null) return;
-
-        // 컨테이너 크기에 맞춰 아이콘 크기 조절
-        var iconRect = iconGO.GetComponent<RectTransform>();
-        var containerRect = iconContainer.GetComponent<RectTransform>();
-        float containerHeight = containerRect.rect.height;
-        iconRect.sizeDelta = new Vector2(containerHeight, containerHeight);
-
-        // 카운트 텍스트 설정
-        if (count > 1 && countText != null)
-        {
-            countText.text = $"x{count}";
-            countText.gameObject.SetActive(true);
-        }
+        DisableOutline(); 
+        PopulateSingleIcon(icon, count);
     }
 
+ 
     public void Initialize(BuildingSynergyType synergyType, List<Sprite> icons, string title, string description)
     {
         PrepareForInitialization(title, description);
+        SetOutline(synergyType); // 시너지 타입에 맞는 테두리 설정
 
         switch (synergyType)
         {
+            case BuildingSynergyType.Farm_Line:
+            case BuildingSynergyType.LumberMill_Line:
+            case BuildingSynergyType.Mine_Line:
+            case BuildingSynergyType.Barracks_Line:
+                // 라인 시너지는 단일 아이콘 + 카운트로 표시
+                PopulateSingleIcon(icons != null && icons.Count > 0 ? icons[0] : null, 4);
+                break;
+            // ---------------------------------
+
             case BuildingSynergyType.Specialized_Block:
                 gridIconLayout.SetActive(true);
-                PopulateGridIcons(icons, 4); // 2x2 그리드, 같은 아이콘 4개
+                PopulateGridIcons(icons, 4);
                 break;
 
             case BuildingSynergyType.Balanced_Block:
                 gridIconLayout.SetActive(true);
-                PopulateGridIcons(icons); // 2x2 그리드, 리스트의 모든 아이콘
+                PopulateGridIcons(icons);
                 break;
 
             default: // 인접 시너지 (아이콘 2개가 겹치는 형태)
@@ -68,30 +62,47 @@ public class SynergyInfoItem : BasePoolable
 
     // --- 아이콘 생성 및 배치 헬퍼 ---
 
+    private void PopulateSingleIcon(Sprite icon, int count)
+    {
+        singleIconLayout.SetActive(true);
+        var iconContainer = singleIconLayout.transform;
+        ClearContainer(iconContainer); // 이전 아이콘 제거
+
+        var iconGO = CreateIcon(icon, iconContainer);
+        if (iconGO == null) return;
+
+        var iconRect = iconGO.GetComponent<RectTransform>();
+        var containerRect = iconContainer.GetComponent<RectTransform>();
+        if (containerRect != null) // null 체크 추가
+        {
+            float containerHeight = containerRect.rect.height;
+            iconRect.sizeDelta = new Vector2(containerHeight, containerHeight);
+        }
+
+        if (count > 1 && countText != null)
+        {
+            countText.text = $"x{count}";
+            countText.gameObject.SetActive(true);
+        }
+    }
+
     private void PopulateGridIcons(List<Sprite> icons, int forceCount = 0)
     {
         var iconContainer = gridIconLayout.transform;
+        ClearContainer(iconContainer); // 이전 아이콘 제거
 
-        // Specialized_Block: 같은 아이콘을 지정된 횟수만큼 생성
         if (forceCount > 0)
         {
             if (icons != null && icons.Count > 0 && icons[0] != null)
             {
-                for (int i = 0; i < forceCount; i++)
-                {
-                    CreateIcon(icons[0], iconContainer);
-                }
+                for (int i = 0; i < forceCount; i++) CreateIcon(icons[0], iconContainer);
             }
         }
-        // Balanced_Block: 리스트에 있는 모든 아이콘 생성
         else
         {
             if (icons != null)
             {
-                foreach (var iconSprite in icons)
-                {
-                    CreateIcon(iconSprite, iconContainer);
-                }
+                foreach (var iconSprite in icons) CreateIcon(iconSprite, iconContainer);
             }
         }
     }
@@ -99,17 +110,18 @@ public class SynergyInfoItem : BasePoolable
     private void PopulateOverlapIcons(List<Sprite> sprites)
     {
         var iconContainer = horizontalLayout.transform;
+        ClearContainer(iconContainer); // 이전 아이콘 제거
         if (sprites == null || sprites.Count == 0) return;
 
-        float containerHeight = iconContainer.GetComponent<RectTransform>().rect.height;
-        float finalIconSize = containerHeight * 1f; // 아이콘의 실제 크기
-        float holderWidth = finalIconSize * 0.5f;   // 아이콘이 절반만 보이도록 마스킹 홀더 너비 설정
+        RectTransform containerRect = iconContainer.GetComponent<RectTransform>();
+        if (containerRect == null) return; // null 체크 추가
+        float containerHeight = containerRect.rect.height;
+        float finalIconSize = containerHeight * 1f;
+        float holderWidth = finalIconSize * 0.5f;
 
-        // HorizontalLayoutGroup 컴포넌트에 겹치도록 음수 spacing 설정
         var layoutGroup = iconContainer.GetComponent<HorizontalLayoutGroup>();
         if (layoutGroup != null)
         {
-            // (홀더 너비 * 2) - 전체 아이콘 너비 = 겹치는 양
             float spacing = (holderWidth * 2) - finalIconSize;
             layoutGroup.spacing = spacing;
         }
@@ -119,33 +131,22 @@ public class SynergyInfoItem : BasePoolable
             Sprite sprite = sprites[i];
             if (sprite == null) continue;
 
-            // 아이콘을 마스킹할 홀더(RectMask2D) 생성
             var holderGO = new GameObject($"IconHolder_{i}", typeof(RectTransform), typeof(RectMask2D));
             holderGO.transform.SetParent(iconContainer, false);
             var holderRect = holderGO.GetComponent<RectTransform>();
             holderRect.sizeDelta = new Vector2(holderWidth, finalIconSize);
 
-            // 실제 아이콘 이미지 생성 후 홀더의 자식으로 설정
             var iconGO = new GameObject("Icon", typeof(Image));
             iconGO.transform.SetParent(holderGO.transform, false);
             var image = iconGO.GetComponent<Image>();
             image.sprite = sprite;
             image.preserveAspect = true;
 
-            // 아이콘 크기 및 위치 조절
             var iconRect = iconGO.GetComponent<RectTransform>();
             iconRect.sizeDelta = new Vector2(finalIconSize, finalIconSize);
 
-            // 홀더 안에서 아이콘을 반대 방향으로 밀어 원하는 부분이 보이게 설정
             float shiftAmount = (finalIconSize - holderWidth) / 2f;
-            if (i == 0) // 왼쪽 아이콘은 오른쪽으로 밀어서 왼쪽 절반을 보여줌
-            {
-                iconRect.anchoredPosition = new Vector2(shiftAmount, 0);
-            }
-            else // 오른쪽 아이콘은 왼쪽으로 밀어서 오른쪽 절반을 보여줌
-            {
-                iconRect.anchoredPosition = new Vector2(-shiftAmount, 0);
-            }
+            iconRect.anchoredPosition = (i == 0) ? new Vector2(shiftAmount, 0) : new Vector2(-shiftAmount, 0);
         }
     }
 
@@ -160,31 +161,104 @@ public class SynergyInfoItem : BasePoolable
         return iconGO;
     }
 
+    // --- 테두리 제어 함수들 ---
+
+  
+    private void SetOutline(BuildingSynergyType type)
+    {
+        if (outlineImage == null) return;
+
+        Color color = GetColorForSynergyType(type);
+        // 색상이 투명이 아니면 테두리를 켜고 색상 적용
+        if (color != Color.clear)
+        {
+            outlineImage.color = color;
+            outlineImage.gameObject.SetActive(true);
+        }
+        else // 그 외의 경우는 끔
+        {
+            outlineImage.gameObject.SetActive(false);
+        }
+    }
+
+   
+    private void DisableOutline()
+    {
+        if (outlineImage != null)
+        {
+            outlineImage.gameObject.SetActive(false);
+        }
+    }
+
+
+    private Color GetColorForSynergyType(BuildingSynergyType type)
+    {
+        switch (type)
+        {
+            // 인접 (파랑)
+            case BuildingSynergyType.Farm_Barracks:
+            case BuildingSynergyType.Barracks_Mine:
+            case BuildingSynergyType.Barracks_LumberMill:
+            case BuildingSynergyType.Mine_LumberMill:
+            case BuildingSynergyType.Farm_Mine:
+            case BuildingSynergyType.Farm_LumberMill:
+                return Color.blue;
+            // 라인 (노랑)
+            case BuildingSynergyType.Farm_Line:
+            case BuildingSynergyType.LumberMill_Line:
+            case BuildingSynergyType.Mine_Line:
+            case BuildingSynergyType.Barracks_Line:
+                return Color.green;
+            // 블록 (빨강)
+            case BuildingSynergyType.Specialized_Block:
+            case BuildingSynergyType.Balanced_Block:
+                return Color.red;
+            default:
+                return Color.clear; // 시너지 타입이 아니면 투명색 반환
+        }
+    }
+
     // --- 공통 준비 및 정리 함수 ---
 
     private void PrepareForInitialization(string title, string description)
     {
-        // 모든 레이아웃 컨테이너를 비우고 비활성화
-        ClearAllContainers();
-
-        // 텍스트 설정
-        titleText.text = title;
-        descriptionText.text = description;
-
-        // 카운트 텍스트 초기화
-        if (countText != null) countText.gameObject.SetActive(false);
-    }
-
-    private void ClearAllContainers()
-    {
-        // 모든 레이아웃 비활성화
         singleIconLayout.SetActive(false);
         horizontalLayout.SetActive(false);
         gridIconLayout.SetActive(false);
 
-        // 각 레이아웃의 자식 오브젝트(이전에 생성된 아이콘)들 모두 삭제
-        foreach (Transform child in singleIconLayout.transform) Destroy(child.gameObject);
-        foreach (Transform child in horizontalLayout.transform) Destroy(child.gameObject);
-        foreach (Transform child in gridIconLayout.transform) Destroy(child.gameObject);
+        ClearContainer(singleIconLayout.transform);
+        ClearContainer(horizontalLayout.transform);
+        ClearContainer(gridIconLayout.transform);
+
+        DisableOutline(); 
+
+        titleText.text = title;
+        descriptionText.text = description;
+        if (countText != null) countText.gameObject.SetActive(false);
+    }
+
+    private void ClearContainer(Transform container)
+    {
+        foreach (Transform child in container)
+        {
+            if (container == horizontalLayout.transform && child.childCount > 0)
+            {
+                foreach (Transform grandChild in child)
+                {
+                    Destroy(grandChild.gameObject);
+                }
+            }
+            Destroy(child.gameObject);
+        }
+    }
+    public override void ReleaseSelf()
+    {
+        DisableOutline(); 
+
+        ClearContainer(singleIconLayout.transform);
+        ClearContainer(horizontalLayout.transform);
+        ClearContainer(gridIconLayout.transform);
+
+        base.ReleaseSelf(); 
     }
 }
