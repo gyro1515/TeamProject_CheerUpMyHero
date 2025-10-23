@@ -56,6 +56,11 @@ public class PlayerHQ : BaseHQ
             hero.transform.position = GetRandomSpawnPos();
         }*/
     }
+    protected override void OnDisable()
+    {
+        base.OnDisable();
+        onHeroSpawnEventSub.Unsubscribe(SetIsSpawnHeroActive);
+    }
     public override void Dead()
     {
         base.Dead();
@@ -104,14 +109,15 @@ public class PlayerHQ : BaseHQ
     void SetUnitDataFromCardDatd()
     {
         int activeDeckIndex = PlayerDataManager.Instance.ActiveDeckIndex;
-        List<int> deckUnitIds = PlayerDataManager.Instance.DeckPresets[activeDeckIndex].UnitIds;
-        for (int i = 0; i < deckUnitIds.Count; i++)
-        {
-            int unitId = deckUnitIds[i];
-            if (unitId == -1) { Debug.LogWarning("세팅 오류"); continue; }
+        //List<int> deckUnitIds = PlayerDataManager.Instance.DeckPresets[activeDeckIndex].UnitIds;
+        List<BaseUnitData> deckBaseUnitDatas = PlayerDataManager.Instance.DeckPresets[activeDeckIndex].BaseUnitDatas;
+        for (int i = 0; i < deckBaseUnitDatas.Count; i++)
+            {
+            /*int unitId = deckUnitIds[i];
+            if (unitId == -1) { Debug.LogWarning("세팅 오류"); continue; }*/
             //TempCardData cardData = PlayerDataManager.Instance.GetUnitData(unitId);
-            BaseUnitData cardData = PlayerDataManager.Instance.GetUnitData(unitId);
-            if (cardData == null) { Debug.LogWarning("세팅 오류"); continue; }
+            BaseUnitData cardData = deckBaseUnitDatas[i];
+            if (cardData == null) { /*Debug.LogWarning("세팅 오류");*/ continue; } // 빈 슬롯은 패스
             uunitRarityType[cardData.poolType] = cardData.rarity;
             unitSpawnCnt[cardData.poolType] = 0;
         }

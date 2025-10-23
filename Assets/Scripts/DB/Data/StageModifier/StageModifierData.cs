@@ -5,6 +5,5 @@ using UnityEngine;
 [System.Serializable]
 public class StageModifierData : MonoData
 {
-    public Sprite icon;
     public string name;
 }

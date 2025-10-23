@@ -20,7 +20,7 @@ public class UIDestinyEffectPopup : BasePopUpUI
     {
         if (destiny == null) return;
 
-        //_icon.sprite = destiny.icon;
+        _icon.sprite = Resources.Load<Sprite>(destiny.iconSpritePath);
         _title.text = destiny.name;
         _description.text = destiny.description;
 
