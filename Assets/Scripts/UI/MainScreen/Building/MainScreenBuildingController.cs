@@ -78,17 +78,20 @@ public class MainScreenBuildingController : MonoBehaviour
     }
     private void OnEnable()
     {
-        //// GameManager가 존재하고, "화면 갱신" 깃발이 세워져 있는지 확인
-        //if (GameManager.Instance != null && GameManager.Instance.NeedsTileVisualUpdate)
-        //{
-        //    //깃발을 확인했으면, 스스로 화면 갱신을 실행
-               UpdateAllTileVisuals();
-
-        //    //일을 끝냈으므로, 깃발을 다시 내립니다. (중복 실행 방지)
-        //    GameManager.Instance.NeedsTileVisualUpdate = false;
-        //}
+        UpdateAllTileVisuals();
     }
-
+    public GridLayoutGroup GetGridLayoutGroup()
+    {
+        if (gridParent != null)
+        {
+            return gridParent.GetComponent<GridLayoutGroup>();
+        }
+        return null; 
+    }
+    public BuildingTile[,] GetTiles()
+    {
+        return _tiles;
+    }
     // ---------------- 그리드 생성 ----------------
     private void CreateGrid()
     {
@@ -140,16 +143,7 @@ public class MainScreenBuildingController : MonoBehaviour
         tile.UpdateStatusVisual();
         tile.UpdateCooldownStatus();
     }
-    //private void OnDisable()
-    //{
-    //    if (_tiles == null) return;
-
-    //    foreach (var tile in _tiles)
-    //    {
-    //        if (tile != null)
-    //            tile.OnTileClicked -= HandleTileClick;
-    //    }
-    //}
+    
     // ---------------- 타일 선택 ----------------
     private void HandleTileClick(BuildingTile tile)
     {

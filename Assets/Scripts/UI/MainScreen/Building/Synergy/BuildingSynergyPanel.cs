@@ -169,7 +169,7 @@ public class BuildingSynergyPanel : MonoBehaviour
                 case BuildingSynergyType.LumberMill_Line:
                 case BuildingSynergyType.Mine_Line:
                 case BuildingSynergyType.Barracks_Line:
-                    if (icons.Count > 0) item.Initialize(icons[0], title, desc, 4);
+                    item.Initialize(synergy.Type, icons, title, desc);
                     break;
 
                 default:
