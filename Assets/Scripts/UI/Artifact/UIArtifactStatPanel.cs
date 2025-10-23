@@ -38,11 +38,28 @@ public class UIArtifactStatPanel : MonoBehaviour, IEndDragHandler
     private int _currentPageIndex = 0;
     private Coroutine _snapCoroutine;
 
+    private RectTransform _contentRect;
+    private HorizontalLayoutGroup _horizentalLayoutGroup;
+
     private void Awake()
     {
         if (_scrollRect != null)
         {
             _scrollRect.onValueChanged.AddListener(OnScrollChanged);
+
+            if (_scrollRect.content != null )
+            {
+                _contentRect = _scrollRect.content;
+                _horizentalLayoutGroup = _contentRect.GetComponent<HorizontalLayoutGroup>();
+            }
+            else
+            {
+                Debug.LogError("ScrollRect content null임");
+            }
+        }
+        else
+        {
+            Debug.LogError("scrollRect null임");
         }
 
         UpdatePage(0);
@@ -56,7 +73,30 @@ public class UIArtifactStatPanel : MonoBehaviour, IEndDragHandler
 
     private void OnScrollChanged(Vector2 pos)
     {
-        _currentPageIndex = Mathf.RoundToInt(pos.x * (_pageCount - 1));
+        if (_snapCoroutine != null)
+        {
+            UpdatePage(_currentPageIndex);
+            return;
+        }
+
+        if (_contentRect == null || _scrollRect.viewport == null) return;
+
+        float contentPosX = _contentRect.anchoredPosition.x;
+        float viewportWidth = _scrollRect.viewport.rect.width;
+
+        float spacing = (_horizentalLayoutGroup != null) ? _horizentalLayoutGroup.spacing : 0f;
+
+        float PageStartX0 = 0;
+        float PageStartX1 = -(viewportWidth + spacing);
+
+        if (Mathf.Abs(contentPosX - PageStartX0) <= Mathf.Abs(contentPosX - PageStartX1))
+        {
+            _currentPageIndex = 0;
+        }
+        else
+        {
+            _currentPageIndex = 1;
+        }
 
         UpdatePage(_currentPageIndex);
     }
@@ -73,24 +113,46 @@ public class UIArtifactStatPanel : MonoBehaviour, IEndDragHandler
 
     private IEnumerator PageSwap()
     {
-        float targetNormalizedPos = (float)_currentPageIndex / (_pageCount - 1);
-        float startPos = _scrollRect.horizontalNormalizedPosition;
+        Debug.Log("페이지 넘어가는 코루틴 잘 시작함");
+
+        if (_contentRect == null || _scrollRect.viewport == null)
+        {
+            Debug.LogError("Content RectTransform 아니면 Viewport RectTransform null임");
+            yield break;
+        }
+
+        float viewportWidth = _scrollRect.viewport.rect.width;
+        float spacing = (_horizentalLayoutGroup != null) ? _horizentalLayoutGroup.spacing : 0f;
+
+        float targetX = -_currentPageIndex * (viewportWidth + spacing);
+
+        float startX = _contentRect.anchoredPosition.x;
+
+        Debug.Log($"변수 계산까지 잘 작동함. {_currentPageIndex} 페이지, {targetX} 타겟, {startX} 시작 지점");
 
         float duration = 0.2f;
         float elapsed = 0f;
 
         while (elapsed < duration)
         {
-            elapsed += Time.deltaTime;
+            elapsed += Time.unscaledDeltaTime;
             float t = Mathf.Clamp01(elapsed / duration);
 
-            float newPos = Mathf.Lerp(startPos, targetNormalizedPos, t);
+            t = 1f - (1f - t) * (1f - t);
 
-            _scrollRect.horizontalNormalizedPosition = newPos;
+            float newX = Mathf.Lerp(startX, targetX, t);
+
+            Vector2 newPos = _contentRect.anchoredPosition;
+            newPos.x = newX;
+            _contentRect.anchoredPosition = newPos;
+
             yield return null;
         }
 
-        _scrollRect.horizontalNormalizedPosition = targetNormalizedPos;
+        Vector2 finalPos = _contentRect.anchoredPosition;
+        finalPos.x = targetX;
+        _contentRect.anchoredPosition = finalPos;
+        Debug.Log("페이지 넘기는 코루틴 잘 끝남");
         _snapCoroutine = null;
     }
 
