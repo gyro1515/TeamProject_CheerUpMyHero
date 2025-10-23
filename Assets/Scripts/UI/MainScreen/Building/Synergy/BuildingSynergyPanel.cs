@@ -1,15 +1,17 @@
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class BuildingSynergyPanel : MonoBehaviour
 {
     [Header("UI 연결")]
     [SerializeField] private Transform scrollContent;
     //[SerializeField] private SynergyInfoItem itemPrefab; // 정보 표시용 아이템 프리팹
-
+    private RectTransform scrollContentRect;
     // 건물 타입에 맞는 아이콘(Sprite)을 저장해두는 딕셔너리
     private Dictionary<BuildingType, Sprite> buildingIcons = new Dictionary<BuildingType, Sprite>();
     private List<SynergyInfoItem> activeItems = new List<SynergyInfoItem>();
@@ -17,6 +19,7 @@ public class BuildingSynergyPanel : MonoBehaviour
     void Awake()
     {
         LoadBuildingIcons();
+        scrollContentRect = scrollContent as RectTransform;
     }
 
     void OnEnable()
@@ -37,22 +40,34 @@ public class BuildingSynergyPanel : MonoBehaviour
         {
             item.ReleaseSelf();
         }
-        activeItems.Clear(); 
+        activeItems.Clear();
 
         DisplayEffectsByBuildingType();
+
         DisplayActiveSynergies();
+
+        StartCoroutine(CoRebuildLayout());
+    }
+
+    private IEnumerator CoRebuildLayout()
+    {
+        yield return new WaitForEndOfFrame();
+
+        if (scrollContentRect != null)
+        {
+            LayoutRebuilder.ForceRebuildLayoutImmediate(scrollContentRect);
+        }
     }
     private SynergyInfoItem GetNewItem()
     {
-        // 풀 매니저에서 아이템을 가져옵니다.
         GameObject itemGO = ObjectPoolManager.Instance.Get(PoolType.SynergyInfoItem);
-
-        // 부모를 설정하고 스케일 등 UI 속성을 초기화합니다.
         itemGO.transform.SetParent(scrollContent, false);
         itemGO.transform.localScale = Vector3.one;
 
+        itemGO.transform.SetAsLastSibling();
+
         SynergyInfoItem item = itemGO.GetComponent<SynergyInfoItem>();
-        activeItems.Add(item); // 활성화 리스트에 추가
+        activeItems.Add(item);
         return item;
     }
     // --- 세부 UI 표시 함수들 ---
