@@ -28,7 +28,6 @@ public class SynergyOutlineManager : MonoBehaviour
     private void HandleSynergyUpdate(SynergyDataUpdatedEvent e)
     {
         UpdateOutlines(PlayerDataManager.Instance.ActiveSynergies);
-        Debug.Log("<color=cyan>[아웃라인]</color> 시너지 업데이트 이벤트 수신! 아웃라인을 갱신합니다.");
     }
     public void UpdateOutlines(List<DetectedSynergy> activeSynergies)
     {
@@ -37,7 +36,6 @@ public class SynergyOutlineManager : MonoBehaviour
 
         if (activeSynergies == null || tiles == null)
         {
-            Debug.LogWarning("[SynergyOutlineManager] 참조가 누락되어 아웃라인을 그릴 수 없습니다.");
             return;
         }
 

@@ -49,7 +49,17 @@ public class ConstructionUpgradePanel : BasePopUpUI
         closeButton.onClick.AddListener(() => CloseUI());
         destroyButton.onClick.AddListener(OnDestroyButtonClicked);
     }
+    public override void CloseUI() 
+    {
+        if (MainScreenBuildingController.Instance != null)
+        {
+            MainScreenBuildingController.Instance.DeselectTile();
+        }
 
+        _targetTile = null;
+
+        base.CloseUI();
+    }
     // --- 업그레이드 초기화 ---
     public void InitializeForUpgrade(BuildingTile tile)
     {
