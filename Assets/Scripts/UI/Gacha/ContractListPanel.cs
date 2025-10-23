@@ -3,7 +3,7 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using System.Collections;
 
-public class ContractPagesController : MonoBehaviour, IEndDragHandler
+public class ContractListPanel : MonoBehaviour, IEndDragHandler
 {
     [Header("스크롤 및 페이지 참조")]
     [SerializeField] private ScrollRect scrollRect;
