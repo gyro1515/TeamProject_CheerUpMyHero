@@ -6,11 +6,11 @@ using UnityEngine;
 // **********************사용법***********************
 // 1. Z_CaptureSpriteScene 씬열기
 // 2. 캡처할 오브젝트들 씬에 배치하기
-// 3. 배치 간격은 오브젝트들 다 선택한 다음 유니티 상단 메뉴에서 [Tools] -> [Arrange Selected Objects]를 클릭(5f 간격으로 나열됩니다)
 // 3. 오브젝트들 인스펙터창(SpriteCaptureHandler)의 targetObjects에 넣기
 // 4. 카메라 사이즈 오브젝트에 맞게 조정하기
+// 5. 배치 간격 설정하기 -> spacing 값 설정
 // 5. 캡처할 레이어 이름 설정하기 (기본값: "Animation")
-// 6. SpriteCaptureHandler에서 "CaptureSprite" 버튼 클릭하기
+// 7. SpriteCaptureHandler에서 "CaptureSprite" 버튼 클릭하기
 // ***************************************************
 
 // (런타임 기능이 제거된 에디터 전용 버전)
@@ -19,6 +19,9 @@ public class SpriteCapture : MonoBehaviour
     [Header("Capture Target")]
     [Tooltip("캡처할 대상 (이 오브젝트를 중심으로 카메라가 배치됨)")]
     public List<Transform> targetObjects = new List<Transform>();
+
+    [Tooltip("자동 배치 간격")]
+    public Vector3 spacing = new Vector3(5.0f, 0, 0); 
 
     [Tooltip("캡처할 대상이 있는 레이어 이름")]
     public string captureLayerName = "Animation";
@@ -54,6 +57,16 @@ public class SpriteCapture : MonoBehaviour
             Debug.LogError("캡처에 사용할 카메라가 설정되지 않았습니다! 인스펙터에 캡처용 카메라 오브젝트 넣어주세요(카메라는 씬에 존재해야 합니다)");
             return;
         }
+
+        // 오브젝트들 나열하기
+        for (int i = 0; i < targetObjects.Count; i++)
+        {
+            if (targetObjects[i] != null)
+            {
+                targetObjects[i].position = spacing * i;
+            }
+        }
+        return;
 
         // 2. 캡처 카메라용 임시 GameObject 생성
         //GameObject camGO = new GameObject("TempCaptureCamera");
