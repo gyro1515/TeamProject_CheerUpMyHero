@@ -8,7 +8,7 @@ public class BuildingSelectItem : BaseUI
     [SerializeField] private Button descriptionSelectButton;
     [SerializeField] private Image buildingImage;
     //[SerializeField] private TextMeshProUGUI buildingNameText;
-    [SerializeField] private TextMeshProUGUI costText;
+    //[SerializeField] private TextMeshProUGUI costText;
     [SerializeField] private TextMeshProUGUI descriptionText;
     private ConstructionSelectPanel _parentPanel;
     private ConstructionUpgradePanel _upgradePanel;
@@ -32,12 +32,12 @@ public class BuildingSelectItem : BaseUI
         //buildingNameText.text = constructionData.buildingName;
         descriptionText.text = constructionData.description;
 
-        string costStr = "";
-        foreach (Cost cost in constructionData.costs)
-        {
-            costStr += $"{cost.resourceType}: {cost.amount} ";
-        }
-        costText.text = costStr;
+        //string costStr = "";
+        //foreach (Cost cost in constructionData.costs)
+        //{
+        //    costStr += $"{cost.resourceType}: {cost.amount} ";
+        //}
+        //costText.text = costStr;
 
         if (level1Data != null && level1Data.buildingSprite != null)
         {
