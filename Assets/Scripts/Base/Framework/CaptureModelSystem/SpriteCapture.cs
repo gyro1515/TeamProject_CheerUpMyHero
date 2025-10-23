@@ -6,6 +6,7 @@ using UnityEngine;
 // **********************사용법***********************
 // 1. Z_CaptureSpriteScene 씬열기
 // 2. 캡처할 오브젝트들 씬에 배치하기
+// 3. 배치 간격은 오브젝트들 다 선택한 다음 유니티 상단 메뉴에서 [Tools] -> [Arrange Selected Objects]를 클릭(5f 간격으로 나열됩니다)
 // 3. 오브젝트들 인스펙터창(SpriteCaptureHandler)의 targetObjects에 넣기
 // 4. 카메라 사이즈 오브젝트에 맞게 조정하기
 // 5. 캡처할 레이어 이름 설정하기 (기본값: "Animation")
