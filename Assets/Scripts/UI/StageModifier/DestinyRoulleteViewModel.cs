@@ -25,7 +25,7 @@ public class DestinyRoulleteViewModel
     private GameMode _gameMode;
     private (int, int) _stage;
 
-    private (int, int) OneNine = (1, 9);
+    private (int, int) OneNine = (0, 8);
 
     public DestinyRoulleteViewModel(DestinyModel model)
     {
@@ -87,7 +87,7 @@ public class DestinyRoulleteViewModel
         else
         {
             // 화살표 위치 고려하여 결과 산출 -> 행운이냐 불행이냐
-            float arrowPoint = (360 - finalAngle) % 360;
+            float arrowPoint = finalAngle % 360;
             float fortuneAngleRange = _fortuneProbability * 360;
             DestinyType destinyType = arrowPoint <= fortuneAngleRange ? DestinyType.Fortune : DestinyType.Misfortune;
 

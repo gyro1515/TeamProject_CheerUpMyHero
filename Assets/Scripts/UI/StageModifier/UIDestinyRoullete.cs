@@ -149,7 +149,18 @@ public class UIDestinyRoullette : BaseUI
 
         _misfortunePerText.rectTransform.localPosition = SetTextPosition(misfortuneCenterDegree, _perTextDistance);
         _misfortunePerText.rectTransform.localEulerAngles = new Vector3(0, 0, -misfortuneCenterDegree);
-        _misfortunePerText.text = $"{misfortune * 100}%";
+
+        if (misfortune < 0.1f)
+        {
+            _misfortunePerText.text = "";
+            _misfortuneText.text = "";
+        }
+        else
+        {
+            
+            _misfortunePerText.text = $"{misfortune * 100}%";
+        }
+ 
     }
 
     private Vector2 SetTextPosition(float angle, float distance)
