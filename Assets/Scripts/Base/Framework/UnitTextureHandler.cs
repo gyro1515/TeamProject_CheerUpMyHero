@@ -64,7 +64,7 @@ public class UnitTextureHandler : MonoBehaviour
             renderCam.orthographicSize = 1.8f;
         }
         //unitRootGO.layer = layerForAnimation;
-        SetLayerToAllTransform(unitRootGO, layerForAnimation);
+        //SetLayerToAllTransform(unitRootGO, layerForAnimation); // 251023: 미리 레이어 세팅으로 변경
         unitRootGO.transform.Find("Shadow").gameObject.SetActive(false);
         PlayerUnit playerUnit = unitGO.GetComponent<PlayerUnit>();
         playerUnit.SetForRenderTexture();
