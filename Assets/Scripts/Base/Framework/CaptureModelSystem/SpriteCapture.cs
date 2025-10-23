@@ -66,7 +66,6 @@ public class SpriteCapture : MonoBehaviour
                 targetObjects[i].position = spacing * i;
             }
         }
-        return;
 
         // 2. 캡처 카메라용 임시 GameObject 생성
         //GameObject camGO = new GameObject("TempCaptureCamera");
