@@ -100,8 +100,6 @@ public class GameManager : SingletonMono<GameManager>
 
     public void StartBattle()
     {
-        Modifiercalculator.StartBattle();
-
         PlayerDataManager.Instance.ResetFood();
 
         IsBattleStarted = true;

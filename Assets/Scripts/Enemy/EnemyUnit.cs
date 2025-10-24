@@ -29,17 +29,17 @@ public class EnemyUnit : BaseUnit
         if (UnitData == null) { Debug.LogError("데이터 없음"); return; }
 
         EffectTarget target = GetEffectTarget();
-        float hpModifierBonus = Modifiercalculator.GetMultiplier(target, StatType.MaxHp, this);
-        float atkModifierBonus = Modifiercalculator.GetMultiplier(target, StatType.AtkPower, this);
-        float moveSpeedModifierBonus = Modifiercalculator.GetMultiplier(target, StatType.MoveSpeed, this);
-        float spawnCooldownModifierBonus = Modifiercalculator.GetMultiplier(target, StatType.SpawnCooldown, this);
+        float hpModifierBonus = Modifiercalculator.GetMultiplier(target, StatType.MaxHp, this.UnitData);
+        float atkModifierBonus = Modifiercalculator.GetMultiplier(target, StatType.AtkPower, this.UnitData);
+        float moveSpeedModifierBonus = Modifiercalculator.GetMultiplier(target, StatType.MoveSpeed, this.UnitData);
+        // float spawnCooldownModifierBonus = Modifiercalculator.GetMultiplier(target, StatType.SpawnCooldown, this.UnitData);
 
         // 배율에 따른 체력 공격력 세팅
         MaxHp = UnitData.health * (hpModifierBonus + statMultiplier);
         curHp = MaxHp;
         AtkPower = UnitData.atkPower * (atkModifierBonus + statMultiplier);
-        MoveSpeed = UnitData.moveSpeed * moveSpeedModifierBonus;
-        SpawnCooldown = UnitData.spawnCooldown * spawnCooldownModifierBonus;
+        MoveSpeed = UnitData.moveSpeed * (1f + moveSpeedModifierBonus);
+        // SpawnCooldown = UnitData.spawnCooldown * spawnCooldownModifierBonus;
         AttackRate = UnitData.attackRate * statMultiplier; // 공격 속도는 크기와 상관없이 배율에 비례
         float tmpstatMultiplier = Math.Clamp(statMultiplier, 0.8f, 1.2f); // 크기는 너무 작아지거나 커지지 않도록 제한
         // 아래는 다 tmpstatMultiplier로 세팅, 크기에 따라 인식/공격 범위도 달라지도록
