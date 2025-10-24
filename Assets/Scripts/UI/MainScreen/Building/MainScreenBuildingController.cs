@@ -18,6 +18,7 @@ public class MainScreenBuildingController : MonoBehaviour
     [SerializeField] private BuildingSynergyPanel synergyPanel; // 시너지 패널
     [SerializeField] private AdCooldownPopup adCooldownPopup; // 팝업 UI
     [SerializeField] private DestroyConfirmPopup destroyPopup;
+    [SerializeField] private DiplomacyPanel diplomacyPanel;
 
     [Header("드래그 앤 드랍")]
     [SerializeField] private Image dragIcon;
@@ -147,6 +148,14 @@ public class MainScreenBuildingController : MonoBehaviour
     // ---------------- 타일 선택 ----------------
     private void HandleTileClick(BuildingTile tile)
     {
+        if (IsDragging()) return;
+
+        //외교 타일 특별 처리
+        if (tile.X == 4 && tile.Y == 1)
+        {
+            HandleDiplomacyTileClick(tile);
+            return;
+        }
         if (synergyPanel != null)
             synergyPanel.gameObject.SetActive(false);
 
@@ -194,6 +203,23 @@ public class MainScreenBuildingController : MonoBehaviour
                 Debug.Log($"타일 ({tile.X},{tile.Y})은(는) 현재 상호작용할 수 없습니다.");
                 DeselectTile();
             }
+        }
+    }
+    // 외교 타일 클릭 처리 함수 
+    private void HandleDiplomacyTileClick(BuildingTile tile)
+    {
+        Debug.Log($"외교 구역 타일 ({tile.X},{tile.Y}) 클릭됨.");
+
+        if (diplomacyPanel != null)
+        {
+            diplomacyPanel.OpenUI();
+            selectedFrameObject.SetActive(false);
+            _selectedTile = null;
+        }
+        else
+        {
+            Debug.LogError("DiplomacyPanel이 MainScreenBuildingController에 연결되지 않았습니다!");
+            DeselectTile();
         }
     }
 
