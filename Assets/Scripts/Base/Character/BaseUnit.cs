@@ -12,7 +12,7 @@ public abstract class BaseUnit : BaseCharacter
     [field: SerializeField] public float AttackRate { get; protected set; }
     [field: SerializeField] public float AttackRange { get; protected set; }
     [field: SerializeField] public float CognizanceRange { get; protected set; } // 인식 범위
-    [field: SerializeField] public int FoodConsumption { get; private set; }
+    [field: SerializeField] public int FoodConsumption { get; protected set; }
     [field: SerializeField] public float AttackDelayTime { get; protected set; } = 1f; // 선딜
     [field: SerializeField] public float StartAttackTime { get; private set; } = 0.09f; // 애니메이션 기준 공격 시작 시간
     [field: SerializeField] public float StartAttackNormalizedTime { get; private set; } = 0.36f; // 애니메이션 기준 정규화된 공격 시작 시간
@@ -103,4 +103,10 @@ public abstract class BaseUnit : BaseCharacter
     }
     public abstract void SetStatMultiplier(float statMultiplier, bool isSpawnHero = false);
     
+    // 일단 기본값으로 베이스 유닛은 플레이어 유닛으로 취급하게 만들어둠.
+    // 운명, 도전 등 기능 넣으려면 EffectTarget을 반환해야 해서 Unit이나 플레이어 등에 EffectTarget 반환하는 메서드 넣었어요
+    protected virtual EffectTarget GetEffectTarget()
+    {
+        return EffectTarget.PlayerUnit;
+    }
 }

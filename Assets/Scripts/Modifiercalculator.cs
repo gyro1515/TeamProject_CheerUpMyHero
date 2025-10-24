@@ -5,36 +5,26 @@ using UnityEngine;
 
 public static class Modifiercalculator
 {
-    private static Dictionary<(EffectTarget, StatType), float> _multiplierCache;
-    private static bool _isBattleActive = false;
-
-    public static void StartBattle()
-    {
-        _multiplierCache = new Dictionary<(EffectTarget, StatType), float>();
-        _isBattleActive = true;
-    }
+    private static Dictionary<(EffectTarget, StatType), float> _multiplierCache = new Dictionary<(EffectTarget, StatType), float>();
 
     public static void EndBattle()
     {
         _multiplierCache?.Clear();
-        _isBattleActive = false;
     }
 
-    public static float GetMultiplier(EffectTarget target, StatType type, BaseCharacter character)
+    public static float GetMultiplier(EffectTarget target, StatType type, BaseUnitData unitData)
     {
-        if (!_isBattleActive) return 1f;
-
         if (HasCondition(target, type))
         {
-            float bonus = CalculateStatBonus(target, type, character);
-            return 1f + (bonus / 100f);
+            float bonus = CalculateStatBonus(target, type, unitData);
+            return bonus / 100f;
         }
 
         if (_multiplierCache.TryGetValue((target, type), out float value))
             return value;
 
         float bonusPer = CalculateStatBonus(target, type);
-        float multiplier = 1f + (bonusPer / 100f);
+        float multiplier = bonusPer / 100f;
 
         _multiplierCache[(target, type)] = multiplier;
 
@@ -42,17 +32,17 @@ public static class Modifiercalculator
     }
 
     #region 효과별 보너스 값 계산
-    private static float CalculateStatBonus(EffectTarget target, StatType type, BaseCharacter character = null)
+    private static float CalculateStatBonus(EffectTarget target, StatType type, BaseUnitData unitData = null)
     {
         float totalBonus = 0f;
 
-        totalBonus += CalculateDestinyBonus(target, type, character);
+        totalBonus += CalculateDestinyBonus(target, type, unitData);
         totalBonus += CalculateChallengeBonus(target, type);
 
         return totalBonus;
     }
 
-    private static float CalculateDestinyBonus(EffectTarget target, StatType type, BaseCharacter character)
+    private static float CalculateDestinyBonus(EffectTarget target, StatType type, BaseUnitData unitData)
     {
         StageDestinyData destiny = PlayerDataManager.Instance.currentDastiny;
 
@@ -75,7 +65,7 @@ public static class Modifiercalculator
             if (modifier.effectTarget != target || modifier.statType != type)
                 continue;
 
-            if (!CheckConditionType(modifier, character))
+            if (!CheckConditionType(modifier, unitData))
                 continue;
 
             bonusValue += GetDestinyValue(modifier);
@@ -139,33 +129,33 @@ public static class Modifiercalculator
         return false;
     }
 
-    private static bool CheckConditionType(StageDestinyModifier modifier, BaseCharacter character)
+    private static bool CheckConditionType(StageDestinyModifier modifier, BaseUnitData unitData)
     {
         if (modifier.conditionType == ConditionType.None)
             return true;
 
-        if (character == null)
+        if (unitData == null)
         {
-            Debug.LogWarning($"유닛 캐릭터 null이라 효과 도전 운명 적용 안 돼용 {character.name}");
+            Debug.LogWarning($"유닛 캐릭터 null이라 효과 도전 운명 적용 안 돼용 {unitData.unitName}");
             return false;
         }
 
         switch (modifier.conditionType)
         {
             case ConditionType.IsDifferentNation:
-                return CheckIsDiffrentNation(character);
+                return CheckIsDiffrentNation(unitData);
 
             case ConditionType.SameNationCount:
-                return CheckSameNationCount(character, modifier.valueConditionOperater, modifier.conditionValue);
+                return CheckSameNationCount(unitData, modifier.valueConditionOperater, modifier.conditionValue);
             
             default:
                 return false;
         }
     }
 
-    private static bool CheckIsDiffrentNation(BaseCharacter character)
+    private static bool CheckIsDiffrentNation(BaseUnitData unitData)
     {
-        if (character is BaseUnit unit && unit.UnitData != null)
+        if (unitData != null)
         {
             // 국가? 팩션? 관련 로직 생기면 구현해야 함
             return false;
@@ -174,9 +164,9 @@ public static class Modifiercalculator
         return false;
     }
 
-    private static bool CheckSameNationCount(BaseCharacter character, ValueConditionOperater operater, float conditionValue)
+    private static bool CheckSameNationCount(BaseUnitData unitData, ValueConditionOperater operater, float conditionValue)
     {
-        if (character is BaseUnit unit && unit.UnitData != null)
+        if (unitData != null)
         {
             // 국가? 팩션? 관련 로직 생기면 구현해야 함
             return false;
