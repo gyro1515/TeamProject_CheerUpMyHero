@@ -729,15 +729,6 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
         Debug.Log("[PlayerData] ClearedStagesUpdatedEvent 발행 완료.");
     }
 
-        if (mainStage == 1 && subStage == 3) 
-        {
-            AddResource(ResourceType.Ticket, 10);
-            Debug.Log("<color=green>[보상 지급]</color> 스테이지 1-3 최초 클리어 보상: 티켓 10개 지급!");
-        }
-        _clearedStagesEvent?.Publish(new ClearedStagesUpdatedEvent());
-        Debug.Log("[PlayerData] ClearedStagesUpdatedEvent 발행 완료.");
-    }
-
     #endregion
 
     //가챠시스템
