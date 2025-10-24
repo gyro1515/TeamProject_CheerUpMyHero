@@ -89,9 +89,9 @@ public class Player : BaseUnit
         // 배율에 따른 체력 공격력 세팅
 
         EffectTarget target = GetEffectTarget();
-        float hpModifierBonus = Modifiercalculator.GetMultiplier(target, StatType.MaxHp, this);
-        float atkModifierBonus = Modifiercalculator.GetMultiplier(target, StatType.AtkPower, this);
-        float moveSpeedModifierBonus = Modifiercalculator.GetMultiplier(target, StatType.MoveSpeed, this);
+        float hpModifierBonus = Modifiercalculator.GetMultiplier(target, StatType.MaxHp, this.UnitData);
+        float atkModifierBonus = Modifiercalculator.GetMultiplier(target, StatType.AtkPower, this.UnitData);
+        float moveSpeedModifierBonus = Modifiercalculator.GetMultiplier(target, StatType.MoveSpeed, this.UnitData);
 
         MaxHp = PlayerData.health * (hpModifierBonus + statMultiplier);
         curHp = MaxHp;

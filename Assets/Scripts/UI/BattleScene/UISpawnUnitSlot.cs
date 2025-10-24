@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using static UnityEngine.GraphicsBuffer;
 
 public class UISpawnUnitSlot : MonoBehaviour
 {
@@ -61,16 +62,22 @@ public class UISpawnUnitSlot : MonoBehaviour
     }
     void InitSpawnUnitSlot(string unitName, int unitId, PoolType poolType, float cooldown, int foodConsumption)
     {
-        _foodConsumption = foodConsumption;
-        if(poolType != PoolType.None) unitTextureHandler = UnitRenderManager.GetUnitTextureHandlerByPoolType(poolType);
+        // 플레이어 유닛 코스트 증감 보너스 값
+        float costModifierBonus = Modifiercalculator.GetMultiplier(EffectTarget.PlayerUnit, StatType.SpawnCost, cardData);
+        _foodConsumption = Mathf.FloorToInt(foodConsumption * (1f + costModifierBonus));
+        
+        if (poolType != PoolType.None) unitTextureHandler = UnitRenderManager.GetUnitTextureHandlerByPoolType(poolType);
         if(unitTextureHandler) unitIcon.texture = unitTextureHandler.UnitRT;
         //_cooldown = cooldown;
         playerUnitType = poolType; // 소환할 유닛 타입을 직접 받음
 
+        // 플레이어 유닛 쿨타임 증감 값
+        float cooldownModifierBonus = Modifiercalculator.GetMultiplier(EffectTarget.PlayerUnit, StatType.SpawnCooldown, cardData);
+
         float totalReductionPercent = PlayerDataManager.Instance.TotalUnitCooldownReduction;
 
         //최종 쿨타임을 계산합니다. (기본 쿨타임 * (1 - 할인율))
-        float finalCooldown = cooldown * (1.0f - totalReductionPercent / 100.0f);
+        float finalCooldown = cooldown * (cooldownModifierBonus + (1.0f - totalReductionPercent / 100.0f));
 
         //계산된 최종 쿨타임을 이 슬롯의 쿨타임(_cooldown)으로 설정
         _cooldown = finalCooldown;
