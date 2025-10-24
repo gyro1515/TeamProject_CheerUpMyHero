@@ -12,6 +12,15 @@ using Random = UnityEngine.Random;
 
 public struct SynergyDataUpdatedEvent { }
 public struct ClearedStagesUpdatedEvent { }
+public struct LimitedPityCountUpdatedEvent
+{
+    public int NewCount;
+}
+
+public struct StandardPityCountUpdatedEvent
+{
+    public int NewCount;
+}
 public enum ResourceType
 {
     Gold,
@@ -81,7 +90,14 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
 
     private IEventPublisher<SynergyDataUpdatedEvent> _synergyDataUpdatedPublisher;
     #endregion
+    public int LimitedGachaPityCount { get; private set; } = 0;   // 1페이지 (한정/이벤트) 뽑기 횟수
+    public int StandardGachaPityCount { get; private set; } = 0;  // 2페이지 (상시) 뽑기 횟수
 
+    public const int LIMITED_GACHA_PITY_LIMIT = 150;
+    public const int STANDARD_GACHA_PITY_LIMIT = 150;
+
+    private IEventPublisher<LimitedPityCountUpdatedEvent> _limitedPityPublisher;
+    private IEventPublisher<StandardPityCountUpdatedEvent> _standardPityPublisher;
     protected override void Awake()
     {
         base.Awake();
@@ -90,6 +106,8 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
             _TileDataHandler = new TileDataHandler();
             _tileEfficiencyBonuses = new Dictionary<(int, int), float>();
             _synergyDataUpdatedPublisher = EventManager.GetPublisher<SynergyDataUpdatedEvent>();
+            _limitedPityPublisher = EventManager.GetPublisher<LimitedPityCountUpdatedEvent>();
+            _standardPityPublisher = EventManager.GetPublisher<StandardPityCountUpdatedEvent>();
             _clearedStagesEvent = EventManager.GetPublisher<ClearedStagesUpdatedEvent>();
             LoadDecks();
             // TODO: 추후 아래 테스트 카드 생성 부분 제거 필요
@@ -103,11 +121,6 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
 
             onGridStateChangedEvent = EventManager.GetSubscriber<GridStateChangedEvent>();
             onBattleEndedEvent = EventManager.GetSubscriber<BattleEndedEvent>();
-#if UNITY_EDITOR // 임시코드 1-3 강제 클리어 
-            Debug.LogWarning("[테스트] 게임 시작 시 스테이지 (1, 3) 강제 클리어 처리.");
-            List<(int main, int sub)> fakeServerResponse = new List<(int main, int sub)> { (1, 3) };
-            UpdateClearedStagesFromServer(fakeServerResponse);
-#endif
         }
     }
     private void OnEnable()
@@ -135,62 +148,7 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
         }
 
     }
-    public bool IsStageCleared(int mainStage, int subStage)
-    {
-        return clearedStages.ContainsKey((mainStage, subStage)) && clearedStages[(mainStage, subStage)];
-    }
 
-    public void UpdateClearedStagesFromServer(List<(int main, int sub)> serverClearedStages) //서버에서 클리어 
-    {
-        clearedStages.Clear(); // 일단 로컬 정보 초기화
-        foreach (var stage in serverClearedStages)
-        {
-            clearedStages[stage] = true;
-        }
-
-        _clearedStagesEvent?.Publish(new ClearedStagesUpdatedEvent());
-        Debug.Log("ClearedStagesUpdatedEvent 발행 완료.");
-    }
-
-    
-
-    void CardGenerate(List<int> unlockedCardIDLists)
-    {
-
-        //0. 모든 유닛의 딕셔너리 만들기
-
-        List<BaseUnitData> commonList = DataManager.PlayerUnitData.SO.allianceCommon;
-        List<BaseUnitData> rareList = DataManager.PlayerUnitData.SO.allianceRare;
-        List<BaseUnitData> epicList = DataManager.PlayerUnitData.SO.allianceEpic;
-
-        List<List<BaseUnitData>> unitListList = new() { commonList, rareList, epicList };
-
-        foreach (List<BaseUnitData> list in unitListList)
-        {
-            for (int i = 0; i < list.Count; i++)
-            {
-                AllCardData[list[i].idNumber] = list[i];
-            }
-        }
-
-        //1. 이 중에서 id int list 기반으로 해금된 카드 딕셔너리 만들기
-        foreach (int id in unlockedCardIDLists)
-        {
-            OwnedCardData[id] = AllCardData[id];
-        }
-
-    }
-
-    public void UnLockUnit(int id)
-    {
-        if (!AllCardData.ContainsKey(id))
-        {
-            Debug.LogWarning($"유닛 해금 실패, ID:{id} 에 해당하는 유닛이 존재하지 않거나 세팅되지 않았습니다.");
-            return;
-        }
-
-        OwnedCardData[id] = AllCardData[id];
-    }
 
     // 251023: 유닛 데이터는 데이터 매니저에서 바로 가져오도록 변경
     /*public BaseUnitData GetUnitData(int cardId)
@@ -237,7 +195,7 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
         }
 
         // 시너지 계산 후 건물 효과를 다시 계산해야 시너지 보너스가 반영됨
-        UpdateAllBuildingEffects(); 
+        UpdateAllBuildingEffects();
         _synergyDataUpdatedPublisher.Publish();
     }
 
@@ -264,7 +222,7 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
             // 인접 시너지
             case BuildingSynergyType.Farm_Barracks:
                 SynergyUnitCooldownReduction += 2.5f;
-                SynergyFoodProductionBonus -= 2.5f; 
+                SynergyFoodProductionBonus -= 2.5f;
                 break;
             case BuildingSynergyType.Barracks_Mine:
                 SynergyAllUnitAttackBonus += 1.5f;
@@ -447,6 +405,44 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
     {
         Debug.Log("현재 덱 구성을 파일에 저장합니다.");
     }
+
+    void CardGenerate(List<int> unlockedCardIDLists)
+    {
+
+        //0. 모든 유닛의 딕셔너리 만들기
+
+        List<BaseUnitData> commonList = DataManager.PlayerUnitData.SO.allianceCommon;
+        List<BaseUnitData> rareList = DataManager.PlayerUnitData.SO.allianceRare;
+        List<BaseUnitData> epicList = DataManager.PlayerUnitData.SO.allianceEpic;
+
+        List<List<BaseUnitData>> unitListList = new() { commonList, rareList, epicList };
+
+        foreach (List<BaseUnitData> list in unitListList)
+        {
+            for (int i = 0; i < list.Count; i++)
+            {
+                AllCardData[list[i].idNumber] = list[i];
+            }
+        }
+
+        //1. 이 중에서 id int list 기반으로 해금된 카드 딕셔너리 만들기
+        foreach (int id in unlockedCardIDLists)
+        {
+            OwnedCardData[id] = AllCardData[id];
+        }
+
+    }
+
+    public void UnLockUnit(int id)
+    {
+        if (!AllCardData.ContainsKey(id))
+        {
+            Debug.LogWarning($"유닛 해금 실패, ID:{id} 에 해당하는 유닛이 존재하지 않거나 세팅되지 않았습니다.");
+            return;
+        }
+
+        OwnedCardData[id] = AllCardData[id];
+    }
     #endregion
 
 
@@ -473,19 +469,32 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
 
         Dictionary<ResourceType, int> serverData = await BackendManager.LoadEconomyData();
 
-        if (serverData == null) 
+        if (serverData == null)
         {
             Debug.LogError("인터넷 확인");
         }
         else
         {
-            foreach(ResourceType resource in serverData.Keys)
+            foreach (ResourceType resource in serverData.Keys)
             {
+                Debug.Log(resource);
                 _resources[resource] = serverData[resource];
             }
             Debug.Log("재화 불러오기 완료");
         }
+#if UNITY_EDITOR //테스트 코드
+        Debug.LogWarning("[테스트] 게임 시작 시 스테이지 (1, 3) 강제 클리어 처리.");
+        List<(int main, int sub)> fakeServerResponse = new List<(int main, int sub)> { (1, 3) };
 
+        UpdateClearedStagesFromServer(fakeServerResponse);
+
+        if (1 == 1 && 3 == 3)
+        {
+            Debug.Log("<color=green>[테스트 보상]</color> 스테이지 1-3 최초 클리어 테스트 보상: 티켓 10개 지급!");
+            AddResource(ResourceType.Ticket, 10);
+        }
+
+#endif
     }
 
     // 특정 자원의 현재 수량을 반환하는 메서드
@@ -503,9 +512,15 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
     // 아 이거 비동기로 바꿔야 하는데 그러면 다른 것도 계속 바꿔야 하네
     public async void AddResource(ResourceType type, int amount)
     {
+        Debug.Log($"<color=yellow>[PlayerData AddResource]</color> '{type}' 자원 {amount} 변경 요청 받음.");
+
         if (_resources.ContainsKey(type))
         {
+            int previousAmount = _resources[type];
             _resources[type] += amount;
+            int currentAmount = _resources[type];
+
+            Debug.Log($"[PlayerData AddResource] '{type}' 값 변경: {previousAmount} -> {currentAmount}");
 
             if (type == ResourceType.Food)
             {
@@ -680,10 +695,85 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
     // 스테이지 클리어 기록
     #region Clear Stage
 
+    public bool IsStageCleared(int mainStage, int subStage)
+    {
+        return clearedStages.ContainsKey((mainStage, subStage)) && clearedStages[(mainStage, subStage)];
+    }
 
+    public void UpdateClearedStagesFromServer(List<(int main, int sub)> serverClearedStages) //서버에서 클리어 
+    {
+        clearedStages.Clear(); // 일단 로컬 정보 초기화
+        foreach (var stage in serverClearedStages)
+        {
+            clearedStages[stage] = true;
+        }
+
+        _clearedStagesEvent?.Publish(new ClearedStagesUpdatedEvent());
+        Debug.Log("ClearedStagesUpdatedEvent 발행 완료.");
+    }
+    public void MarkLocalStageClear(int mainStage, int subStage)
+    {
+        if (IsStageCleared(mainStage, subStage)) return;
+
+        Debug.Log($"<color=cyan>[PlayerData]</color> 스테이지 ({mainStage}, {subStage}) 로컬 최초 클리어 기록!");
+        clearedStages[(mainStage, subStage)] = true;
+
+        if (mainStage == 1 && subStage == 3)
+        {
+            AddResource(ResourceType.Ticket, 10);
+            Debug.Log("<color=green>[보상 지급]</color> 스테이지 1-3 최초 클리어 보상: 티켓 10개 지급!");
+        }
+        _clearedStagesEvent?.Publish(new ClearedStagesUpdatedEvent());
+        Debug.Log("[PlayerData] ClearedStagesUpdatedEvent 발행 완료.");
+    }
 
     #endregion
 
+    //가챠시스템
+    #region
+    public void UpdateLimitedPityCount(bool isEpicResult)
+    {
+        if (isEpicResult)
+        {
+            LimitedGachaPityCount = 0; // 에픽 획득 시 초기화
+            Debug.Log("<color=yellow>[천장-한정]</color> 에픽 획득! 카운터 초기화.");
+        }
+        else
+        {
+            LimitedGachaPityCount++; // 에픽 아니면 증가
+                                     // 천장 도달 시 초기화는 가챠 로직(GachaUIPanel)에서 처리 후 0으로 리셋 요청
+            Debug.Log($"<color=yellow>[천장-한정]</color> 카운터 증가: {LimitedGachaPityCount}");
+        }
+
+        _limitedPityPublisher?.Publish(new LimitedPityCountUpdatedEvent { NewCount = LimitedGachaPityCount });
+    }
+
+    public void UpdateStandardPityCount(bool isEpicResult)
+    {
+        if (isEpicResult)
+        {
+            StandardGachaPityCount = 0;
+            Debug.Log("<color=yellow>[천장-상시]</color> 에픽 획득! 카운터 초기화.");
+        }
+        else
+        {
+            StandardGachaPityCount++;
+            Debug.Log($"<color=yellow>[천장-상시]</color> 카운터 증가: {StandardGachaPityCount}");
+        }
+
+        _standardPityPublisher?.Publish(new StandardPityCountUpdatedEvent { NewCount = StandardGachaPityCount });
+    }
+
+    public void LoadPityCounts(int loadedLimitedCount, int loadedStandardCount)
+    {
+        LimitedGachaPityCount = loadedLimitedCount;
+        StandardGachaPityCount = loadedStandardCount;
+        Debug.Log($"[PlayerData] 천장 카운터 로드 완료 - 한정: {LimitedGachaPityCount}, 상시: {StandardGachaPityCount}");
+
+        _limitedPityPublisher?.Publish(new LimitedPityCountUpdatedEvent { NewCount = LimitedGachaPityCount });
+        _standardPityPublisher?.Publish(new StandardPityCountUpdatedEvent { NewCount = StandardGachaPityCount });
+    }
+    #endregion
     public StageDestinyData currentDastiny { get; set; } = new StageDestinyData();
     public Dictionary<int, int> activeChallenges { get; private set; } = new Dictionary<int, int>();
 
@@ -693,7 +783,7 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
     {
         Dictionary<int, List<int>> result = new();
 
-        for (int  i = 1; i <= DeckPresets.Count; i++)
+        for (int i = 1; i <= DeckPresets.Count; i++)
         {
             result[i] = DeckPresets[i].UnitIds;
         }
@@ -703,18 +793,18 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
 
     private void ConvertIntToDeck(Dictionary<int, List<int>> loadIntDic)
     {
-        for(int i = 1; i <= loadIntDic.Count; i++)
+        for (int i = 1; i <= loadIntDic.Count; i++)
         {
             for (int j = 0; j < DeckPresets[i].BaseUnitDatas.Count; j++)
             {
                 int id = loadIntDic[i][j];
                 if (id != -1)
-                DeckPresets[i].BaseUnitDatas[j] = DataManager.PlayerUnitData.GetData(id);
+                    DeckPresets[i].BaseUnitDatas[j] = DataManager.PlayerUnitData.GetData(id);
             }
-            
+
         }
     }
-    
+
 
     public async UniTask SaveDataToCloudAsync()
     {
@@ -763,7 +853,7 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
             return;
         }
 
-        try 
+        try
         {
             SettingDataManager.Instance.LoadClearData(loadedData.ClearData);
             ConvertIntToDeck(loadedData.DeckPresets);
@@ -787,9 +877,9 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
             CardGenerate(initalUnitIds);
 
         }
-        
-        catch (Exception ex) 
-        { 
+
+        catch (Exception ex)
+        {
             Debug.LogException(ex);
         }
     }
