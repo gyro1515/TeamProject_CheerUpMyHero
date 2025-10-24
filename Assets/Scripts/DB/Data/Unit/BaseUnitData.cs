@@ -25,6 +25,8 @@ public class BaseUnitData : MonoData
     public int cost;
     public string description = "설명 추가해야 합니다!!";
     public UnitClass unitClass = UnitClass.Normal;
+    public Sprite unitBGSprite; // 유닛 카드 배경 스프라이트
+    public Sprite unitIconSprite; // 유닛 카드 아이콘 스프라이트
 }
 public enum Rarity
 {

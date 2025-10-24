@@ -18,6 +18,7 @@ public class MainScreenBuildingController : MonoBehaviour
     [SerializeField] private BuildingSynergyPanel synergyPanel; // 시너지 패널
     [SerializeField] private AdCooldownPopup adCooldownPopup; // 팝업 UI
     [SerializeField] private DestroyConfirmPopup destroyPopup;
+    [SerializeField] private DiplomacyPanel diplomacyPanel;
 
     [Header("드래그 앤 드랍")]
     [SerializeField] private Image dragIcon;
@@ -33,7 +34,7 @@ public class MainScreenBuildingController : MonoBehaviour
 
 
     public bool IsDragging() => _sourceDragTile != null; // 현재 드래그 중인지 확인하는 프로퍼티
-
+    IEventSubscriber<ClearedStagesUpdatedEvent> _clearedStagesEvent;
     IEventPublisher<GridStateChangedEvent> onGridStateChangedEventPub;
     private void Awake()
     {
@@ -46,6 +47,8 @@ public class MainScreenBuildingController : MonoBehaviour
             Instance = this;
         }
         onGridStateChangedEventPub = EventManager.GetPublisher<GridStateChangedEvent>();
+        _clearedStagesEvent = EventManager.GetSubscriber<ClearedStagesUpdatedEvent>();
+        _clearedStagesEvent.Subscribe(OnClearedStagesUpdated);
         CreateGrid();
 
     }
@@ -121,11 +124,23 @@ public class MainScreenBuildingController : MonoBehaviour
                     tile.SetBuilding(buildingData);
 
                 // 클릭 이벤트 연결
-                tile.OnTileClicked += HandleTileClick;
+                //tile.OnTileClicked += HandleTileClick;
             }
         }
         UpdateAllTilesUI();
         Debug.Log("타일 그리드 생성 완료!");
+    }
+    private void OnClearedStagesUpdated(ClearedStagesUpdatedEvent e)
+    {
+        Debug.Log("[Controller] ClearedStagesUpdatedEvent 수신! 외교 타일 상태 확인.");
+        if (_tiles != null && _tiles[4, 1] != null)
+        {
+            _tiles[4, 1].UpdateDiplomacyTileStatus();
+        }
+        else
+        {
+            Debug.LogError("외교 타일(4,1)을 찾을 수 없어 상태를 업데이트할 수 없습니다.");
+        }
     }
     private void UpdateAllTilesUI()
     {
@@ -145,8 +160,16 @@ public class MainScreenBuildingController : MonoBehaviour
     }
     
     // ---------------- 타일 선택 ----------------
-    private void HandleTileClick(BuildingTile tile)
+    public void HandleTileClick(BuildingTile tile)
     {
+        if (IsDragging()) return;
+
+        //외교 타일 특별 처리
+        if (tile.X == 4 && tile.Y == 1)
+        {
+            HandleDiplomacyTileClick(tile);
+            return;
+        }
         if (synergyPanel != null)
             synergyPanel.gameObject.SetActive(false);
 
@@ -194,6 +217,23 @@ public class MainScreenBuildingController : MonoBehaviour
                 Debug.Log($"타일 ({tile.X},{tile.Y})은(는) 현재 상호작용할 수 없습니다.");
                 DeselectTile();
             }
+        }
+    }
+    // 외교 타일 클릭 처리 함수 
+    private void HandleDiplomacyTileClick(BuildingTile tile)
+    {
+        Debug.Log($"외교 구역 타일 ({tile.X},{tile.Y}) 클릭됨.");
+
+        if (diplomacyPanel != null)
+        {
+            diplomacyPanel.OpenUI();
+            selectedFrameObject.SetActive(false);
+            _selectedTile = null;
+        }
+        else
+        {
+            Debug.LogError("DiplomacyPanel이 MainScreenBuildingController에 연결되지 않았습니다!");
+            DeselectTile();
         }
     }
 

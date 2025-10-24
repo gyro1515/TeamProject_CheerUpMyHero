@@ -31,7 +31,7 @@ public class SpriteCapture : MonoBehaviour
     public Vector2Int resolution = new Vector2Int(512, 512);
 
     [Tooltip("저장 경로 (Assets/ 기준)")]
-    public string savePath = "Images/UnitIcon";
+    public string savePath = "Resources/UnitIcon";
 
     [Tooltip("캡처에 사용할 카메라 (씬에 미리 배치된 카메라를 사용!)")]
     public Camera captureCamera;

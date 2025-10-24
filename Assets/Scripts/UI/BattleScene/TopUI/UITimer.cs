@@ -16,7 +16,7 @@ public class UITimer : MonoBehaviour
     private float totalTime = 450f;
 
     private float remainTime;
-    bool willSpawnHero = false; // 용사 소환 예정 대사 출력
+    //bool willSpawnHero = false; // 용사 소환 예정 대사 출력
 
     IEventSubscriber<TimeSyncEvent> timeSyncEventSub;
     IEventSubscriber<StartWaveEvent> startWaveEventSub;

@@ -8,6 +8,7 @@ using UnityEngine;
 using Random = UnityEngine.Random;
 
 public struct SynergyDataUpdatedEvent { }
+public struct ClearedStagesUpdatedEvent { }
 public enum ResourceType
 {
     Gold,
@@ -24,8 +25,10 @@ public enum TileStatus { Normal, Damaged, Repairing }
 public class DeckData
 {
     public string DeckName;
-    public List<int> UnitIds;
-
+    public List<int> UnitIds { get; private set; }
+    public List<BaseUnitData> BaseUnitDatas { get; private set; }
+    // 251023: UnitIds을 쓰게 되면 계속 Dictionary에서 BaseUnitData가져와야 해서, baseUnitData 자체를 저장할 거 같습니다.
+    // 기껏 데이터 저장했는데 또 다른 곳에서 데이터를 불러오면 너무 비효율 적이라고 생각합니다.
     public DeckData(string defaultName)
     {
         DeckName = defaultName;
@@ -35,12 +38,16 @@ public class DeckData
         {
             UnitIds[i] = -1;
         }
+        BaseUnitDatas = new List<BaseUnitData>(new BaseUnitData[8]);
     }
 }
 public class PlayerDataManager : SingletonMono<PlayerDataManager>
 {
     // 선택한 스테이지 선택용
     public (int mainStageIdx, int subStageIdx) SelectedStageIdx { get; set; } = (-1, -1);
+
+    private Dictionary<(int, int), bool> clearedStages = new Dictionary<(int, int), bool>();
+    IEventPublisher<ClearedStagesUpdatedEvent> _clearedStagesEvent;
     public TileDataHandler _TileDataHandler { get; private set; }
 
     //테스트용 카드 데이터(유닛 테이블로 교체될 예정
@@ -76,8 +83,17 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
             _TileDataHandler = new TileDataHandler();
             _tileEfficiencyBonuses = new Dictionary<(int, int), float>();
             _synergyDataUpdatedPublisher = EventManager.GetPublisher<SynergyDataUpdatedEvent>();
+            _clearedStagesEvent = EventManager.GetPublisher<ClearedStagesUpdatedEvent>();
             LoadDecks();
-            TestCardGenerate();
+            // TODO: 추후 아래 테스트 카드 생성 부분 제거 필요
+            //테스트용 카드 생성*********
+            List<BaseUnitData> unitList = DataManager.PlayerUnitData.SO.allianceCommon;
+            for (int i = 0; i < unitList.Count; i++)
+            {
+                OwnedCardData[unitList[i].idNumber] = unitList[i];
+            }
+            // **************************
+
             onGridStateChangedEvent = EventManager.GetSubscriber<GridStateChangedEvent>();
             onBattleEndedEvent = EventManager.GetSubscriber<BattleEndedEvent>();
         }
@@ -108,41 +124,8 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
 
     }
 
-    //테스트용 카드 생성
-    // ToDo: 엑셀 데이터로 교체 필요**************
-    void TestCardGenerate()
-    {
-        /*cardDic = new() 
-        {
-            {100001, new TempCardData(100001, "징집병", UnitType.Dealer, 250f, 75, 20f, 6f, PoolType.Allies_Unit1)},
-            {100002, new TempCardData(100002, "방패병", UnitType.Tanker, 1000f, 150, 5f, 6f, PoolType.Allies_Unit2, Rarity.rare)},
-            {100003, new TempCardData(100003, "도끼병", UnitType.Dealer, 500f, 300, 62f, 6f, PoolType.Allies_Unit3)},
-            {100004, new TempCardData(100004, "궁수", UnitType.Dealer, 1000f, 600, 250f, 6.6f, PoolType.Allies_Unit4)},
-            {100005, new TempCardData(100005, "기마병", UnitType.Dealer, 1250f, 750, 32f, 6f, PoolType.Allies_Unit5)},
-            {100006, new TempCardData(100006, "견습 마법사", UnitType.Dealer, 750f, 975, 350f, 6f, PoolType.Allies_Unit6)},
-            {100007, new TempCardData(100007, "중갑 보병", UnitType.Tanker, 1750f, 1200, 450f, 12.6f, PoolType.Allies_Unit7)},
-            {100008, new TempCardData(100008, "궁병", UnitType.Dealer, 2000f, 1500, 875f, 30.6f, PoolType.Allies_Unit8)},
-            {100009, new TempCardData(100009, "수도승", UnitType.Healer, 1000f, 900, 250f, 6.6f, PoolType.Allies_Unit11)},
-            {100010, new TempCardData(100010, "왕국 기마병", UnitType.Dealer, 1750f, 2400, 1050f, 58.6f, PoolType.Allies_Unit10)},
-            {105001, new TempCardData(105001, "왕국 근위대장", UnitType.Tanker, 2500f, 1950, 700f, 54.6f, PoolType.Allies_Unit9)},
-            {105002, new TempCardData(105002, "애쉬", UnitType.Dealer, 2250f, 2250, 2750f, 59.6f, PoolType.Allies_Unit12)},
-            {105003, new TempCardData(105003, "사냥꾼", UnitType.Dealer, 1250f, 825, 87f, 21.6f, PoolType.Allies_Unit13)},
-            {105004, new TempCardData(105004, "검투사", UnitType.Tanker, 1750f, 1035, 250f, 17.6f, PoolType.Allies_Unit14)},
-            {105005, new TempCardData(105005, "광전사", UnitType.Tanker, 1750f, 1440, 330f, 17.6f, PoolType.Allies_Unit15)},
-            {105006, new TempCardData(105006, "황국 기마병", UnitType.Dealer, 2000f, 1125, 750f, 19.6f, PoolType.Allies_Unit16)},
-            {105007, new TempCardData(105007, "견습 사제", UnitType.Healer, 1000f, 525, 250f, 6.6f, PoolType.Allies_Unit17)},
-            {105008, new TempCardData(105008, "큰 도끼 광전사", UnitType.Dealer, 1500f, 1490, 1000f, 17.3f, PoolType.Allies_Unit18)},
-            {105009, new TempCardData(105009, "마법사", UnitType.Dealer, 1000f, 1050, 450f, 6f, PoolType.Allies_Unit19)},
-            {105010, new TempCardData(105010, "자경단원", UnitType.Dealer, 600f, 300, 35f, 6f, PoolType.Allies_Unit20)},
-        };*/
-        List<BaseUnitData> unitList = DataManager.PlayerUnitData.SO.allianceCommon;
-        for(int i = 0; i < unitList.Count; i++)
-        {
-            OwnedCardData[unitList[i].idNumber] = unitList[i];
-        }
-    }
-    //public TempCardData GetUnitData(int cardId)
-    public BaseUnitData GetUnitData(int cardId)
+    // 251023: 유닛 데이터는 데이터 매니저에서 바로 가져오도록 변경
+    /*public BaseUnitData GetUnitData(int cardId)
     {
         if (OwnedCardData.TryGetValue(cardId, out BaseUnitData data))
         {
@@ -151,7 +134,7 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
         // 만약 cardDic에 해당 ID가 없으면 null을 반환
         Debug.LogWarning($"Card ID {cardId}에 해당하는 임시 데이터를 찾을 수 없습니다.");
         return null;
-    }
+    }*/
     //영지 시너지
     #region 시너지 로직
 
@@ -382,13 +365,14 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
 
 
     // 현재 덱 구성을 딕셔너리에 업데이트합니다.
-    public void UpdateDeck(int deckIndex, List<int> unitIds)
+    // 251023: 안쓰는 거 같아 일단 주석처리합니다.
+    /*public void UpdateDeck(int deckIndex, List<int> unitIds)
     {
         if (DeckPresets.ContainsKey(deckIndex))
         {
             DeckPresets[deckIndex].UnitIds = new List<int>(unitIds);
         }
-    }
+    }*/
 
     // 게임 종료나 특정 시점에 덱 정보를 저장할 때 사용합니다.
     public void SaveDecks()
@@ -429,11 +413,24 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
         {
             foreach(ResourceType resource in serverData.Keys)
             {
+                Debug.Log(resource);
                 _resources[resource] = serverData[resource];
             }
             Debug.Log("재화 불러오기 완료");
         }
+#if UNITY_EDITOR //테스트 코드
+        Debug.LogWarning("[테스트] 게임 시작 시 스테이지 (1, 3) 강제 클리어 처리.");
+        List<(int main, int sub)> fakeServerResponse = new List<(int main, int sub)> { (1, 3) };
 
+        UpdateClearedStagesFromServer(fakeServerResponse);
+
+        if (1 == 1 && 3 == 3)
+        {
+            Debug.Log("<color=green>[테스트 보상]</color> 스테이지 1-3 최초 클리어 테스트 보상: 티켓 10개 지급!");
+            AddResource(ResourceType.Ticket, 10);
+        }
+
+#endif
     }
 
     // 특정 자원의 현재 수량을 반환하는 메서드
@@ -450,9 +447,15 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
     // 특정 자원의 수량을 변경하는 메서드
     public void AddResource(ResourceType type, int amount)
     {
+        Debug.Log($"<color=yellow>[PlayerData AddResource]</color> '{type}' 자원 {amount} 변경 요청 받음.");
+
         if (_resources.ContainsKey(type))
         {
+            int previousAmount = _resources[type];
             _resources[type] += amount;
+            int currentAmount = _resources[type];
+
+            Debug.Log($"[PlayerData AddResource] '{type}' 값 변경: {previousAmount} -> {currentAmount}");
 
             if (type == ResourceType.Food)
             {
@@ -620,7 +623,37 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
     // 스테이지 클리어 기록
     #region Clear Stage
 
+    public bool IsStageCleared(int mainStage, int subStage)
+    {
+        return clearedStages.ContainsKey((mainStage, subStage)) && clearedStages[(mainStage, subStage)];
+    }
 
+    public void UpdateClearedStagesFromServer(List<(int main, int sub)> serverClearedStages) //서버에서 클리어 
+    {
+        clearedStages.Clear(); // 일단 로컬 정보 초기화
+        foreach (var stage in serverClearedStages)
+        {
+            clearedStages[stage] = true;
+        }
+
+        _clearedStagesEvent?.Publish(new ClearedStagesUpdatedEvent());
+        Debug.Log("ClearedStagesUpdatedEvent 발행 완료.");
+    }
+    public void MarkLocalStageClear(int mainStage, int subStage)
+    {
+        if (IsStageCleared(mainStage, subStage)) return;
+
+        Debug.Log($"<color=cyan>[PlayerData]</color> 스테이지 ({mainStage}, {subStage}) 로컬 최초 클리어 기록!");
+        clearedStages[(mainStage, subStage)] = true;
+
+        if (mainStage == 1 && subStage == 3) 
+        {
+            AddResource(ResourceType.Ticket, 10);
+            Debug.Log("<color=green>[보상 지급]</color> 스테이지 1-3 최초 클리어 보상: 티켓 10개 지급!");
+        }
+        _clearedStagesEvent?.Publish(new ClearedStagesUpdatedEvent());
+        Debug.Log("[PlayerData] ClearedStagesUpdatedEvent 발행 완료.");
+    }
 
     #endregion
 

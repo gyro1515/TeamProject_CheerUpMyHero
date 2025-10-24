@@ -253,7 +253,20 @@ public class GameManager : SingletonMono<GameManager>
         Debug.Log($"스테이지{mainIdx + 1}-{subIdx + 1} 클리어");
         // 스테이지 데이터 가져와서 해금하기
         // 최대 서브 스테이지를 클리어 했다면 다음 메인 스테이지 해금, 서브 인덱스 1으로
-        int maxSubIdx = SettingDataManager.Instance.MainStageData[mainIdx].subStages.Count;
+
+        bool isFirstClear = !PlayerDataManager.Instance.IsStageCleared(mainIdx + 1, subIdx + 1);
+        if (isFirstClear)
+        {
+            Debug.Log($"스테이지 {mainIdx + 1}-{subIdx + 1} 최초 클리어!");
+            PlayerDataManager.Instance.MarkLocalStageClear(mainIdx + 1, subIdx + 1);
+        }
+
+        else
+        {
+            Debug.Log($"스테이지 {mainIdx + 1}-{subIdx + 1}은(는) 이미 클리어한 스테이지입니다.");
+        }
+    
+            int maxSubIdx = SettingDataManager.Instance.MainStageData[mainIdx].subStages.Count;
         if (++subIdx >= maxSubIdx)
         {
             subIdx = 0;

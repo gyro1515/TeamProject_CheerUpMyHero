@@ -9,6 +9,7 @@ public class UISpawnUnitSlot : MonoBehaviour
     [Header("유닛 선택 소환 아이콘 설정")]
     [SerializeField] RawImage unitIcon;
     [SerializeField] Image unitIconTimer; // 쿨타임 표시, 버튼 클릭 방지용
+    [SerializeField] Image unitIBG; // 시너지 표시 백그라운드
     [SerializeField] Button spawnUnitBtn;
     //[SerializeField] TextMeshProUGUI text; // 추후 아이콘만 설정하면 될 듯 합니다.
     [SerializeField] TextMeshProUGUI costText;
@@ -25,6 +26,8 @@ public class UISpawnUnitSlot : MonoBehaviour
     UnitTextureHandler unitTextureHandler;
     // 식량에 따른 소환 가능 여부 아이콘 처리
     bool canSpawnUnit = true;
+    BaseUnitData cardData;
+
     private void Awake()
     {
         costText.gameObject.SetActive(true); // 현재 왜 꺼져있는지 모르겠음
@@ -44,11 +47,22 @@ public class UISpawnUnitSlot : MonoBehaviour
         unitIconTimer.fillAmount = 1f;
         SetTimerIconActive(false);
     }
-
-    public void InitSpawnUnitSlot(string unitName, int unitId, PoolType poolType, float cooldown, int foodConsumption)
+    public void InitSpawnUnitSlot(BaseUnitData cardData)
+    {
+        if(cardData == null)
+        {
+            InitSpawnUnitSlot("비었음", -1, PoolType.None, 0, -1);
+            return;
+        }
+        this.cardData = cardData;
+        InitSpawnUnitSlot(cardData.unitName, cardData.idNumber, cardData.poolType, cardData.spawnCooldown, cardData.cost);
+        // 유닛 시너지에 따른 배경 설정
+        unitIBG.sprite = cardData.unitBGSprite;
+    }
+    void InitSpawnUnitSlot(string unitName, int unitId, PoolType poolType, float cooldown, int foodConsumption)
     {
         _foodConsumption = foodConsumption;
-        unitTextureHandler = UnitRenderManager.GetUnitTextureHandlerByPoolType(poolType);
+        if(poolType != PoolType.None) unitTextureHandler = UnitRenderManager.GetUnitTextureHandlerByPoolType(poolType);
         if(unitTextureHandler) unitIcon.texture = unitTextureHandler.UnitRT;
         //_cooldown = cooldown;
         playerUnitType = poolType; // 소환할 유닛 타입을 직접 받음
@@ -66,9 +80,12 @@ public class UISpawnUnitSlot : MonoBehaviour
             spawnUnitBtn.enabled = false;
             unitIconTimer.fillAmount = 1f;
             costText.text = "";
+            outlineGOForCanSpawnLegendary.SetActive(true);
+            unitIcon.gameObject.SetActive(false);
+            enabled = false;
             return;
         }
-
+        
         costText.text = _foodConsumption.ToString();
 
         SetTimerIconActive(false);
@@ -106,7 +123,8 @@ public class UISpawnUnitSlot : MonoBehaviour
         unitTextureHandler?.SetCanSpawnUnit(canSpawn);
         // 타이머와 아이콘 색상 동기화 코드
         unitIcon.color = canSpawn && !isCooldown ? whiteCol : grayCol;
-        unitIcon.color = canSpawn ? whiteCol : grayCol;
+        // 원래 방식: 스폰여부에 따라 아이콘 색상 변경
+        //unitIcon.color = canSpawn ? whiteCol : grayCol;
         canSpawnUnit = canSpawn;
         spawnUnitBtn.enabled = canSpawn;
     }

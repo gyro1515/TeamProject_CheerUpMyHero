@@ -16,6 +16,7 @@ public class BasePopUpUI : BaseUI, IBackButtonHandler
     IEventPublisher<RemoveUIStackEvent> onRemoveUIStack;*/
     protected virtual void Awake()
     {
+        POPUP_UI_WARNING = "팝업이 오류났다면, 해당 오브젝트를 활성화하고 시작했는지 체크해주세요.";
         _canvasGroup = GetComponent<CanvasGroup>();
         _canvasGroup.alpha = 0f;
         _canvasGroup.interactable = false;
@@ -60,7 +61,7 @@ public class BasePopUpUI : BaseUI, IBackButtonHandler
         Debug.Log($"{gameObject.name} 뒤로가기: ");
         CloseUI();
     }
-    void SetFadeFalse()
+    protected void SetFadeFalse()
     {
         _isFade = false;
     }
