@@ -61,7 +61,7 @@ public class BasePopUpUI : BaseUI, IBackButtonHandler
         Debug.Log($"{gameObject.name} 뒤로가기: ");
         CloseUI();
     }
-    void SetFadeFalse()
+    protected void SetFadeFalse()
     {
         _isFade = false;
     }
