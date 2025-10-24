@@ -25,6 +25,12 @@ public class PlayerUnit : BaseUnit
         UnitManager.Instance.AddUnitList(this, true);
         
     }
+
+    // SetStatMultiplier 
+    protected override EffectTarget GetEffectTarget()
+    {
+        return EffectTarget.PlayerUnit;
+    }
     public override void SetStatMultiplier(float statMultiplier, bool isSpawnHero = false)
     {
         if (UnitData == null) { Debug.LogError("데이터 없음"); return; }
@@ -38,13 +44,26 @@ public class PlayerUnit : BaseUnit
         float synergyAttackBonus = PlayerDataManager.Instance.SynergyAllUnitAttackBonus;
         float synergyAttackCooldownReduction = PlayerDataManager.Instance.SynergyUnitAttackCooldownReduction;
 
+        // 운명 및 도전 배율 변수. 코스트 쿨타임 관련 로직은 UnitSlotUI 찾아보기
+        EffectTarget target = GetEffectTarget();
+        float hpModifierBonus = Modifiercalculator.GetMultiplier(target, StatType.MaxHp, this);
+        float atkPowerModifierBonus = Modifiercalculator.GetMultiplier(target, StatType.AtkPower, this);
+        float moveSpeedModifierBonus = Modifiercalculator.GetMultiplier(target, StatType.MoveSpeed, this);
+        float costModifierBonus = Modifiercalculator.GetMultiplier(target, StatType.SpawnCost, this);
+        float cooldownModifierBonus = Modifiercalculator.GetMultiplier(target, StatType.SpawnCooldown, this);
+
         // 영웅 소환시, 소환될 유닛은 스탯 2배
         float spawnHeroBonus = isSpawnHero && UnitData.unitClass == UnitClass.Normal ? 2f : 1f;
 
-        // 배율에 따른 체력 공격력 세팅
-        MaxHp = UnitData.health * statMultiplier * (1.0f + synergyHealthBonus / 100.0f) * spawnHeroBonus;
+        // 배율에 따른 체력 공격력 세팅 -> [원래 값 * (운명, 도전 배율 + statMultiplier) -> 합연산]
+        MaxHp = UnitData.health * (hpModifierBonus + statMultiplier) * (1.0f + synergyHealthBonus / 100.0f) * spawnHeroBonus;
         curHp = MaxHp;
-        AtkPower = UnitData.atkPower * statMultiplier * (1.0f + synergyAttackBonus / 100.0f) * spawnHeroBonus;
+        AtkPower = UnitData.atkPower * (atkPowerModifierBonus + statMultiplier) * (1.0f + synergyAttackBonus / 100.0f) * spawnHeroBonus;
+        MoveSpeed = UnitData.moveSpeed * (moveSpeedModifierBonus + statMultiplier);
+
+        // 코스트, 쿨타임 관련 로직 일단 여기에 둠
+        SpawnCooldown = UnitData.spawnCooldown * (cooldownModifierBonus + statMultiplier);
+        FoodConsumption = Mathf.FloorToInt(UnitData.cost * (1f + costModifierBonus));
 
         // 이 시너지 체크 필요
         AttackRate = UnitData.attackRate / statMultiplier * (1.0f - synergyAttackCooldownReduction / 100.0f) / spawnHeroBonus; // 공격 속도는 시너지  배율에 비례

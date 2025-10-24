@@ -52,7 +52,7 @@ public class UISpawnUnitSlot : MonoBehaviour
         if(unitTextureHandler) unitIcon.texture = unitTextureHandler.UnitRT;
         //_cooldown = cooldown;
         playerUnitType = poolType; // 소환할 유닛 타입을 직접 받음
-        
+
         float totalReductionPercent = PlayerDataManager.Instance.TotalUnitCooldownReduction;
 
         //최종 쿨타임을 계산합니다. (기본 쿨타임 * (1 - 할인율))
