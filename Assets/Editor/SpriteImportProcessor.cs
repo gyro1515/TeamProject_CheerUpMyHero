@@ -10,7 +10,7 @@ public class SpriteImportProcessor : AssetPostprocessor
     {
         // SpriteCapture 스크립트에서 설정한 기본 저장 경로
         // SpriteCapture.cs의 'savePath'와 이 경로를 일치시켜야 합니다.
-        string targetPath = "Assets/Images/UnitIcon";
+        string targetPath = "Assets/Resources/UnitIcon";
 
         if (assetPath.StartsWith(targetPath))
         {

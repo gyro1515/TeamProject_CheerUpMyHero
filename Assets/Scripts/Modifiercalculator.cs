@@ -10,6 +10,7 @@ public static class Modifiercalculator
 
     public static void StartBattle()
     {
+        Debug.Log("배틀 시작");
         _multiplierCache = new Dictionary<(EffectTarget, StatType), float>();
         _isBattleActive = true;
     }
@@ -27,14 +28,14 @@ public static class Modifiercalculator
         if (HasCondition(target, type))
         {
             float bonus = CalculateStatBonus(target, type, character);
-            return 1f + (bonus / 100f);
+            return bonus / 100f;
         }
 
         if (_multiplierCache.TryGetValue((target, type), out float value))
             return value;
 
         float bonusPer = CalculateStatBonus(target, type);
-        float multiplier = 1f + (bonusPer / 100f);
+        float multiplier = bonusPer / 100f;
 
         _multiplierCache[(target, type)] = multiplier;
 

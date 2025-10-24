@@ -100,6 +100,8 @@ public class GameManager : SingletonMono<GameManager>
 
     public void StartBattle()
     {
+        Modifiercalculator.StartBattle();
+
         PlayerDataManager.Instance.ResetFood();
 
         IsBattleStarted = true;
@@ -133,6 +135,8 @@ public class GameManager : SingletonMono<GameManager>
     public void ShowResultUI(bool isVictory)
     {
         EventManager.GetPublisher<BattleEndedEvent>().Publish(new BattleEndedEvent { IsVictory = isVictory });
+
+        Modifiercalculator.EndBattle();
 
         //NeedsTileVisualUpdate = true;
 
