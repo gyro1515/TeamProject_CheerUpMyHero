@@ -1,59 +1,74 @@
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
+// using YourNamespaceContainingResourceType; // ResourceType 사용 위해
 
 public class ResourceUI : BaseUI
 {
     [Header("자원 UI 텍스트 연결")]
-
     [SerializeField] private TextMeshProUGUI goldText;
     [SerializeField] private TextMeshProUGUI woodText;
     [SerializeField] private TextMeshProUGUI ironText;
     [SerializeField] private TextMeshProUGUI magicStoneText;
+    [SerializeField] private TextMeshProUGUI bmText;
+    [SerializeField] private TextMeshProUGUI ticketText;
 
+    protected Dictionary<ResourceType, TextMeshProUGUI> _resourceTexts = new();
 
-    private Dictionary<ResourceType, TextMeshProUGUI> _resourceTexts = new();
-
-    private void Awake()
+    protected virtual void Awake()
     {
+        // 기존 딕셔너리 초기화
+        _resourceTexts.Clear(); // Awake가 여러 번 호출될 경우 대비
+        if (goldText) _resourceTexts.Add(ResourceType.Gold, goldText);
+        if (woodText) _resourceTexts.Add(ResourceType.Wood, woodText);
+        if (ironText) _resourceTexts.Add(ResourceType.Iron, ironText);
+        if (magicStoneText) _resourceTexts.Add(ResourceType.MagicStone, magicStoneText);
 
-        _resourceTexts.Add(ResourceType.Gold, goldText);
-        _resourceTexts.Add(ResourceType.Wood, woodText);
-        _resourceTexts.Add(ResourceType.Iron, ironText);
-        _resourceTexts.Add(ResourceType.MagicStone, magicStoneText);
+        if (bmText) _resourceTexts.Add(ResourceType.Bm, bmText);
+        if (ticketText) _resourceTexts.Add(ResourceType.Ticket, ticketText);
 
-         PlayerDataManager.Instance.OnResourceChangedEvent += OnResourceUpdated;
-
-            // 게임 시작 시 초기 자원 값을 UI에 한 번 반영
-            UpdateAllResourceUI();
+        if (PlayerDataManager.Instance != null)
+        {
+            PlayerDataManager.Instance.OnResourceChangedEvent += OnResourceUpdated;
+            UpdateAllResourceUI(); // 초기 값 설정
+        }
+        else
+        {
+            Debug.LogError("PlayerDataManager 인스턴스를 찾을 수 없습니다! (ResourceUI Awake)");
+        }
     }
 
-    private void OnDestroy()
+    protected virtual void OnDisable()
     {
-        //ResourceManager.Instance.OnResourceChangedEvent -= OnResourceUpdated;       
+        // 이벤트 구독 해지 (PlayerDataManager 인스턴스 확인 후)
+        if (PlayerDataManager.Instance != null)
+        {
+            PlayerDataManager.Instance.OnResourceChangedEvent -= OnResourceUpdated;
+        }
     }
 
-    // PlayerDataManager에서 자원 변경 이벤트가 발생하면 자동으로 호출됩니다.
-    private void OnResourceUpdated(ResourceType type, int newAmount)
+    protected virtual void OnResourceUpdated(ResourceType type, int newAmount)
     {
         UpdateResourceUI(type);
     }
 
-    // 특정 자원의 UI 텍스트를 업데이트
-    private void UpdateResourceUI(ResourceType type)
+    public virtual void UpdateResourceUI(ResourceType type)
     {
         if (_resourceTexts.TryGetValue(type, out TextMeshProUGUI textComponent))
         {
-            int amount = PlayerDataManager.Instance.GetResourceAmount(type);
-            textComponent.text = amount.ToString();
+            // PlayerDataManager 인스턴스 확인
+            if (PlayerDataManager.Instance != null)
+            {
+                int amount = PlayerDataManager.Instance.GetResourceAmount(type);
+                textComponent.text = amount.ToString();
+            }
         }
     }
 
-    // 모든 자원의 UI를 한꺼번에 업데이트하는 보조 메서드 
-    //이후에는 PlayerDataManager.AddResource 메서드가 호출될 때마다 업데이트
-    private void UpdateAllResourceUI()
+    public virtual void UpdateAllResourceUI()
     {
+        if (PlayerDataManager.Instance == null) return;
+
         foreach (var type in _resourceTexts.Keys)
         {
             UpdateResourceUI(type);
