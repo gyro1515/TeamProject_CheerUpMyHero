@@ -96,20 +96,6 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
 
             onGridStateChangedEvent = EventManager.GetSubscriber<GridStateChangedEvent>();
             onBattleEndedEvent = EventManager.GetSubscriber<BattleEndedEvent>();
-
-#if UNITY_EDITOR //테스트 코드
-            Debug.LogWarning("[테스트] 게임 시작 시 스테이지 (1, 3) 강제 클리어 처리.");
-            List<(int main, int sub)> fakeServerResponse = new List<(int main, int sub)> { (1, 3) };
-
-            UpdateClearedStagesFromServer(fakeServerResponse);
-
-            if (1 == 1 && 3 == 3)
-            {
-                Debug.Log("<color=green>[테스트 보상]</color> 스테이지 1-3 최초 클리어 테스트 보상: 티켓 10개 지급!");
-                AddResource(ResourceType.Ticket, 10);
-            }
-
-#endif
         }
     }
     private void OnEnable()
@@ -427,11 +413,24 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
         {
             foreach(ResourceType resource in serverData.Keys)
             {
+                Debug.Log(resource);
                 _resources[resource] = serverData[resource];
             }
             Debug.Log("재화 불러오기 완료");
         }
+#if UNITY_EDITOR //테스트 코드
+        Debug.LogWarning("[테스트] 게임 시작 시 스테이지 (1, 3) 강제 클리어 처리.");
+        List<(int main, int sub)> fakeServerResponse = new List<(int main, int sub)> { (1, 3) };
 
+        UpdateClearedStagesFromServer(fakeServerResponse);
+
+        if (1 == 1 && 3 == 3)
+        {
+            Debug.Log("<color=green>[테스트 보상]</color> 스테이지 1-3 최초 클리어 테스트 보상: 티켓 10개 지급!");
+            AddResource(ResourceType.Ticket, 10);
+        }
+
+#endif
     }
 
     // 특정 자원의 현재 수량을 반환하는 메서드
