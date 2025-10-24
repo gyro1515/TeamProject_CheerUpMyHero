@@ -9,6 +9,15 @@ using Random = UnityEngine.Random;
 
 public struct SynergyDataUpdatedEvent { }
 public struct ClearedStagesUpdatedEvent { }
+public struct LimitedPityCountUpdatedEvent
+{
+    public int NewCount; 
+}
+
+public struct StandardPityCountUpdatedEvent
+{
+    public int NewCount; 
+}
 public enum ResourceType
 {
     Gold,
@@ -74,7 +83,14 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
 
     private IEventPublisher<SynergyDataUpdatedEvent> _synergyDataUpdatedPublisher;
     #endregion
+    public int LimitedGachaPityCount { get; private set; } = 0;   // 1페이지 (한정/이벤트) 뽑기 횟수
+    public int StandardGachaPityCount { get; private set; } = 0;  // 2페이지 (상시) 뽑기 횟수
 
+    public const int LIMITED_GACHA_PITY_LIMIT = 150;
+    public const int STANDARD_GACHA_PITY_LIMIT = 150;
+
+    private IEventPublisher<LimitedPityCountUpdatedEvent> _limitedPityPublisher;
+    private IEventPublisher<StandardPityCountUpdatedEvent> _standardPityPublisher;
     protected override void Awake()
     {
         base.Awake();
@@ -83,6 +99,8 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
             _TileDataHandler = new TileDataHandler();
             _tileEfficiencyBonuses = new Dictionary<(int, int), float>();
             _synergyDataUpdatedPublisher = EventManager.GetPublisher<SynergyDataUpdatedEvent>();
+            _limitedPityPublisher = EventManager.GetPublisher<LimitedPityCountUpdatedEvent>();
+            _standardPityPublisher = EventManager.GetPublisher<StandardPityCountUpdatedEvent>();
             _clearedStagesEvent = EventManager.GetPublisher<ClearedStagesUpdatedEvent>();
             LoadDecks();
             // TODO: 추후 아래 테스트 카드 생성 부분 제거 필요
@@ -657,6 +675,51 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
 
     #endregion
 
+    //가챠시스템
+    #region
+    public void UpdateLimitedPityCount(bool isEpicResult)
+    {
+        if (isEpicResult)
+        {
+            LimitedGachaPityCount = 0; // 에픽 획득 시 초기화
+            Debug.Log("<color=yellow>[천장-한정]</color> 에픽 획득! 카운터 초기화.");
+        }
+        else
+        {
+            LimitedGachaPityCount++; // 에픽 아니면 증가
+                                     // 천장 도달 시 초기화는 가챠 로직(GachaUIPanel)에서 처리 후 0으로 리셋 요청
+            Debug.Log($"<color=yellow>[천장-한정]</color> 카운터 증가: {LimitedGachaPityCount}");
+        }
+
+        _limitedPityPublisher?.Publish(new LimitedPityCountUpdatedEvent { NewCount = LimitedGachaPityCount });
+    }
+
+    public void UpdateStandardPityCount(bool isEpicResult)
+    {
+        if (isEpicResult)
+        {
+            StandardGachaPityCount = 0;
+            Debug.Log("<color=yellow>[천장-상시]</color> 에픽 획득! 카운터 초기화.");
+        }
+        else
+        {
+            StandardGachaPityCount++;
+            Debug.Log($"<color=yellow>[천장-상시]</color> 카운터 증가: {StandardGachaPityCount}");
+        }
+
+        _standardPityPublisher?.Publish(new StandardPityCountUpdatedEvent { NewCount = StandardGachaPityCount });
+    }
+
+    public void LoadPityCounts(int loadedLimitedCount, int loadedStandardCount)
+    {
+        LimitedGachaPityCount = loadedLimitedCount;
+        StandardGachaPityCount = loadedStandardCount;
+        Debug.Log($"[PlayerData] 천장 카운터 로드 완료 - 한정: {LimitedGachaPityCount}, 상시: {StandardGachaPityCount}");
+
+        _limitedPityPublisher?.Publish(new LimitedPityCountUpdatedEvent { NewCount = LimitedGachaPityCount });
+        _standardPityPublisher?.Publish(new StandardPityCountUpdatedEvent { NewCount = StandardGachaPityCount });
+    }
+    #endregion
     public StageDestinyData currentDastiny { get; set; } = new StageDestinyData();
     public Dictionary<int, int> activeChallenges { get; private set; } = new Dictionary<int, int>();
 }
