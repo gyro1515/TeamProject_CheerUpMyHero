@@ -193,7 +193,7 @@ public class UIDeckSynergy : MonoBehaviour
             {
                 //synergyClickedEvent.Publish(new SynergyClickedEvent(synergyType, count));
                 uISynegyToolTipPanel.OnSynergyClicked(synergyType, count);
-                Debug.Log("시너지 아이콘 클릭됨");
+                //Debug.Log("시너지 아이콘 클릭됨");
             });
             synergyIconGOListForAuto.Add(iconSlot);
             iconGO.SetActive(false);

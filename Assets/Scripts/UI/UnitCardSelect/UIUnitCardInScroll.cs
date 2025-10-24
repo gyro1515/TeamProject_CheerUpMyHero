@@ -1,7 +1,9 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 using TMPro;
+using UnityEngine;
+using UnityEngine.UI;
 
 public class UIUnitCardInScroll : MonoBehaviour
 {
@@ -18,14 +20,19 @@ public class UIUnitCardInScroll : MonoBehaviour
     [SerializeField] TMP_Text atkPowerText;
     [SerializeField] TMP_Text coolTimeText;
     [SerializeField] TMP_Text descriptionText;
+    [SerializeField] Image bgImg;
+    [SerializeField] Image unitIconImg;
+    [SerializeField] Image synergyIcon;
+    [SerializeField] UIUnitSynergeIconArea synergyIconArea;
+
 
     [SerializeField] GameObject GreyBlocker;
+    
 
     private void Awake()
     {
         _canvasGroup = GetComponent<CanvasGroup>();
     }
-
     private void Start()
     {
         //cardData = PlayerDataManager.Instance.cardDic;
@@ -44,9 +51,14 @@ public class UIUnitCardInScroll : MonoBehaviour
         //coolTimeText.text = $"쿨타임\n{cardData[cardNum].coolTime.ToString("N1")}";
         coolTimeText.text = $"쿨타임\n{cardData[cardNum].spawnCooldown.ToString("N1")}";
         descriptionText.text = $"{cardData[cardNum].description}";
-        Grey(!canSelect);
-    }
+        bgImg.sprite = cardData[cardNum].unitBGSprite;
+        unitIconImg.sprite = cardData[cardNum].unitIconSprite;
 
+        synergyIconArea.SetUnitSynergeIcon(cardData[cardNum]);
+
+        Grey(!canSelect);
+
+    }
     void Grey(bool isGrey)
     {
         if (isGrey)
