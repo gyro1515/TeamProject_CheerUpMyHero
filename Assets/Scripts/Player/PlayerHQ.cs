@@ -12,7 +12,7 @@ public class PlayerHQ : BaseHQ
     [SerializeField] List<int> upgradeCntByRarity = new List<int>() { 8, 4, -1 }; // 커먼, 레어, 에픽 순서로 몇 번 소환시 강화할지 
     // 미리 캐싱하고 사용하는 방식 => 업데이트 같은 곳에서 사용할 때 성능 향상
     IEventPublisher<SpawnHQEvent> onSpawn;
-    // 해당 유닛을 몇 번 소환했는지 체크용
+    // 해당 유닛을 몇 번 소환했는지 체크용 // 아싸 이거 통계용으로 써야지
     Dictionary<PoolType, int> unitSpawnCnt = new Dictionary<PoolType, int>();
     // 해당 유닛 타입 저장용
     Dictionary<PoolType, Rarity> uunitRarityType = new Dictionary<PoolType, Rarity>();

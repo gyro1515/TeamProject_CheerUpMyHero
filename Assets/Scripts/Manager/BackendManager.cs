@@ -98,24 +98,12 @@ public class BackendManager : SingletonMono<BackendManager>
     private static bool _isNetworkAvailableCache = false;
     // 마지막으로 네트워크 확인을 수행한 시간
     private static float _lastNetworkCheckTime = -5f;
-    // 캐시 유효 시간 (초)
-    private const float NETWORK_CACHE_DURATION = 5.0f;
-    // 인터넷 확인용 주소
-    private const string NETWORK_CHECK_URL = "https://connectivitycheck.gstatic.com/generate_204";
+ 
 
     //쓰기 제한 WriteLock
     private Dictionary<string, string> writeLocks = new();
 
-    //재화 ID값
-    public const string GOLD_ID = "GOLD";
-    public const string WOOD_ID = "WOOD";
-    public const string IRON_ID = "IRON";
-    public const string TICKET_ID = "TICKET";
-    public const string MAGICSTONE_ID = "MAGICSTONE";
-    public const string BM_ID = "BM";
-
-    //세이브 데이터 ID값
-    public static string PLAYER_DATA_KEY = "PLAYER_DATA";
+    
 
     //분석 켜짐 or 꺼짐
     public static bool IsAnalyticsCollectionStarted { get; private set; } = false;
@@ -339,7 +327,7 @@ public class BackendManager : SingletonMono<BackendManager>
     private static async UniTask<bool> IsNetworkAvailableAsync(bool forceCheck = false)
     {
         //캐시가 만료되지 않았다면, 이전 네트워크 결과 불러오기
-        if (!forceCheck && Time.realtimeSinceStartup - _lastNetworkCheckTime < NETWORK_CACHE_DURATION && _isNetworkAvailableCache)
+        if (!forceCheck && Time.realtimeSinceStartup - _lastNetworkCheckTime < Constants.NETWORK_CACHE_DURATION && _isNetworkAvailableCache)
         {
             return true;
         }
@@ -356,7 +344,7 @@ public class BackendManager : SingletonMono<BackendManager>
         }
 
         // 2차 확인: 실제 인터넷 네트워크 연결 여부
-        var request = UnityWebRequest.Head(NETWORK_CHECK_URL);
+        var request = UnityWebRequest.Head(Constants.NETWORK_CHECK_URL);
         request.timeout = 4;
 
         try
@@ -494,9 +482,9 @@ public class BackendManager : SingletonMono<BackendManager>
 
     //나중에 서버로 이사가야 함
     //그니까 일단 void도 대충 하자
-    public static async UniTask ChangeEnconmy(string id, int amount)
+    public static async UniTask ChangeEconomy(string id, int amount)
     {
-        if (!await CanCommunicateAsync(nameof(ChangeEnconmy)))
+        if (!await CanCommunicateAsync(nameof(ChangeEconomy)))
         {
             Debug.LogError("서버 연결 불가");
             return;
@@ -513,22 +501,22 @@ public class BackendManager : SingletonMono<BackendManager>
         switch (resource)
         {
             case ResourceType.Gold:
-                result = GOLD_ID;
+                result = Constants.GOLD_ID;
                 break;
             case ResourceType.Wood:
-                result = WOOD_ID;
+                result = Constants.WOOD_ID;
                 break;
             case ResourceType.Iron:
-                result = IRON_ID;
+                result = Constants.IRON_ID;
                 break;
             case ResourceType.Ticket:
-                result = TICKET_ID;
+                result = Constants.TICKET_ID;
                 break;
             case ResourceType.MagicStone:
-                result = MAGICSTONE_ID;
+                result = Constants.MAGICSTONE_ID;
                 break;
             case ResourceType.Bm:
-                result = BM_ID;
+                result = Constants.BM_ID;
                 break;
             case ResourceType.Food:
                 result = string.Empty;
@@ -544,22 +532,22 @@ public class BackendManager : SingletonMono<BackendManager>
 
         switch (id)
         {
-            case GOLD_ID:
+            case Constants.GOLD_ID:
                 resource = ResourceType.Gold;
                 break;
-            case WOOD_ID:
+            case Constants.WOOD_ID:
                 resource = ResourceType.Wood;
                 break;
-            case IRON_ID:
+            case Constants.IRON_ID:
                 resource = ResourceType.Iron;
                 break;
-            case TICKET_ID:
+            case Constants.TICKET_ID:
                 resource = ResourceType.Ticket;
                 break;
-            case MAGICSTONE_ID:
+            case Constants.MAGICSTONE_ID:
                 resource = ResourceType.MagicStone;
                 break;
-            case BM_ID:
+            case Constants.BM_ID:
                 resource = ResourceType.Bm;
                 break;
             default:
@@ -592,8 +580,8 @@ public class BackendManager : SingletonMono<BackendManager>
         
         try
         {
-            var playerData = await CloudSaveService.Instance.Data.Player.LoadAsync(new HashSet<string> { PLAYER_DATA_KEY });
-            if (playerData.TryGetValue(PLAYER_DATA_KEY, out var keyName))
+            var playerData = await CloudSaveService.Instance.Data.Player.LoadAsync(new HashSet<string> { Constants.PLAYER_DATA_KEY });
+            if (playerData.TryGetValue(Constants.PLAYER_DATA_KEY, out var keyName))
             {
                 result = keyName.Value.GetAs<PlayerSaveData>();
             }
@@ -709,7 +697,17 @@ public class BackendManager : SingletonMono<BackendManager>
         }
     }
 
+}
 
+public class MyEvent : Unity.Services.Analytics.Event
+{
+    public MyEvent() : base("myEvent")
+    {
+    }
 
+    public string FabulousString { set { SetParameter("fabulousString", value); } }
+    public int SparklingInt { set { SetParameter("sparklingInt", value); } }
+    public float SpectacularFloat { set { SetParameter("spectacularFloat", value); } }
+    public bool PeculiarBool { set { SetParameter("peculiarBool", value); } }
 }
 

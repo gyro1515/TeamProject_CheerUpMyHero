@@ -1,13 +1,14 @@
 using Cysharp.Threading.Tasks;
+using Newtonsoft.Json;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using UnityEngine;
-using Random = UnityEngine.Random;
-using Newtonsoft.Json;
 using Unity.VisualScripting;
+using UnityEngine;
+using static UnityEngine.UI.CanvasScaler;
+using Random = UnityEngine.Random;
 
 public struct SynergyDataUpdatedEvent { }
 public struct ClearedStagesUpdatedEvent { }
@@ -150,6 +151,47 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
         _clearedStagesEvent?.Publish(new ClearedStagesUpdatedEvent());
         Debug.Log("ClearedStagesUpdatedEvent 발행 완료.");
     }
+
+    
+
+    void CardGenerate(List<int> unlockedCardIDLists)
+    {
+
+        //0. 모든 유닛의 딕셔너리 만들기
+
+        List<BaseUnitData> commonList = DataManager.PlayerUnitData.SO.allianceCommon;
+        List<BaseUnitData> rareList = DataManager.PlayerUnitData.SO.allianceRare;
+        List<BaseUnitData> epicList = DataManager.PlayerUnitData.SO.allianceEpic;
+
+        List<List<BaseUnitData>> unitListList = new() { commonList, rareList, epicList };
+
+        foreach (List<BaseUnitData> list in unitListList)
+        {
+            for (int i = 0; i < list.Count; i++)
+            {
+                AllCardData[list[i].idNumber] = list[i];
+            }
+        }
+
+        //1. 이 중에서 id int list 기반으로 해금된 카드 딕셔너리 만들기
+        foreach (int id in unlockedCardIDLists)
+        {
+            OwnedCardData[id] = AllCardData[id];
+        }
+
+    }
+
+    public void UnLockUnit(int id)
+    {
+        if (!AllCardData.ContainsKey(id))
+        {
+            Debug.LogWarning($"유닛 해금 실패, ID:{id} 에 해당하는 유닛이 존재하지 않거나 세팅되지 않았습니다.");
+            return;
+        }
+
+        OwnedCardData[id] = AllCardData[id];
+    }
+
     // 251023: 유닛 데이터는 데이터 매니저에서 바로 가져오도록 변경
     /*public BaseUnitData GetUnitData(int cardId)
     {
@@ -478,7 +520,7 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
                 return;
             }
 
-            await BackendManager.ChangeEnconmy(BackendManager.EconomyEnumToId(type), amount);
+            await BackendManager.ChangeEconomy(BackendManager.EconomyEnumToId(type), amount);
             await SaveDataToCloudAsync();
         }
         else
@@ -645,13 +687,42 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
     public StageDestinyData currentDastiny { get; set; } = new StageDestinyData();
     public Dictionary<int, int> activeChallenges { get; private set; } = new Dictionary<int, int>();
 
+
+    #region 저장 관련
+    private Dictionary<int, List<int>> ConvertDeckToInt()
+    {
+        Dictionary<int, List<int>> result = new();
+
+        for (int  i = 1; i <= DeckPresets.Count; i++)
+        {
+            result[i] = DeckPresets[i].UnitIds;
+        }
+
+        return result;
+    }
+
+    private void ConvertIntToDeck(Dictionary<int, List<int>> loadIntDic)
+    {
+        for(int i = 1; i <= loadIntDic.Count; i++)
+        {
+            for (int j = 0; j < DeckPresets[i].BaseUnitDatas.Count; j++)
+            {
+                int id = loadIntDic[i][j];
+                if (id != -1)
+                DeckPresets[i].BaseUnitDatas[j] = DataManager.PlayerUnitData.GetData(id);
+            }
+            
+        }
+    }
+    
+
     public async UniTask SaveDataToCloudAsync()
     {
         // 1. 현재 PlayerDataManager의 상태를 스냅샷으로 생성
         var saveData = new PlayerSaveData
         {
             ClearData = SettingDataManager.Instance.SaveClearData(),
-            DeckPresets = this.DeckPresets, // 딕셔너리 전체 저장
+            DeckPresets = ConvertDeckToInt(), // 딕셔너리 전체 저장 //하니까 직렬화에서 에러나서 저장할땐 int로 하겠습니당
             ActiveDeckIndex = this.ActiveDeckIndex,
             OwnedCardData = this.OwnedCardData.Keys.ToList<int>(),
             OwnedArtifacts = ArtifactManager.Instance.SaveArtifactData(ArtifactManager.Instance.OwnedArtifacts),
@@ -663,7 +734,7 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
 
         Dictionary<string, object> cloudData = new();
 
-        cloudData[BackendManager.PLAYER_DATA_KEY] = saveData;
+        cloudData[Constants.PLAYER_DATA_KEY] = saveData;
 
         Debug.Log("플레이어 데이터 스냅샷 생성 완료.");
 
@@ -695,7 +766,7 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
         try 
         {
             SettingDataManager.Instance.LoadClearData(loadedData.ClearData);
-            this.DeckPresets = loadedData.DeckPresets;
+            ConvertIntToDeck(loadedData.DeckPresets);
             this.ActiveDeckIndex = loadedData.ActiveDeckIndex;
             CardGenerate(loadedData.OwnedCardData);
             _TileDataHandler.RestoreFromSnapshot(loadedData.TileGridData);
@@ -721,9 +792,8 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
         { 
             Debug.LogException(ex);
         }
-
-        
     }
+    #endregion
 }
 
 [System.Serializable]
@@ -734,7 +804,7 @@ public class PlayerSaveData
     public List<List<bool>> ClearData;
 
     // 2. 덱 데이터
-    public Dictionary<int, DeckData> DeckPresets;
+    public Dictionary<int, List<int>> DeckPresets;
     public int ActiveDeckIndex;
 
     // 3. 영지 타일 데이터 
