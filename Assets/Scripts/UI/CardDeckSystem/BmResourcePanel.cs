@@ -6,12 +6,16 @@ public class ResourcePanelUI : BaseUI
     [SerializeField] private TextMeshProUGUI goldCountText;
     [SerializeField] private TextMeshProUGUI bmCountText;
     [SerializeField] private TextMeshProUGUI ticketCountText;
-
+    private void Start()
+    {
+        UpdateAllResources();
+    }
     private void OnEnable()
     {
-        PlayerDataManager.Instance.OnResourceChangedEvent += UpdateResourceText;
-
-        UpdateAllResources();
+        if (PlayerDataManager.Instance != null)
+        {
+            PlayerDataManager.Instance.OnResourceChangedEvent += UpdateResourceText;
+        }
     }
 
     private void OnDisable()
@@ -22,27 +26,32 @@ public class ResourcePanelUI : BaseUI
         }
     }
 
-    // 모든 자원 UI를 한 번에 업데이트하는 함수
     private void UpdateAllResources()
     {
-        goldCountText.text = PlayerDataManager.Instance.GetResourceAmount(ResourceType.Gold).ToString();
-        bmCountText.text = PlayerDataManager.Instance.GetResourceAmount(ResourceType.Bm).ToString();
-        ticketCountText.text = PlayerDataManager.Instance.GetResourceAmount(ResourceType.Ticket).ToString();
+        if (PlayerDataManager.Instance == null) return;
+
+        if (goldCountText != null)
+            goldCountText.text = PlayerDataManager.Instance.GetResourceAmount(ResourceType.Gold).ToString();
+        if (bmCountText != null)
+            bmCountText.text = PlayerDataManager.Instance.GetResourceAmount(ResourceType.Bm).ToString();
+        if (ticketCountText != null)
+            ticketCountText.text = PlayerDataManager.Instance.GetResourceAmount(ResourceType.Ticket).ToString();
+
+        Debug.Log("[ResourcePanel] 모든 자원 표시 업데이트 완료.");
     }
 
-    // 특정 자원이 변경되었을 때 호출되는 함수
     private void UpdateResourceText(ResourceType type, int newAmount)
     {
         switch (type)
         {
             case ResourceType.Gold:
-                goldCountText.text = newAmount.ToString();
+                if (goldCountText != null) goldCountText.text = newAmount.ToString();
                 break;
             case ResourceType.Bm:
-                bmCountText.text = newAmount.ToString();
+                if (bmCountText != null) bmCountText.text = newAmount.ToString();
                 break;
             case ResourceType.Ticket:
-                ticketCountText.text = newAmount.ToString();
+                if (ticketCountText != null) ticketCountText.text = newAmount.ToString();
                 break;
         }
     }

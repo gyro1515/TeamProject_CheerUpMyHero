@@ -96,11 +96,6 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
 
             onGridStateChangedEvent = EventManager.GetSubscriber<GridStateChangedEvent>();
             onBattleEndedEvent = EventManager.GetSubscriber<BattleEndedEvent>();
-#if UNITY_EDITOR // 임시코드 1-3 강제 클리어 
-            Debug.LogWarning("[테스트] 게임 시작 시 스테이지 (1, 3) 강제 클리어 처리.");
-            List<(int main, int sub)> fakeServerResponse = new List<(int main, int sub)> { (1, 3) };
-            UpdateClearedStagesFromServer(fakeServerResponse);
-#endif
         }
     }
     private void OnEnable()
@@ -128,22 +123,7 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
         }
 
     }
-    public bool IsStageCleared(int mainStage, int subStage)
-    {
-        return clearedStages.ContainsKey((mainStage, subStage)) && clearedStages[(mainStage, subStage)];
-    }
 
-    public void UpdateClearedStagesFromServer(List<(int main, int sub)> serverClearedStages) //서버에서 클리어 
-    {
-        clearedStages.Clear(); // 일단 로컬 정보 초기화
-        foreach (var stage in serverClearedStages)
-        {
-            clearedStages[stage] = true;
-        }
-
-        _clearedStagesEvent?.Publish(new ClearedStagesUpdatedEvent());
-        Debug.Log("ClearedStagesUpdatedEvent 발행 완료.");
-    }
     // 251023: 유닛 데이터는 데이터 매니저에서 바로 가져오도록 변경
     /*public BaseUnitData GetUnitData(int cardId)
     {
@@ -433,11 +413,24 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
         {
             foreach(ResourceType resource in serverData.Keys)
             {
+                Debug.Log(resource);
                 _resources[resource] = serverData[resource];
             }
             Debug.Log("재화 불러오기 완료");
         }
+#if UNITY_EDITOR //테스트 코드
+        Debug.LogWarning("[테스트] 게임 시작 시 스테이지 (1, 3) 강제 클리어 처리.");
+        List<(int main, int sub)> fakeServerResponse = new List<(int main, int sub)> { (1, 3) };
 
+        UpdateClearedStagesFromServer(fakeServerResponse);
+
+        if (1 == 1 && 3 == 3)
+        {
+            Debug.Log("<color=green>[테스트 보상]</color> 스테이지 1-3 최초 클리어 테스트 보상: 티켓 10개 지급!");
+            AddResource(ResourceType.Ticket, 10);
+        }
+
+#endif
     }
 
     // 특정 자원의 현재 수량을 반환하는 메서드
@@ -454,9 +447,15 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
     // 특정 자원의 수량을 변경하는 메서드
     public void AddResource(ResourceType type, int amount)
     {
+        Debug.Log($"<color=yellow>[PlayerData AddResource]</color> '{type}' 자원 {amount} 변경 요청 받음.");
+
         if (_resources.ContainsKey(type))
         {
+            int previousAmount = _resources[type];
             _resources[type] += amount;
+            int currentAmount = _resources[type];
+
+            Debug.Log($"[PlayerData AddResource] '{type}' 값 변경: {previousAmount} -> {currentAmount}");
 
             if (type == ResourceType.Food)
             {
@@ -624,7 +623,37 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
     // 스테이지 클리어 기록
     #region Clear Stage
 
+    public bool IsStageCleared(int mainStage, int subStage)
+    {
+        return clearedStages.ContainsKey((mainStage, subStage)) && clearedStages[(mainStage, subStage)];
+    }
 
+    public void UpdateClearedStagesFromServer(List<(int main, int sub)> serverClearedStages) //서버에서 클리어 
+    {
+        clearedStages.Clear(); // 일단 로컬 정보 초기화
+        foreach (var stage in serverClearedStages)
+        {
+            clearedStages[stage] = true;
+        }
+
+        _clearedStagesEvent?.Publish(new ClearedStagesUpdatedEvent());
+        Debug.Log("ClearedStagesUpdatedEvent 발행 완료.");
+    }
+    public void MarkLocalStageClear(int mainStage, int subStage)
+    {
+        if (IsStageCleared(mainStage, subStage)) return;
+
+        Debug.Log($"<color=cyan>[PlayerData]</color> 스테이지 ({mainStage}, {subStage}) 로컬 최초 클리어 기록!");
+        clearedStages[(mainStage, subStage)] = true;
+
+        if (mainStage == 1 && subStage == 3) 
+        {
+            AddResource(ResourceType.Ticket, 10);
+            Debug.Log("<color=green>[보상 지급]</color> 스테이지 1-3 최초 클리어 보상: 티켓 10개 지급!");
+        }
+        _clearedStagesEvent?.Publish(new ClearedStagesUpdatedEvent());
+        Debug.Log("[PlayerData] ClearedStagesUpdatedEvent 발행 완료.");
+    }
 
     #endregion
 
