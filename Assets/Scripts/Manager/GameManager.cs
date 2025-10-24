@@ -134,6 +134,8 @@ public class GameManager : SingletonMono<GameManager>
     {
         EventManager.GetPublisher<BattleEndedEvent>().Publish(new BattleEndedEvent { IsVictory = isVictory });
 
+        Modifiercalculator.EndBattle();
+
         //NeedsTileVisualUpdate = true;
 
         Time.timeScale = 0f;

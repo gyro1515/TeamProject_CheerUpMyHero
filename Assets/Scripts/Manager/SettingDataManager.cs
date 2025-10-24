@@ -76,4 +76,34 @@ public class SettingDataManager : SingletonMono<SettingDataManager>
         MainStageData[mainIndex].subStages[subIndex].isUnlocked = true;
     }
 
+
+    public List<List<bool>> SaveClearData()
+    {
+        List<List<bool>> boolListList = new ();
+        
+        for (int i = 0; i < MainStageData.Count; i++)
+        {
+            List<bool> boolList = new ();
+            
+            for(int j = 0; j < MainStageData[i].subStages.Count; j++)
+            {
+                boolList.Add(MainStageData[i].subStages[j].isUnlocked);
+            }
+
+            boolListList.Add(boolList);
+        }
+
+        return boolListList;
+    }
+
+    public void LoadClearData(List<List<bool>> boolListList)
+    {
+        for (int i = 0; i < boolListList.Count; i++)
+        {
+            for (int j = 0; j < boolListList[i].Count; j++)
+            {
+                MainStageData[i].subStages[j].isUnlocked = boolListList[i][j];
+            }
+        }
+    }
 }

@@ -87,7 +87,8 @@ public class EnemyHQ : BaseHQ
     {
         for (int i = 0; i < enemyUnits.Count; i++)
         {
-            float cooltime = DataManager.EnemyUnitData.GetData((int)enemyUnits[i]).spawnCooldown;
+            BaseUnitData data = DataManager.EnemyUnitData.GetData((int)enemyUnits[i]);
+            float cooltime = data.spawnCooldown * (1f + Modifiercalculator.GetMultiplier(EffectTarget.EnemyUnit, StatType.SpawnCooldown, data));
 
             enemyUnitCoolTimes[enemyUnits[i]] = cooltime;
             //Debug.Log($"{enemyUnits[i]} 쿨타임 {cooltime}초로 세팅");

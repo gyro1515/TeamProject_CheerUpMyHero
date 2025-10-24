@@ -2,8 +2,11 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using System.Collections;
-
-public class ContractListPanel : MonoBehaviour, IEndDragHandler
+public struct GachaPageChangedEvent
+{
+    public int NewPageIndex;
+}
+public class ContractPagesController : MonoBehaviour, IEndDragHandler
 {
     [Header("스크롤 및 페이지 참조")]
     [SerializeField] private ScrollRect scrollRect;
@@ -23,6 +26,9 @@ public class ContractListPanel : MonoBehaviour, IEndDragHandler
     private float pageWidth = 0f; // 초기값을 0으로 설정
     private Coroutine _snapCoroutine = null;
     private Vector2 previousViewportSize = Vector2.zero;
+    public int CurrentPageIndex => currentPageIndex;
+
+    private IEventPublisher<GachaPageChangedEvent> _pageChangedPublisher;
 
     void Start()
     {
@@ -40,6 +46,7 @@ public class ContractListPanel : MonoBehaviour, IEndDragHandler
             detailsButton.onClick.AddListener(OnDetailsButtonClicked);
         }
 
+        _pageChangedPublisher = EventManager.GetPublisher<GachaPageChangedEvent>();
         StartCoroutine(InitializePagination());
     }
 
@@ -113,13 +120,14 @@ public class ContractListPanel : MonoBehaviour, IEndDragHandler
 
         bool pageChanged = newPageIndex != currentPageIndex;
         currentPageIndex = newPageIndex;
-
         SnapToPage(currentPageIndex);
 
         if (pageChanged)
         {
             UpdatePaginationDots();
             Debug.Log($"페이지 변경됨: {currentPageIndex + 1}");
+
+            _pageChangedPublisher?.Publish(new GachaPageChangedEvent { NewPageIndex = currentPageIndex });
         }
     }
 

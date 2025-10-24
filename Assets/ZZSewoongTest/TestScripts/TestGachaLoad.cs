@@ -63,7 +63,7 @@ public class TestGachaLoad : MonoBehaviour
     private async void TestPlusTicket()
     {
         var incrementOptions = new IncrementBalanceOptions { WriteLock = currentWriteLock };
-        PlayerBalance incrementResult = await EconomyService.Instance.PlayerBalances.IncrementBalanceAsync(BackendManager.TICKET_ID, 5, incrementOptions);
+        PlayerBalance incrementResult = await EconomyService.Instance.PlayerBalances.IncrementBalanceAsync(Constants.TICKET_ID, 5, incrementOptions);
         await TicketUIRefresh();
     }
 
@@ -71,7 +71,7 @@ public class TestGachaLoad : MonoBehaviour
     private async UniTask TestMinusTicket()
     {
         var decrementOptions = new DecrementBalanceOptions { WriteLock = currentWriteLock };
-        PlayerBalance decrementResult = await EconomyService.Instance.PlayerBalances.DecrementBalanceAsync(BackendManager.TICKET_ID, 1, decrementOptions);
+        PlayerBalance decrementResult = await EconomyService.Instance.PlayerBalances.DecrementBalanceAsync(Constants.TICKET_ID, 1, decrementOptions);
         await TicketUIRefresh();
     }
 
@@ -80,7 +80,7 @@ public class TestGachaLoad : MonoBehaviour
         try
         {
             GetBalancesResult initialBalances = await EconomyService.Instance.PlayerBalances.GetBalancesAsync();
-            PlayerBalance goldBalance = initialBalances.Balances.FirstOrDefault(b => b.CurrencyId == BackendManager.TICKET_ID);
+            PlayerBalance goldBalance = initialBalances.Balances.FirstOrDefault(b => b.CurrencyId == Constants.TICKET_ID);
             currentWriteLock = goldBalance?.WriteLock;
 
             if (goldBalance == null)

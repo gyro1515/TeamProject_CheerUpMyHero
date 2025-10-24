@@ -7,6 +7,7 @@ using Unity.Services.Analytics;
 using Unity.Services.Authentication;
 using Unity.Services.CloudCode;
 using Unity.Services.CloudCode.GeneratedBindings;
+using Unity.Services.CloudSave;
 using Unity.Services.Core;
 using Unity.Services.Economy;
 using Unity.Services.Economy.Model;
@@ -20,6 +21,76 @@ public class BackendManager : SingletonMono<BackendManager>
     //해야 할것: 고유한 재시도 로직
     //예: 재화 관련의 경우 writelock 다시 받아오기
 
+    #region 작업 큐 관련 내부 클래스
+
+    // 모든 요청이 구현해야 할 기본 인터페이스
+    private interface IQueuedRequest
+    {
+        // 요청을 실행하고 완료될 때까지 기다리는 비동기 메서드
+        UniTask ExecuteAsync();
+    }
+
+    // 반환 값이 없는 (UniTask) 비동기 작업을 위한 요청 클래스
+    private class QueuedRequest : IQueuedRequest
+    {
+        private readonly Func<UniTask> _action;
+        private readonly UniTaskCompletionSource<bool> _tcs;
+
+        public UniTask Task => _tcs.Task;
+
+        public QueuedRequest(Func<UniTask> action)
+        {
+            _action = action;
+            _tcs = new UniTaskCompletionSource<bool>();
+        }
+
+        public async UniTask ExecuteAsync()
+        {
+            try
+            {
+                await _action();
+                _tcs.TrySetResult(true);
+            }
+            catch (Exception e)
+            {
+                _tcs.TrySetException(e);
+            }
+        }
+    }
+
+    // 반환 값이 있는 (UniTask<T>) 비동기 작업을 위한 제네릭 요청 클래스
+    private class QueuedRequest<T> : IQueuedRequest
+    {
+        // Func<UniTask<T>>: T 타입의 값을 반환하는 비동기 메서드를 담는 델리게이트
+        private readonly Func<UniTask<T>> _action;
+        // UniTaskCompletionSource<T>: UniTask<T>의 완료/실패/취소 상태를 수동으로 제어
+        private readonly UniTaskCompletionSource<T> _tcs;
+
+        public UniTask<T> Task => _tcs.Task;
+
+        public QueuedRequest(Func<UniTask<T>> action)
+        {
+            _action = action;
+            _tcs = new UniTaskCompletionSource<T>();
+        }
+
+        public async UniTask ExecuteAsync()
+        {
+            try
+            {
+                // 실제 비동기 작업을 실행하고 결과를 받아옴
+                var result = await _action();
+                // 작업이 성공적으로 완료되었음을 알리고 결과를 설정
+                _tcs.TrySetResult(result);
+            }
+            catch (Exception e)
+            {
+                // 예외가 발생하면 Task를 실패 상태로 만듦
+                _tcs.TrySetException(e);
+            }
+        }
+    }
+    #endregion
 
     #region 필드 모음
     //네트워크 캐시 변수들
@@ -27,21 +98,12 @@ public class BackendManager : SingletonMono<BackendManager>
     private static bool _isNetworkAvailableCache = false;
     // 마지막으로 네트워크 확인을 수행한 시간
     private static float _lastNetworkCheckTime = -5f;
-    // 캐시 유효 시간 (초)
-    private const float NETWORK_CACHE_DURATION = 5.0f;
-    // 인터넷 확인용 주소
-    private const string NETWORK_CHECK_URL = "https://connectivitycheck.gstatic.com/generate_204";
+ 
 
     //쓰기 제한 WriteLock
     private Dictionary<string, string> writeLocks = new();
 
-    //재화 ID값
-    public const string GOLD_ID = "GOLD";
-    public const string WOOD_ID = "WOOD";
-    public const string IRON_ID = "IRON";
-    public const string TICKET_ID = "TICKET";
-    public const string MAGICSTONE_ID = "MAGICSTONE";
-    public const string BM_ID = "BM";
+    
 
     //분석 켜짐 or 꺼짐
     public static bool IsAnalyticsCollectionStarted { get; private set; } = false;
@@ -52,6 +114,12 @@ public class BackendManager : SingletonMono<BackendManager>
 
     //현재 초기화 상태를 제어
     private UniTaskCompletionSource<bool> _initializationTcs;
+
+    private readonly Queue<IQueuedRequest> _requestQueue = new Queue<IQueuedRequest>();
+    // 큐가 현재 처리 중인지 여부를 나타내는 플래그
+    private bool _isProcessingQueue = false;
+    // 여러 스레드에서 동시에 큐에 접근하는 것을 방지하기 위한 잠금 객체 (안전장치)
+    private readonly object _queueLock = new object();
 
     #endregion
 
@@ -107,6 +175,7 @@ public class BackendManager : SingletonMono<BackendManager>
 
             //플레이어 데이터 매니저가 비동기를 가질 때까지는 외부에서 자원 넣어줘야 할듯
             await PlayerDataManager.Instance.InitializeResourcesAsync();
+            await PlayerDataManager.Instance.LoadDataFromCloundAsync();
         }
         catch (Exception e)
         {
@@ -166,6 +235,79 @@ public class BackendManager : SingletonMono<BackendManager>
     }
 
 
+    #region 큐 관련 메서드
+    private async UniTaskVoid ProcessQueueAsync()
+    {
+        while (true)
+        {
+            IQueuedRequest currentRequest;
+
+            // lock을 이용해 큐에서 작업을 꺼내는 동안 다른 스레드의 접근을 막음
+            lock (_queueLock)
+            {
+                // 큐에 더 이상 처리할 작업이 없으면 루프 종료
+                if (_requestQueue.Count == 0)
+                {
+                    _isProcessingQueue = false; // 처리 완료 상태로 변경
+                    return;
+                }
+                currentRequest = _requestQueue.Dequeue();
+            }
+
+            try
+            {
+                // 큐에서 꺼낸 작업을 실행하고 완료될 때까지 기다림
+                await currentRequest.ExecuteAsync();
+            }
+            catch (Exception e)
+            {
+                // ExecuteAsync 내부에서 예외를 처리하지만, 만약을 위한 로깅
+                Debug.LogError($"[BackendManager] 요청 처리 중 예상치 못한 오류 발생: {e.Message}");
+            }
+        }
+    }
+
+    private UniTask<T> EnqueueRequestAsync<T>(Func<UniTask<T>> action)
+    {
+        // 제네릭 요청 객체 생성
+        var request = new QueuedRequest<T>(action);
+
+        lock (_queueLock)
+        {
+            // 큐에 요청 추가
+            _requestQueue.Enqueue(request);
+
+            // 현재 큐가 처리 중이 아니라면, 새로운 처리 루프 시작
+            if (!_isProcessingQueue)
+            {
+                _isProcessingQueue = true;
+                ProcessQueueAsync().Forget(); // Forget()으로 호출. 이 루프의 완료를 기다리지 않음.
+            }
+        }
+
+        // 외부 호출자는 이 Task를 await하게 됨.
+        // 이 Task는 나중에 ProcessQueueAsync 루프 안에서 완료됨.
+        return request.Task;
+    }
+
+    // 반환 값이 없는 버전을 위한 오버로딩
+    private UniTask EnqueueRequestAsync(Func<UniTask> action)
+    {
+        var request = new QueuedRequest(action);
+
+        lock (_queueLock)
+        {
+            _requestQueue.Enqueue(request);
+            if (!_isProcessingQueue)
+            {
+                _isProcessingQueue = true;
+                ProcessQueueAsync().Forget();
+            }
+        }
+        return request.Task;
+    }
+    #endregion
+
     #region 서버와 통신 가능 여부 체크
     // 서비스 초기화가 완료될 때까지 기다림
     public static async UniTask<bool> EnsureInstanceAndInitializedAsync()
@@ -185,9 +327,9 @@ public class BackendManager : SingletonMono<BackendManager>
     private static async UniTask<bool> IsNetworkAvailableAsync(bool forceCheck = false)
     {
         //캐시가 만료되지 않았다면, 이전 네트워크 결과 불러오기
-        if (!forceCheck && Time.realtimeSinceStartup - _lastNetworkCheckTime < NETWORK_CACHE_DURATION)
+        if (!forceCheck && Time.realtimeSinceStartup - _lastNetworkCheckTime < Constants.NETWORK_CACHE_DURATION && _isNetworkAvailableCache)
         {
-            return _isNetworkAvailableCache;
+            return true;
         }
 
         // 캐시가 만료되었거나, 강제 확인이 요청된 경우 실제 네트워크 확인 수행
@@ -196,12 +338,13 @@ public class BackendManager : SingletonMono<BackendManager>
         // 1차 확인: 기기상 인터넷 연결 여부
         if (Application.internetReachability == NetworkReachability.NotReachable)
         {
+            Debug.LogWarning($"기기의 인터넷을 켜주세요");
             _isNetworkAvailableCache = false;
             return false;
         }
 
         // 2차 확인: 실제 인터넷 네트워크 연결 여부
-        var request = UnityWebRequest.Head(NETWORK_CHECK_URL);
+        var request = UnityWebRequest.Head(Constants.NETWORK_CHECK_URL);
         request.timeout = 4;
 
         try
@@ -234,12 +377,19 @@ public class BackendManager : SingletonMono<BackendManager>
     private static async UniTask<bool> CanCommunicateAsync(string apiKey) //apikey = 메서드 이름
     {
         // 1. 초기화 확인
-        if (!await EnsureInstanceAndInitializedAsync())
+        if (!await EnsureInstanceAndInitializedAsync()) 
+        {
+            Debug.LogWarning($"초기화가 완료되지 않았습니다.");
             return false;
-
+        }
+            
         // 2. 네트워크 확인
         if (!await IsNetworkAvailableAsync())
+        {
+            Debug.LogWarning($"인터넷 연결에 실패했습니다.");
             return false;
+        }
+            
         // 3. 서비스 상태 확인 (점검 등)
 
         // 4. 과도한 호출 방지
@@ -264,16 +414,29 @@ public class BackendManager : SingletonMono<BackendManager>
     {
         if (!await CanCommunicateAsync(nameof(SaveDataAsync)))
         {
-            Debug.LogError("서버 연결 불가: 데이터 저장 불가");
+            Debug.LogError("서버 연결 불가");
             //이유도 같이 나오게 할 예정
 
             return;
         }
-        await Instance.InternalSaveDataAsync(data);
+        await Instance.EnqueueRequestAsync(() => Instance.InternalSaveDataAsync(data));
+    }
+
+    public static async UniTask<PlayerSaveData> LoadDataAsync()
+    {
+        if (!await CanCommunicateAsync(nameof(LoadDataAsync)))
+        {
+            Debug.LogError("서버 연결 불가");
+            //이유도 같이 나오게 할 예정
+
+            return null;
+        }
+
+        return await Instance.EnqueueRequestAsync(() => Instance.InternalLoadDataAsync());
     }
 
     //Analytic는 현재 인터넷 연결 없이도 저장 후 데이터 전송
-    public static async UniTask SendStageAnalyticsAsync(Dictionary<string, object> data) //일단 딕셔너리로 적긴 했는데, struct 활용 예정
+    public static async UniTask SendStageAnalyticsAsync(Dictionary<string, object> data) //일단 딕셔너리로 적긴 했는데, struct도 같이활용 예정
     {
         //서비스 초기화 여부랑 Analytic 활성화 여부만 체크
         //Analytic는 사용자가 제공 거부를 할 수 있으므로 강제로 키지 않음
@@ -286,7 +449,7 @@ public class BackendManager : SingletonMono<BackendManager>
         if (!await EnsureInstanceAndInitializedAsync())
             return;
 
-        await Instance.InternalSendStageAnalyticsAsync(data);
+        await Instance.EnqueueRequestAsync(() => Instance.InternalSendStageAnalyticsAsync(data));
     }
 
 
@@ -299,7 +462,7 @@ public class BackendManager : SingletonMono<BackendManager>
             return -1;
         }
 
-        return await Instance.InternalOneNormalGachaAsync();
+        return await Instance.EnqueueRequestAsync(() => Instance.InternalOneNormalGachaAsync());
     }
 
 
@@ -314,20 +477,20 @@ public class BackendManager : SingletonMono<BackendManager>
             return null;
         }
 
-        return await Instance.InternalLoadEconomyData();
+        return await Instance.EnqueueRequestAsync(() => Instance.InternalLoadEconomyData());
     }
 
     //나중에 서버로 이사가야 함
     //그니까 일단 void도 대충 하자
-    public static async void ChangeEnconmy(string id, int amount)
+    public static async UniTask ChangeEconomy(string id, int amount)
     {
-        if (!await CanCommunicateAsync(nameof(ChangeEnconmy)))
+        if (!await CanCommunicateAsync(nameof(ChangeEconomy)))
         {
             Debug.LogError("서버 연결 불가");
             return;
         }
 
-        await Instance.InternalChangeEnconmyAsync(id, amount);
+        await Instance.EnqueueRequestAsync(() => Instance.InternalChangeEnconmyAsync(id, amount));
     }
 
 
@@ -338,22 +501,22 @@ public class BackendManager : SingletonMono<BackendManager>
         switch (resource)
         {
             case ResourceType.Gold:
-                result = GOLD_ID;
+                result = Constants.GOLD_ID;
                 break;
             case ResourceType.Wood:
-                result = WOOD_ID;
+                result = Constants.WOOD_ID;
                 break;
             case ResourceType.Iron:
-                result = IRON_ID;
+                result = Constants.IRON_ID;
                 break;
             case ResourceType.Ticket:
-                result = TICKET_ID;
+                result = Constants.TICKET_ID;
                 break;
             case ResourceType.MagicStone:
-                result = MAGICSTONE_ID;
+                result = Constants.MAGICSTONE_ID;
                 break;
             case ResourceType.Bm:
-                result = BM_ID;
+                result = Constants.BM_ID;
                 break;
             case ResourceType.Food:
                 result = string.Empty;
@@ -369,22 +532,22 @@ public class BackendManager : SingletonMono<BackendManager>
 
         switch (id)
         {
-            case GOLD_ID:
+            case Constants.GOLD_ID:
                 resource = ResourceType.Gold;
                 break;
-            case WOOD_ID:
+            case Constants.WOOD_ID:
                 resource = ResourceType.Wood;
                 break;
-            case IRON_ID:
+            case Constants.IRON_ID:
                 resource = ResourceType.Iron;
                 break;
-            case TICKET_ID:
+            case Constants.TICKET_ID:
                 resource = ResourceType.Ticket;
                 break;
-            case MAGICSTONE_ID:
+            case Constants.MAGICSTONE_ID:
                 resource = ResourceType.MagicStone;
                 break;
-            case BM_ID:
+            case Constants.BM_ID:
                 resource = ResourceType.Bm;
                 break;
             default:
@@ -401,16 +564,41 @@ public class BackendManager : SingletonMono<BackendManager>
     // ===================================================================
     private async UniTask InternalSaveDataAsync(Dictionary<string, object> data)
     {
-        // TODO: 실제 클라우드 저장 로직 구현 필요
-        Debug.LogWarning("InternalSaveDataAsync가 아직 구현되지 않았습니다.");
-        await UniTask.CompletedTask; // 컴파일러 경고 제거 및 비동기 시그니처 유지 용도
+        try
+        {
+            await CloudSaveService.Instance.Data.Player.SaveAsync(data);
+        }
+        catch (Exception ex)
+        {
+            Debug.LogException(ex);
+        }
     }
 
-    private async UniTask InternalLoadDataAsync(Dictionary<string, object> data)
+    private async UniTask<PlayerSaveData> InternalLoadDataAsync()
     {
-        // TODO: 실제 클라우드 로드 로직 구현 필요
-        Debug.LogWarning("InternalLoadDataAsync가 아직 구현되지 않았습니다.");
-        await UniTask.CompletedTask; // 컴파일러 경고 제거 및 비동기 시그니처 유지 용도
+        PlayerSaveData result = null;
+        
+        try
+        {
+            var playerData = await CloudSaveService.Instance.Data.Player.LoadAsync(new HashSet<string> { Constants.PLAYER_DATA_KEY });
+            if (playerData.TryGetValue(Constants.PLAYER_DATA_KEY, out var keyName))
+            {
+                result = keyName.Value.GetAs<PlayerSaveData>();
+            }
+
+            if (result == null)
+            {
+                Debug.Log("클라우드 세이브가 기존 데이터가 없을 경우 null만 반환한다는게 확인되었습니다.");
+            }
+
+            return result;
+        }
+        catch (Exception ex)
+        {
+            Debug.LogException(ex);
+            return result;
+        }
+
     }
 
     private async UniTask InternalSendStageAnalyticsAsync(Dictionary<string, object> data)
@@ -493,13 +681,13 @@ public class BackendManager : SingletonMono<BackendManager>
             {
                 var incrementOptions = new IncrementBalanceOptions { WriteLock = currentWriteLock };
                 PlayerBalance incrementResult = await EconomyService.Instance.PlayerBalances.IncrementBalanceAsync(id, amount, incrementOptions);
-                incrementResult.WriteLock = writeLocks[id];
+                writeLocks[id] = incrementResult.WriteLock;
             }
             else
             {
                 var decrementOptions = new DecrementBalanceOptions { WriteLock = currentWriteLock };
                 PlayerBalance decrementResult = await EconomyService.Instance.PlayerBalances.DecrementBalanceAsync(id, -amount, decrementOptions);
-                decrementResult.WriteLock = writeLocks[id];
+                writeLocks[id] = decrementResult.WriteLock;
             }
         }
 
@@ -509,7 +697,17 @@ public class BackendManager : SingletonMono<BackendManager>
         }
     }
 
+}
 
+public class MyEvent : Unity.Services.Analytics.Event
+{
+    public MyEvent() : base("myEvent")
+    {
+    }
 
+    public string FabulousString { set { SetParameter("fabulousString", value); } }
+    public int SparklingInt { set { SetParameter("sparklingInt", value); } }
+    public float SpectacularFloat { set { SetParameter("spectacularFloat", value); } }
+    public bool PeculiarBool { set { SetParameter("peculiarBool", value); } }
 }
 
