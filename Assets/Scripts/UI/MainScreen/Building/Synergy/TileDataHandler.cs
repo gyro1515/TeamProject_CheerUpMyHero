@@ -329,4 +329,93 @@ public void DamageRandomTile()
         return null;
     }
 
+    public TileDataSnapshot GetSnapshot()
+    {
+        var snapshot = new TileDataSnapshot();
+
+        for (int y = 0; y < 5; y++)
+        {
+            for (int x = 0; x < 5; x++)
+            {
+                // 1. 건물 데이터 -> 건물 ID로 변환
+                // 건물이 없으면 -1 또는 0과 같은 Null 대체 값을 저장합니다. 여기서는 0을 사용.
+                snapshot.BuildingIdGrid[x, y] = BuildingGridData[x, y]?.idNumber ?? 0;
+
+                // 2. 타일 상태 및 수리 턴 복사
+                snapshot.TileStatusGrid[x, y] = this.TileStatusGrid[x, y];
+                snapshot.TileRepairTurnsGrid[x, y] = this.TileRepairTurnsGrid[x, y];
+
+                // 3. DateTime -> long으로 변환
+                snapshot.CooldownEndTimeBinaryGrid[x, y] = this.CooldownEndTimeGrid[x, y].ToBinary();
+            }
+        }
+
+        Debug.Log("TileDataHandler 스냅샷 생성 완료.");
+        return snapshot;
+    }
+
+    public void RestoreFromSnapshot(TileDataSnapshot snapshot)
+    {
+        if (snapshot == null)
+        {
+            Debug.LogWarning("복원할 TileDataSnapshot이 null입니다.");
+            return;
+        }
+
+        for (int y = 0; y < 5; y++)
+        {
+            for (int x = 0; x < 5; x++)
+            {
+                // 1. 건물 ID -> 건물 데이터(참조)로 복원
+                int buildingId = snapshot.BuildingIdGrid[x, y];
+                if (buildingId > 0)
+                {
+                    // DataManager를 통해 ID에 해당하는 실제 건물 데이터를 가져옵니다.
+                    this.BuildingGridData[x, y] = DataManager.Instance.BuildingUpgradeData.GetData(buildingId);
+                }
+                else
+                {
+                    this.BuildingGridData[x, y] = null;
+                }
+
+                // 2. 타일 상태 및 수리 턴 복원
+                this.TileStatusGrid[x, y] = snapshot.TileStatusGrid[x, y];
+                this.TileRepairTurnsGrid[x, y] = snapshot.TileRepairTurnsGrid[x, y];
+
+                // 3. long -> DateTime으로 복원
+                this.CooldownEndTimeGrid[x, y] = DateTime.FromBinary(snapshot.CooldownEndTimeBinaryGrid[x, y]);
+            }
+        }
+
+        // 중요: 상태가 변경되었으므로, 외부(PlayerDataManager)에서 시너지 재계산을 유도하기 위해 이벤트를 발행합니다.
+        onGridStateChangedEventPub?.Publish();
+        Debug.Log("TileDataHandler 스냅샷으로부터 데이터 복원 완료.");
+    }
+}
+
+//저장가능한 데이터로 만들어주기
+[System.Serializable]
+public class TileDataSnapshot
+{
+    // 1. 건물 ID 그리드 (BuildingUpgradeData -> int)
+    public int[,] BuildingIdGrid;
+
+    // 2. 타일 상태 그리드 (Enum은 직렬화 가능)
+    public TileStatus[,] TileStatusGrid;
+
+    // 3. 타일 수리 턴 그리드
+    public int[,] TileRepairTurnsGrid;
+
+    // 4. 쿨타임 종료 시각 그리드 (DateTime -> long)
+    public long[,] CooldownEndTimeBinaryGrid;
+
+    // 생성자: 배열 크기를 초기화해야 직렬화/역직렬화 시 오류가 발생하지 않습니다.
+    public TileDataSnapshot()
+    {
+        // 5x5 그리드에 맞게 초기화
+        BuildingIdGrid = new int[5, 5];
+        TileStatusGrid = new TileStatus[5, 5];
+        TileRepairTurnsGrid = new int[5, 5];
+        CooldownEndTimeBinaryGrid = new long[5, 5];
+    }
 }

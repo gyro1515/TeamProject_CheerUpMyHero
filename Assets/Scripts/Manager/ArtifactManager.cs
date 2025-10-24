@@ -1,7 +1,9 @@
+using Newtonsoft.Json;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEditor.Experimental;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -21,24 +23,24 @@ public class ArtifactManager : SingletonMono<ArtifactManager>
     {
         base.Awake();
 
-        LoadArtifactData();
+        //LoadArtifactData(); // 외부에서 호출하도록 옮김
 
         SetAfDataForTest(); // 추후 삭제 예정***********
 
-        // 패시브 유물 테스트 -----
-        AddArtifact(080200015);
-        AddArtifact(080200014);
-        AddArtifact(080200025);
-        AddArtifact(080200024);
-        AddArtifact(080200035);
-        AddArtifact(080200034);
-        AddArtifact(080200055);
-        AddArtifact(080200054);
-        AddArtifact(080200054);
-        AddArtifact(080200085);
-        AddArtifact(080200084);
-        AddArtifact(08010001);
-        AddArtifact(08010002);
+        // 패시브 유물 테스트 ----- // 세이브 없을때만 호출하도록 옮김
+        //AddArtifact(080200015);
+        //AddArtifact(080200014);
+        //AddArtifact(080200025);
+        //AddArtifact(080200024);
+        //AddArtifact(080200035);
+        //AddArtifact(080200034);
+        //AddArtifact(080200055);
+        //AddArtifact(080200054);
+        //AddArtifact(080200054);
+        //AddArtifact(080200085);
+        //AddArtifact(080200084);
+        //AddArtifact(08010001);
+        //AddArtifact(08010002);
         // ------------------------
 
         artifactSO = Resources.Load<ArtifactSO>("DB/ArtifactSO");
@@ -46,12 +48,12 @@ public class ArtifactManager : SingletonMono<ArtifactManager>
 
     private void OnEnable()
     {
-        
+
     }
 
     private void OnDisable()
     {
-        
+
     }
 
     #region 유물 : 유물 획득, 장착, 해제 등 필수 메서드
@@ -139,19 +141,68 @@ public class ArtifactManager : SingletonMono<ArtifactManager>
     #endregion
 
     #region 유물 : 저장 및 초기화 관련
-    public void LoadArtifactData()
+
+
+    //Newtonsoft.Json 사용해서 패시브, 액티브까지 알아서 구분
+    public string SaveArtifactData(List<ArtifactData> data)
+    {
+        JsonSerializerSettings settings = new JsonSerializerSettings
+        {
+            TypeNameHandling = TypeNameHandling.Auto
+        };
+
+        string json = JsonConvert.SerializeObject(data, Formatting.Indented, settings);
+        
+        return json;
+    }
+
+
+    public void LoadArtifactData(string ownedList, string equippedList)
     {
         // 저장된 데이터 불러오는 로직 넣기~~~~ 지금은 못 넣음~~~~~
 
         bool hasSaveData = false;
 
+        if (ownedList != null && equippedList != null)
+        {
+            hasSaveData = true;
+        }
+
         if (hasSaveData)
         {
-            // 저장 데이터 불러오는 거 넣기~~~
+            InitializeEquippedArtifacts();
+            JsonSerializerSettings settings = new JsonSerializerSettings
+            {
+                TypeNameHandling = TypeNameHandling.Auto
+            };
+
+
+            OwnedArtifacts = JsonConvert.DeserializeObject<List<ArtifactData>>(ownedList, settings);
+            List<ArtifactData> equippedData = JsonConvert.DeserializeObject<List<ArtifactData>>(equippedList, settings);
+
+            for (int i = 0; i < equippedData.Count; i++)
+            {
+                EquipArtifact(equippedData[i], i);
+            }
+
         }
         else    // 아예 게임 처음이면 초기화 메서드 
         {
             InitializeEquippedArtifacts();
+
+            AddArtifact(080200015);
+            AddArtifact(080200014);
+            AddArtifact(080200025);
+            AddArtifact(080200024);
+            AddArtifact(080200035);
+            AddArtifact(080200034);
+            AddArtifact(080200055);
+            AddArtifact(080200054);
+            AddArtifact(080200054);
+            AddArtifact(080200085);
+            AddArtifact(080200084);
+            AddArtifact(08010001);
+            AddArtifact(08010002);
         }
     }
 
@@ -201,7 +252,7 @@ public class ArtifactManager : SingletonMono<ArtifactManager>
         int slotIndex = 0;
         // HashSet<(EffectTarget, StatType)> equippedPassiveTypes = new HashSet<(EffectTarget, StatType)>();
 
-        foreach ( var artifact in primaryList)
+        foreach (var artifact in primaryList)
         {
             //if (artifact is PassiveArtifactData passive)
             //{
@@ -293,7 +344,7 @@ public class ArtifactManager : SingletonMono<ArtifactManager>
         OnOwnedArtifactsChanged?.Invoke();
     }
 
-    public List <ActiveArtifactData> GetRandomActiveArtifact(int count)
+    public List<ActiveArtifactData> GetRandomActiveArtifact(int count)
     {
         List<ActiveArtifactData> source = new List<ActiveArtifactData>(artifactSO.activeArtifacts);
         List<ActiveArtifactData> result = new List<ActiveArtifactData>();
@@ -315,7 +366,7 @@ public class ArtifactManager : SingletonMono<ArtifactManager>
             result.Add(source[randomNum]);
             source[randomNum] = null;
         }*/
-        return result ;
+        return result;
     }
 
     // 소유 액티브 유물 데이터

@@ -6,6 +6,8 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 using Random = UnityEngine.Random;
+using Newtonsoft.Json;
+using Unity.VisualScripting;
 
 public struct SynergyDataUpdatedEvent { }
 public enum ResourceType
@@ -45,6 +47,10 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
 
     //테스트용 카드 데이터(유닛 테이블로 교체될 예정
     //public Dictionary<int, TempCardData> cardDic;
+
+    //모든 유닛 데이터
+    private Dictionary<int, BaseUnitData> AllCardData = new Dictionary<int, BaseUnitData>();
+    //해금된 유닛 데이터
     public Dictionary<int, BaseUnitData> OwnedCardData { get; private set; } = new Dictionary<int, BaseUnitData>();
     IEventSubscriber<GridStateChangedEvent> onGridStateChangedEvent;
     IEventSubscriber<BattleEndedEvent> onBattleEndedEvent;
@@ -77,7 +83,7 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
             _tileEfficiencyBonuses = new Dictionary<(int, int), float>();
             _synergyDataUpdatedPublisher = EventManager.GetPublisher<SynergyDataUpdatedEvent>();
             LoadDecks();
-            TestCardGenerate();
+            //TestCardGenerate();
             onGridStateChangedEvent = EventManager.GetSubscriber<GridStateChangedEvent>();
             onBattleEndedEvent = EventManager.GetSubscriber<BattleEndedEvent>();
         }
@@ -135,12 +141,58 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
             {105009, new TempCardData(105009, "마법사", UnitType.Dealer, 1000f, 1050, 450f, 6f, PoolType.Allies_Unit19)},
             {105010, new TempCardData(105010, "자경단원", UnitType.Dealer, 600f, 300, 35f, 6f, PoolType.Allies_Unit20)},
         };*/
+
+
         List<BaseUnitData> unitList = DataManager.PlayerUnitData.SO.allianceCommon;
         for(int i = 0; i < unitList.Count; i++)
         {
             OwnedCardData[unitList[i].idNumber] = unitList[i];
         }
+
+        //****로직 변경 이제는 세이브 기반으로 해금된 유닛만 불러옴
+
+
     }
+
+    void CardGenerate(List<int> unlockedCardIDLists)
+    {
+
+        //0. 모든 유닛의 딕셔너리 만들기
+
+        List<BaseUnitData> commonList = DataManager.PlayerUnitData.SO.allianceCommon;
+        List<BaseUnitData> rareList = DataManager.PlayerUnitData.SO.allianceRare;
+        List<BaseUnitData> epicList = DataManager.PlayerUnitData.SO.allianceEpic;
+
+        List<List<BaseUnitData>> unitListList = new() { commonList, rareList, epicList };
+
+        foreach(List<BaseUnitData> list in unitListList)
+        {
+            for (int i = 0; i < list.Count; i++)
+            {
+                AllCardData[list[i].idNumber] = list[i];
+            }
+        }
+
+        //1. 이 중에서 id int list 기반으로 해금된 카드 딕셔너리 만들기
+        foreach (int id in unlockedCardIDLists)
+        {
+            OwnedCardData[id] = AllCardData[id];
+        }
+
+    }
+
+    public void UnLockUnit(int id)
+    {
+        if (!AllCardData.ContainsKey(id))
+        {
+            Debug.LogWarning($"유닛 해금 실패, ID:{id} 에 해당하는 유닛이 존재하지 않거나 세팅되지 않았습니다.");
+            return;
+        }
+        
+        OwnedCardData[id] = AllCardData[id];
+    }
+
+
     //public TempCardData GetUnitData(int cardId)
     public BaseUnitData GetUnitData(int cardId)
     {
@@ -448,7 +500,8 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
     }
 
     // 특정 자원의 수량을 변경하는 메서드
-    public void AddResource(ResourceType type, int amount)
+    // 아 이거 비동기로 바꿔야 하는데 그러면 다른 것도 계속 바꿔야 하네
+    public async void AddResource(ResourceType type, int amount)
     {
         if (_resources.ContainsKey(type))
         {
@@ -461,7 +514,14 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
 
             OnResourceChangedEvent?.Invoke(type, _resources[type]);
 
-            BackendManager.ChangeEnconmy(BackendManager.EconomyEnumToId(type), amount);
+            //음식은 서버에 저장되지 않음
+            if (type == ResourceType.Food)
+            {
+                return;
+            }
+
+            await BackendManager.ChangeEnconmy(BackendManager.EconomyEnumToId(type), amount);
+            await SaveDataToCloudAsync();
         }
         else
         {
@@ -626,7 +686,113 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
 
     public StageDestinyData currentDastiny { get; set; } = new StageDestinyData();
     public Dictionary<int, int> activeChallenges { get; private set; } = new Dictionary<int, int>();
+
+    public async UniTask SaveDataToCloudAsync()
+    {
+        // 1. 현재 PlayerDataManager의 상태를 스냅샷으로 생성
+        var saveData = new PlayerSaveData
+        {
+            ClearData = SettingDataManager.Instance.SaveClearData(),
+            DeckPresets = this.DeckPresets, // 딕셔너리 전체 저장
+            ActiveDeckIndex = this.ActiveDeckIndex,
+            OwnedCardData = this.OwnedCardData.Keys.ToList<int>(),
+            OwnedArtifacts = ArtifactManager.Instance.SaveArtifactData(ArtifactManager.Instance.OwnedArtifacts),
+            EquippedArtifacts = ArtifactManager.Instance.SaveArtifactData(ArtifactManager.Instance.EquippedArtifacts),
+
+            // TileDataHandler의 상태를 직렬화 가능한 형태로 변환
+            TileGridData = _TileDataHandler.GetSnapshot()
+        };
+
+        Dictionary<string, object> cloudData = new();
+
+        cloudData[BackendManager.PLAYER_DATA_KEY] = saveData;
+
+        Debug.Log("플레이어 데이터 스냅샷 생성 완료.");
+
+        // 2. BackendManager를 사용하여 클라우드에 데이터 전송
+        await BackendManager.SaveDataAsync(cloudData);
+
+        Debug.Log("✅ 플레이어 데이터 클라우드 저장 완료.");
+    }
+
+
+    public async UniTask LoadDataFromCloundAsync()
+    {
+        PlayerSaveData loadedData = await BackendManager.LoadDataAsync();
+
+        //처음 실행하면 초기 데이터 세팅
+        if (loadedData == null)
+        {
+            //일단 가챠 유닛 제외 전부 넣어둠
+            List<int> initalUnitIds = new List<int>();
+            for (int i = 100001; i < 100011; i++)
+            {
+                initalUnitIds.Add(i);
+            }
+
+            CardGenerate(initalUnitIds);
+            return;
+        }
+
+        try 
+        {
+            SettingDataManager.Instance.LoadClearData(loadedData.ClearData);
+            this.DeckPresets = loadedData.DeckPresets;
+            this.ActiveDeckIndex = loadedData.ActiveDeckIndex;
+            CardGenerate(loadedData.OwnedCardData);
+            _TileDataHandler.RestoreFromSnapshot(loadedData.TileGridData);
+            ArtifactManager.Instance.LoadArtifactData(loadedData.OwnedArtifacts, loadedData.EquippedArtifacts);
+
+        }
+        catch (NullReferenceException)
+        {
+            Debug.Log("세이브 데이터가 손상되었거나 이전 개발 버전입니다.");
+
+            //일단 가챠 유닛 제외 전부 넣어둠
+            List<int> initalUnitIds = new List<int>();
+            for (int i = 100001; i < 100011; i++)
+            {
+                initalUnitIds.Add(i);
+            }
+
+            CardGenerate(initalUnitIds);
+
+        }
+        
+        catch (Exception ex) 
+        { 
+            Debug.LogException(ex);
+        }
+
+        
+    }
 }
+
+[System.Serializable]
+public class PlayerSaveData
+{
+    // 1. 스테이지 해금 정보
+    //SettingDataManger와 연계 필요
+    public List<List<bool>> ClearData;
+
+    // 2. 덱 데이터
+    public Dictionary<int, DeckData> DeckPresets;
+    public int ActiveDeckIndex;
+
+    // 3. 영지 타일 데이터 
+    public TileDataSnapshot TileGridData;
+
+    //4. 보유한 유닛
+    public List<int> OwnedCardData;
+
+    //5. 보유한 유물
+    //유물들은 Newtonsoft.Json를 사용해 패시브, 액티브로 알아서 전환
+    public string OwnedArtifacts;
+
+    //6. 장착한 유물
+    public string EquippedArtifacts;
+}
+
 
 
 
