@@ -97,7 +97,7 @@ public class Player : BaseUnit
         curHp = MaxHp;
         AtkPower = PlayerData.atkPower * (atkModifierBonus + statMultiplier);
         AttackRate = PlayerData.attackRate * statMultiplier; // 공격 속도는 크기와 상관없이 배율에 비례
-        MoveSpeed = PlayerData.moveSpeed * (moveSpeedModifierBonus + statMultiplier);
+        MoveSpeed = PlayerData.moveSpeed * (moveSpeedModifierBonus + 1f);
         
         // 251022 주석처리
         /*float tmpstatMultiplier = Math.Clamp(statMultiplier, 0.8f, 1.2f); // 크기는 너무 작아지거나 커지지 않도록 제한

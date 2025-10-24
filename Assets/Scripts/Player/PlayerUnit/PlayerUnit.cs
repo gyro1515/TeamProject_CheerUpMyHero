@@ -58,7 +58,7 @@ public class PlayerUnit : BaseUnit
         MaxHp = UnitData.health * (hpModifierBonus + statMultiplier) * (1.0f + synergyHealthBonus / 100.0f) * spawnHeroBonus;
         curHp = MaxHp;
         AtkPower = UnitData.atkPower * (atkPowerModifierBonus + statMultiplier) * (1.0f + synergyAttackBonus / 100.0f) * spawnHeroBonus;
-        MoveSpeed = UnitData.moveSpeed * (moveSpeedModifierBonus + statMultiplier);
+        MoveSpeed = UnitData.moveSpeed * (moveSpeedModifierBonus + 1f);
 
         // 이 시너지 체크 필요
         AttackRate = UnitData.attackRate / statMultiplier * (1.0f - synergyAttackCooldownReduction / 100.0f) / spawnHeroBonus; // 공격 속도는 시너지  배율에 비례

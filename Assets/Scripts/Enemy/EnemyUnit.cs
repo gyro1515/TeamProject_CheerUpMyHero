@@ -38,7 +38,7 @@ public class EnemyUnit : BaseUnit
         MaxHp = UnitData.health * (hpModifierBonus + statMultiplier);
         curHp = MaxHp;
         AtkPower = UnitData.atkPower * (atkModifierBonus + statMultiplier);
-        MoveSpeed = UnitData.moveSpeed * moveSpeedModifierBonus;
+        MoveSpeed = UnitData.moveSpeed * (1f + moveSpeedModifierBonus);
         // SpawnCooldown = UnitData.spawnCooldown * spawnCooldownModifierBonus;
         AttackRate = UnitData.attackRate * statMultiplier; // 공격 속도는 크기와 상관없이 배율에 비례
         float tmpstatMultiplier = Math.Clamp(statMultiplier, 0.8f, 1.2f); // 크기는 너무 작아지거나 커지지 않도록 제한
