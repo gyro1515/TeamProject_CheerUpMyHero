@@ -8,6 +8,7 @@ using UnityEngine;
 using Random = UnityEngine.Random;
 
 public struct SynergyDataUpdatedEvent { }
+public struct ClearedStagesUpdatedEvent { }
 public enum ResourceType
 {
     Gold,
@@ -44,6 +45,9 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
 {
     // 선택한 스테이지 선택용
     public (int mainStageIdx, int subStageIdx) SelectedStageIdx { get; set; } = (-1, -1);
+
+    private Dictionary<(int, int), bool> clearedStages = new Dictionary<(int, int), bool>();
+    IEventPublisher<ClearedStagesUpdatedEvent> _clearedStagesEvent;
     public TileDataHandler _TileDataHandler { get; private set; }
 
     //테스트용 카드 데이터(유닛 테이블로 교체될 예정
@@ -79,6 +83,7 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
             _TileDataHandler = new TileDataHandler();
             _tileEfficiencyBonuses = new Dictionary<(int, int), float>();
             _synergyDataUpdatedPublisher = EventManager.GetPublisher<SynergyDataUpdatedEvent>();
+            _clearedStagesEvent = EventManager.GetPublisher<ClearedStagesUpdatedEvent>();
             LoadDecks();
             // TODO: 추후 아래 테스트 카드 생성 부분 제거 필요
             //테스트용 카드 생성*********
@@ -91,6 +96,11 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
 
             onGridStateChangedEvent = EventManager.GetSubscriber<GridStateChangedEvent>();
             onBattleEndedEvent = EventManager.GetSubscriber<BattleEndedEvent>();
+#if UNITY_EDITOR // 임시코드 1-3 강제 클리어 
+            Debug.LogWarning("[테스트] 게임 시작 시 스테이지 (1, 3) 강제 클리어 처리.");
+            List<(int main, int sub)> fakeServerResponse = new List<(int main, int sub)> { (1, 3) };
+            UpdateClearedStagesFromServer(fakeServerResponse);
+#endif
         }
     }
     private void OnEnable()
@@ -117,6 +127,22 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
             _TileDataHandler.DamageRandomTile();
         }
 
+    }
+    public bool IsStageCleared(int mainStage, int subStage)
+    {
+        return clearedStages.ContainsKey((mainStage, subStage)) && clearedStages[(mainStage, subStage)];
+    }
+
+    public void UpdateClearedStagesFromServer(List<(int main, int sub)> serverClearedStages) //서버에서 클리어 
+    {
+        clearedStages.Clear(); // 일단 로컬 정보 초기화
+        foreach (var stage in serverClearedStages)
+        {
+            clearedStages[stage] = true;
+        }
+
+        _clearedStagesEvent?.Publish(new ClearedStagesUpdatedEvent());
+        Debug.Log("ClearedStagesUpdatedEvent 발행 완료.");
     }
     // 251023: 유닛 데이터는 데이터 매니저에서 바로 가져오도록 변경
     /*public BaseUnitData GetUnitData(int cardId)

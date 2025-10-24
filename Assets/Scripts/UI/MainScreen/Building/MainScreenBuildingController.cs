@@ -34,7 +34,7 @@ public class MainScreenBuildingController : MonoBehaviour
 
 
     public bool IsDragging() => _sourceDragTile != null; // 현재 드래그 중인지 확인하는 프로퍼티
-
+    IEventSubscriber<ClearedStagesUpdatedEvent> _clearedStagesEvent;
     IEventPublisher<GridStateChangedEvent> onGridStateChangedEventPub;
     private void Awake()
     {
@@ -47,6 +47,8 @@ public class MainScreenBuildingController : MonoBehaviour
             Instance = this;
         }
         onGridStateChangedEventPub = EventManager.GetPublisher<GridStateChangedEvent>();
+        _clearedStagesEvent = EventManager.GetSubscriber<ClearedStagesUpdatedEvent>();
+        _clearedStagesEvent.Subscribe(OnClearedStagesUpdated);
         CreateGrid();
 
     }
@@ -122,11 +124,23 @@ public class MainScreenBuildingController : MonoBehaviour
                     tile.SetBuilding(buildingData);
 
                 // 클릭 이벤트 연결
-                tile.OnTileClicked += HandleTileClick;
+                //tile.OnTileClicked += HandleTileClick;
             }
         }
         UpdateAllTilesUI();
         Debug.Log("타일 그리드 생성 완료!");
+    }
+    private void OnClearedStagesUpdated(ClearedStagesUpdatedEvent e)
+    {
+        Debug.Log("[Controller] ClearedStagesUpdatedEvent 수신! 외교 타일 상태 확인.");
+        if (_tiles != null && _tiles[4, 1] != null)
+        {
+            _tiles[4, 1].UpdateDiplomacyTileStatus();
+        }
+        else
+        {
+            Debug.LogError("외교 타일(4,1)을 찾을 수 없어 상태를 업데이트할 수 없습니다.");
+        }
     }
     private void UpdateAllTilesUI()
     {
@@ -146,7 +160,7 @@ public class MainScreenBuildingController : MonoBehaviour
     }
     
     // ---------------- 타일 선택 ----------------
-    private void HandleTileClick(BuildingTile tile)
+    public void HandleTileClick(BuildingTile tile)
     {
         if (IsDragging()) return;
 
