@@ -16,16 +16,15 @@ public class UnitRenderManager : SingletonMono<UnitRenderManager>
         base.Awake();
         // 세팅된 플레이어 덱 정보기반으로 매니저 세팅하기
         int activeDeckIndex = PlayerDataManager.Instance.ActiveDeckIndex;
-        List<int> deckUnitIds = PlayerDataManager.Instance.DeckPresets[activeDeckIndex].UnitIds;
-        for (int i = 0; i < deckUnitIds.Count; i++)
+        List<BaseUnitData> deckBaseUnitDatas = PlayerDataManager.Instance.DeckPresets[activeDeckIndex].BaseUnitDatas;
+        for (int i = 0; i < deckBaseUnitDatas.Count; i++)
         {
-            int unitId = deckUnitIds[i];
-            if (unitId == -1) // 빈 슬롯은 비활성화
+            if (deckBaseUnitDatas[i] == null) // 빈 슬롯은 비활성화
             {
                 continue;
             }
-            BaseUnitData cardData = PlayerDataManager.Instance.GetUnitData(unitId);
-            
+            BaseUnitData cardData = deckBaseUnitDatas[i];
+
             GameObject unitTextureHandlerGO = new GameObject($"UnitTextureHandler_{cardData.poolType.ToString()}");
             unitTextureHandlerGO.transform.SetParent(gameObject.transform);
             unitTextureHandlerGO.transform.localPosition = startPos + new Vector3(4f * i, 0f);

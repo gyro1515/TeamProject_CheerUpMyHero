@@ -1,10 +1,12 @@
+using DG.Tweening;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using System.Collections.Generic;
-using System;
-using TMPro;
-using System.Collections;
-using DG.Tweening;
 
 public class DeckPresetController : BaseUI, IBackButtonHandler
 {
@@ -48,19 +50,28 @@ public class DeckPresetController : BaseUI, IBackButtonHandler
   
     [Header("유닛 슬롯 설정")]
     [SerializeField] private List<DeckUnitSlot> unitSlots;
+
+    [Header("시너지 UI")]
+    [SerializeField] UIDeckSynergy uiDeckSynergy;
+
     // --- 내부 변수 ---
     private MainScreenUI _mainScreenUI;
     private UIStageSelect _stageSelectUI;
     private UIArtifact _uIArtifact;
     private int _currentDeckIndex = 1;
+    // 시너지별 카운트 저장용 딕셔너리
+    Dictionary<UnitSynergyType, int> synergyCounts = new Dictionary<UnitSynergyType, int>();
 
-    
-    private void Update()
+    /*private void Update()
     {
         if (Input.GetKeyDown(KeyCode.Space)) //테스트 코드
         {
             OnAutoFormClicked();
         }
+    }*/
+    private void Awake()
+    {
+        uiDeckSynergy.Init();// 생성자 꼬이지 않게 여기서 먼저 초기화
     }
     private void OnEnable()
     {
@@ -118,24 +129,28 @@ public class DeckPresetController : BaseUI, IBackButtonHandler
 
     private void UpdateUnitSlotsUI()
     {
-        List<int> currentDeckUnits = PlayerDataManager.Instance.DeckPresets[_currentDeckIndex].UnitIds;
+        // 251023: DeckPreset의 baseUnitDatas를 사용하도록 변경
+        //List<int> currentDeckUnits = PlayerDataManager.Instance.DeckPresets[_currentDeckIndex].UnitIds;
+        List<BaseUnitData> currentDeckUnitDatas = PlayerDataManager.Instance.DeckPresets[_currentDeckIndex].BaseUnitDatas;
         for (int i = 0; i < unitSlots.Count; i++)
         {
-            int unitId = currentDeckUnits[i];
+            //int unitId = currentDeckUnits[i];
 
             //PlayerDataManager에서 TempCardData를 가져옵니다
-            var unitData = (unitId == -1) ? null : PlayerDataManager.Instance.GetUnitData(unitId);
+            //var unitData = (unitId == -1) ? null : DataManager.PlayerUnitData.GetData(unitId);
 
             //DeckUnitSlot의 SetData 함수에 unitData와 슬롯 번호를 전달
-            unitSlots[i].SetData(unitData, i);
+            //unitSlots[i].SetData(unitData, i);
+            unitSlots[i].SetData(currentDeckUnitDatas[i], i);
         }
         UpdateCompleteButtonState();
-        // UpdateSynergyUI();
+        // TODO: 시너지 UI 업데이트 기능 구현 필요
+        UpdateSynergyUI();
     }
 
     private void UpdateSynergyUI()
     {
-        foreach (Transform child in synergyIconParent) { Destroy(child.gameObject); }
+        uiDeckSynergy?.CheckDeckUnitSynergy(PlayerDataManager.Instance.DeckPresets[_currentDeckIndex].BaseUnitDatas);
     }
 
     private void UpdateCompleteButtonState()
@@ -193,15 +208,19 @@ public class DeckPresetController : BaseUI, IBackButtonHandler
     public void OnUnitSelected(int slotIndex, int unitId)
     {
         PlayerDataManager.Instance.DeckPresets[_currentDeckIndex].UnitIds[slotIndex] = unitId;
+        PlayerDataManager.Instance.DeckPresets[_currentDeckIndex].BaseUnitDatas[slotIndex] = DataManager.PlayerUnitData.GetData(unitId);
         UpdateUnitSlotsUI();
     }
 
     private void OnResetClicked()
     {
         List<int> currentDeckUnitIds = PlayerDataManager.Instance.DeckPresets[_currentDeckIndex].UnitIds;
+        List<BaseUnitData> currnetDeckUnitDatas = PlayerDataManager.Instance.DeckPresets[_currentDeckIndex].BaseUnitDatas;
+        
         for (int i = 0; i < currentDeckUnitIds.Count; i++)
         {
             currentDeckUnitIds[i] = -1;
+            currnetDeckUnitDatas[i] = null;
         }
         UpdateUnitSlotsUI();
     }
@@ -244,6 +263,7 @@ public class DeckPresetController : BaseUI, IBackButtonHandler
 
         //현재 덱의 빈 슬롯이 몇 개인지, 어느 위치인지 확인함
         List<int> currentUnitIds = PlayerDataManager.Instance.DeckPresets[_currentDeckIndex].UnitIds;
+        List<BaseUnitData> baseUnitDatas = PlayerDataManager.Instance.DeckPresets[_currentDeckIndex].BaseUnitDatas;
         List<int> emptySlotIndexes = new List<int>();
         for (int i = 0; i < currentUnitIds.Count; i++)
         {
@@ -281,6 +301,7 @@ public class DeckPresetController : BaseUI, IBackButtonHandler
             int slotIndexToFill = emptySlotIndexes[i];
             int unitIdToPlace = ownedUnitIds[i];
             currentUnitIds[slotIndexToFill] = unitIdToPlace;
+            baseUnitDatas[slotIndexToFill] = PlayerDataManager.Instance.OwnedCardData[ownedUnitIds[i]];
         }
 
         //변경된 덱 정보로 UI를 새로고침
