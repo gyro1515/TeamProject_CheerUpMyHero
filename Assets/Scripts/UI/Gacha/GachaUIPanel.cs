@@ -16,6 +16,8 @@ public class GachaUIPanel : BasePopUpUI
     [Header("천장 시스템 UI")]
     [SerializeField] private TextMeshProUGUI limitedPityText; // 1페이지 천장 텍스트
     [SerializeField] private TextMeshProUGUI standardPityText; // 2페이지 천장 텍스트
+    [Header("연출 패널")]
+    [SerializeField] private GachaSequenceController gachaSequenceController;
 
     private IEventSubscriber<LimitedPityCountUpdatedEvent> _limitedPitySubscriber;
     private IEventSubscriber<StandardPityCountUpdatedEvent> _standardPitySubscriber;
@@ -85,11 +87,117 @@ public class GachaUIPanel : BasePopUpUI
     }
 
 
+    //private async void OnPullOneClicked()
+    //{
+    //    pullOneButton.interactable = false;
+    //    //pullTenButton.interactable = false;
+    //    Debug.Log("--- 1회 뽑기 버튼 클릭됨 ---");
+
+    //    try
+    //    {
+    //        if (contractPagesController == null)
+    //        {
+    //            Debug.LogError("ContractPagesController 연결 없음!");
+    //            return;
+    //        }
+
+    //        int currentPage = contractPagesController.CurrentPageIndex;
+    //        Debug.Log($"--- {currentPage + 1}페이지 1회 뽑기 처리 시작 ---");
+
+    //        // --- 1. 티켓 차감 로직 (먼저 실행) ---
+    //        if (PlayerDataManager.Instance.GetResourceAmount(ResourceType.Ticket) < 1)
+    //        {
+    //            Debug.LogWarning("티켓 부족!");
+
+    //        }
+    //        else
+    //        {
+    //            PlayerDataManager.Instance.AddResource(ResourceType.Ticket, -1);
+    //        }
+
+    //        // --- 2. 페이지별 천장 정보 가져오기 ---
+    //        int currentPity = (currentPage == 0) ? PlayerDataManager.Instance.LimitedGachaPityCount : PlayerDataManager.Instance.StandardGachaPityCount;
+    //        int pityLimit = (currentPage == 0) ? PlayerDataManager.LIMITED_GACHA_PITY_LIMIT : PlayerDataManager.STANDARD_GACHA_PITY_LIMIT;
+
+    //        int resultId = -1;
+    //        bool isEpicResult = false;
+
+    //        // --- 3. 천장 확인 및 뽑기 실행 ---
+    //        if (currentPity + 1 >= pityLimit)
+    //        {
+    //            Debug.LogWarning($"<color=yellow>[천장 발동!]</color> {currentPage + 1}페이지 {pityLimit}번째 뽑기, 확정 에픽!");
+
+    //            // ---  천장 뽑기에도 페이지 분기 적용 ---
+    //            if (currentPage == 0)
+    //            {
+    //                Debug.Log("BackendManager [한정/픽업] (천장) 뽑기 호출 중...");
+    //                // 한정 확정 에픽 뽑기 함수로 교체
+    //                resultId = await BackendManager.OneNormalGachaAsync(); 
+    //            }
+    //            else // currentPage == 1
+    //            {
+    //                Debug.Log("BackendManager [상시] (천장) 뽑기 호출 중...");
+    //                resultId = await BackendManager.OneNormalGachaAsync(); 
+    //            }
+
+    //            resultId = GetForcedEpicResult(currentPage);
+    //            isEpicResult = true;
+    //        }
+    //        else
+    //        {
+    //            if (currentPage == 0)
+    //            {
+    //                Debug.Log("BackendManager [한정/픽업] 뽑기 호출 중...");
+    //                //"한정 뽑기" 함수로 교체
+    //                resultId = await BackendManager.OneNormalGachaAsync();
+    //            }
+    //            else // currentPage == 1
+    //            {
+    //                Debug.Log("BackendManager [상시] 뽑기 호출 중...");
+    //                resultId = await BackendManager.OneNormalGachaAsync();
+    //            }
+    //            isEpicResult = IsResultEpic(resultId);
+    //            // ------------------------------------
+    //        }
+
+    //        PostProcessGachaResult(resultId); // 결과 로그 출력
+
+    //        // --- 4. 페이지별 천장 카운터 업데이트 ---
+    //        if (currentPage == 0) PlayerDataManager.Instance.UpdateLimitedPityCount(isEpicResult);
+    //        else PlayerDataManager.Instance.UpdateStandardPityCount(isEpicResult);
+    //    }
+    //    catch (Exception ex)
+    //    {
+    //        Debug.LogException(ex);
+    //    }
+    //    finally
+    //    {
+    //        // --- 5. 버튼 활성화 (잔액 확인 후) ---
+    //        // PlayerDataManager 인스턴스 null 체크 (안전 코드)
+    //        if (PlayerDataManager.Instance != null)
+    //        {
+    //            pullOneButton.interactable = PlayerDataManager.Instance.GetResourceAmount(ResourceType.Ticket) >= 1;
+    //            //pullTenButton.interactable = PlayerDataManager.Instance.GetResourceAmount(ResourceType.Ticket) >= 10;
+    //        }
+    //        else
+    //        {
+    //            pullOneButton.interactable = false;
+    //            //pullTenButton.interactable = false;
+    //        }
+    //    }
+    //}
     private async void OnPullOneClicked()
     {
         pullOneButton.interactable = false;
         //pullTenButton.interactable = false;
         Debug.Log("--- 1회 뽑기 버튼 클릭됨 ---");
+
+        if (gachaSequenceController == null)
+        {
+            Debug.LogError("GachaSequenceController가 연결되지 않았습니다! 인스펙터 창을 확인하세요.");
+            pullOneButton.interactable = true; // 버튼 다시 활성화
+            return;
+        }
 
         try
         {
@@ -106,12 +214,10 @@ public class GachaUIPanel : BasePopUpUI
             if (PlayerDataManager.Instance.GetResourceAmount(ResourceType.Ticket) < 1)
             {
                 Debug.LogWarning("티켓 부족!");
-      
+                return; 
             }
-            else
-            {
-                PlayerDataManager.Instance.AddResource(ResourceType.Ticket, -1);
-            }
+
+             PlayerDataManager.Instance.AddResource(ResourceType.Ticket, -1);
 
             // --- 2. 페이지별 천장 정보 가져오기 ---
             int currentPity = (currentPage == 0) ? PlayerDataManager.Instance.LimitedGachaPityCount : PlayerDataManager.Instance.StandardGachaPityCount;
@@ -125,12 +231,11 @@ public class GachaUIPanel : BasePopUpUI
             {
                 Debug.LogWarning($"<color=yellow>[천장 발동!]</color> {currentPage + 1}페이지 {pityLimit}번째 뽑기, 확정 에픽!");
 
-                // ---  천장 뽑기에도 페이지 분기 적용 ---
                 if (currentPage == 0)
                 {
                     Debug.Log("BackendManager [한정/픽업] (천장) 뽑기 호출 중...");
-                    // 한정 확정 에픽 뽑기 함수로 교체
-                    resultId = await BackendManager.OneNormalGachaAsync(); 
+                    //'페이지별 확정 에픽 뽑기' 함수 요청 필요
+                    resultId = await BackendManager.OneNormalGachaAsync(); // 임시
                 }
                 else // currentPage == 1
                 {
@@ -138,16 +243,19 @@ public class GachaUIPanel : BasePopUpUI
                     resultId = await BackendManager.OneNormalGachaAsync(); 
                 }
 
+                // 천장 발동 시, 서버 결과와 상관없이 클라이언트에서 강제 에픽 ID 할당 
                 resultId = GetForcedEpicResult(currentPage);
                 isEpicResult = true;
             }
             else
             {
+                // ---  페이지별 뽑기 함수 분기  ---
                 if (currentPage == 0)
                 {
                     Debug.Log("BackendManager [한정/픽업] 뽑기 호출 중...");
-                    //"한정 뽑기" 함수로 교체
-                    resultId = await BackendManager.OneNormalGachaAsync();
+                    //"한정 뽑기" 함수 만들어주면 교체
+                    // resultId = await BackendManager.OneLimitedGachaAsync();
+                    resultId = await BackendManager.OneNormalGachaAsync(); // 임시
                 }
                 else // currentPage == 1
                 {
@@ -158,9 +266,15 @@ public class GachaUIPanel : BasePopUpUI
                 // ------------------------------------
             }
 
-            PostProcessGachaResult(resultId); // 결과 로그 출력
+            // --- 4. 로그 출력 대신 연출 패널 호출 ---
+            // PostProcessGachaResult(resultId); // <-- 이 줄 삭제
 
-            // --- 4. 페이지별 천장 카운터 업데이트 ---
+            // 1회 뽑기 결과도 List<int>로 만들어서 연출 컨트롤러에게 전달
+            List<int> results = new List<int> { resultId };
+            gachaSequenceController.StartGachaSequence(results);
+            // ------------------------------------
+
+            // --- 5. 페이지별 천장 카운터 업데이트 ---
             if (currentPage == 0) PlayerDataManager.Instance.UpdateLimitedPityCount(isEpicResult);
             else PlayerDataManager.Instance.UpdateStandardPityCount(isEpicResult);
         }
@@ -170,8 +284,7 @@ public class GachaUIPanel : BasePopUpUI
         }
         finally
         {
-            // --- 5. 버튼 활성화 (잔액 확인 후) ---
-            // PlayerDataManager 인스턴스 null 체크 (안전 코드)
+            // --- 6. 버튼 활성화 (잔액 확인 후) ---
             if (PlayerDataManager.Instance != null)
             {
                 pullOneButton.interactable = PlayerDataManager.Instance.GetResourceAmount(ResourceType.Ticket) >= 1;
@@ -184,7 +297,7 @@ public class GachaUIPanel : BasePopUpUI
             }
         }
     }
- 
+
 
     private void OnPullTenClicked()
     {
@@ -210,26 +323,6 @@ public class GachaUIPanel : BasePopUpUI
     private bool IsResultEpic(int id) 
     { 
         return id > 125000; 
-    }
-    private void PostProcessGachaResult(int id) 
-    {
-        // ID 값의 범위에 따라 등급을 판단하고 다른 색깔/메시지로 로그 출력
-        if (id > 125000) // 예: 125000 초과는 에픽
-        {
-            Debug.Log($"<color=magenta>Epic 결과:</color> {id}");
-        }
-        else if (id > 115000) // 예: 115000 초과는 레어
-        {
-            Debug.Log($"<color=cyan>Rare 결과:</color> {id}");
-        }
-        else if (id == -1) // -1은 실패
-        {
-            Debug.LogWarning("가챠 실패 (-1)");
-        }
-        else // 그 외는 커먼
-        {
-            Debug.Log($"Common 결과: {id}");
-        }
     }
     private void OnBackButtonClicked()
     {
