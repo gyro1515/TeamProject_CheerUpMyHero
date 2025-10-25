@@ -6,21 +6,15 @@ public class UIUnitSynergeIconArea : MonoBehaviour
 {
     [SerializeField] List<UICardSynergyIcon> uICardSynergyIcons = new List<UICardSynergyIcon>();
     // 아이콘 저장 
-    Dictionary<UnitSynergyType, Sprite> synergyIconSprites = new Dictionary<UnitSynergyType, Sprite>();
+    Dictionary<UnitSynergyType, Sprite> synergyIconSprites;
     // 힙 할당 줄이기위한 자료구조
     // enum 배열
     UnitSynergyType[] _allSynergyTypes = (UnitSynergyType[])Enum.GetValues(typeof(UnitSynergyType));
     List<Sprite> unitSynergySprites = new List<Sprite>();
     private void Awake()
     {
-        // 스프라이트 미리 로드하기
-        foreach (UnitSynergyType type in _allSynergyTypes)
-        {
-            if (type == UnitSynergyType.None) continue;
-            Sprite[] sprites = Resources.LoadAll<Sprite>($"Synergy/{type.ToString()}");
-            // 골드 스프라이트만 저장
-            synergyIconSprites[type] = sprites[1];
-        }
+        // 데이터 매니저에서 시너지 아이콘 스프라이트 가져오기
+        synergyIconSprites = DataManager.Instance.SynergyIconSprites;
     }
     public void SetUnitSynergeIcon(BaseUnitData data)
     {

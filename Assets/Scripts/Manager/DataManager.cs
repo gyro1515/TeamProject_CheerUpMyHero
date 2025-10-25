@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -159,8 +160,37 @@ public class DataManager : SingletonMono<DataManager>
         }
     }
 
+    // 유닛 카드 시너지에 사용할 아이콘 저장(골드만) 
+    public Dictionary<UnitSynergyType, Sprite> SynergyIconSprites { get; private set; } = new Dictionary<UnitSynergyType, Sprite>();
+    // 유닛 카드 타입(딜/힐탱)에 사용할 아이콘
+    public Dictionary<UnitType, Sprite> UnitTypeIconSprites { get; private set; } = new Dictionary<UnitType, Sprite>();
     protected override void Awake()
     {
         base.Awake();
+        // 데이터 베이스가 아닌 데이터들도 여기서 추가 로딩 가능합니다.
+        // 시너지 아이콘 스프라이트
+        MakeSynergyIconSpritesData();
+        // 유닛 타입 아이콘 스프라이트
+        MakeUnitTypeIconSpritesData();
+    }
+    void MakeSynergyIconSpritesData()
+    {
+        //스프라이트 미리 로드하기
+        foreach (UnitSynergyType type in (UnitSynergyType[]) Enum.GetValues(typeof(UnitSynergyType)))
+        {
+            if (type == UnitSynergyType.None) continue;
+            Sprite[] sprites = Resources.LoadAll<Sprite>($"Synergy/{type.ToString()}");
+            // 골드 스프라이트만 저장
+            SynergyIconSprites[type] = sprites[1];
+        }
+    }
+    void MakeUnitTypeIconSpritesData()
+    {
+        Sprite[] sprites = Resources.LoadAll<Sprite>($"Icon/Position");
+        foreach (UnitType type in (UnitType[])Enum.GetValues(typeof(UnitType)))
+        {
+            Sprite sprite = Array.Find(sprites, s => s.name == type.ToString());
+            UnitTypeIconSprites[type] = sprite;
+        }
     }
 }
