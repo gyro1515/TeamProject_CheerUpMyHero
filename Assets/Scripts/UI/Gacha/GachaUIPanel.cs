@@ -266,12 +266,10 @@ public class GachaUIPanel : BasePopUpUI
                 // ------------------------------------
             }
 
-            // --- 4. 로그 출력 대신 연출 패널 호출 ---
-            // PostProcessGachaResult(resultId); // <-- 이 줄 삭제
-
+            gachaSequenceController.StartGachaSequence(new List<int> { resultId });
             // 1회 뽑기 결과도 List<int>로 만들어서 연출 컨트롤러에게 전달
-            List<int> results = new List<int> { resultId };
-            gachaSequenceController.StartGachaSequence(results);
+            //List<int> results = new List<int> { resultId };
+            //gachaSequenceController.StartGachaSequence(results);
             // ------------------------------------
 
             // --- 5. 페이지별 천장 카운터 업데이트 ---
