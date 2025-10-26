@@ -24,7 +24,7 @@ public class GachaResultIcon : MonoBehaviour
         if (unitData != null)
         {
             _rarityColor = GetColorForRarity(unitData.rarity);
-            characterImage.sprite = unitData.unitIconSprite;
+            characterImage.sprite = unitData.gachaHeroSprite ?? unitData.unitIconSprite;
         }
         else
         {

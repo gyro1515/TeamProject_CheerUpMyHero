@@ -115,7 +115,7 @@ public class GachaSequenceController : BasePopUpUI
         {
             singleUnitNameText.text = unitData.unitName;
             singleRarityText.text = unitData.rarity.ToString();
-            singleResultImage.sprite = unitData.unitIconSprite;
+            singleResultImage.sprite = unitData.gachaHeroSprite ?? unitData.unitIconSprite;
             singleRarityBorder.color = GetColorForRarity(unitData.rarity);
         }
         else // 데이터 못 찾음

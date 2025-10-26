@@ -47,6 +47,7 @@ public class PlayerUnitSO : MonoSO<BaseUnitData>
             DB[data.idNumber] = data;
             data.unitBGSprite = SetBgFromSynergy(data.synergyType);
             data.unitIconSprite = Resources.Load<Sprite>($"UnitIcon/{data.poolType.ToString()}");
+            data.gachaHeroSprite = Resources.Load<Sprite>($"GachaHero/{data.poolType.ToString()}");
         }*/
         for (int i = 0; i < allianceCommon.Count; i++)
         {
@@ -58,6 +59,13 @@ public class PlayerUnitSO : MonoSO<BaseUnitData>
             DB[data.idNumber] = data;
             data.unitBGSprite = SetBgFromSynergy(data.synergyType);
             data.unitIconSprite = Resources.Load<Sprite>($"UnitIcon/{data.poolType.ToString()}");
+            data.gachaHeroSprite = Resources.Load<Sprite>($"GachaHero/{data.poolType.ToString()}");
+            if (data.gachaHeroSprite == null)
+            {
+                // ✨ 이 로그를 추가해서 poolType 이름에 이상한 문자가 없는지 확인
+                Debug.LogWarning($"[로드 실패] poolType 이름: '{data.poolType.ToString()}'");
+                Debug.LogWarning($"[로드 실패] 찾는 경로: GachaHero/{data.poolType.ToString()}");
+            }
         }
         for (int i = 0; i < allianceRare.Count; i++)
         {
@@ -69,6 +77,13 @@ public class PlayerUnitSO : MonoSO<BaseUnitData>
             DB[data.idNumber] = data;
             data.unitBGSprite = SetBgFromSynergy(data.synergyType);
             data.unitIconSprite = Resources.Load<Sprite>($"UnitIcon/{data.poolType.ToString()}");
+            data.gachaHeroSprite = Resources.Load<Sprite>($"GachaHero/{data.poolType.ToString()}");
+            if (data.gachaHeroSprite == null)
+            {
+                // ✨ 이 로그를 추가해서 poolType 이름에 이상한 문자가 없는지 확인
+                Debug.LogWarning($"[로드 실패] poolType 이름: '{data.poolType.ToString()}'");
+                Debug.LogWarning($"[로드 실패] 찾는 경로: GachaHero/{data.poolType.ToString()}");
+            }
         }
         for (int i = 0; i < allianceEpic.Count; i++)
         {
@@ -80,6 +95,13 @@ public class PlayerUnitSO : MonoSO<BaseUnitData>
             DB[data.idNumber] = data;
             data.unitBGSprite = SetBgFromSynergy(data.synergyType);
             data.unitIconSprite = Resources.Load<Sprite>($"UnitIcon/{data.poolType.ToString()}");
+            data.gachaHeroSprite = Resources.Load<Sprite>($"GachaHero/{data.poolType.ToString()}");
+            if (data.gachaHeroSprite == null)
+            {
+                // ✨ 이 로그를 추가해서 poolType 이름에 이상한 문자가 없는지 확인
+                Debug.LogWarning($"[로드 실패] poolType 이름: '{data.poolType.ToString()}'");
+                Debug.LogWarning($"[로드 실패] 찾는 경로: GachaHero/{data.poolType.ToString()}");
+            }
         }
     }
     Sprite SetBgFromSynergy(UnitSynergyType synergyType)
