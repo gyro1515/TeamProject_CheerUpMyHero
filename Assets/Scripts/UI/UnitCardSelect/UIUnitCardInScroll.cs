@@ -22,16 +22,17 @@ public class UIUnitCardInScroll : MonoBehaviour
     [SerializeField] TMP_Text descriptionText;
     [SerializeField] Image bgImg;
     [SerializeField] Image unitIconImg;
-    [SerializeField] Image synergyIcon;
+    [SerializeField] Image unitTypeIcon;
     [SerializeField] UIUnitSynergeIconArea synergyIconArea;
 
 
     [SerializeField] GameObject GreyBlocker;
-    
 
+    Dictionary<UnitType, Sprite> unitTypeIconSprites;
     private void Awake()
     {
         _canvasGroup = GetComponent<CanvasGroup>();
+        unitTypeIconSprites = DataManager.Instance.UnitTypeIconSprites;
     }
     private void Start()
     {
@@ -55,7 +56,7 @@ public class UIUnitCardInScroll : MonoBehaviour
         unitIconImg.sprite = cardData[cardNum].unitIconSprite;
 
         synergyIconArea.SetUnitSynergeIcon(cardData[cardNum]);
-
+        unitTypeIcon.sprite = unitTypeIconSprites[cardData[cardNum].unitType];
         Grey(!canSelect);
 
     }
