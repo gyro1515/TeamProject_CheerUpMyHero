@@ -48,6 +48,8 @@ public class UIDestinyRoullette : BaseUI
     private DestinyRoulleteViewModel _viewModel;
 
     private float fadeDuration = FadeManager.fadeDuration;  // 이거 없애고 싶은데
+
+    private DeckPresetController _deckPresetController;
     #endregion
 
     private void Awake()
@@ -71,8 +73,13 @@ public class UIDestinyRoullette : BaseUI
 
         _confirmButton.onClick.AddListener(OnConfirmButtonClicked);
         _challengeButton.onClick.AddListener(OnChallengeButtonClicked);
-    }
 
+    }
+    private void Start()
+    {
+        _deckPresetController = UIManager.Instance.GetUI<DeckPresetController>();
+
+    }
     private void OnEnable()
     {
         _stage = PlayerDataManager.Instance.SelectedStageIdx;
@@ -87,7 +94,7 @@ public class UIDestinyRoullette : BaseUI
     private IEnumerator DestinySequenceCoroutine()
     {
         yield return new WaitForSeconds(_introShowTime);
-        
+
         _introPanel.CloseUI();
         yield return new WaitForSeconds(fadeDuration);
 
@@ -157,10 +164,10 @@ public class UIDestinyRoullette : BaseUI
         }
         else
         {
-            
+
             _misfortunePerText.text = $"{misfortune * 100}%";
         }
- 
+
     }
 
     private Vector2 SetTextPosition(float angle, float distance)
@@ -192,8 +199,12 @@ public class UIDestinyRoullette : BaseUI
     {
         _viewModel.ApplyDestiny();
         _challengePopup.ApplyChanges();
-        _viewModel.CloseView();
+        //_viewModel.CloseView();
 
-        SceneLoader.Instance.StartLoadScene(SceneState.BattleScene);
+        Debug.Log("운명 효과 적용 완료, 덱 선택으로 이동");
+        if (_deckPresetController != null)
+        {
+            FadeManager.Instance.SwitchGameObjects(gameObject, _deckPresetController.gameObject);
+        }
     }
 }

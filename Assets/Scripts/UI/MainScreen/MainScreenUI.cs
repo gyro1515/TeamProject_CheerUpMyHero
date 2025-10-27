@@ -22,7 +22,8 @@ public class MainScreenUI : BaseUI, IBackButtonHandler
 
     //UISelectCard uiSelectCard;
 
-    private DeckPresetController _deckPresetController;
+    //private DeckPresetController _deckPresetController;
+    private UIStageSelect _uiStageSelect;
 
 
     private void Awake()
@@ -47,7 +48,12 @@ public class MainScreenUI : BaseUI, IBackButtonHandler
         _testPanel.SetActive(false);
         _deckSelectPanel.SetActive(false);*/
         //uiSelectCard = UIManager.Instance.GetUI<UISelectCard>();
-        _deckPresetController = UIManager.Instance.GetUI<DeckPresetController>();
+        //_deckPresetController = UIManager.Instance.GetUI<DeckPresetController>();
+    }
+    private void Start()
+    {
+        _uiStageSelect = UIManager.Instance.GetUI<UIStageSelect>();
+
     }
     private void OnEnable()
     {
@@ -80,15 +86,17 @@ public class MainScreenUI : BaseUI, IBackButtonHandler
     private void OnDeckSelectButtonClick()
     {
         // "덱 선택" 버튼 클릭 시 실행될 로직
-        Debug.Log("덱을 선택하고 다음 단계로 넘어갑니다.");
+        //Debug.Log("덱을 선택하고 다음 단계로 넘어갑니다.");
+        Debug.Log("스테이지 선택으로");
         //  FadeManager.Instance.SwitchGameObjects(gameObject, uiSelectCard.gameObject);
-        if (_deckPresetController != null)
+        if (_uiStageSelect != null)
         {
-            FadeManager.Instance.SwitchGameObjects(gameObject, _deckPresetController.gameObject);
+            FadeManager.Instance.SwitchGameObjects(gameObject, _uiStageSelect.gameObject);
+            //FadeManager.Instance.SwitchGameObjects(gameObject, _deckPresetController.gameObject);
         }
         else
         {
-            Debug.LogError("UIManager에서 DeckPresetController를 찾을 수 없습니다!");
+            Debug.LogError("UIManager에서 _uiStageSelect 찾을 수 없습니다!");
         }
         if (_deckSelectPopup != null)
         {

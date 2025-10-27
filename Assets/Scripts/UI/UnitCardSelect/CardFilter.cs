@@ -325,9 +325,25 @@ public class CardFilter : MonoBehaviour
     void SetUnitType(SelectedUnitType unit)
     {
         if (unit == selectedUnitType)
+        {
             selectedUnitType = SelectedUnitType.None;
+            foreach (UnitSelectBtnInUnitCard button in unitButtonList)
+            {
+                button.btnImg.color = Color.white;
+            }
+        }
         else
+        {
             selectedUnitType = unit;
+
+            foreach (UnitSelectBtnInUnitCard button in unitButtonList)
+            {
+                if(button.unitType == unit)
+                    button.btnImg.color = Color.white;
+                else
+                    button.btnImg.color = Color.gray;
+            }
+        }    
         FilterAndSort();
         infiniteScroll.ResetCardData(ModifiedCardList);
     }
