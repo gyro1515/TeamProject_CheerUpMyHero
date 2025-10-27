@@ -164,6 +164,10 @@ public class DataManager : SingletonMono<DataManager>
     public Dictionary<UnitSynergyType, Sprite> SynergyIconSprites { get; private set; } = new Dictionary<UnitSynergyType, Sprite>();
     // 유닛 카드 타입(딜/힐탱)에 사용할 아이콘
     public Dictionary<UnitType, Sprite> UnitTypeIconSprites { get; private set; } = new Dictionary<UnitType, Sprite>();
+
+    //오디오 데이터
+    AudioData audioData;  // 오디오 클립 담아둔 오디오 데이터
+    public static AudioData AudioData { get => Instance.audioData; }
     protected override void Awake()
     {
         base.Awake();
@@ -172,6 +176,8 @@ public class DataManager : SingletonMono<DataManager>
         MakeSynergyIconSpritesData();
         // 유닛 타입 아이콘 스프라이트
         MakeUnitTypeIconSpritesData();
+        // 오디오 데이터 로드
+        audioData = Resources.Load<AudioData>("Sound/SoundData");
     }
     void MakeSynergyIconSpritesData()
     {
