@@ -53,6 +53,7 @@ public enum ValueConditionOperater  // 효과에 특수 조건이 붙어있거�
 // 데이터 참조 태그 : 유물
 public enum ArtifactType
 {
+    None,
     Active,
     Passive
 }

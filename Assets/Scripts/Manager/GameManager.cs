@@ -36,7 +36,10 @@ public class GameManager : SingletonMono<GameManager>
         base.Awake();
         RewardPanelUI = UIManager.Instance.GetUI<RewardPanelUI>();
         UIStageClearArtifactSelect = UIManager.Instance.GetUI<UIStageClearArtifactSelect>();
+
+        // ===============효과음 테스트용 공간===================
         
+        // ======================================================
     }
     private void Update()
     {
@@ -234,6 +237,9 @@ public class GameManager : SingletonMono<GameManager>
             PlayerDataManager.Instance.AddResource(ResourceType.Iron, finalIron);
             PlayerDataManager.Instance.AddResource(ResourceType.MagicStone, finalMagicStone);
 
+            // 스테이지 클리어 효과음 출력함.
+            AudioManager.PlayOneShot(DataManager.AudioData.StageClearSE);
+
             RewardPanelUI?.OpenUI(finalGold, finalWood, finalIron, finalMagicStone, true);
 
         }
@@ -242,6 +248,9 @@ public class GameManager : SingletonMono<GameManager>
             Debug.Log("패배 페널티를 적용합니다.");
 
             var penalties = PlayerDataManager.Instance.ApplyResourcePenalty();
+
+            // 스테이지 패배 효과음
+            AudioManager.PlayOneShot(DataManager.AudioData.StageFailSE);
 
             // 결과창 UI 열기 (차감된 값이므로 음수로 전달)
             RewardPanelUI?.OpenUI(-penalties.gold, -penalties.wood, -penalties.iron, -penalties.magicStone, false);
