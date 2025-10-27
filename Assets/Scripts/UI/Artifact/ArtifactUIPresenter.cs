@@ -150,6 +150,12 @@ public class ArtifactUIPresenter
     private void HandleInventoryOpenRequest(int slotIndex)
     {
         List<ArtifactData> ownedList = _model.OwnedArtifacts;
+
+        if (slotIndex < 0 || slotIndex >= _model.EquippedArtifacts.Count)
+        {
+            Debug.LogError($"Invalid slot index: {slotIndex}. List count: {_model.EquippedArtifacts.Count}");
+            return;
+        }
         ArtifactData equippedInCurrentSlot = _model.EquippedArtifacts[slotIndex];
 
         List<InventorySlotViewModel> viewModels = ownedList.Select(artifact => 
