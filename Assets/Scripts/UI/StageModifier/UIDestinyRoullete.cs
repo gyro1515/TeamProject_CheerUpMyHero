@@ -202,6 +202,7 @@ public class UIDestinyRoullette : BaseUI
         //_viewModel.CloseView();
 
         Debug.Log("운명 효과 적용 완료, 덱 선택으로 이동");
+        GameManager.IsStageAndDestinySelected = true; // 스테이지/운명 선택 완료 플래그 설정
         if (_deckPresetController != null)
         {
             FadeManager.Instance.SwitchGameObjects(gameObject, _deckPresetController.gameObject);

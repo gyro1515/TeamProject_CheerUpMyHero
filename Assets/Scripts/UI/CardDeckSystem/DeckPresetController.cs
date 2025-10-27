@@ -249,15 +249,14 @@ public class DeckPresetController : BaseUI, IBackButtonHandler
         PlayerDataManager.Instance.SaveDecks();
 
         SceneLoader.Instance.StartLoadScene(SceneState.BattleScene);
-
-       /* if (_stageSelectUI != null)
-        {
-            FadeManager.Instance.SwitchGameObjects(gameObject, _stageSelectUI.gameObject);
-        }
-        else
-        {
-            Debug.LogError("UIManager에서 UIStageSelect를 찾을 수 없습니다!");
-        }*/
+        /* if (_stageSelectUI != null)
+         {
+             FadeManager.Instance.SwitchGameObjects(gameObject, _stageSelectUI.gameObject);
+         }
+         else
+         {
+             Debug.LogError("UIManager에서 UIStageSelect를 찾을 수 없습니다!");
+         }*/
     }
     private void OnAutoFormClicked()
     {

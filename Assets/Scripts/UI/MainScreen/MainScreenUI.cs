@@ -22,7 +22,7 @@ public class MainScreenUI : BaseUI, IBackButtonHandler
 
     //UISelectCard uiSelectCard;
 
-    //private DeckPresetController _deckPresetController;
+    private DeckPresetController _deckPresetController;
     private UIStageSelect _uiStageSelect;
 
 
@@ -48,12 +48,11 @@ public class MainScreenUI : BaseUI, IBackButtonHandler
         _testPanel.SetActive(false);
         _deckSelectPanel.SetActive(false);*/
         //uiSelectCard = UIManager.Instance.GetUI<UISelectCard>();
-        //_deckPresetController = UIManager.Instance.GetUI<DeckPresetController>();
     }
     private void Start()
     {
         _uiStageSelect = UIManager.Instance.GetUI<UIStageSelect>();
-
+        _deckPresetController = UIManager.Instance.GetUI<DeckPresetController>();
     }
     private void OnEnable()
     {
@@ -87,21 +86,32 @@ public class MainScreenUI : BaseUI, IBackButtonHandler
     {
         // "덱 선택" 버튼 클릭 시 실행될 로직
         //Debug.Log("덱을 선택하고 다음 단계로 넘어갑니다.");
-        Debug.Log("스테이지 선택으로");
-        //  FadeManager.Instance.SwitchGameObjects(gameObject, uiSelectCard.gameObject);
-        if (_uiStageSelect != null)
+
+        // 스테이지 선택을 이미 했다면 덱 선택으로
+        if (GameManager.IsStageAndDestinySelected)
         {
-            FadeManager.Instance.SwitchGameObjects(gameObject, _uiStageSelect.gameObject);
-            //FadeManager.Instance.SwitchGameObjects(gameObject, _deckPresetController.gameObject);
+            FadeManager.Instance.SwitchGameObjects(gameObject, _deckPresetController.gameObject);
         }
-        else
+        else // 스테이지 선택을 안했다면 스테이지 선택으로
         {
-            Debug.LogError("UIManager에서 _uiStageSelect 찾을 수 없습니다!");
+            Debug.Log("스테이지 선택으로");
+            //  FadeManager.Instance.SwitchGameObjects(gameObject, uiSelectCard.gameObject);
+            if (_uiStageSelect != null)
+            {
+                FadeManager.Instance.SwitchGameObjects(gameObject, _uiStageSelect.gameObject);
+                //FadeManager.Instance.SwitchGameObjects(gameObject, _deckPresetController.gameObject);
+            }
+            else
+            {
+                Debug.LogError("UIManager에서 _uiStageSelect 찾을 수 없습니다!");
+            }
+            if (_deckSelectPopup != null)
+            {
+                _deckSelectPopup.CloseUI();
+            }
         }
-        if (_deckSelectPopup != null)
-        {
-            _deckSelectPopup.CloseUI();
-        }
+            
+            
     }
 
     private void OnNotYetButtonClick()
