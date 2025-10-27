@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Net;
 using UnityEngine;
 
 public class PlayerUnitController : BaseUnitController
@@ -45,7 +46,17 @@ public class PlayerUnitController : BaseUnitController
     public override void Attack()
     {
         base.Attack();
-        playerUnit.TargetUnit?.TakeDamage(playerUnit.AtkPower);
+
+        if (playerUnit.AttackRange < 2f)
+        {
+            AudioManager.PlayRandomOneShot(DataManager.AudioData.meleeUnitAttackSE);
+        }
+        else
+        {
+            AudioManager.PlayOneShot(DataManager.AudioData.archerUnitAttackSE);
+        }
+
+            playerUnit.TargetUnit?.TakeDamage(playerUnit.AtkPower);
         //Debug.Log("아군 유닛: 공격!");
     }
     public override void Dead()

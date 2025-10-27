@@ -207,6 +207,7 @@ public class DeckPresetController : BaseUI, IBackButtonHandler
 
     public void OnUnitSelected(int slotIndex, int unitId)
     {
+        AudioManager.PlayOneShot(DataManager.AudioData.cardEquipSE);
         PlayerDataManager.Instance.DeckPresets[_currentDeckIndex].UnitIds[slotIndex] = unitId;
         PlayerDataManager.Instance.DeckPresets[_currentDeckIndex].BaseUnitDatas[slotIndex] = DataManager.PlayerUnitData.GetData(unitId);
         UpdateUnitSlotsUI();
@@ -303,6 +304,9 @@ public class DeckPresetController : BaseUI, IBackButtonHandler
             currentUnitIds[slotIndexToFill] = unitIdToPlace;
             baseUnitDatas[slotIndexToFill] = PlayerDataManager.Instance.OwnedCardData[ownedUnitIds[i]];
         }
+
+        // 덱 장착 오디오 재생
+        AudioManager.PlayOneShot(DataManager.AudioData.cardEquipSE);
 
         //변경된 덱 정보로 UI를 새로고침
         UpdateUnitSlotsUI();

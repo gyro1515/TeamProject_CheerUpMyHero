@@ -4,14 +4,6 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Audio;
 
-public enum EAudioClip
-{
-    AF_IceBreath,
-    AF_ThunderGod,
-    AF_golem,
-    AF_goddess,
-    AF_KingdomMarch,
-}
 // 팀 컨벤션에 맞춘 싱글톤 오디오 매니저
 public class AudioManager : SingletonMono<AudioManager>
 {
@@ -20,9 +12,46 @@ public class AudioManager : SingletonMono<AudioManager>
     [SerializeField] private AudioSource seSource;  // 효과음 오디오소스 
 
     [Header("볼륨 크기")]
-    [SerializeField] private float masterVolume = 1.0f;
+    [SerializeField] private float masterVolume = 0.2f;
     [SerializeField] private float bgmVolume = 1.0f;
     [SerializeField] private float seVolume = 1.0f;
+
+    protected override void Awake()
+    {
+        base.Awake();
+
+        LoadMixerAssets();
+        InitBGMSource();      // BGM AudioSource 확보
+        InitSFXPool();        // SFX 풀 구성 (프리팹 없음도 안전)
+
+        PlayOneShot(DataManager.AudioData.mainBGM);
+    }
+
+    public static void PlayOneShot(AudioClip clip)
+    {
+        float volume = Instance.masterVolume * Instance.bgmVolume;
+        Instance.bgmSource.PlayOneShot(clip, volume);
+    }
+
+    public static void PlayRandomOneShot(AudioClip[] clip)
+    {
+        int randomInt = Random.Range(0, clip.Length);
+        float volume = Instance.masterVolume * Instance.bgmVolume;
+        Instance.bgmSource.PlayOneShot(clip[randomInt], volume);
+    }
+
+    private void PlayBGM(AudioClip clip)
+    {
+        if (clip == null)
+        {
+            Debug.LogWarning("브금 클립 null임");
+        }
+
+        bgmSource.clip = clip;
+        bgmSource.volume = masterVolume * bgmVolume;
+        bgmSource.Play();
+    }
+
 
     /*protected override void Awake()
     {
@@ -39,29 +68,6 @@ public class AudioManager : SingletonMono<AudioManager>
             seSource = gameObject.AddComponent<AudioSource>();
         }
     }*/
-
-    private void PlayBGM(AudioClip clip)
-    {
-        if (clip == null)
-        {
-            Debug.LogWarning("브금 클립 null임");
-        }
-
-        bgmSource.clip = clip;
-        bgmSource.volume = masterVolume * bgmVolume;
-        bgmSource.Play();
-    }
-
-    Dictionary<EAudioClip, AudioClip> eClips = new Dictionary<EAudioClip, AudioClip>();
-
-    public static void PlayOneShot(AudioClip clip, float volume)
-    {
-        //audioData.mainBGM.
-        Instance.bgmSource.PlayOneShot(clip, volume);
-    }
-
-    //private void Play
-
 
     [Header("SFX Prefab")]
     [SerializeField] private GameObject sfxPrefab;   // SFXSource가 붙은 프리팹 (없어도 런타임 생성)
@@ -93,24 +99,7 @@ public class AudioManager : SingletonMono<AudioManager>
         }
     }
     
-    protected override void Awake()
-    {
-        LoadMixerAssets();
-        base.Awake();         // 싱글톤 초기화 (Instance 설정/중복제거)
-        InitBGMSource();      // BGM AudioSource 확보
-        InitSFXPool();        // SFX 풀 구성 (프리팹 없음도 안전)
     
-        // 시작 시 기본 BGM 자동 재생 (Resources/Sound/Light Ambience 1)
-        var clip = Resources.Load<AudioClip>("Sound/Light Ambience 1"); // 확장자 제외, 공백 포함 주의
-        if (clip != null)
-        {
-            PlayBGM(clip, 0.3f); // 초기 볼륨 0.3으로 재생
-        }
-        else
-        {
-            //Debug.LogWarning("[AudioManager] BGM not found at path: Sound/Light Ambience 1");
-        }
-    }
     
     // -------------------- BGM --------------------
     private void InitBGMSource()

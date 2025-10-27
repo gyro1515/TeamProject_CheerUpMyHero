@@ -77,6 +77,7 @@ public class ArtifactManager : SingletonMono<ArtifactManager>
         if (slotIndex < 0 || slotIndex >= ArtifactSlotCount) return;
 
         EquippedArtifacts[slotIndex] = artifact;
+        AudioManager.PlayOneShot(DataManager.AudioData.artifactEquipSE);
         OnEquippedArtifactChanged?.Invoke();
     }
 
@@ -284,6 +285,8 @@ public class ArtifactManager : SingletonMono<ArtifactManager>
             slotIndex++;
         }
         OnEquippedArtifactChanged?.Invoke();
+
+        AudioManager.PlayOneShot(DataManager.AudioData.artifactEquipSE);
     }
 
     // 랜덤 패시브 아티팩트 생성하는 메서드 -> 스테이지 클리어 보상 용도
