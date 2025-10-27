@@ -23,22 +23,49 @@ public class GachaResultIcon : MonoBehaviour
 
         if (unitData != null)
         {
-            _rarityColor = GetColorForRarity(unitData.rarity);
-            characterImage.sprite = unitData.gachaHeroSprite ?? unitData.unitIconSprite;
+            Color rarityColor = GetColorForRarity(unitData.rarity);
+
+            // 1. 가챠 전용 일러스트(gachaHeroSprite)가 있는지 확인
+            if (unitData.gachaHeroSprite != null)
+            {
+                // 2. 가챠 일러스트가 있으면:
+                //    캐릭터 이미지를 '일러스트'로 설정
+                characterImage.sprite = unitData.gachaHeroSprite;
+                //    '배경(테두리)' 이미지는 숨깁니다.
+                rarityBorderImage.gameObject.SetActive(false);
+            }
+            else
+            {
+                // 3. 가챠 일러스트가 없으면
+                //    캐릭터 이미지를 '작은 아이콘'으로 설정
+                characterImage.sprite = unitData.unitIconSprite;
+                //    '배경(테두리)' 이미지를 '유닛 배경 스프라이트'로 설정
+                rarityBorderImage.sprite = unitData.unitBGSprite;
+                //    (스프라이트 자체를 바꾸므로 색상은 기본 흰색으로)
+                rarityBorderImage.color = Color.white;
+                rarityBorderImage.gameObject.SetActive(true);
+            }
+
+            // 4. 카드 뒷면 색상은 등급에 맞게 설정 
+            cardBackImage.color = rarityColor;
         }
         else
         {
+            // 데이터 못 찾았을 때의 기본 처리
             Debug.LogError($"[GachaResultIcon] ID: {_resultId}에 해당하는 유닛 데이터를 찾을 수 없습니다!");
             _rarityColor = GetColorForRarity(Rarity.common);
             characterImage.sprite = null;
+            rarityBorderImage.sprite = null; // 배경도 비움
+            rarityBorderImage.color = Color.white;
+            rarityBorderImage.gameObject.SetActive(true);
+            cardBackImage.color = _rarityColor;
         }
-        // --- 4. 앞면/뒷면 색상 설정 ---
-        rarityBorderImage.color = _rarityColor;
-        cardBackImage.color = _rarityColor; 
 
+        // 버튼 클릭 이벤트 연결
         GetComponent<Button>().onClick.AddListener(OnClick);
-        if (showAsFlipped) Flip(false);
-        else ShowBack();
+
+        if (showAsFlipped) Flip(false); // 즉시 앞면 표시 (에픽 선공개용)
+        else ShowBack(); // 뒷면 표시
     }
     // 카드를 클릭했을 때
     private void OnClick()
