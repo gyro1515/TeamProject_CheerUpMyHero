@@ -138,7 +138,14 @@ public enum PoolType // *******251016: 새로운 풀링 오브젝트 추가시 �
     Hero_Unit5,
     #endregion
     Player,
-    SynergyInfoItem
+    SynergyInfoItem,
+    #region FX
+    FXEnemyUnitHit,
+    FXPlayerUnitHit,
+    FXMapExplosion1,
+    FXMapExplosion2,
+    FXMapExplosion3,
+    #endregion
 }
 
 public class ObjectPoolManager : SingletonMono<ObjectPoolManager>, ISceneResettable

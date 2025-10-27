@@ -54,6 +54,19 @@ public class BaseController : MonoBehaviour, IAttackable, IDamageable
         if (baseCharacter.IsDead) return;
         // 어떤 공식에 의해서 피해량이 결정이 되고
         baseCharacter.CurHp -= damage;
+
+        // 이펙트 소환
+        GameObject fxGO;
+        if (baseCharacter is Player player || baseCharacter is PlayerUnit playerUnit || baseCharacter is PlayerHQ playerHQ)
+        {
+            fxGO = ObjectPoolManager.Instance.Get(PoolType.FXPlayerUnitHit);
+            fxGO.transform.position = baseCharacter.transform.position + Vector3.up * 0.7f;
+        }
+        else if (baseCharacter is EnemyUnit enemyUnit || baseCharacter is EnemyHQ enemyHQ)
+        {
+            fxGO = ObjectPoolManager.Instance.Get(PoolType.FXEnemyUnitHit);
+            fxGO.transform.position = baseCharacter.transform.position + Vector3.up * 0.7f;
+        }
     }
     public virtual void Dead()
     {

@@ -22,6 +22,7 @@ public class UIActiveAFSlot : MonoBehaviour
     float cooldownTimer = -1f;
     bool isCooldown = false;
     float manaCost = -1f;
+
     private void Awake()
     {
         slotIcon.fillAmount = 1f;
@@ -90,6 +91,7 @@ public class UIActiveAFSlot : MonoBehaviour
                 manaCost = acAfData.cost;
                 SetTimerIconActive(false);
                 enabled = true;
+
                 break;
             case ArtifactType.Passive:
                 // 클릭 안되고 표시만 되게
