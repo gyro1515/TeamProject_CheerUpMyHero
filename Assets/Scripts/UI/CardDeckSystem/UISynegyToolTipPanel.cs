@@ -10,6 +10,7 @@ using UnityEngine.UI;
 public class UISynegyToolTipPanel : BasePopUpUI
 {
     [SerializeField] TextMeshProUGUI synergyToolTipText;
+    [SerializeField] TextMeshProUGUI synergyToolTipDescriptionText;
 
     protected override void Awake()
     {
@@ -18,6 +19,7 @@ public class UISynegyToolTipPanel : BasePopUpUI
         GetComponent<Button>().onClick.AddListener(CloseParentPopup);
     }
     public void OnSynergyClicked(UnitSynergyType synergyType, int currentCount)
+    //public void OnSynergyClicked(UnitSynergyType synergyType, SynergyGrade currentCount)
     {
         // TODO: 시너지 효과 설명 데이터 테이블 만들어서 불러오기
 
@@ -36,7 +38,8 @@ public class UISynegyToolTipPanel : BasePopUpUI
                 break;
 
         }
-        synergyToolTipText.text = $"{synergyType} {effectText} 시너지 효과를 받고 있습니다.\n 설명은 데이터 테이블 만들어야 해서 \n 일단 UI 다 설정하고 추가하겠습니다.";
+        synergyToolTipText.text = $"{synergyType} {effectText} 시너지 효과";
+        synergyToolTipDescriptionText.text = DataManager.SynergyEffectData.GetData((int)synergyType * 1000 + currentCount).effectDescription;
         if (gameObject.activeSelf) return;
         OpenUI(0.1f);
     }

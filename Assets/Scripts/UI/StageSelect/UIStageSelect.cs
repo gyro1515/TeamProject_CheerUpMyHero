@@ -31,23 +31,27 @@ public class UIStageSelect : BaseUI, IBackButtonHandler
     [Header("운명, 도전 UI")]
     [SerializeField] private UIDestinyRoullette _destinyUI;
 
-    private DeckPresetController _deckPresetController;
+    //private DeckPresetController _deckPresetController;
+    private MainScreenUI _mainScreenUI;
     private List<UISelecStageSlot> _allStageSlots = new List<UISelecStageSlot>();
 
     
     private void Awake()
     {
-        _deckPresetController = UIManager.Instance.GetUI<DeckPresetController>();
 
         // 돌아가기 버튼 설정
         returnToSelDeckBtn.onClick.AddListener(MoveToSelDeck);
 
         // 모든 스테이지 슬롯을 생성하고 초기화
         CreateAllStageSlots();
-        _destinyUI = UIManager.Instance.GetUI<UIDestinyRoullette>();
         //_destinyUI.CloseUI();
     }
+    private void Start()
+    {
+        _mainScreenUI = UIManager.Instance.GetUI<MainScreenUI>();
+        _destinyUI = UIManager.Instance.GetUI<UIDestinyRoullette>();
 
+    }
     private void OnEnable()
     {
         StartCoroutine(CoScrollToLatestClearedStage());
@@ -145,13 +149,14 @@ public class UIStageSelect : BaseUI, IBackButtonHandler
         //(목표 슬롯의 y좌표만큼 Content를 위로 올립니다)
         contentRect.anchoredPosition = new Vector2(
             contentRect.anchoredPosition.x,
-            -targetSlotRect.anchoredPosition.y
+            -targetSlotRect.anchoredPosition.y - 70f
         );
     }
 
     void MoveToBattle(int mainIdx, int subIdx)
     {
-        Debug.Log($"{mainIdx + 1}-{subIdx + 1} 전투 씬으로 이동");
+        
+        Debug.Log($"{mainIdx + 1}-{subIdx + 1} 스테이지 선택 운명 선택으로 이동");
 
         // PlayerDataManager에 선택된 스테이지 정보를 저장
         PlayerDataManager.Instance.SelectedStageIdx = (mainIdx, subIdx);
@@ -171,20 +176,20 @@ public class UIStageSelect : BaseUI, IBackButtonHandler
 
     void MoveToSelDeck()
     {
-        Debug.Log("덱 선택으로 이동");
-        if (_deckPresetController != null)
+        Debug.Log("메인으로 이동");
+        if (_mainScreenUI != null)
         {
-            FadeManager.Instance.SwitchGameObjects(gameObject, _deckPresetController.gameObject);
+            FadeManager.Instance.SwitchGameObjects(gameObject, _mainScreenUI.gameObject);
         }
         else
         {
-            Debug.LogError("UIManager에서 DeckPresetController를 찾을 수 없습니다!");
+            Debug.LogError("UIManager에서 _mainScreenUI 찾을 수 없습니다!");
         }
     }
 
     public void OnBackPressed()
     {
-        Debug.Log("뒤로가기 버튼: 덱 선택으로 이동");
+        Debug.Log("뒤로가기 버튼: 메인으로 이동");
         MoveToSelDeck();
     }
 }

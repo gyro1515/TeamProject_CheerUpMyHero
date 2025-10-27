@@ -165,6 +165,21 @@ public class DataManager : SingletonMono<DataManager>
     // 유닛 카드 타입(딜/힐탱)에 사용할 아이콘
     public Dictionary<UnitType, Sprite> UnitTypeIconSprites { get; private set; } = new Dictionary<UnitType, Sprite>();
 
+    // 유닛 시너지 툴팁 설명 데이터
+    private DataBase<SynergyData, SynergyEffectSO> _synergyEffectData;
+    public static DataBase<SynergyData, SynergyEffectSO> SynergyEffectData
+    {
+        get
+        {
+            if (Instance._synergyEffectData == null)
+            {
+                Instance._synergyEffectData = new DataBase<SynergyData, SynergyEffectSO>();
+            }
+            return Instance._synergyEffectData;
+        }
+    }
+
+
     //오디오 데이터
     AudioData audioData;  // 오디오 클립 담아둔 오디오 데이터
     public static AudioData AudioData { get => Instance.audioData; }

@@ -139,7 +139,7 @@ public class MainScreenBuildingController : MonoBehaviour
         }
         else
         {
-            Debug.LogError("외교 타일(4,1)을 찾을 수 없어 상태를 업데이트할 수 없습니다.");
+            Debug.LogWarning("외교 타일(4,1)을 찾을 수 없어 상태를 업데이트할 수 없습니다.");
         }
     }
     private void UpdateAllTilesUI()
