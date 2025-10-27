@@ -32,9 +32,6 @@ public class GachaUIPanel : BasePopUpUI
 
         _limitedPitySubscriber = EventManager.GetSubscriber<LimitedPityCountUpdatedEvent>();
         _standardPitySubscriber = EventManager.GetSubscriber<StandardPityCountUpdatedEvent>();
-        _limitedPitySubscriber.Subscribe(HandleLimitedPityUpdate);
-        _standardPitySubscriber.Subscribe(HandleStandardPityUpdate);
-
 
         if (contractPagesController == null)
         {
@@ -45,6 +42,8 @@ public class GachaUIPanel : BasePopUpUI
     protected override void OnEnable()
     {
         base.OnEnable();
+        _limitedPitySubscriber.Subscribe(HandleLimitedPityUpdate);
+        _standardPitySubscriber.Subscribe(HandleStandardPityUpdate);
         UpdateInitialPityCounters();
     }
     protected override void OnDisable()

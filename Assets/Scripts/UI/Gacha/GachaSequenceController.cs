@@ -27,6 +27,7 @@ public class GachaSequenceController : BasePopUpUI
     [SerializeField] private TextMeshProUGUI singleRarityText;
     [SerializeField] private TextMeshProUGUI singleUnitNameText;
     [SerializeField] private Button singleConfirmButton;
+    [SerializeField] private Image singleCardBackgroundMaskImage;
 
     [Header("10회 그리드 UI")]
     [SerializeField] private Transform gridContentParent;
@@ -102,6 +103,7 @@ public class GachaSequenceController : BasePopUpUI
             resultGridPanel.SetActive(true);
             currentState = GachaState.Grid;
             skipButton.gameObject.SetActive(true);
+            CheckIfAllCardsFlipped();
         }
     }
 
@@ -118,6 +120,7 @@ public class GachaSequenceController : BasePopUpUI
             bool showFlipped = (i == firstEpicIndex) || flipAll;
             iconScript.Setup(_currentGachaResults[i], this, showFlipped);
         }
+        CheckIfAllCardsFlipped();
     }
 
     // 3-2. 단일 결과 카드 표시 (데이터 접근 수정)
@@ -133,32 +136,27 @@ public class GachaSequenceController : BasePopUpUI
             // 1. 가챠 전용 일러스트(gachaHeroSprite)가 있는지 확인
             if (unitData.gachaHeroSprite != null)
             {
-                // 2. 가챠 일러스트가 있으면:
-                //    캐릭터 이미지를 '일러스트'로 설정
                 singleResultImage.sprite = unitData.gachaHeroSprite;
-                //    '배경(테두리)' 이미지는 숨깁니다.
-                singleRarityBorder.gameObject.SetActive(false);
+                singleRarityBorder.sprite = null;
+                singleRarityBorder.color = Color.clear;
+                singleRarityBorder.gameObject.SetActive(true);
             }
             else
             {
-                // 3. 가챠 일러스트가 없으면
-                //    캐릭터 이미지를 '작은 아이콘'으로 설정
                 singleResultImage.sprite = unitData.unitIconSprite;
-                //    '배경(테두리)' 이미지를 '유닛 배경 스프라이트'로 설정
                 singleRarityBorder.sprite = unitData.unitBGSprite;
-                //singleRarityBorder.color = Color.white;
+                singleRarityBorder.color = Color.white;
                 singleRarityBorder.gameObject.SetActive(true);
             }
         }
-        else // 데이터를 못 찾았을 경우 (오류 처리)
+        else // 데이터를 못 찾았을 경우
         {
             Debug.LogError($"[GachaSequence] ID: {resultId} 데이터 없음!");
             singleUnitNameText.text = "???";
             singleRarityText.text = "Unknown";
             singleResultImage.sprite = null;
-            singleRarityBorder.sprite = null; // 배경도 비움
-            singleRarityBorder.color = Color.grey;
-            singleRarityBorder.gameObject.SetActive(true);
+            singleCardBackgroundMaskImage.gameObject.SetActive(false);
+            singleRarityBorder.gameObject.SetActive(false);
         }
 
         resultCardPanel.SetActive(true);
@@ -184,6 +182,7 @@ public class GachaSequenceController : BasePopUpUI
         skipButton.gameObject.SetActive(true); // "모두 뒤집기" 버튼 다시 표시
         _lastClickedIcon?.Flip(false);
         _lastClickedIcon = null; // 클릭했던 아이콘 정보 리셋
+        CheckIfAllCardsFlipped();
     }
 
     // 5-2. 10회 그리드(4번)의 "확인" 버튼 클릭 시
@@ -213,43 +212,6 @@ public class GachaSequenceController : BasePopUpUI
         }
     }
 
-    // 5-3. 스킵 버튼 클릭 시
-    //private void OnSkipClicked()
-    //{
-    //    // 1. 봉투 애니메이션과 스킵 버튼을 즉시 숨깁니다.
-    //    envelopeAnimator.gameObject.SetActive(false);
-    //    skipButton.gameObject.SetActive(false);
-
-    //    // 2. 다른 패널들도 모두 숨겨서 초기화합니다.
-    //    resultCardPanel.SetActive(false);
-    //    resultGridPanel.SetActive(false);
-
-    //    foreach (Transform child in gridContentParent) Destroy(child.gameObject);
-
-    //    // 3. 뽑기 결과가 1개인지 여러 개인지 확인합니다.
-    //    if (_currentGachaResults.Count == 1) // 1회 뽑기 스킵
-    //    {
-    //        // 3번 화면 (단일 카드)을 바로 표시합니다.
-    //        ShowSingleResultCard(_currentGachaResults[0]);
-    //    }
-    //    else // 10회 뽑기 스킵
-    //    {
-    //        int firstEpicIndex = FindFirstEpicIndex(_currentGachaResults);
-
-
-    //        PopulateResultGrid(false); // flipAll = false
-
-    //        if (firstEpicIndex != -1) // 에픽이 있다(1-2-3-4 순서)
-    //        {
-    //            // 3번 (단일 에픽 카드)을 먼저 표시합니다.
-    //            ShowSingleResultCard(_currentGachaResults[firstEpicIndex], true);
-    //        }
-    //        else // 에픽이 없다 (1-2-4-3 순서)
-    //        {
-    //            resultGridPanel.SetActive(true);
-    //        }
-    //    }
-    //}
 
     // --- 헬퍼 함수 (데이터 접근 수정) ---
     private void FlipAllRemainingCards()
@@ -263,6 +225,35 @@ public class GachaSequenceController : BasePopUpUI
                 iconScript.Flip(false);
             }
         }
+        CheckIfAllCardsFlipped();
+    }
+    public void OnCardFlipped(GachaResultIcon icon)
+    {
+        CheckIfAllCardsFlipped();
+    }
+    private void CheckIfAllCardsFlipped()
+    {
+        // 그리드에 자식이 없으면 (아직 생성 전) 그냥 리턴
+        if (gridContentParent.childCount == 0 || _currentGachaResults.Count == 0)
+        {
+            gridConfirmButton.gameObject.SetActive(false);
+            return;
+        }
+
+        // 모든 자식(카드)을 순회합니다.
+        foreach (Transform child in gridContentParent)
+        {
+            GachaResultIcon iconScript = child.GetComponent<GachaResultIcon>();
+            if (iconScript != null && !iconScript.IsFlipped)
+            {
+                gridConfirmButton.gameObject.SetActive(false); // 확인 버튼 숨기기
+                return; // 함수 즉시 종료
+            }
+        }
+
+        Debug.Log("모든 카드가 뒤집혔습니다. 확인 버튼 활성화.");
+        gridConfirmButton.gameObject.SetActive(true); // 확인 버튼 보이기
+        skipButton.gameObject.SetActive(false); // 스킵 버튼은 숨기기
     }
     private int FindFirstEpicIndex(List<int> results)
     {
