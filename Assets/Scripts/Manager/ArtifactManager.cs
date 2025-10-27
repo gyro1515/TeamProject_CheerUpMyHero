@@ -28,7 +28,7 @@ public class ArtifactManager : SingletonMono<ArtifactManager>
         SetAfDataForTest(); // 추후 삭제 예정***********
 
         // 패시브 유물 테스트 ----- // 세이브 없을때만 호출하도록 옮김
-        //AddArtifact(080200014);
+        AddArtifact(08010001);
         //AddArtifact(080200025);
         //AddArtifact(080200024);
         //AddArtifact(080200035);
