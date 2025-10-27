@@ -28,12 +28,11 @@ public abstract class BaseUnitController : BaseController
             Animator.Play(baseCharacter.AnimationData.BasicParameterHash, 0, 0f);
         }
     }
+
     public override void TakeDamage(float damage)
     {
         if (baseUnit.IsInvincible) return; // 무적이라면 리턴
         base.TakeDamage(damage);
     }
     protected abstract void HitBackActive(bool active);
-
-
 }

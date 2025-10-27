@@ -9,7 +9,7 @@ using UnityEngine;
 public abstract class BaseUnit : BaseCharacter
 {
     [field: Header("유닛 세팅")]
-    [field: SerializeField] public float AttackRate { get; protected set; }
+    //[field: SerializeField] public float AttackRate { get; protected set; }
     [field: SerializeField] public float AttackRange { get; protected set; }
     [field: SerializeField] public float CognizanceRange { get; protected set; } // 인식 범위
     [field: SerializeField] public int FoodConsumption { get; protected set; }

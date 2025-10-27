@@ -16,6 +16,8 @@ public class UIActiveAFSlot : MonoBehaviour
     [SerializeField] TextMeshProUGUI costText;
     [SerializeField] Button slotBtn;
 
+    ActiveArtifactLevelData currentLevelData; // 현재 레벨 데이터 저장
+    ActiveSkillEffect skillEffectInstance; // 스킬 효과 객체
     Player player;
     ArtifactData afData;
     float cooldown = -1f;
@@ -42,17 +44,52 @@ public class UIActiveAFSlot : MonoBehaviour
         cooldownIcon.fillAmount = 1f;
         SetTimerIconActive(false);
     }
+    private ActiveSkillEffect CreateSkillEffectInstance(string skillTypeString)
+    {
+        switch (skillTypeString)
+        {
+            case "광역 공격 / 디버프":
+                return new Skill_IceSpiritBreath();
+            case "광역 공격":
+                return new Skill_ThunderJudgment();
+            case "아군 버프":
+                return new Skill_KingMarch();
+            case "회복":
+                return new Skill_GoddessBlessing();
+            case "소환":
+                return new Skill_GiantCoffin();
+            default:
+                Debug.LogError($"알 수 없는 스킬 타입 문자열({skillTypeString})입니다.");
+                return null;
+        }
+    }
     void OnUseActiveAF()
     {
-        //Debug.Log("액티브 유물 사용 시도");
-        if (afData == null) return;
-        if(!player) { Debug.LogWarning("플레이어 정보 없음"); return; } // 오류
+        // 1. 데이터 및 참조 확인
+        if (skillEffectInstance == null) { Debug.LogWarning("스킬 효과가 없습니다."); return; }
+        if (player == null) { Debug.LogWarning("플레이어 정보 없음"); return; }
+        //  2. 쿨타임 확인 (UI 슬롯이 직접 관리)
+        if (isCooldown) { Debug.Log("쿨타임 중입니다."); return; }
+        //  3. 마나 확인 (UI 슬롯이 직접 관리)
         if (player.CurMana < manaCost) { Debug.Log("마나 부족"); return; }
+
+        // --- 모든 조건 통과 ---
+
+        // 4. 마나 차감
         player.CurMana -= manaCost;
+
+        // 5. 쿨타임 UI 시작
         SetTimerIconActive(true);
-        player.PlayerController.TestForUseActiveArtifact();// 테스트로 일단 공격 애니메이션 재생
-        Debug.Log($"{afData.name} 사용, 남은 마나{player.CurMana}");
+
+        // 6. 플레이어 애니메이션 재생
+        player.PlayerController.TestForUseActiveArtifact();
+
+        //  7. 실제 스킬 효과 실행
+        skillEffectInstance.Execute(currentLevelData);
+
+        Debug.Log($"{afData.name} 사용, 남은 마나 {player.CurMana}");
     }
+
     public void InitAfSlot(ArtifactData data)
     {
         afData = data;
@@ -72,31 +109,43 @@ public class UIActiveAFSlot : MonoBehaviour
         {
             afNameText.text = "빈 슬롯";
             slotIcon.sprite = null;
-            //cooldownText.text = "";
             costText.text = "";
-            slotBtn.enabled = false; // 빈 슬롯은 클릭 불가
+            slotBtn.enabled = false;
+            cooldownIcon.gameObject.SetActive(false); // 쿨타임 아이콘 끄기
+            enabled = false; // Update 비활성화
         }
     }
     void SetSlotByType(ArtifactData data)
     {
         afNameText.text = data.name;
         slotIcon.sprite = Resources.Load<Sprite>(data.iconSpritePath);
+
         switch (data.artifactType)
         {
             case ArtifactType.Active:
                 ActiveArtifactData acAfData = data as ActiveArtifactData;
+                currentLevelData = acAfData.levelData[acAfData.curLevel]; // 현재 레벨 데이터 저장
+
                 costText.text = $"* {acAfData.cost}";
-                cooldown = acAfData.levelData[acAfData.curLevel].coolTime;
-                manaCost = acAfData.cost;
-                SetTimerIconActive(false);
-                enabled = true;
+                cooldown = currentLevelData.coolTime;
+                manaCost = acAfData.cost; 
+
+                // 스킬 효과 객체 생성 및 저장
+                skillEffectInstance = CreateSkillEffectInstance(acAfData.type);
+
+                SetTimerIconActive(false); // 쿨타임 UI 초기화
+                enabled = true; // Update 함수 활성화 (쿨타임 감시)
+                slotBtn.enabled = true; // 버튼 활성화
                 break;
+
             case ArtifactType.Passive:
-                // 클릭 안되고 표시만 되게
+                // 패시브 슬롯 처리
+                currentLevelData = null;
+                skillEffectInstance = null;
                 costText.text = "";
-                cooldownIcon.gameObject.SetActive(true);
-                cooldownIcon.fillAmount = 1f;
-                slotBtn.enabled = false;
+                cooldownIcon.gameObject.SetActive(false); // 패시브는 쿨타임 아이콘 필요 없음
+                slotBtn.enabled = false; // 패시브는 클릭 불가
+                enabled = false; // Update 필요 없음
                 break;
         }
     }
