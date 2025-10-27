@@ -66,6 +66,8 @@ public class UIPause : BaseUI, IBackButtonHandler
     {
         _speedButton.onClick.AddListener(OnClickSpeed);
         _settingMenuScript.OnResumeButton += () => ApplySpeed(CurrentSpeed); // 일시정지 해제 시 현재 배속 적용
+        // 저장된 배속 값 불러오기
+        CurrentSpeed = SettingDataManager.SavedSpeed;
         ApplySpeed(CurrentSpeed);
     }
 
@@ -98,6 +100,7 @@ public class UIPause : BaseUI, IBackButtonHandler
     private void SetSpeed(SpeedState speed)
     {
         CurrentSpeed = speed;
+        SettingDataManager.SavedSpeed = CurrentSpeed;
         ApplySpeed(speed);
     }
 

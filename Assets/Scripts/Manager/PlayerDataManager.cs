@@ -98,6 +98,8 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
 
     private IEventPublisher<LimitedPityCountUpdatedEvent> _limitedPityPublisher;
     private IEventPublisher<StandardPityCountUpdatedEvent> _standardPityPublisher;
+
+    // 
     protected override void Awake()
     {
         base.Awake();

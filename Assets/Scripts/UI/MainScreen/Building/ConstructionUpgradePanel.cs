@@ -36,7 +36,7 @@ public class ConstructionUpgradePanel : BasePopUpUI
     private BuildingUpgradeData _upgradeData;      // 업그레이드 시 사용할 데이터 (다음 레벨)
     //private CanvasGroup _canvasGroup;
 
-    private bool _isClosing = false;
+    //private bool _isClosing = false;
 
     private enum PanelMode { None, Construction, Upgrade, Repair }
     private PanelMode _mode = PanelMode.None;

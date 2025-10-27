@@ -245,17 +245,18 @@ public class DeckPresetController : BaseUI, IBackButtonHandler
 
     private void CompleteFormationDirect()
     {
-        Debug.Log("편성 완료. 모든 덱 정보를 저장하고 다음 화면으로 전환합니다.");
+        Debug.Log("편성 완료. 모든 덱 정보를 저장하고 전투씬으로 이동");
         PlayerDataManager.Instance.SaveDecks();
 
-        if (_stageSelectUI != null)
-        {
-            FadeManager.Instance.SwitchGameObjects(gameObject, _stageSelectUI.gameObject);
-        }
-        else
-        {
-            Debug.LogError("UIManager에서 UIStageSelect를 찾을 수 없습니다!");
-        }
+        SceneLoader.Instance.StartLoadScene(SceneState.BattleScene);
+        /* if (_stageSelectUI != null)
+         {
+             FadeManager.Instance.SwitchGameObjects(gameObject, _stageSelectUI.gameObject);
+         }
+         else
+         {
+             Debug.LogError("UIManager에서 UIStageSelect를 찾을 수 없습니다!");
+         }*/
     }
     private void OnAutoFormClicked()
     {

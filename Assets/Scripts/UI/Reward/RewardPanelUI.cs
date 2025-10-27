@@ -154,7 +154,9 @@ public class RewardPanelUI : BaseUI
 
             //전투 씬을 다시 로드
             Time.timeScale = 1f;
-            SceneLoader.Instance.StartLoadScene(SceneState.BattleScene);
+            //SceneLoader.Instance.StartLoadScene(SceneState.BattleScene);
+            GameManager.Instance.LoadMain = LoadMain.UIDestinyRoullette; // 운명 선택부터 시작
+            SceneLoader.Instance.StartLoadScene(SceneState.MainScene); // 운명 선택부터
             Debug.Log($"다음 스테이지 ({nextMainIdx + 1}-{nextSubIdx + 1})를 시작합니다.");
         }
         else

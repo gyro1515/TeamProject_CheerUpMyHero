@@ -9,7 +9,8 @@ using UnityEngine;
 public enum LoadMain
 {
     None,
-    DeckPresetController
+    DeckPresetController,
+    UIDestinyRoullette
 }
 public class GameManager : SingletonMono<GameManager>
 {
@@ -31,6 +32,8 @@ public class GameManager : SingletonMono<GameManager>
 
     public LoadMain LoadMain { get; set; } = LoadMain.None;
 
+    bool isStageAndDestinySelected = false;
+    public static bool IsStageAndDestinySelected { get => Instance.isStageAndDestinySelected; set => Instance.isStageAndDestinySelected = value; }
     protected override void Awake()
     {
         base.Awake();
@@ -269,7 +272,7 @@ public class GameManager : SingletonMono<GameManager>
             Debug.Log($"스테이지 {mainIdx + 1}-{subIdx + 1}은(는) 이미 클리어한 스테이지입니다.");
         }
     
-            int maxSubIdx = SettingDataManager.Instance.MainStageData[mainIdx].subStages.Count;
+        int maxSubIdx = SettingDataManager.Instance.MainStageData[mainIdx].subStages.Count;
         if (++subIdx >= maxSubIdx)
         {
             subIdx = 0;
@@ -277,6 +280,8 @@ public class GameManager : SingletonMono<GameManager>
         }
         // 서브 스테이지 해금
         SettingDataManager.Instance.MainStageData[mainIdx].subStages[subIdx].isUnlocked = true;
+
+        GameManager.IsStageAndDestinySelected = false; // 스테이지 선택부터 다시 하도록 설정
     }
 
     private void CollectStageResultAnalyticsEvent(bool isVictory)
