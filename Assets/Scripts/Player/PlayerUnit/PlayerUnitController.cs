@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Net;
@@ -11,6 +12,7 @@ public class PlayerUnitController : BaseUnitController
     Coroutine atkAnimRoutine;
     bool isAttacking = false;
 
+    UnitSynergyType[] _allSynergyTypes = (UnitSynergyType[])Enum.GetValues(typeof(UnitSynergyType));
     protected override void Awake()
     {
         playerUnit = GetComponent<PlayerUnit>();
@@ -51,12 +53,40 @@ public class PlayerUnitController : BaseUnitController
         {
             AudioManager.PlayRandomOneShot(DataManager.AudioData.meleeUnitAttackSE);
         }
-        else
+        else 
         {
-            AudioManager.PlayOneShot(DataManager.AudioData.archerUnitAttackSE);
+            if ((playerUnit.UnitData.synergyType & UnitSynergyType.Archer) != 0)
+                AudioManager.PlayOneShot(DataManager.AudioData.archerUnitAttackSE);
+            else if ((playerUnit.UnitData.synergyType & UnitSynergyType.Mage) != 0)
+                AudioManager.PlayOneShot(DataManager.AudioData.magicUnitAttackSE);
         }
 
-            playerUnit.TargetUnit?.TakeDamage(playerUnit.AtkPower);
+        switch (playerUnit.UnitData.synergyType)
+        {
+            case UnitSynergyType.None:
+                break;
+            case UnitSynergyType.Kingdom:
+                break;
+            case UnitSynergyType.Empire:
+                break;
+            case UnitSynergyType.Cleric:
+                break;
+            case UnitSynergyType.Berserker:
+                break;
+            case UnitSynergyType.Hero:
+                break;
+            case UnitSynergyType.Frost:
+                AudioManager.PlayOneShot(DataManager.AudioData.synergy_iceSE);
+                break;
+            case UnitSynergyType.Burn:
+                AudioManager.PlayOneShot(DataManager.AudioData.synergy_fireSE);
+                break;
+            case UnitSynergyType.Poison:
+                AudioManager.PlayOneShot(DataManager.AudioData.synergy_poisonSE);
+                break;
+        }
+
+        playerUnit.TargetUnit?.TakeDamage(playerUnit.AtkPower);
         //Debug.Log("아군 유닛: 공격!");
     }
     public override void Dead()
