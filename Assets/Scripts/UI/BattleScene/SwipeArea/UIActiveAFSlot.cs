@@ -137,8 +137,6 @@ public class UIActiveAFSlot : MonoBehaviour
                 SetTimerIconActive(false); // 쿨타임 UI 초기화
                 enabled = true; // Update 함수 활성화 (쿨타임 감시)
                 slotBtn.enabled = true; // 버튼 활성화
-                cooldown = acAfData.levelData[acAfData.curLevel].coolTime;
-                manaCost = acAfData.cost;
                 SetTimerIconActive(false);
                 enabled = true;
 
