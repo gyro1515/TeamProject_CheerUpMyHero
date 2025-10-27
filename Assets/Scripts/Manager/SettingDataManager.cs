@@ -3,12 +3,16 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
+using static UIPause;
 
 public class SettingDataManager : SingletonMono<SettingDataManager>
 {
     public List<MainStageData> MainStageData { get; private set; } = new();
    
     public static event Action OnControlLayoutChanged;
+
+    SpeedState _savedSpeed = SpeedState.X1;
+    public static SpeedState SavedSpeed { get => Instance._savedSpeed; set => Instance._savedSpeed = value; }
 
     protected override void Awake()
     {
