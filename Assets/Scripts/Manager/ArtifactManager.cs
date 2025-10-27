@@ -23,24 +23,24 @@ public class ArtifactManager : SingletonMono<ArtifactManager>
     {
         base.Awake();
 
-        //LoadArtifactData(); // 외부에서 호출하도록 옮김
-
+        // LoadArtifactData(); // 외부에서 호출하도록 옮김
+        InitializeEquippedArtifacts();
         SetAfDataForTest(); // 추후 삭제 예정***********
 
         // 패시브 유물 테스트 ----- // 세이브 없을때만 호출하도록 옮김
-        //AddArtifact(080200015);
-        //AddArtifact(080200014);
-        //AddArtifact(080200025);
-        //AddArtifact(080200024);
-        //AddArtifact(080200035);
-        //AddArtifact(080200034);
-        //AddArtifact(080200055);
-        //AddArtifact(080200054);
-        //AddArtifact(080200054);
-        //AddArtifact(080200085);
-        //AddArtifact(080200084);
-        //AddArtifact(08010001);
-        //AddArtifact(08010002);
+        AddArtifact(080200015);
+        AddArtifact(080200014);
+        AddArtifact(080200025);
+        AddArtifact(080200024);
+        AddArtifact(080200035);
+        AddArtifact(080200034);
+        AddArtifact(080200055);
+        AddArtifact(080200054);
+        AddArtifact(080200054);
+        AddArtifact(080200085);
+        AddArtifact(080200084);
+        AddArtifact(08010001);
+        AddArtifact(08010002);
         // ------------------------
 
         artifactSO = Resources.Load<ArtifactSO>("DB/ArtifactSO");
@@ -77,6 +77,7 @@ public class ArtifactManager : SingletonMono<ArtifactManager>
         if (slotIndex < 0 || slotIndex >= ArtifactSlotCount) return;
 
         EquippedArtifacts[slotIndex] = artifact;
+        AudioManager.PlayOneShot(DataManager.AudioData.artifactEquipSE);
         OnEquippedArtifactChanged?.Invoke();
     }
 
@@ -215,7 +216,7 @@ public class ArtifactManager : SingletonMono<ArtifactManager>
     // 유물 자동 장착 메서드
     public void AutoEquipArtifacts(ArtifactType type)
     {
-        if (type == null)
+        if (type == ArtifactType.None)
         {
             Debug.Log("정렬 유형 선택 안 돼서 정렬 안 됨");
             return;
@@ -284,6 +285,8 @@ public class ArtifactManager : SingletonMono<ArtifactManager>
             slotIndex++;
         }
         OnEquippedArtifactChanged?.Invoke();
+
+        AudioManager.PlayOneShot(DataManager.AudioData.artifactEquipSE);
     }
 
     // 랜덤 패시브 아티팩트 생성하는 메서드 -> 스테이지 클리어 보상 용도
