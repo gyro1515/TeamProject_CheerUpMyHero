@@ -26,12 +26,12 @@ public class Skill_IceSpiritBreath : ActiveSkillEffect
             {
                 if (damage > 0) enemy.GetComponent<IDamageable>()?.TakeDamage(damage);
 
-                var controller = enemy.GetComponent<BaseController>();
-                if (controller != null)
+                var buffController = enemy.GetComponent<BuffController>();
+                if (buffController != null)
                 {
-                    controller.ApplyDebuff(DebuffType.MoveSpeed, duration, slowPercent);
-                    controller.ApplyDebuff(DebuffType.AttackCooldown, duration, atkCooldownPercent);
-                    controller.ChangeColor(Color.blue, duration); // 파란색으로 변경
+                    buffController.ApplyDebuff(DebuffType.MoveSpeed, duration, slowPercent);
+                    buffController.ApplyDebuff(DebuffType.AttackCooldown, duration, atkCooldownPercent);
+                    buffController.ChangeColor(Color.blue, duration); // 파란색으로 변경
                 }
             }
         }

@@ -41,7 +41,7 @@ public class ArtifactManager : SingletonMono<ArtifactManager>
         //AddArtifact(08010001);
         //AddArtifact(08010002);
         // ------------------------
-
+        InitializeEquippedArtifacts();
         artifactSO = Resources.Load<ArtifactSO>("DB/ArtifactSO");
     }
 

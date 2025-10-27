@@ -45,22 +45,22 @@ public class UIActiveAFSlot : MonoBehaviour
         cooldownIcon.fillAmount = 1f;
         SetTimerIconActive(false);
     }
-    private ActiveSkillEffect CreateSkillEffectInstance(string skillTypeString)
+    private ActiveSkillEffect CreateSkillEffectInstance(int idnumber)
     {
-        switch (skillTypeString)
+        switch (idnumber)
         {
-            case "광역 공격 / 디버프":
+            case 08010001:
                 return new Skill_IceSpiritBreath();
-            case "광역 공격":
+            case 08010002:
                 return new Skill_ThunderJudgment();
-            case "아군 버프":
+            case 08010003:
                 return new Skill_KingMarch();
-            case "회복":
+            case 08010004:
                 return new Skill_GoddessBlessing();
-            case "소환":
+            case 08010005:
                 return new Skill_GiantCoffin();
             default:
-                Debug.LogError($"알 수 없는 스킬 타입 문자열({skillTypeString})입니다.");
+                Debug.LogError($"알 수 없는 스킬 타입 문자열({idnumber})입니다.");
                 return null;
         }
     }
@@ -129,10 +129,10 @@ public class UIActiveAFSlot : MonoBehaviour
 
                 costText.text = $"* {acAfData.cost}";
                 cooldown = currentLevelData.coolTime;
-                manaCost = acAfData.cost; 
+                manaCost = acAfData.cost;
 
                 // 스킬 효과 객체 생성 및 저장
-                skillEffectInstance = CreateSkillEffectInstance(acAfData.type);
+                skillEffectInstance = CreateSkillEffectInstance(acAfData.idNumber);
 
                 SetTimerIconActive(false); // 쿨타임 UI 초기화
                 enabled = true; // Update 함수 활성화 (쿨타임 감시)

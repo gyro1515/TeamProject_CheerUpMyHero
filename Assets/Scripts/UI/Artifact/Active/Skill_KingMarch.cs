@@ -16,11 +16,12 @@ public class Skill_KingMarch : ActiveSkillEffect
         foreach (var ally in allies.ToList())
         {
             if (ally == null || ally.IsDead) continue;
-            var controller = ally.GetComponent<BaseController>();
-            if (controller != null)
+            var buffController = ally.GetComponent<BuffController>();
+
+            if (buffController != null)
             {
-                controller.ApplyBuff(BuffType.AttackDamage, duration, atkPercent);
-                controller.ApplyBuff(BuffType.AttackSpeed, duration, atkSpeedPercent);
+                buffController.ApplyBuff(BuffType.AttackDamage, duration, atkPercent);
+                buffController.ApplyBuff(BuffType.AttackSpeed, duration, atkSpeedPercent);
             }
         }
     }
