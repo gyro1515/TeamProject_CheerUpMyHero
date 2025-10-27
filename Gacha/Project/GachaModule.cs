@@ -41,6 +41,23 @@ public class GachaModule
         return selectedItemId;
     }
 
+    [CloudCodeFunction("DrawGachaItemTen")]
+    public List<int> DrawGachaItemTen()
+    {
+        List<int> result = new List<int>();
+
+        for (int i = 0; i < 10; i++)
+        {
+            RarityInfo selectedRarity = SelectRarity();
+
+            int selectedItemId = SelectItemId(selectedRarity);
+
+            result.Add(selectedItemId);
+        }
+
+        return result;
+    }
+
     private RarityInfo SelectRarity()
     {
         int totalWeight = 0;

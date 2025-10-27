@@ -24,6 +24,17 @@ public static class Constants
 
     //통계 전송 이벤트 파라미터 Key값
     public const string IS_HERO_ARRIVE = "isHeroArriveStage";
+    public const string IS_STAGE_CHALLENGE = "isStageChallenge";
+    public const string IS_STAGE_CLEARED = "isStageCleared";
+    public const string IS_STAGE_CLEARED_BUT_TRY = "isStageClearedButTryAgain";
+    public const string STAGE_CHALLENGE_DATA = "stageChallengeData";
+    public const string STAGE_CONSTRUCTION = "stageConstruction";
+    public const string STAGE_DESTNIY_ID = "stageDestinyId";
+    public const string STAGE_ID = "stageId";
+    public const string STAGE_SUPPLY_LEVEL = "stageSupplyLevel";
+    public const string STAGE_TIME_TAKEN = "stageTimeTaken";
+    public const string STAGE_USED_ARTIFACT = "stageUsedArtifat";
+    public const string STAGE_USED_UNIT = "stageUsedUnit";
 
 
 

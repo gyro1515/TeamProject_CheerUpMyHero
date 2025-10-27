@@ -699,15 +699,23 @@ public class BackendManager : SingletonMono<BackendManager>
 
 }
 
-public class MyEvent : Unity.Services.Analytics.Event
+public class StageResultEvent : Unity.Services.Analytics.Event
 {
-    public MyEvent() : base("myEvent")
+    public StageResultEvent() : base("StageResult")
     {
     }
 
-    public string FabulousString { set { SetParameter("fabulousString", value); } }
-    public int SparklingInt { set { SetParameter("sparklingInt", value); } }
-    public float SpectacularFloat { set { SetParameter("spectacularFloat", value); } }
-    public bool PeculiarBool { set { SetParameter("peculiarBool", value); } }
+    public bool isHeroArriveStage_Bool { set { SetParameter(Constants.IS_HERO_ARRIVE, value); } }
+    public bool isStageChallenge_Bool { set { SetParameter(Constants.IS_STAGE_CHALLENGE, value); } }
+    public bool isStageCleard_Bool { set { SetParameter(Constants.IS_STAGE_CLEARED, value); } }
+    public bool isStageClearedButTryAgain_Bool { set { SetParameter(Constants.IS_STAGE_CLEARED_BUT_TRY, value); } }
+    public string stageChallengeData_String { set { SetParameter(Constants.STAGE_CHALLENGE_DATA, value); } }
+    public string stageConstruction_String { set { SetParameter(Constants.STAGE_CONSTRUCTION, value); } }
+    public int stageDestinyId_Int { set { SetParameter(Constants.STAGE_DESTNIY_ID, value); } }
+    public int stageId_Int { set { SetParameter(Constants.STAGE_ID, value); } }
+    public int stageSupplyLevel_Int { set { SetParameter(Constants.STAGE_SUPPLY_LEVEL, value); } }
+    public float stageTimeTaken_Float { set { SetParameter(Constants.STAGE_TIME_TAKEN, value); } }
+    public string stageUsedArtifat_String { set { SetParameter(Constants.STAGE_USED_ARTIFACT, value); } }
+    public string stageUsedUnit_String { set { SetParameter(Constants.STAGE_USED_UNIT, value); } }
 }
 

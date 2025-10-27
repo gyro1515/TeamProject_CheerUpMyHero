@@ -1,6 +1,9 @@
+using Newtonsoft.Json;
 using System.Collections;
 using System.Collections.Generic;
 using System.Resources;
+using System.Text;
+using Unity.Services.Analytics;
 using UnityEngine;
 
 public enum LoadMain
@@ -135,6 +138,8 @@ public class GameManager : SingletonMono<GameManager>
         EventManager.GetPublisher<BattleEndedEvent>().Publish(new BattleEndedEvent { IsVictory = isVictory });
 
         Modifiercalculator.EndBattle();
+
+        CollectStageResultAnalyticsEvent(isVictory);
 
         //NeedsTileVisualUpdate = true;
 
@@ -272,5 +277,59 @@ public class GameManager : SingletonMono<GameManager>
         }
         // 서브 스테이지 해금
         SettingDataManager.Instance.MainStageData[mainIdx].subStages[subIdx].isUnlocked = true;
+    }
+
+    private void CollectStageResultAnalyticsEvent(bool isVictory)
+    {
+        PlayerDataManager playerDataManager = PlayerDataManager.Instance;
+
+        //스테이지 id (1-1 => 1001)
+        (int mainIdx, int subIdx) = playerDataManager.SelectedStageIdx;
+        mainIdx++;
+        subIdx++;
+        Debug.Log($"{mainIdx}, {subIdx}");
+        StringBuilder sb = new StringBuilder();
+        sb.Append(mainIdx.ToString());
+        sb.Append(0.ToString());
+        sb.Append(0.ToString());
+        sb.Append(subIdx.ToString());
+        bool boool = int.TryParse(sb.ToString(), out int stageId);
+
+        //도전 관련
+        bool hasChallenge = false;
+        if (playerDataManager.activeChallenges.Count > 0)
+        {
+            hasChallenge = true;
+        }
+
+        StageResultEvent stageResultEvent = new StageResultEvent()
+        {
+            isHeroArriveStage_Bool = this.PlayerHQ.IsSpawnHero,
+            isStageChallenge_Bool = hasChallenge,
+            isStageCleard_Bool = isVictory,
+            isStageClearedButTryAgain_Bool = playerDataManager.IsStageCleared(mainIdx, subIdx),
+
+            stageChallengeData_String = ConvertToJson<Dictionary<int, int>>(playerDataManager.activeChallenges),
+            stageConstruction_String = ConvertToJson<TileDataSnapshot>(playerDataManager._TileDataHandler.GetSnapshot()),
+            stageDestinyId_Int = playerDataManager.currentDastiny.idNumber,
+            stageId_Int = stageId,
+            stageSupplyLevel_Int = playerDataManager.SupplyLevel,
+            stageTimeTaken_Float = Time.time - StartTime,
+            stageUsedArtifat_String = ArtifactManager.Instance.SaveArtifactData(ArtifactManager.Instance.EquippedArtifacts), //기존 로직 재사용
+            stageUsedUnit_String = ConvertToJson<Dictionary<PoolType, int>>(this.PlayerHQ.UnitSpawnCnt), //일단 풀타입으로 내보내고, 나중에 통계 정리할때 유닛 붙이기로 어짜피 내가 해야하니..
+        };
+
+        AnalyticsService.Instance.RecordEvent(stageResultEvent);
+        Debug.Log("<color=cyan>스테이지 통계가 기록되었습니다</color>");
+        Debug.Log($"{stageId}, {hasChallenge}, {playerDataManager.IsStageCleared(mainIdx, subIdx)}");
+    }
+
+    private string ConvertToJson<T>(T obj)
+    {
+        if (obj == null) { return null; }
+        
+        string result = JsonConvert.SerializeObject(obj, Formatting.Indented);
+
+        return result;
     }
 }
