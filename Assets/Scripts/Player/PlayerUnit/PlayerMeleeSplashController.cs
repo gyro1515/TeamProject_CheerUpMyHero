@@ -216,6 +216,9 @@ public class PlayerMeleeSplashController : BaseUnitController
         }
 
         Attack();
+        // 오디오 효과음 재생
+        AudioManager.PlayRandomOneShot(DataManager.AudioData.meleeUnitAttackSE);
+
         playerUnit.TargetUnit = null; // 다른 컨트롤러도 추가 필요@@@@
 
         animator.speed = 1f;

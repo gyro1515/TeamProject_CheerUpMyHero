@@ -59,6 +59,8 @@ public class UIArtifactInventorySlot : MonoBehaviour
 
     private void OnButtonClicked()
     {
+        // 예시
+        //AudioManager.PlayOneShot(DataManager.AudioData.artifactEquipSE, 1.0f);
         OnArtifactInventorySlotClicked?.Invoke(_data);
     }
 }

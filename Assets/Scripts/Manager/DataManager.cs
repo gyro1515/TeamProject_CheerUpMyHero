@@ -179,6 +179,10 @@ public class DataManager : SingletonMono<DataManager>
         }
     }
 
+
+    //오디오 데이터
+    AudioData audioData;  // 오디오 클립 담아둔 오디오 데이터
+    public static AudioData AudioData { get => Instance.audioData; }
     protected override void Awake()
     {
         base.Awake();
@@ -187,6 +191,8 @@ public class DataManager : SingletonMono<DataManager>
         MakeSynergyIconSpritesData();
         // 유닛 타입 아이콘 스프라이트
         MakeUnitTypeIconSpritesData();
+        // 오디오 데이터 로드
+        audioData = Resources.Load<AudioData>("Sound/SoundData");
     }
     void MakeSynergyIconSpritesData()
     {

@@ -324,6 +324,9 @@ public class MainScreenBuildingController : MonoBehaviour
 
         onGridStateChangedEventPub.Publish();
 
+        // 건설 효과음
+        AudioManager.PlayOneShot(DataManager.AudioData.buildingSE);
+
         Debug.Log($"{tile.X},{tile.Y}에 {level1Data.buildingName} 건설 완료!");
         DeselectTile();
     }
@@ -386,6 +389,9 @@ public class MainScreenBuildingController : MonoBehaviour
         // --- 저장 & 반영 ---
         PlayerDataManager.Instance._TileDataHandler.BuildingGridData[tile.X, tile.Y] = next;
         tile.SetBuilding(next);
+
+        // 효과음 출력
+        AudioManager.PlayOneShot(DataManager.AudioData.buildingSE);
 
         onGridStateChangedEventPub.Publish();
 

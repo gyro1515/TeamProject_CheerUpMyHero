@@ -24,6 +24,8 @@ public class UIDestinyEffectPopup : BasePopUpUI
         _title.text = destiny.name;
         _description.text = destiny.description;
 
+        AudioManager.PlayOneShot(DataManager.AudioData.stageModifierselectedSE);
+
         OpenUI();
     }
 }
