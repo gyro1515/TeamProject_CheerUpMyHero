@@ -15,15 +15,36 @@ public enum DebuffType
 public class BuffController : MonoBehaviour
 {
     private BaseCharacter _character;       // 스탯을 변경할 대상
-    private SpriteRenderer _spriteRenderer; // 색상을 변경할 대상
-
+    private SpriteRenderer[] _spriteRenderer; // 색상을 변경할 대상
+    List<Color> _colors = new List<Color>();
+    int colorTargetlayer;
+    Coroutine _Co_ChangeColor;
+    Coroutine _Co_ApplySlowDebuff;
+    Coroutine _Co_ApplyAttackCooldownDebuff;
+    Coroutine _Co_ApplyAttackBuff;
+    Coroutine _Co_ApplyAttackSpeedBuff;
     private void Awake()
     {
+        colorTargetlayer = LayerMask.NameToLayer("Animation");
         _character = GetComponent<BaseCharacter>();
-        _spriteRenderer = GetComponentInChildren<SpriteRenderer>();
+        _spriteRenderer = GetComponentsInChildren<SpriteRenderer>(true);
         if (_character == null) Debug.LogError($"{name}에서 BaseCharacter를 찾을 수 없습니다.");
     }
+    private void OnDisable()
+    {
+        for (int i = 0; i < _colors.Count; i++)
+        {
+            if (_spriteRenderer[i].gameObject.layer != colorTargetlayer)
+                continue;
+            _spriteRenderer[i].color = _colors[i];
+        }
 
+        if(_Co_ChangeColor != null) StopCoroutine(_Co_ChangeColor);
+        if(_Co_ApplySlowDebuff != null) StopCoroutine(_Co_ApplySlowDebuff);
+        if(_Co_ApplyAttackCooldownDebuff != null) StopCoroutine(_Co_ApplyAttackCooldownDebuff);
+        if(_Co_ApplyAttackBuff != null) StopCoroutine(_Co_ApplyAttackBuff);
+        if(_Co_ApplyAttackSpeedBuff != null) StopCoroutine(_Co_ApplyAttackSpeedBuff);
+    }
 
     public void ApplyBuff(BuffType type, float duration, float value)
     {
@@ -31,10 +52,10 @@ public class BuffController : MonoBehaviour
         switch (type)
         {
             case BuffType.AttackDamage:
-                StartCoroutine(Co_ApplyAttackBuff(duration, value));
+                _Co_ApplyAttackBuff = StartCoroutine(Co_ApplyAttackBuff(duration, value));
                 break;
             case BuffType.AttackSpeed:
-                StartCoroutine(Co_ApplyAttackSpeedBuff(duration, value));
+                _Co_ApplyAttackSpeedBuff = StartCoroutine(Co_ApplyAttackSpeedBuff(duration, value));
                 break;
         }
     }
@@ -45,10 +66,10 @@ public class BuffController : MonoBehaviour
         switch (type)
         {
             case DebuffType.MoveSpeed:
-                StartCoroutine(Co_ApplySlowDebuff(duration, value));
+                _Co_ApplySlowDebuff = StartCoroutine(Co_ApplySlowDebuff(duration, value));
                 break;
             case DebuffType.AttackCooldown:
-                StartCoroutine(Co_ApplyAttackCooldownDebuff(duration, value));
+                _Co_ApplyAttackCooldownDebuff = StartCoroutine(Co_ApplyAttackCooldownDebuff(duration, value));
                 break;
         }
     }
@@ -60,17 +81,31 @@ public class BuffController : MonoBehaviour
             Debug.LogWarning($"{name}에 SpriteRenderer가 없어 색상 변경 불가.");
             return;
         }
-        StartCoroutine(Co_ChangeColor(newColor, duration));
+        _Co_ChangeColor = StartCoroutine(Co_ChangeColor(newColor, duration));
     }
 
 
     private IEnumerator Co_ChangeColor(Color newColor, float duration)
     {
         if (_spriteRenderer == null) yield break; // 안전장치
-        Color originalColor = _spriteRenderer.color;
-        _spriteRenderer.color = newColor;
+        _colors.Clear();
+        
+        foreach(var sp in _spriteRenderer)
+        {
+            if (sp.gameObject.layer == colorTargetlayer)
+            {
+                sp.color = newColor;
+            }
+            _colors.Add(sp.color);
+        }
+        //Color originalColor = _spriteRenderer.color;
+        //_spriteRenderer.color = newColor;
         yield return new WaitForSeconds(duration);
-        if (_spriteRenderer.color == newColor) _spriteRenderer.color = originalColor;
+        for (int i = 0; i < _colors.Count; i++)
+        {
+            _spriteRenderer[i].color = _colors[i];
+        }
+        //if (_spriteRenderer.color == newColor) _spriteRenderer.color = originalColor;
     }
 
     private IEnumerator Co_ApplySlowDebuff(float duration, float slowPercent)

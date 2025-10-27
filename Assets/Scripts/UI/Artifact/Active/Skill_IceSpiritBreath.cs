@@ -15,7 +15,7 @@ public class Skill_IceSpiritBreath : ActiveSkillEffect
         float atkCooldownPercent = 15f;
         // 데이터 시트에서 가져오는 값
         float damage = (GameManager.Instance.Player.AtkPower) * levelData.damageBonusPercent / 100f; // 예시 피해량
-
+        Debug.Log(damage);
         float playerX = GameManager.Instance.Player.transform.position.x;
         List<BaseCharacter> enemies = UnitManager.Instance.EnemyUnitList;
 
@@ -24,7 +24,7 @@ public class Skill_IceSpiritBreath : ActiveSkillEffect
             if (enemy == null || enemy.IsDead) continue;
             if (enemy.transform.position.x > playerX && enemy.transform.position.x <= playerX + range)
             {
-                if (damage > 0) enemy.GetComponent<IDamageable>()?.TakeDamage(damage);
+                if (damage > 0) enemy.GetComponent<IDamageable>()?.TakeDamage(1);
 
                 var buffController = enemy.GetComponent<BuffController>();
                 if (buffController != null)

@@ -19,6 +19,7 @@ public class MainScreenBuildingController : MonoBehaviour
     [SerializeField] private AdCooldownPopup adCooldownPopup; // 팝업 UI
     [SerializeField] private DestroyConfirmPopup destroyPopup;
     [SerializeField] private DiplomacyPanel diplomacyPanel;
+    [SerializeField] private LaterUpdatePopup laterUpdatePopup;
 
     [Header("드래그 앤 드랍")]
     [SerializeField] private Image dragIcon;
@@ -211,14 +212,47 @@ public class MainScreenBuildingController : MonoBehaviour
                     upgradePanel.OpenUI();
                 }
             }
+            else if (status == TileStatus.Damaged || status == TileStatus.Repairing)
+            {
+                // '황폐화'(Damaged + 건물 없음) 또는 '수리 중'(Repairing) 상태
+
+                // 1. 남은 턴 수 가져오기
+                int turnsRemaining = PlayerDataManager.Instance._TileDataHandler.TileRepairTurnsGrid[tile.X, tile.Y];
+
+                if (turnsRemaining > 0)
+                {
+                    // 2. 팝업 메시지 생성
+                    string targetName = (currentBuilding != null) ? currentBuilding.buildingName : "타일";
+                    string message = $"해당 {targetName}은(는) {turnsRemaining}턴 뒤에 다시 활성화 됩니다.";
+
+                    // 3. 범용 정보 팝업 띄우기
+                    if (laterUpdatePopup != null)
+                    {
+                        laterUpdatePopup.Show(message);
+                    }
+                    else
+                    {
+                        Debug.LogError("CommonInfoPopup이 MainScreenBuildingController에 연결되지 않았습니다!");
+                    }
+                }
+                else
+                {
+                    Debug.LogWarning($"타일 ({tile.X},{tile.Y})의 턴이 0이지만 상태가 {status}입니다.");
+                }
+
+                // 4. 팝업을 띄웠으므로, 타일 선택은 해제합니다.
+                DeselectTile();
+            }
+            // ------------------------------------
             else
             {
-                // 황폐화, 수리 중 상태의 '일반' 타일은 상호작용 불가
-                Debug.Log($"타일 ({tile.X},{tile.Y})은(는) 현재 상호작용할 수 없습니다.");
+                // 그 외의 알 수 없는 상태
+                Debug.Log($"타일 ({tile.X},{tile.Y})은(는) 현재 상호작용할 수 없습니다. 상태: {status}");
                 DeselectTile();
             }
         }
     }
+    
     // 외교 타일 클릭 처리 함수 
     private void HandleDiplomacyTileClick(BuildingTile tile)
     {
