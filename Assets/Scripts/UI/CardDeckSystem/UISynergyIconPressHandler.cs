@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class UISynergyIconPressHandler : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
+public class UISynergyIconPressHandler : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IDragHandler, IEndDragHandler
 {
     Image icon;
     BaseUnitData data;
@@ -32,6 +32,18 @@ public class UISynergyIconPressHandler : MonoBehaviour, IPointerDownHandler, IPo
         Debug.Log($"아이콘 {icon.sprite} 땜, 유닛 데이터: {data}");
         uiSynergyIconPressedEventPub.Publish(new UISynergyIconPressedEvent(data, false, type));
     }
+    public void OnDrag(PointerEventData eventData)
+    {
+        //uiSynergyIconPressedEventPub.Publish(new UISynergyIconPressedEvent(data, false, type));
+
+    }
+    public void OnEndDrag(PointerEventData eventData)
+    {
+        uiSynergyIconPressedEventPub.Publish(new UISynergyIconPressedEvent(data, false, type));
+
+    }
+
+
 }
 #region 카드 안의 시너지 아이콘 눌림 이벤트
 public struct UISynergyIconPressedEvent

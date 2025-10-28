@@ -10,6 +10,8 @@ public class SynergyData : MonoData
     public SynergyGrade synergyGrade;
     public string effectDescription;
     public int requiredUnitCount;
+    public string synergyTypeText;
+    public string synergyGradeText;
 }
 public enum SynergyGrade
 {

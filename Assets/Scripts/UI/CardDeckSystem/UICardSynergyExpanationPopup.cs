@@ -39,11 +39,13 @@ public class UICardSynergyExpanationPopup : MonoBehaviour
     {
         if(uISynergyIconPressedEvent.isPressed)
         {
+            if (gameObject.activeSelf) return;
             SetData(uISynergyIconPressedEvent.synergyType);
             OpenUI(0.05f);
         }
         else
         {
+            if (!gameObject.activeSelf) return;
             CloseUI(0.05f);
         }
     }
@@ -64,9 +66,7 @@ public class UICardSynergyExpanationPopup : MonoBehaviour
                 sb.AppendLine($"{synergyData.effectDescription.ToString()}");
                 sb.AppendLine();
             }
-
         }
-
         explanationText.text = sb.ToString();
     }
     void OpenUI(float fadeTime)
