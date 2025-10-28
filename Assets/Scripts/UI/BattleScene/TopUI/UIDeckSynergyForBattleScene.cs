@@ -6,13 +6,12 @@ using UnityEngine.UI;
 
 public class UIDeckSynergyForBattleScene : MonoBehaviour
 {
-    [SerializeField] Transform slotContainer;
+    [SerializeField] RectTransform slotContainer;
     [SerializeField] GameObject synergyIconPrefab;
     [SerializeField] RectTransform layoutGropRT;
     [SerializeField] HorizontalLayoutGroup synergyLayoutGroup;
 
-    // 테스트
-    Button btn;
+    
 
     UnitSynergyType[] _allSynergyTypes = (UnitSynergyType[])Enum.GetValues(typeof(UnitSynergyType));
     List<GameObject> synergyIconGOList = new List<GameObject>();
@@ -91,7 +90,8 @@ public class UIDeckSynergyForBattleScene : MonoBehaviour
     };
     private void Awake()
     {
-        btn = gameObject.AddComponent<Button>();
+        // 테스트
+        /*Button btn = gameObject.AddComponent<Button>();
         btn.onClick.AddListener(() =>
         {
             int cnt = 0;
@@ -101,7 +101,7 @@ public class UIDeckSynergyForBattleScene : MonoBehaviour
                     cnt++;
             }
             UpdateSynergyUISize(cnt);
-        });
+        });*/
         foreach (SynergyIcon type in (SynergyIcon[])Enum.GetValues(typeof(SynergyIcon)))
         {
             GameObject iconGO = Instantiate(synergyIconPrefab, slotContainer);
@@ -125,11 +125,14 @@ public class UIDeckSynergyForBattleScene : MonoBehaviour
         float rectSizeY = layoutGropRT.rect.size.y;
         rectSizeX -= synergyLayoutGroup.padding.left + synergyLayoutGroup.padding.right;
         rectSizeX -= synergyLayoutGroup.spacing * (activeSynergyCount - 1);
+        rectSizeY -= synergyLayoutGroup.padding.top + synergyLayoutGroup.padding.bottom;
         float iconSize = rectSizeX / activeSynergyCount;
         iconSize = Mathf.Min(iconSize, rectSizeY); // 세로 크기보다 커지면 안됨
         for (int i = 0; i < synergyIconGOList.Count; i++)
         {
             synergyIconGOList[i].GetComponent<RectTransform>().sizeDelta = new Vector2(iconSize, iconSize);
         }
+        float sizeY = synergyLayoutGroup.padding.top + synergyLayoutGroup.padding.bottom + iconSize;
+        slotContainer.sizeDelta = new Vector2(slotContainer.sizeDelta.x, sizeY);
     }
 }
