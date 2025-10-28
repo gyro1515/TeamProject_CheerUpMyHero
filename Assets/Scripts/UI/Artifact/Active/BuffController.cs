@@ -29,13 +29,18 @@ public class BuffController : MonoBehaviour
         _character = GetComponent<BaseCharacter>();
         _spriteRenderer = GetComponentsInChildren<SpriteRenderer>(true);
         if (_character == null) Debug.LogError($"{name}에서 BaseCharacter를 찾을 수 없습니다.");
+
+        foreach (var sp in _spriteRenderer)
+        {
+            _colors.Add(sp.color);
+        }
     }
     private void OnDisable()
     {
         for (int i = 0; i < _colors.Count; i++)
         {
-            if (_spriteRenderer[i].gameObject.layer != colorTargetlayer)
-                continue;
+            if (_spriteRenderer[i].gameObject.layer != colorTargetlayer) continue;
+
             _spriteRenderer[i].color = _colors[i];
         }
 
@@ -88,7 +93,6 @@ public class BuffController : MonoBehaviour
     private IEnumerator Co_ChangeColor(Color newColor, float duration)
     {
         if (_spriteRenderer == null) yield break; // 안전장치
-        _colors.Clear();
         
         foreach(var sp in _spriteRenderer)
         {
@@ -96,12 +100,11 @@ public class BuffController : MonoBehaviour
             {
                 sp.color = newColor;
             }
-            _colors.Add(sp.color);
         }
         //Color originalColor = _spriteRenderer.color;
         //_spriteRenderer.color = newColor;
         yield return new WaitForSeconds(duration);
-        for (int i = 0; i < _colors.Count; i++)
+        for (int i = 0; i < _spriteRenderer.Length; i++)
         {
             _spriteRenderer[i].color = _colors[i];
         }
