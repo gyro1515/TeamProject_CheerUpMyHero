@@ -31,7 +31,7 @@ public class UIUnitSynergeIconArea : MonoBehaviour
         {
             if(idx == i)
             {
-                uICardSynergyIcons[i].SetSynergyIcons(unitSynergySprites);
+                uICardSynergyIcons[i].SetSynergyIcons(unitSynergySprites, data);
             }
             else
             {
