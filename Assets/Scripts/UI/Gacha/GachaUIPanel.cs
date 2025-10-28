@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Threading.Tasks;
 
-public class GachaUIPanel : BasePopUpUI 
+public class GachaUIPanel : BaseUI 
 {
     [Header("UI 참조")]
     [SerializeField] private Button backButton; 
@@ -21,10 +21,10 @@ public class GachaUIPanel : BasePopUpUI
 
     private IEventSubscriber<LimitedPityCountUpdatedEvent> _limitedPitySubscriber;
     private IEventSubscriber<StandardPityCountUpdatedEvent> _standardPitySubscriber;
+    private MainScreenUI mainScreenUI;
 
-    protected override void Awake()
+     void Awake()
     {
-        base.Awake(); 
 
         backButton?.onClick.AddListener(OnBackButtonClicked);
         pullOneButton?.onClick.AddListener(OnPullOneClicked);
@@ -38,17 +38,19 @@ public class GachaUIPanel : BasePopUpUI
             Debug.LogError("ContractPagesController가 GachaUIPanel에 연결되지 않았습니다!");
         }
     }
-
-    protected override void OnEnable()
+    private void Start()
     {
-        base.OnEnable();
+        mainScreenUI = UIManager.Instance.GetUI<MainScreenUI>();    
+    }
+    void OnEnable()
+    {
         _limitedPitySubscriber.Subscribe(HandleLimitedPityUpdate);
         _standardPitySubscriber.Subscribe(HandleStandardPityUpdate);
         UpdateInitialPityCounters();
     }
-    protected override void OnDisable()
+ void OnDisable()
     {
-        base.OnDisable();
+        
 
         _limitedPitySubscriber?.Unsubscribe(HandleLimitedPityUpdate);
         _standardPitySubscriber?.Unsubscribe(HandleStandardPityUpdate);
@@ -302,11 +304,14 @@ public class GachaUIPanel : BasePopUpUI
     }
     private void OnBackButtonClicked()
     {
-        CloseUI();
-    }
+        if (mainScreenUI != null)
+        {
+            FadeManager.Instance.SwitchGameObjects(gameObject, mainScreenUI.gameObject);
 
-    public override void OnBackPressed()
-    {
-        OnBackButtonClicked();
+        }
+        else
+        {
+            Debug.LogError("MainScreenUIObject가 GachaUIPanel에 연결되지 않았습니다!");
+        }
     }
 }

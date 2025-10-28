@@ -12,7 +12,6 @@ public class SceneLoaderMain : MonoBehaviour
                 UIManager.Instance.GetUI<MainScreenUI>();
                 UIManager.Instance.GetUI<DeckPresetController>().CloseUI();
                 UIManager.Instance.GetUI<UIDestinyRoullette>().CloseUI();
-
                 break;
             case LoadMain.DeckPresetController: // 패배 후, 덱 재배치 선택시
                 var mainUI = UIManager.Instance.GetUI<MainScreenUI>();
