@@ -180,7 +180,7 @@ public class DeckPresetController : BaseUI, IBackButtonHandler
         if (string.IsNullOrWhiteSpace(newName)) return;
 
         PlayerDataManager.Instance.DeckPresets[_currentDeckIndex].DeckName = newName;
-        PlayerDataManager.Instance.SaveDecks();
+        PlayerDataManager.Instance.SaveDataToCloudAsync();
 
         //ExitEditMode();
         editNamePanel.CloseUI();
@@ -247,7 +247,7 @@ public class DeckPresetController : BaseUI, IBackButtonHandler
     private void CompleteFormationDirect()
     {
         Debug.Log("편성 완료. 모든 덱 정보를 저장하고 전투씬으로 이동");
-        PlayerDataManager.Instance.SaveDecks();
+        PlayerDataManager.Instance.SaveDataToCloudAsync();
 
         SceneLoader.Instance.StartLoadScene(SceneState.BattleScene);
         /* if (_stageSelectUI != null)

@@ -22,5 +22,15 @@ namespace Unity.Services.CloudCode.GeneratedBindings
                 {
                 });
         }
+
+        public async Task<List<int>> DrawGachaItemTen()
+        {
+            return await k_Service.CallModuleEndpointAsync<List<int>>(
+                "Gacha",
+                "DrawGachaItemTen",
+                new Dictionary<string, object>()
+                {
+                });
+        }
     }
 }

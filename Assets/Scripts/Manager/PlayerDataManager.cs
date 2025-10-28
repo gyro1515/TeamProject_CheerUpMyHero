@@ -367,6 +367,8 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
         _TileDataHandler.BuildingGridData[x, y] = null;
         _TileDataHandler.CooldownEndTimeGrid[x, y] = DateTime.MinValue;
 
+        SaveDataToCloudAsync();
+
         Debug.Log($"({x},{y}) 위치의 {buildingData.buildingName} 파괴 완료 및 자원 환급.");
     }
 
@@ -402,11 +404,6 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
         }
     }*/
 
-    // 게임 종료나 특정 시점에 덱 정보를 저장할 때 사용합니다.
-    public void SaveDecks()
-    {
-        Debug.Log("현재 덱 구성을 파일에 저장합니다.");
-    }
 
     void CardGenerate(List<int> unlockedCardIDLists)
     {
@@ -486,7 +483,9 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
         }
 #if UNITY_EDITOR //테스트 코드
         Debug.LogWarning("[테스트] 게임 시작 시 스테이지 (1, 3) 강제 클리어 처리.");
-        List<(int main, int sub)> fakeServerResponse = new List<(int main, int sub)> { (1, 3) };
+
+        List<List<bool>> fakeServerResponse = new() { new List<bool> { true, true, true } };
+        //List<(int main, int sub)> fakeServerResponse = new List<(int main, int sub)> { (1, 3) };
 
         UpdateClearedStagesFromServer(fakeServerResponse);
 
@@ -511,7 +510,6 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
     }
 
     // 특정 자원의 수량을 변경하는 메서드
-    // 아 이거 비동기로 바꿔야 하는데 그러면 다른 것도 계속 바꿔야 하네
     public async void AddResource(ResourceType type, int amount)
     {
         Debug.Log($"<color=yellow>[PlayerData AddResource]</color> '{type}' 자원 {amount} 변경 요청 받음.");
@@ -540,7 +538,6 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
             }
 
             await BackendManager.ChangeEconomy(BackendManager.EconomyEnumToId(type), amount);
-            await SaveDataToCloudAsync();
         }
         else
         {
@@ -704,13 +701,23 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
         return clearedStages.ContainsKey((mainStage, subStage)) && clearedStages[(mainStage, subStage)];
     }
 
-    public void UpdateClearedStagesFromServer(List<(int main, int sub)> serverClearedStages) //서버에서 클리어 
+    //현재 서버에서 List<List<bool>>을 쓰고 있어서, 거기에 맞출께용
+    public void UpdateClearedStagesFromServer(List<List<bool>> serverClearedStages) //서버에서 클리어 
     {
         clearedStages.Clear(); // 일단 로컬 정보 초기화
-        foreach (var stage in serverClearedStages)
+        //foreach (var stage in serverClearedStages)
+        //{
+        //    clearedStages[stage] = true;
+        //}
+
+        for (int i = 0; i < serverClearedStages.Count; i++)
         {
-            clearedStages[stage] = true;
+            for(int j = 0; j < serverClearedStages[i].Count; j++)
+            {
+                clearedStages[(i + 1, j + 1)] = serverClearedStages[i][j];
+            }
         }
+
 
         _clearedStagesEvent?.Publish(new ClearedStagesUpdatedEvent());
         Debug.Log("ClearedStagesUpdatedEvent 발행 완료.");
@@ -794,6 +801,15 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
 
         return result;
     }
+    private List<string> SaveDeckName()
+    {
+        List<string> result = new List<string>();
+        for (int i = 1; i <= DeckPresets.Count; i++)
+        {
+            result.Add(DeckPresets[i].DeckName);
+        }
+        return result;
+    }
 
     private void ConvertIntToDeck(Dictionary<int, List<int>> loadIntDic)
     {
@@ -803,20 +819,47 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
             {
                 int id = loadIntDic[i][j];
                 if (id != -1)
+                {
+                    DeckPresets[i].UnitIds[j] = id;
                     DeckPresets[i].BaseUnitDatas[j] = DataManager.PlayerUnitData.GetData(id);
+                }
             }
 
         }
     }
 
+    private void LoadDeckName(List<string> loadedName)
+    {
+        for (int i = 0; i < loadedName.Count; i++)
+        {
+            DeckPresets[i+1].DeckName = loadedName[i];
+        }
+    }
 
-    public async UniTask SaveDataToCloudAsync()
+
+    public async void SaveDataToCloudAsync()
+    {
+        try
+        {
+            //저장 중이라는 표시를 띄울수도 있음. 근데 요즘 모바일 겜 중에 그런건 없으니..
+            await InternalSaveDataToCloudAsync();
+        }
+
+        catch(Exception e) 
+        {
+            Debug.LogException(e);
+        }
+    }
+
+
+    private async UniTask InternalSaveDataToCloudAsync()
     {
         // 1. 현재 PlayerDataManager의 상태를 스냅샷으로 생성
         var saveData = new PlayerSaveData
         {
             ClearData = SettingDataManager.Instance.SaveClearData(),
             DeckPresets = ConvertDeckToInt(), // 딕셔너리 전체 저장 //하니까 직렬화에서 에러나서 저장할땐 int로 하겠습니당
+            DeckNames = SaveDeckName(),
             ActiveDeckIndex = this.ActiveDeckIndex,
             OwnedCardData = this.OwnedCardData.Keys.ToList<int>(),
             OwnedArtifacts = ArtifactManager.Instance.SaveArtifactData(ArtifactManager.Instance.OwnedArtifacts),
@@ -860,7 +903,9 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
         try
         {
             SettingDataManager.Instance.LoadClearData(loadedData.ClearData);
+            UpdateClearedStagesFromServer(loadedData.ClearData);
             ConvertIntToDeck(loadedData.DeckPresets);
+            LoadDeckName(loadedData.DeckNames);
             this.ActiveDeckIndex = loadedData.ActiveDeckIndex;
             CardGenerate(loadedData.OwnedCardData);
             _TileDataHandler.RestoreFromSnapshot(loadedData.TileGridData);
@@ -899,6 +944,7 @@ public class PlayerSaveData
 
     // 2. 덱 데이터
     public Dictionary<int, List<int>> DeckPresets;
+    public List<string> DeckNames;
     public int ActiveDeckIndex;
 
     // 3. 영지 타일 데이터 
