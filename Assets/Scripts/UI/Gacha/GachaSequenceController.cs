@@ -1,7 +1,9 @@
+using System.Collections;
+using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
-using System.Collections.Generic;
+using UnityEngine.Video;
 
 public class GachaSequenceController : BasePopUpUI
 {
@@ -15,11 +17,16 @@ public class GachaSequenceController : BasePopUpUI
     private GachaState currentState = GachaState.Idle;
 
     [Header("UI 참조")]
-    [SerializeField] private Animator envelopeAnimator;
+    [SerializeField] private VideoPlayer envelopeVideoPlayer; // EnvelopePanel의 Video Player
+    [SerializeField] private RawImage envelopeRawImage; //  EnvelopePanel의 'Raw Image' 컴포넌트
+    [SerializeField] private GameObject envelopePanelObject; // EnvelopePanel 게임 오브젝트
     [SerializeField] private GameObject resultCardPanel;
     [SerializeField] private GameObject resultGridPanel;
     [SerializeField] private Button skipButton;
     [SerializeField] private Button envelopeButton;
+    [SerializeField] private Sprite videoTexture;
+    [SerializeField] private RenderTexture renderTexture;
+    [SerializeField] private int skipFrame = 2;
 
     [Header("단일 카드 UI")]
     [SerializeField] private Image singleResultImage;
@@ -44,47 +51,125 @@ public class GachaSequenceController : BasePopUpUI
         gridConfirmButton?.onClick.AddListener(OnGridResultConfirmed);
         skipButton?.onClick.AddListener(OnSkipClicked);
         envelopeButton?.onClick.AddListener(OnEnvelopeClicked);
+        if (envelopeVideoPlayer != null)
+        {
+            envelopeVideoPlayer.loopPointReached += OnVideoFinished;
+            envelopeVideoPlayer.prepareCompleted += OnVideoPrepared;
+        }
     }
-
+    protected virtual void OnDestroy()
+    {
+        if (envelopeVideoPlayer != null)
+        {
+            envelopeVideoPlayer.loopPointReached -= OnVideoFinished;
+            envelopeVideoPlayer.prepareCompleted -= OnVideoPrepared;
+        }
+    }
     public void StartGachaSequence(List<int> resultIds)
     {
         _currentGachaResults = resultIds;
-
+        OpenUI(); // 팝업 띄우기
         resultCardPanel.SetActive(false);
         resultGridPanel.SetActive(false);
-        envelopeAnimator.gameObject.SetActive(true);
+        envelopePanelObject.SetActive(true);
         skipButton.gameObject.SetActive(true);
 
         foreach (Transform child in gridContentParent) Destroy(child.gameObject);
 
-        envelopeAnimator.transform.SetAsLastSibling();
+        envelopePanelObject.transform.SetAsLastSibling();
         skipButton.transform.SetAsLastSibling();
 
-        Image envelopeImage = envelopeAnimator.GetComponent<Image>();
-        if (envelopeImage != null)
+        if (envelopeRawImage != null)
         {
-            Color color = envelopeImage.color;
-            color.a = 1f; 
-            envelopeImage.color = color;
+            envelopeRawImage.gameObject.SetActive(false);
         }
-        envelopeAnimator.transform.localScale = Vector3.one; // 크기를 (1, 1, 1)로 되돌림
-        OpenUI(); // 팝업 띄우기
-        envelopeButton.interactable = true; // 봉투 클릭 가능하게
+
+        envelopeButton.gameObject.SetActive(true);
+        envelopeButton.interactable = true;
+
+        if (envelopeVideoPlayer != null)
+        {
+            envelopeVideoPlayer.Stop();
+            envelopeVideoPlayer.time = 0.0; 
+        }
+
         currentState = GachaState.Envelope;
-        skipButton.gameObject.SetActive(true); // 스킵 버튼 표시
     }
 
     private void OnEnvelopeClicked()
     {
         Debug.Log("봉투 클릭됨! 애니메이션 시작...");
         envelopeButton.interactable = false;
-        envelopeAnimator.SetTrigger("Open");
+        envelopeButton.gameObject.SetActive(false);
+
+        if (envelopeRawImage != null)
+        {
+            envelopeRawImage.gameObject.SetActive(true);
+        }
+
+        if (envelopeVideoPlayer != null)
+        {
+            envelopeVideoPlayer.frame = 0;
+            envelopeVideoPlayer.Prepare(); // 동영상 재생!
+        }
+    }
+    private void OnVideoPrepared(VideoPlayer vp)
+    {
+        Debug.Log("비디오 첫 프레임 준비 완료. 클릭 가능 상태로 변경.");
+        //if (envelopeRawImage != null)
+        //{
+        //    envelopeRawImage.texture = renderTexture;
+        //}
+        vp.frame = 0;
+        Graphics.Blit(videoTexture.texture, renderTexture);
+        Graphics.Blit(videoTexture.texture, vp.targetTexture);
+        StartCoroutine(FrameCoruntine());
+        vp.Play();
+    }
+    IEnumerator FrameCoruntine()
+    {
+        //yield return new WaitForSeconds(0.03f);
+        while (true)
+        {
+            if (envelopeVideoPlayer.frame == 1)
+            {
+                Debug.Log(envelopeVideoPlayer.frame);
+                if (envelopeRawImage != null)
+                {
+                    envelopeRawImage.texture = renderTexture;
+                }
+                yield break;
+            }
+            else
+            {
+                yield return null;
+            }
+        }
+  
+    }
+    private void OnVideoFinished(VideoPlayer vp)
+    {
+        Debug.Log("동영상 재생 완료! 다음 단계로...");
+        vp.Stop();
+        vp.frame = 0;
+        if (envelopeRawImage != null)
+        {
+            envelopeRawImage.texture = videoTexture.texture;
+        }
+        OnEnvelopeAnimationFinished();
     }
 
-    // 2. 봉투 "Open" 애니메이션의 마지막 프레임 이벤트로 호출됨
     public void OnEnvelopeAnimationFinished()
     {
-        envelopeAnimator.gameObject.SetActive(false);
+
+        envelopeVideoPlayer.Stop();
+        envelopeVideoPlayer.frame = 0;
+        if (envelopeRawImage != null)
+        {
+            envelopeRawImage.texture = videoTexture.texture;
+        }
+        envelopePanelObject.SetActive(false);
+        skipButton.gameObject.SetActive(false);
 
         // --- 3. (수정) 그리드를 '미리 채우고' (Populate) ---
         PopulateResultGrid(false); // flipAll = false
