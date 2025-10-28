@@ -329,6 +329,7 @@ public class MainScreenBuildingController : MonoBehaviour
 
         Debug.Log($"{tile.X},{tile.Y}에 {level1Data.buildingName} 건설 완료!");
         DeselectTile();
+        PlayerDataManager.Instance.SaveDataToCloudAsync();
     }
 
     // ---------------- 업그레이드 ----------------
@@ -397,6 +398,8 @@ public class MainScreenBuildingController : MonoBehaviour
 
         Debug.Log($"{current.buildingName} Lv.{current.level} → Lv.{next.level} 업그레이드 완료!");
         DeselectTile();
+
+        PlayerDataManager.Instance.SaveDataToCloudAsync();
     }
 
     // ------수리------
@@ -450,6 +453,7 @@ public class MainScreenBuildingController : MonoBehaviour
         tile.UpdateStatusVisual();
         Debug.Log($"타일 ({tile.X},{tile.Y})의 수리를 시작합니다. 남은 턴: {PlayerDataManager.Instance._TileDataHandler.TileStatusGrid[tile.X, tile.Y]}");
         DeselectTile();
+        PlayerDataManager.Instance.SaveDataToCloudAsync();
     }
 
     public void InitiateDestruction(BuildingTile tile)
@@ -615,6 +619,8 @@ public class MainScreenBuildingController : MonoBehaviour
         // 드래그 상태 초기화
         _sourceDragTile = null;
         dragIcon.gameObject.SetActive(false);
+
+        PlayerDataManager.Instance.SaveDataToCloudAsync();
     }
 
 

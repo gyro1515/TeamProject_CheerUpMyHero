@@ -14,6 +14,7 @@ public class PlayerHQ : BaseHQ
     IEventPublisher<SpawnHQEvent> onSpawn;
     // 해당 유닛을 몇 번 소환했는지 체크용 // 아싸 이거 통계용으로 써야지
     Dictionary<PoolType, int> unitSpawnCnt = new Dictionary<PoolType, int>();
+    public Dictionary<PoolType, int> UnitSpawnCnt { get { return unitSpawnCnt; } }
     // 해당 유닛 타입 저장용
     Dictionary<PoolType, Rarity> uunitRarityType = new Dictionary<PoolType, Rarity>();
     // 강화 횟수 체크용
@@ -22,6 +23,7 @@ public class PlayerHQ : BaseHQ
     IEventSubscriber<HeroSpawnEvent> onHeroSpawnEventSub;
 
     bool isSpawnHero = false;
+    public bool IsSpawnHero {  get { return isSpawnHero; } }
     protected override void Awake()
     {
         base.Awake();

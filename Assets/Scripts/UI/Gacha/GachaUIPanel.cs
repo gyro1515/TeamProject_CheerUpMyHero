@@ -192,6 +192,8 @@ public class GachaUIPanel : BasePopUpUI
                 pullOneButton.interactable = false;
                 //pullTenButton.interactable = false;
             }
+
+            PlayerDataManager.Instance.SaveDataToCloudAsync();
         }
     }
 
@@ -285,6 +287,8 @@ public class GachaUIPanel : BasePopUpUI
                 //pullOneButton.interactable = false;
                 pullTenButton.interactable = false; 
             }
+
+            PlayerDataManager.Instance.SaveDataToCloudAsync();
         }
     }
 
