@@ -75,6 +75,7 @@ public class UITimer : MonoBehaviour
         //Debug.Log("용사를 스폰합니다!");
         uIHeroCinematic.OpenHeroCinematic(HeroCinematicType.CutSceneForHeroSpawn);
         heroSpawnEventPub.Publish( new HeroSpawnEvent { selectedHero = selectedHeroData });
+        AudioManager.PlayOneShot(DataManager.AudioData.heroAppearSE);   // 스폰 시 오디오 같이 재생
     }
     void UpdateTimer()
     {

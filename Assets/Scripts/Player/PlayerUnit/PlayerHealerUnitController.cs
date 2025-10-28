@@ -75,6 +75,47 @@ public class PlayerHealerUnitController : BaseUnitController
     public override void Attack()
     {
         base.Attack();
+
+        // 타격 오디오 재생 -> 나중에 효과음 생기면 넣어야 함
+        #region 타격 시 효과음 로직
+        //if (playerUnit.CognizanceRange < 2f)
+        //{
+        //    AudioManager.PlayRandomOneShot(DataManager.AudioData.meleeUnitAttackSE);
+        //}
+        //else
+        //{
+        //    if ((playerUnit.UnitData.synergyType & UnitSynergyType.Archer) != 0)
+        //        AudioManager.PlayOneShot(DataManager.AudioData.archerUnitAttackSE);
+        //    else if ((playerUnit.UnitData.synergyType & UnitSynergyType.Mage) != 0)
+        //        AudioManager.PlayOneShot(DataManager.AudioData.magicUnitAttackSE);
+        //}
+
+        //switch (playerUnit.UnitData.synergyType)
+        //{
+        //    case UnitSynergyType.None:
+        //        break;
+        //    case UnitSynergyType.Kingdom:
+        //        break;
+        //    case UnitSynergyType.Empire:
+        //        break;
+        //    case UnitSynergyType.Cleric:
+        //        break;
+        //    case UnitSynergyType.Berserker:
+        //        break;
+        //    case UnitSynergyType.Hero:
+        //        break;
+        //    case UnitSynergyType.Frost:
+        //        AudioManager.PlayOneShot(DataManager.AudioData.synergy_iceSE);
+        //        break;
+        //    case UnitSynergyType.Burn:
+        //        AudioManager.PlayOneShot(DataManager.AudioData.synergy_fireSE);
+        //        break;
+        //    case UnitSynergyType.Poison:
+        //        AudioManager.PlayOneShot(DataManager.AudioData.synergy_poisonSE);
+        //        break;
+        //}
+        #endregion
+
         playerUnit.TargetUnit?.TakeDamage(playerUnit.AtkPower);
     }
     #region Coroutines

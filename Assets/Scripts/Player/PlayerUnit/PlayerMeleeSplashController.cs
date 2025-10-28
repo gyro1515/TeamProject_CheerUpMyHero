@@ -111,6 +111,7 @@ public class PlayerMeleeSplashController : BaseUnitController
             }
         }
         hitCount = selectedUnitPQ.Count;
+
         // 우선순위 큐에 남아있는 유닛들에게 피해 적용
         while (selectedUnitPQ.Count > 0)
         {
