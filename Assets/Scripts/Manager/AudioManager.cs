@@ -3,18 +3,22 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Audio;
+using UnityEngine.SceneManagement;
 
 // 팀 컨벤션에 맞춘 싱글톤 오디오 매니저
 public class AudioManager : SingletonMono<AudioManager>
 {
     [Header("오디오 소스")]
     [SerializeField] private AudioSource bgmSource; // 배경음 재생 전용 오디오소스
-    [SerializeField] private AudioSource seSource;  // 효과음 오디오소스 
+    [SerializeField] private AudioSource sfxSource;  // 효과음 오디오소스 
 
     [Header("볼륨 크기")]
     [SerializeField] private float masterVolume = 0.2f;
     [SerializeField] private float bgmVolume = 1.0f;
-    [SerializeField] private float seVolume = 1.0f;
+    [SerializeField] private float sfxVolume = 1.0f;
+
+    [Header("BGM 페이드 효과")]
+    [SerializeField] private float bgmFadeDuration = 0.5f;
 
     protected override void Awake()
     {
@@ -24,33 +28,106 @@ public class AudioManager : SingletonMono<AudioManager>
         InitBGMSource();      // BGM AudioSource 확보
         InitSFXPool();        // SFX 풀 구성 (프리팹 없음도 안전)
 
-        PlayOneShot(DataManager.AudioData.mainBGM);
-    }
-
-    public static void PlayOneShot(AudioClip clip)
-    {
-        float volume = Instance.masterVolume * Instance.bgmVolume;
-        Instance.bgmSource.PlayOneShot(clip, volume);
-    }
-
-    public static void PlayRandomOneShot(AudioClip[] clip)
-    {
-        int randomInt = Random.Range(0, clip.Length);
-        float volume = Instance.masterVolume * Instance.bgmVolume;
-        Instance.bgmSource.PlayOneShot(clip[randomInt], volume);
-    }
-
-    private void PlayBGM(AudioClip clip)
-    {
-        if (clip == null)
+        if (sfxSource == null)
         {
-            Debug.LogWarning("브금 클립 null임");
+            sfxSource = gameObject.AddComponent<AudioSource>();
         }
 
-        bgmSource.clip = clip;
-        bgmSource.volume = masterVolume * bgmVolume;
-        bgmSource.Play();
+        SceneManager.sceneLoaded += OnSceneLoaded;
     }
+
+    protected override void OnDestroy()
+    {
+        base.OnDestroy();
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        if (System.Enum.TryParse(scene.name, out SceneState curSceneState))
+        {
+            PlayBGM(curSceneState, 0.3f);
+        }
+        else
+        {
+            Debug.LogWarning($"{scene.name} 씬 없어서 기본 브금 나옴. 씬 로드 구독 문제 있어요");
+            PlayBGM(SceneState.MainScene, 0.3f);
+        }
+    }
+
+    // ============================ 효과음 =============================
+    public static void PlayOneShot(AudioClip clip, float vol = 1.0f)
+    {
+        float volume = Instance.masterVolume * Instance.sfxVolume;
+        Instance.sfxSource.PlayOneShot(clip, vol * volume);
+    }
+
+    public static void PlayRandomOneShot(AudioClip[] clip, float vol = 1.0f)
+    {
+        int randomInt = Random.Range(0, clip.Length);
+        float volume = Instance.masterVolume * Instance.sfxVolume;
+        Instance.sfxSource.PlayOneShot(clip[randomInt], vol * volume);
+    }
+    // =================================================================
+
+    // ============================ 배경음 =============================
+    public static void PlayBGM(SceneState sceneState, float volume = 1.0f)
+    {
+        AudioClip clip = SelectBGM(sceneState, volume);
+
+        if (Instance.bgmSource.clip != clip)
+        {
+            Instance.bgmSource.clip = clip;
+            Instance.bgmSource.volume = volume * Instance.masterVolume * Instance.bgmVolume;
+            Instance.bgmSource.Play();
+        }
+    }
+
+    public static AudioClip SelectBGM(SceneState sceneState, float volume = 1.0f)
+    {
+        AudioClip clip = null;
+
+        if (sceneState == SceneState.BattleScene)
+        {
+            (int mainIdx, int subIdx) = PlayerDataManager.Instance.SelectedStageIdx; 
+            if (subIdx == 8)
+            {
+                clip = DataManager.AudioData.BossStageBGM;
+                Debug.Log($"스테이지 {mainIdx + 1}-{subIdx + 1}이라서 보스 BGM 나옴. 서브가 9면 맞는 거임. 아니면 오류)");
+            }
+            else
+            {
+                switch (mainIdx)
+                {
+                    case 0:
+                        clip = DataManager.AudioData.chapter1BGM;
+                        break;
+                    case 1:
+                        clip = DataManager.AudioData.chapter2BGM;
+                        break;
+                    case 2:
+                        clip = DataManager.AudioData.chapter3BGM;
+                        break;
+                    case 3:
+                        clip = DataManager.AudioData.chapter4BGM;
+                        break;
+                    case 4:
+                        clip = DataManager.AudioData.chapter5BGM;
+                        break;
+                    default:
+                        clip = DataManager.AudioData.mainBGM;
+                        break;
+                }
+            }
+        }
+        else
+        {
+            clip = DataManager.AudioData.mainBGM;
+        }
+
+        return clip;
+    }
+    // =================================================================
 
 
     /*protected override void Awake()
@@ -63,10 +140,7 @@ public class AudioManager : SingletonMono<AudioManager>
             bgmSource.loop = true;
         }
 
-        if ( seSource == null )
-        {
-            seSource = gameObject.AddComponent<AudioSource>();
-        }
+        
     }*/
 
     [Header("SFX Prefab")]
