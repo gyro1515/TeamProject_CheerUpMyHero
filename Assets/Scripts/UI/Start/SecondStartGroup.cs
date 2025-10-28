@@ -8,6 +8,7 @@ public class SecondStartGroup : MonoBehaviour
     [SerializeField] private Button appleLoginButton;
     [SerializeField] private Button guestLoginButton;
 
+    [SerializeField] private LoginConfirmPopup loginConfirmPopup;
     private StartUI _startUIController;
 
     /// 상위 컨트롤러(StartUI)가 호출하여 초기 설정을 합니다.
@@ -20,32 +21,30 @@ public class SecondStartGroup : MonoBehaviour
     {
         // 각 로그인 버튼에 임시 리스너 연결
         // 실제 백엔드 로그인 로직으로 교체 필요
-        googleLoginButton?.onClick.AddListener(OnLoginSuccess);
-        appleLoginButton?.onClick.AddListener(OnLoginSuccess);
-        guestLoginButton?.onClick.AddListener(OnLoginSuccess);
+        googleLoginButton?.onClick.AddListener(OnLoginClicked);
+        appleLoginButton?.onClick.AddListener(OnLoginClicked);
+        guestLoginButton?.onClick.AddListener(OnLoginClicked);
     }
-
-    /// 로그인 버튼 중 하나를 눌렀을 때 호출됩니다 (현재는 성공으로 간주).
-    private void OnLoginSuccess()
+    private void OnLoginClicked()
     {
-        Debug.Log("로그인 버튼 클릭됨 (성공으로 간주). 스토리 씬으로 이동 요청.");
+        Debug.Log("로그인 버튼 클릭됨. '추후 업데이트' 팝업 표시.");
 
-        // 상위 컨트롤러(StartUI)에게 다음 단계(스토리 패널)로 넘어가라고 알림
-        if (_startUIController != null)
+        if (loginConfirmPopup != null)
         {
-            _startUIController.OnLoginSuccess();
+            loginConfirmPopup.Show("추후 업데이트 예정된 내용입니다.");
         }
         else
         {
-            Debug.LogError("StartUI 컨트롤러가 연결되지 않았습니다!");
+            Debug.LogError("LoginConfirmPopup이 SecondStartGroup에 연결되지 않았습니다!");
+            _startUIController?.OnLoginSuccess();
         }
     }
 
     // OnDestroy에서 리스너 제거 (안전 코드)
     private void OnDestroy()
     {
-        googleLoginButton?.onClick.RemoveListener(OnLoginSuccess);
-        appleLoginButton?.onClick.RemoveListener(OnLoginSuccess);
-        guestLoginButton?.onClick.RemoveListener(OnLoginSuccess);
+        googleLoginButton?.onClick.RemoveListener(OnLoginClicked);
+        appleLoginButton?.onClick.RemoveListener(OnLoginClicked);
+        guestLoginButton?.onClick.RemoveListener(OnLoginClicked);
     }
 }
