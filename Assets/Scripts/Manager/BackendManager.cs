@@ -465,6 +465,18 @@ public class BackendManager : SingletonMono<BackendManager>
         return await Instance.EnqueueRequestAsync(() => Instance.InternalOneNormalGachaAsync());
     }
 
+    public static async UniTask<List<int>> TenNormalGachaAsync()
+    {
+        if (!await CanCommunicateAsync(nameof(TenNormalGachaAsync)))
+        {
+            Debug.LogError("서버 연결 불가");
+
+            return null;
+        }
+
+        return await Instance.EnqueueRequestAsync(() => Instance.InternalTenNormalGachaAsync());
+    }
+
 
     //현재 플레이어 데이터매니저를 통하는데, 리팩토링 예정
     //받는쪽에서 널이면 팝업 띄워야함
@@ -623,6 +635,24 @@ public class BackendManager : SingletonMono<BackendManager>
             Debug.LogException(exception);
             //실패시 -1 반환
             return -1;
+        }
+    }
+
+    private async UniTask<List<int>> InternalTenNormalGachaAsync()
+    {
+        try
+        {
+            //클라우드에서 가챠 실행
+            var module = new GachaModuleBindings(CloudCodeService.Instance);
+            var result = await module.DrawGachaItemTen();
+
+            return result;
+        }
+        catch (CloudCodeException exception)
+        {
+            Debug.LogException(exception);
+            //실패시 -1 반환
+            return null;
         }
     }
 

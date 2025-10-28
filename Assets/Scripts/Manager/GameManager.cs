@@ -34,6 +34,9 @@ public class GameManager : SingletonMono<GameManager>
 
     bool isStageAndDestinySelected = false;
     public static bool IsStageAndDestinySelected { get => Instance.isStageAndDestinySelected; set => Instance.isStageAndDestinySelected = value; }
+
+    bool isClearedButTryAgain = false;
+
     protected override void Awake()
     {
         base.Awake();
@@ -111,6 +114,12 @@ public class GameManager : SingletonMono<GameManager>
         IsBattleStarted = true;
 
         StartTime = Time.time;
+
+        //배틀 시작때 이미 클리어한 스테이지인지 확인
+        (int mainIdx, int subIdx) = PlayerDataManager.Instance.SelectedStageIdx;
+        isClearedButTryAgain = PlayerDataManager.Instance.IsStageCleared(mainIdx +1, subIdx + 1);
+        Debug.Log($"{mainIdx}, {subIdx}");
+        Debug.Log($"<color=green> 이미 클리어한 스테이지 입니까?{isClearedButTryAgain}</color>");
 
         Debug.Log($"Battle Started! MaxFood: {PlayerDataManager.Instance.MaxFood}, CurrentFood: {PlayerDataManager.Instance.CurrentFood}");    
     }
@@ -251,6 +260,8 @@ public class GameManager : SingletonMono<GameManager>
             // 결과창 UI 열기 (차감된 값이므로 음수로 전달)
             RewardPanelUI?.OpenUI(-penalties.gold, -penalties.wood, -penalties.iron, -penalties.magicStone, false);
         }
+
+        PlayerDataManager.Instance.SaveDataToCloudAsync();
     }
     public void ClearStage()
     {
@@ -312,7 +323,7 @@ public class GameManager : SingletonMono<GameManager>
             isHeroArriveStage_Bool = this.PlayerHQ.IsSpawnHero,
             isStageChallenge_Bool = hasChallenge,
             isStageCleard_Bool = isVictory,
-            isStageClearedButTryAgain_Bool = playerDataManager.IsStageCleared(mainIdx, subIdx),
+            isStageClearedButTryAgain_Bool = isClearedButTryAgain,
 
             stageChallengeData_String = ConvertToJson<Dictionary<int, int>>(playerDataManager.activeChallenges),
             stageConstruction_String = ConvertToJson<TileDataSnapshot>(playerDataManager._TileDataHandler.GetSnapshot()),
@@ -326,7 +337,7 @@ public class GameManager : SingletonMono<GameManager>
 
         AnalyticsService.Instance.RecordEvent(stageResultEvent);
         Debug.Log("<color=cyan>스테이지 통계가 기록되었습니다</color>");
-        Debug.Log($"{stageId}, {hasChallenge}, {playerDataManager.IsStageCleared(mainIdx, subIdx)}");
+        Debug.Log($"{stageId}, {hasChallenge}, {isClearedButTryAgain}");
     }
 
     private string ConvertToJson<T>(T obj)
