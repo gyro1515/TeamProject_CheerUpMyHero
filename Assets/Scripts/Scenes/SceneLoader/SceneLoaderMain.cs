@@ -29,6 +29,7 @@ public class SceneLoaderMain : MonoBehaviour
                 GameManager.Instance.LoadMain = LoadMain.None;
                 break;
         }
+        UIManager.Instance.GetUI<GachaUIPanel>().CloseUI();
         UIManager.Instance.GetUI<UISelectActiveArtifact>().CloseUI();
         UIManager.Instance.GetUI<UIStageSelect>().CloseUI();
         //UIManager.Instance.GetUI<UISelectCard>().CloseUI();
