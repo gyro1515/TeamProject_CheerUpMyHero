@@ -16,6 +16,7 @@ public class UIUnitCardSelect : BasePopUpUI
     [SerializeField] Button emptySpaceButton;
 
     [SerializeField] TMP_Text desckNumText;
+    [SerializeField] UICardSynergyExpanationPopup uiCardSynergyExpanationPopup;
     private CardFilter cardFilter;
 
     private int deckSlotNum;
@@ -25,6 +26,7 @@ public class UIUnitCardSelect : BasePopUpUI
         base.Awake();
         cardFilter = GetComponent<CardFilter>();
         infiniteScroll.InitRef(cardFilter);
+        uiCardSynergyExpanationPopup.Init();
     }
 
 

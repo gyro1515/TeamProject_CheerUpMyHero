@@ -17,13 +17,47 @@ public class UISynegyToolTipPanel : BasePopUpUI
         base.Awake();
         GetComponent<Image>().color = new Color(1, 1, 1, 0);
         GetComponent<Button>().onClick.AddListener(CloseParentPopup);
+
     }
     public void OnSynergyClicked(UnitSynergyType synergyType, int currentCount)
     //public void OnSynergyClicked(UnitSynergyType synergyType, SynergyGrade currentCount)
     {
-        // TODO: 시너지 효과 설명 데이터 테이블 만들어서 불러오기
-
+        SynergyData synergyData = DataManager.SynergyEffectData.GetData((int)synergyType * 1000 + currentCount);
         // 아래는 테스트
+        string synergyTypeText = "";
+        switch (synergyType)
+        {
+            case UnitSynergyType.Kingdom:
+                synergyTypeText = "왕국";
+                break;
+            case UnitSynergyType.Empire:
+                synergyTypeText = "황국";
+                break;
+            case UnitSynergyType.Mage:
+                synergyTypeText = "마법사";
+                break;
+            case UnitSynergyType.Cleric:
+                synergyTypeText = "성직자";
+                break;
+            case UnitSynergyType.Berserker:
+                synergyTypeText = "버서커";
+                break;
+            case UnitSynergyType.Archer:
+                synergyTypeText = "궁수";
+                break;
+            case UnitSynergyType.Hero:
+                synergyTypeText = "영웅";
+                break;
+            case UnitSynergyType.Frost:
+                synergyTypeText = "냉기";
+                break;
+            case UnitSynergyType.Burn:
+                synergyTypeText = "화상";
+                break;
+            case UnitSynergyType.Poison:
+                synergyTypeText = "중독";
+                break;
+        }
         string effectText = "";
         switch (currentCount)
         {
@@ -38,7 +72,7 @@ public class UISynegyToolTipPanel : BasePopUpUI
                 break;
 
         }
-        synergyToolTipText.text = $"{synergyType} {effectText} 시너지 효과";
+        synergyToolTipText.text = $"{synergyTypeText} {effectText} 시너지 효과";
         synergyToolTipDescriptionText.text = DataManager.SynergyEffectData.GetData((int)synergyType * 1000 + currentCount).effectDescription;
         if (gameObject.activeSelf) return;
         OpenUI(0.1f);
