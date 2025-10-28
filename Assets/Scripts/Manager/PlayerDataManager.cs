@@ -99,6 +99,10 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
     private IEventPublisher<LimitedPityCountUpdatedEvent> _limitedPityPublisher;
     private IEventPublisher<StandardPityCountUpdatedEvent> _standardPityPublisher;
 
+    // 적용된 덱 유닛 시너지
+    Dictionary<UnitSynergyType, SynergyGrade> appliedDeckUnitSynergies = new Dictionary<UnitSynergyType, SynergyGrade>();
+    public static Dictionary<UnitSynergyType, SynergyGrade> AppliedDeckUnitSynergies { get => Instance.appliedDeckUnitSynergies; }
+
     // 
     protected override void Awake()
     {

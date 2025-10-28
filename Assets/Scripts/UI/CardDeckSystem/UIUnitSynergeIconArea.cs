@@ -6,7 +6,7 @@ public class UIUnitSynergeIconArea : MonoBehaviour
 {
     [SerializeField] List<UICardSynergyIcon> uICardSynergyIcons = new List<UICardSynergyIcon>();
     // 아이콘 저장 
-    Dictionary<UnitSynergyType, Sprite> synergyIconSprites;
+    Dictionary<(UnitSynergyType, SynergyGrade), Sprite> synergyIconSprites;
     // 힙 할당 줄이기위한 자료구조
     // enum 배열
     UnitSynergyType[] _allSynergyTypes = (UnitSynergyType[])Enum.GetValues(typeof(UnitSynergyType));
@@ -24,7 +24,7 @@ public class UIUnitSynergeIconArea : MonoBehaviour
         foreach (UnitSynergyType type in _allSynergyTypes)
         {
             if ((synergyType & type) != 0)
-                unitSynergySprites.Add((synergyIconSprites[type], type));
+                unitSynergySprites.Add((synergyIconSprites[(type, SynergyGrade.Gold)], type));
         }
         int idx = unitSynergySprites.Count - 1;
         for(int i = 0; i < uICardSynergyIcons.Count; i++)
