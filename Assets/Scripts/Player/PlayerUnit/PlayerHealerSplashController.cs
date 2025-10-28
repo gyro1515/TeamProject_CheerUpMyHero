@@ -135,6 +135,46 @@ public class PlayerHealerSplashController : BaseUnitController
             }
         }
         hitCount = selectedUnitPQ.Count;
+
+        #region 타격 시 효과음 로직
+        if (playerUnit.CognizanceRange < 2f)
+        {
+            AudioManager.PlayRandomOneShot(DataManager.AudioData.meleeUnitAttackSE);
+        }
+        else
+        {
+            if ((playerUnit.UnitData.synergyType & UnitSynergyType.Archer) != 0)
+                AudioManager.PlayOneShot(DataManager.AudioData.archerUnitAttackSE);
+            else if ((playerUnit.UnitData.synergyType & UnitSynergyType.Mage) != 0)
+                AudioManager.PlayOneShot(DataManager.AudioData.magicUnitAttackSE);
+        }
+
+        switch (playerUnit.UnitData.synergyType)
+        {
+            case UnitSynergyType.None:
+                break;
+            case UnitSynergyType.Kingdom:
+                break;
+            case UnitSynergyType.Empire:
+                break;
+            case UnitSynergyType.Cleric:
+                break;
+            case UnitSynergyType.Berserker:
+                break;
+            case UnitSynergyType.Hero:
+                break;
+            case UnitSynergyType.Frost:
+                AudioManager.PlayOneShot(DataManager.AudioData.synergy_iceSE);
+                break;
+            case UnitSynergyType.Burn:
+                AudioManager.PlayOneShot(DataManager.AudioData.synergy_fireSE);
+                break;
+            case UnitSynergyType.Poison:
+                AudioManager.PlayOneShot(DataManager.AudioData.synergy_poisonSE);
+                break;
+        }
+        #endregion
+
         // 우선순위 큐에 남아있는 유닛들에게 피해 적용
         while (selectedUnitPQ.Count > 0)
         {
