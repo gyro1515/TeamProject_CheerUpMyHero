@@ -49,7 +49,7 @@ public class PlayerUnitController : BaseUnitController
     {
         base.Attack();
 
-        if (playerUnit.AttackRange < 2f)
+        if (playerUnit.CognizanceRange < 2f)
         {
             AudioManager.PlayRandomOneShot(DataManager.AudioData.meleeUnitAttackSE);
         }
@@ -59,6 +59,8 @@ public class PlayerUnitController : BaseUnitController
                 AudioManager.PlayOneShot(DataManager.AudioData.archerUnitAttackSE);
             else if ((playerUnit.UnitData.synergyType & UnitSynergyType.Mage) != 0)
                 AudioManager.PlayOneShot(DataManager.AudioData.magicUnitAttackSE);
+            else
+                AudioManager.PlayOneShot(DataManager.AudioData.archerUnitAttackSE);
         }
 
         switch (playerUnit.UnitData.synergyType)
