@@ -6,9 +6,19 @@ using UnityEngine.UI;
 public class UICardSynergyIcon : MonoBehaviour
 {
     [SerializeField] List<Image> synergyIcons = new List<Image>();
-    [SerializeField] List<Button> synergyIconButtons = new List<Button>();
 
-    public void SetSynergyIcons(List<Sprite> icons, BaseUnitData data)
+    List<UISynergyIconPressHandler> uISynergyIconPressHandlers = new List<UISynergyIconPressHandler>();
+    private void Awake()
+    {
+        for (int i = 0; i < synergyIcons.Count; i++)
+        {
+            synergyIcons[i].alphaHitTestMinimumThreshold = 0.1f; // 알파 테스트 설정
+            UISynergyIconPressHandler uISynergyIconPressHandler = synergyIcons[i].gameObject.AddComponent<UISynergyIconPressHandler>();
+            uISynergyIconPressHandler.Init();
+            uISynergyIconPressHandlers.Add(uISynergyIconPressHandler);
+        }
+    }
+    public void SetSynergyIcons(List<(Sprite, UnitSynergyType)> icons, BaseUnitData data)
     {
         gameObject.SetActive(true);
         // 아이콘 설정
@@ -16,13 +26,9 @@ public class UICardSynergyIcon : MonoBehaviour
         {
             if (i < icons.Count) // 아이콘이 있으면 설정
             {
-                synergyIcons[i].sprite = icons[i];
+                //synergyIcons[i].sprite = icons[i];
+                uISynergyIconPressHandlers[i].SetData(icons[i].Item1, icons[i].Item2, data);
             }
-        }
-        for(int i = 0; i < synergyIconButtons.Count; i++)
-        {
-            Sprite tmpSprite = icons[i]; // 클로저 문제 해결용 임시 변수
-            synergyIconButtons[i].onClick.AddListener(() => { Debug.Log($"{tmpSprite} 눌림"); });
         }
     }
 }

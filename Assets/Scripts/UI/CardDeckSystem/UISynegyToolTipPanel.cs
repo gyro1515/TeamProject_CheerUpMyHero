@@ -17,6 +17,7 @@ public class UISynegyToolTipPanel : BasePopUpUI
         base.Awake();
         GetComponent<Image>().color = new Color(1, 1, 1, 0);
         GetComponent<Button>().onClick.AddListener(CloseParentPopup);
+
     }
     public void OnSynergyClicked(UnitSynergyType synergyType, int currentCount)
     //public void OnSynergyClicked(UnitSynergyType synergyType, SynergyGrade currentCount)
