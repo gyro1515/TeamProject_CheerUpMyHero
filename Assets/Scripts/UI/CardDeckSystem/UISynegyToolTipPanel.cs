@@ -11,7 +11,12 @@ public class UISynegyToolTipPanel : BasePopUpUI
 {
     [SerializeField] TextMeshProUGUI synergyToolTipText;
     [SerializeField] TextMeshProUGUI synergyToolTipDescriptionText;
-
+    Dictionary<SynergyGrade, string> colorBySynergyGrade = new Dictionary<SynergyGrade, string>()
+    {
+        { SynergyGrade.Bronze, "<color=#754A2D>" },
+        { SynergyGrade.Gold, "<color=#E4FF00>" },
+        { SynergyGrade.Prism, "<color=#C4F7F7>" }
+    };
     protected override void Awake()
     {
         base.Awake();
@@ -24,55 +29,8 @@ public class UISynegyToolTipPanel : BasePopUpUI
     {
         SynergyData synergyData = DataManager.SynergyEffectData.GetData((int)synergyType * 1000 + currentCount);
         // 아래는 테스트
-        string synergyTypeText = "";
-        switch (synergyType)
-        {
-            case UnitSynergyType.Kingdom:
-                synergyTypeText = "왕국";
-                break;
-            case UnitSynergyType.Empire:
-                synergyTypeText = "황국";
-                break;
-            case UnitSynergyType.Mage:
-                synergyTypeText = "마법사";
-                break;
-            case UnitSynergyType.Cleric:
-                synergyTypeText = "성직자";
-                break;
-            case UnitSynergyType.Berserker:
-                synergyTypeText = "버서커";
-                break;
-            case UnitSynergyType.Archer:
-                synergyTypeText = "궁수";
-                break;
-            case UnitSynergyType.Hero:
-                synergyTypeText = "영웅";
-                break;
-            case UnitSynergyType.Frost:
-                synergyTypeText = "냉기";
-                break;
-            case UnitSynergyType.Burn:
-                synergyTypeText = "화상";
-                break;
-            case UnitSynergyType.Poison:
-                synergyTypeText = "중독";
-                break;
-        }
-        string effectText = "";
-        switch (currentCount)
-        {
-            case 0:
-                effectText = "브론즈";
-                break;
-            case 1:
-                effectText = "골드";
-                break;
-            case 2:
-                effectText = "프리즘";
-                break;
-
-        }
-        synergyToolTipText.text = $"{synergyTypeText} {effectText} 시너지 효과";
+        
+        synergyToolTipText.text = $"{synergyData.synergyTypeText} {colorBySynergyGrade[(SynergyGrade)currentCount]}{synergyData.synergyGradeText}</color> 시너지 효과";
         synergyToolTipDescriptionText.text = DataManager.SynergyEffectData.GetData((int)synergyType * 1000 + currentCount).effectDescription;
         if (gameObject.activeSelf) return;
         OpenUI(0.1f);

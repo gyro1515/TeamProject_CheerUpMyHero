@@ -51,14 +51,15 @@ public class UICardSynergyExpanationPopup : MonoBehaviour
     }
     void SetData(UnitSynergyType synergyType)
     {
-        titleText.text = $"{synergyType.ToString()}";
+        SynergyData synergyData = DataManager.SynergyEffectData.GetData((int)synergyType * 1000);
+        titleText.text = $"{synergyData.synergyTypeText} 시너지";
         sb.Clear();
         for(int i = 0; i < synergyGrades.Length; i++)
         {
-            SynergyData synergyData = DataManager.SynergyEffectData.GetData((int)synergyType * 1000 + (int)synergyGrades[i]);
+            synergyData = DataManager.SynergyEffectData.GetData((int)synergyType * 1000 + (int)synergyGrades[i]);
             if(synergyData == null) continue;
 
-            sb.AppendLine($"{colorBySynergyGrade[synergyGrades[i]]}{synergyData.synergyGrade.ToString()}({synergyData.requiredUnitCount})</color>");
+            sb.AppendLine($"{colorBySynergyGrade[synergyGrades[i]]}{synergyData.synergyGradeText}({synergyData.requiredUnitCount})</color>");
             if(i == synergyGrades.Length - 1)
                 sb.Append($"{synergyData.effectDescription.ToString()}");
             else
