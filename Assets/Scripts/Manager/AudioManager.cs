@@ -14,7 +14,7 @@ public class AudioManager : SingletonMono<AudioManager>
     [Header("볼륨 크기")]
     [SerializeField] private float masterVolume = 0.2f;
     [SerializeField] private float bgmVolume = 1.0f;
-    [SerializeField] private float seVolume = 1.0f;
+    [SerializeField] private float sfxVolume = 1.0f;
 
     protected override void Awake()
     {
@@ -27,17 +27,17 @@ public class AudioManager : SingletonMono<AudioManager>
         PlayOneShot(DataManager.AudioData.mainBGM);
     }
 
-    public static void PlayOneShot(AudioClip clip)
+    public static void PlayOneShot(AudioClip clip, float vol = 1.0f)
     {
-        float volume = Instance.masterVolume * Instance.bgmVolume;
-        Instance.bgmSource.PlayOneShot(clip, volume);
+        float volume = Instance.masterVolume * Instance.sfxVolume;
+        Instance.bgmSource.PlayOneShot(clip, vol * volume);
     }
 
-    public static void PlayRandomOneShot(AudioClip[] clip)
+    public static void PlayRandomOneShot(AudioClip[] clip, float vol = 1.0f)
     {
         int randomInt = Random.Range(0, clip.Length);
-        float volume = Instance.masterVolume * Instance.bgmVolume;
-        Instance.bgmSource.PlayOneShot(clip[randomInt], volume);
+        float volume = Instance.masterVolume * Instance.sfxVolume;
+        Instance.bgmSource.PlayOneShot(clip[randomInt], vol * volume);
     }
 
     private void PlayBGM(AudioClip clip)
