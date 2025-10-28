@@ -171,19 +171,19 @@ public class GachaSequenceController : BasePopUpUI
         envelopePanelObject.SetActive(false);
         skipButton.gameObject.SetActive(false);
 
-        // --- 3. (수정) 그리드를 '미리 채우고' (Populate) ---
-        PopulateResultGrid(false); // flipAll = false
+        int highestEpicId = FindHighestEpicOrFirstEpic(_currentGachaResults);
 
-        int firstEpicIndex = FindFirstEpicIndex(_currentGachaResults);
+        // 그리드를 '미리' 채웁니다. (이때 에픽들은 모두 미리 뒤집어 놓을 수 있음)
+        PopulateResultGrid(false, highestEpicId); // flipAll = false
 
-        if (firstEpicIndex != -1) // 에픽이 있다 (1-2-3-4 순서)
+        if (highestEpicId != -1) // 에픽이 하나라도 있다! (1-2-3-4 순서)
         {
-            // 3번 (단일 에픽 카드) 먼저 표시
-            ShowSingleResultCard(_currentGachaResults[firstEpicIndex], true);
+            // 3번 (단일 에픽 카드)을 '가장 높은 등급의' 에픽으로 먼저 표시
+            ShowSingleResultCard(highestEpicId, true);
             currentState = GachaState.CardReveal;
             skipButton.gameObject.SetActive(false);
         }
-        else // 에픽이 없다 (1-2-4-3 순서)
+        else // 에픽이 없다! (1-2-4-3 순서)
         {
             resultGridPanel.SetActive(true);
             currentState = GachaState.Grid;
@@ -192,19 +192,23 @@ public class GachaSequenceController : BasePopUpUI
         }
     }
 
-    private void PopulateResultGrid(bool flipAll = false)
+    private void PopulateResultGrid(bool flipAll = false, int epicToPreReveal = -1)
     {
 
-        int firstEpicIndex = FindFirstEpicIndex(_currentGachaResults);
+        foreach (Transform child in gridContentParent) Destroy(child.gameObject);
 
         for (int i = 0; i < _currentGachaResults.Count; i++)
         {
+            int currentId = _currentGachaResults[i];
             GameObject iconGO = Instantiate(resultIconPrefab, gridContentParent);
             var iconScript = iconGO.GetComponent<GachaResultIcon>();
 
-            bool showFlipped = (i == firstEpicIndex) || flipAll;
-            iconScript.Setup(_currentGachaResults[i], this, showFlipped);
+
+            bool showFlipped = flipAll || (epicToPreReveal != -1 && currentId == epicToPreReveal);
+
+            iconScript.Setup(currentId, this, showFlipped);
         }
+
         CheckIfAllCardsFlipped();
     }
 
@@ -265,7 +269,6 @@ public class GachaSequenceController : BasePopUpUI
         resultGridPanel.SetActive(true); // 4번 (그리드)로 복귀
         currentState = GachaState.Grid;
         skipButton.gameObject.SetActive(true); // "모두 뒤집기" 버튼 다시 표시
-        _lastClickedIcon?.Flip(false);
         _lastClickedIcon = null; // 클릭했던 아이콘 정보 리셋
         CheckIfAllCardsFlipped();
     }
@@ -297,7 +300,14 @@ public class GachaSequenceController : BasePopUpUI
         }
     }
 
-
+    private int FindHighestEpicOrFirstEpic(List<int> results)
+    {
+        foreach (int id in results)
+        {
+            if (IsResultEpic(id)) return id;
+        }
+        return -1; // 에픽 없음
+    }
     // --- 헬퍼 함수 (데이터 접근 수정) ---
     private void FlipAllRemainingCards()
     {
@@ -340,14 +350,6 @@ public class GachaSequenceController : BasePopUpUI
         gridConfirmButton.gameObject.SetActive(true); // 확인 버튼 보이기
         skipButton.gameObject.SetActive(false); // 스킵 버튼은 숨기기
     }
-    private int FindFirstEpicIndex(List<int> results)
-    {
-        for (int i = 0; i < results.Count; i++)
-        {
-            if (IsResultEpic(results[i])) return i;
-        }
-        return -1;
-    }
 
     private bool IsResultEpic(int id)
     {
@@ -355,16 +357,5 @@ public class GachaSequenceController : BasePopUpUI
         var unitData = DataManager.PlayerUnitData.GetData(id);
         if (unitData == null) return false;
         return unitData.rarity == Rarity.epic; 
-    }
-
-    private Color GetColorForRarity(Rarity rarity)
-    {
-        switch (rarity)
-        {
-            case Rarity.epic: return Color.yellow;
-            case Rarity.rare: return Color.magenta;
-            case Rarity.common: return Color.blue;
-            default: return Color.white;
-        }
     }
 }
