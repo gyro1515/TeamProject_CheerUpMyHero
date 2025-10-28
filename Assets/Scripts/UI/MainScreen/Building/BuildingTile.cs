@@ -21,6 +21,9 @@ public class BuildingTile : MonoBehaviour, IBeginDragHandler, IDragHandler, IEnd
     [SerializeField] private Image cooldownOverlay;
     [SerializeField] private TextMeshProUGUI cooldownTimerText;
 
+    [Header("상태 UI")]
+    [SerializeField] private TextMeshProUGUI repairTurnText; 
+
     [Header("타일 이미지 설정")]
     [SerializeField] private Image tileImage; // 타일 이미지를 표시할 Image 컴포넌트
     [SerializeField] public Sprite emptyTileSprite; // 건물이 없을 때 표시할 기본 빈 타일 이미지
@@ -46,6 +49,10 @@ public class BuildingTile : MonoBehaviour, IBeginDragHandler, IDragHandler, IEnd
         tileImage.sprite = emptyTileSprite;
         tileImage.color = Color.white;
         if (tileButton != null) tileButton.interactable = true; // 기본적으로 클릭 가능
+        if (repairTurnText != null)
+        {
+            repairTurnText.gameObject.SetActive(false);
+        }
 
         // 특수 타일 기본 설정 (오른쪽과 아래쪽 라인)
         if (x == 4 || y == 4)
@@ -175,19 +182,28 @@ public class BuildingTile : MonoBehaviour, IBeginDragHandler, IDragHandler, IEnd
         if (MyTileType == TileType.Special) return;
 
         TileStatus status = PlayerDataManager.Instance._TileDataHandler.TileStatusGrid[X, Y];
+        int turnsRemaining = PlayerDataManager.Instance._TileDataHandler.TileRepairTurnsGrid[X, Y];
         const int totalTurns = 3;
 
         switch (status)
         {
             case TileStatus.Damaged:
             case TileStatus.Repairing:
-                int turnsRemaining = PlayerDataManager.Instance._TileDataHandler.TileRepairTurnsGrid[X, Y];
+                if (repairTurnText != null)
+                {
+                    repairTurnText.gameObject.SetActive(true);
+                    repairTurnText.text = $"{turnsRemaining}T"; // "3T", "2T", "1T"
+                }
                 float progress = 1.0f - ((float)turnsRemaining / totalTurns);
                 Color startColor = (status == TileStatus.Damaged) ? Color.red : Color.cyan;
                 tileImage.color = Color.Lerp(startColor, Color.white, progress);
                 break;
 
             case TileStatus.Normal:
+                if (repairTurnText != null)
+                {
+                    repairTurnText.gameObject.SetActive(false);
+                }
                 tileImage.color = Color.white;
                 break;
         }
@@ -202,6 +218,10 @@ public class BuildingTile : MonoBehaviour, IBeginDragHandler, IDragHandler, IEnd
 
         if (cooldownOverlay != null) cooldownOverlay.gameObject.SetActive(isCoolingDown);
         if (cooldownTimerText != null) cooldownTimerText.gameObject.SetActive(isCoolingDown);
+        if (isCoolingDown && repairTurnText != null)
+        {
+            repairTurnText.gameObject.SetActive(false);
+        }
     }
 
     public void UpdateTimerText(TimeSpan remainingTime)

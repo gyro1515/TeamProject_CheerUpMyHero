@@ -177,7 +177,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3227254772871408926}
-  m_Layer: 9
+  m_Layer: 0
   m_Name: Shadow
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4075,6 +4075,7 @@ GameObject:
   - component: {fileID: -7307097619041437047}
   - component: {fileID: -227179290429603040}
   - component: {fileID: -3339563003366436255}
+  - component: {fileID: 2834384718491603987}
   m_Layer: 7
   m_Name: EnemyUnit12
   m_TagString: Untagged
@@ -4115,11 +4116,11 @@ MonoBehaviour:
   <MaxHp>k__BackingField: 2500
   <AtkPower>k__BackingField: 350
   <MoveSpeed>k__BackingField: 2
+  <AttackRate>k__BackingField: 4.4
   <HpBarPosByCharacter>k__BackingField: {x: 0, y: 2.3, z: 0}
   <HpBarSize>k__BackingField: {x: 0, y: 0}
   curHp: 0
   <ListIndex>k__BackingField: -1
-  <AttackRate>k__BackingField: 4.4
   <AttackRange>k__BackingField: 0
   <CognizanceRange>k__BackingField: 1.2
   <FoodConsumption>k__BackingField: 0
@@ -4149,6 +4150,9 @@ MonoBehaviour:
     cost: 0
     description: "\uC124\uBA85 \uCD94\uAC00\uD574\uC57C \uD569\uB2C8\uB2E4!!"
     unitClass: 0
+    unitBGSprite: {fileID: 0}
+    unitIconSprite: {fileID: 0}
+    gachaHeroSprite: {fileID: 0}
   <UnitType>k__BackingField: 1
   <UnitRarity>k__BackingField: 0
 --- !u!114 &3663210988550714101
@@ -4242,6 +4246,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e66f8437f03a6ba48b2d1352efd14383, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &2834384718491603987
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6903239234365258212}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 48b1979a6f7b8264e9ba9849a17ce89f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &6925808733156430976
@@ -4800,7 +4816,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1286961192931310746}
   - component: {fileID: 3162509408799480907}
-  m_Layer: 9
+  m_Layer: 0
   m_Name: Shadow
   m_TagString: Untagged
   m_Icon: {fileID: 0}

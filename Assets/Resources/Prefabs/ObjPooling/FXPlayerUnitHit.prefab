@@ -1,0 +1,129 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &3018020703485621660
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5763108703328259080}
+  - component: {fileID: 8017502164086968284}
+  - component: {fileID: -380342749570055488}
+  m_Layer: 0
+  m_Name: FXPlayerUnitHit
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5763108703328259080
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3018020703485621660}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 2939464323470058841}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!210 &8017502164086968284
+SortingGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3018020703485621660}
+  m_Enabled: 1
+  m_SortingLayerID: -1872785325
+  m_SortingLayer: 1
+  m_SortingOrder: 3
+  m_SortAtRoot: 1
+--- !u!114 &-380342749570055488
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3018020703485621660}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e3ac67d8488d7a245b7479c30732ab53, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  duration: 1.5
+  _particleSystem: {fileID: 2939464323470058855}
+--- !u!1001 &2235693353720752847
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 5763108703328259080}
+    m_Modifications:
+    - target: {fileID: 4021103657954561942, guid: 5c755f9bc5253ea418e919994537dcc7, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4021103657954561942, guid: 5c755f9bc5253ea418e919994537dcc7, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4021103657954561942, guid: 5c755f9bc5253ea418e919994537dcc7, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4021103657954561942, guid: 5c755f9bc5253ea418e919994537dcc7, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4021103657954561942, guid: 5c755f9bc5253ea418e919994537dcc7, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4021103657954561942, guid: 5c755f9bc5253ea418e919994537dcc7, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4021103657954561942, guid: 5c755f9bc5253ea418e919994537dcc7, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4021103657954561942, guid: 5c755f9bc5253ea418e919994537dcc7, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4021103657954561942, guid: 5c755f9bc5253ea418e919994537dcc7, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4021103657954561942, guid: 5c755f9bc5253ea418e919994537dcc7, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4021103657954561961, guid: 5c755f9bc5253ea418e919994537dcc7, type: 3}
+      propertyPath: m_Name
+      value: CFXR Hit A (Red)
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 5c755f9bc5253ea418e919994537dcc7, type: 3}
+--- !u!4 &2939464323470058841 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4021103657954561942, guid: 5c755f9bc5253ea418e919994537dcc7, type: 3}
+  m_PrefabInstance: {fileID: 2235693353720752847}
+  m_PrefabAsset: {fileID: 0}
+--- !u!198 &2939464323470058855 stripped
+ParticleSystem:
+  m_CorrespondingSourceObject: {fileID: 4021103657954561960, guid: 5c755f9bc5253ea418e919994537dcc7, type: 3}
+  m_PrefabInstance: {fileID: 2235693353720752847}
+  m_PrefabAsset: {fileID: 0}

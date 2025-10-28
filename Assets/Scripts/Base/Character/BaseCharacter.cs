@@ -13,10 +13,11 @@ public class BaseCharacter : MonoBehaviour
     [field: SerializeField] public float MaxHp {  get; protected set; }
     [field: SerializeField] public float AtkPower {  get; protected set; }
     [field: SerializeField] public float MoveSpeed {  get; protected set; }
+    [field: SerializeField] public float AttackRate { get; protected set; }
     [field: SerializeField] public Vector3 HpBarPosByCharacter { get; private set; } // 보정용
     [field: SerializeField] public Vector2 HpBarSize { get; private set; } // 체력바 사이즈용
     public BaseController BaseController { get; protected set; }
-
+    
     // 데이터 용 변수, 데이터 테이블 완성시 테이블에서 가져오기  -> 251016 테이블에서 가져오도록 수정
     /*public float TmpMaxHp { get; protected set; }
     public float TmpAtkPower { get; protected set; }*/
@@ -30,6 +31,20 @@ public class BaseCharacter : MonoBehaviour
     protected float _baseAtkPower;
     protected float _baseMoveSpeed;
 
+    public void SetMoveSpeed(float newSpeed)
+    {
+        MoveSpeed = newSpeed;
+    }
+
+    public void SetAttackPower(float newAtkPower)
+    {
+        AtkPower = newAtkPower;
+    }
+
+    public void SetAttackRate(float newAttackRate) 
+    {
+        AttackRate = newAttackRate;
+    }
     public virtual Vector3 MoveDir
     {
         get { return _moveDir; }

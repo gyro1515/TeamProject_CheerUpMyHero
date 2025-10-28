@@ -2,12 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.TextCore.Text;
 
 public class BaseController : MonoBehaviour, IAttackable, IDamageable
 {
     [Header("베이스 컨트롤러 세팅")]
     [SerializeField] protected Animator animator;
     protected BaseCharacter baseCharacter;
+    private SpriteRenderer _spriteRenderer;
     BasePoolable poolable;
     protected readonly int attackStateHash = Animator.StringToHash("Attack");
     public Animator Animator { get { return animator; } }
@@ -16,6 +18,7 @@ public class BaseController : MonoBehaviour, IAttackable, IDamageable
     {
         poolable = GetComponent<BasePoolable>();
         baseCharacter = GetComponent<BaseCharacter>();
+        _spriteRenderer = GetComponentInChildren<SpriteRenderer>(); // 자식에 있을 경우 InChildren
         if (animator == null)
         {
             //Debug.Log($"Animator가 비어있습니다. {gameObject.name}의 자식 오브젝트에서 탐색합니다.");
@@ -48,12 +51,24 @@ public class BaseController : MonoBehaviour, IAttackable, IDamageable
     {
         
     }
-
     public virtual void TakeDamage(float damage)
     {
         if (baseCharacter.IsDead) return;
         // 어떤 공식에 의해서 피해량이 결정이 되고
         baseCharacter.CurHp -= damage;
+
+        // 이펙트 소환
+        GameObject fxGO;
+        if (baseCharacter is Player player || baseCharacter is PlayerUnit playerUnit || baseCharacter is PlayerHQ playerHQ)
+        {
+            fxGO = ObjectPoolManager.Instance.Get(PoolType.FXPlayerUnitHit);
+            fxGO.transform.position = baseCharacter.transform.position + Vector3.up * 0.7f;
+        }
+        else if (baseCharacter is EnemyUnit enemyUnit || baseCharacter is EnemyHQ enemyHQ)
+        {
+            fxGO = ObjectPoolManager.Instance.Get(PoolType.FXEnemyUnitHit);
+            fxGO.transform.position = baseCharacter.transform.position + Vector3.up * 0.7f;
+        }
     }
     public virtual void Dead()
     {
@@ -110,4 +125,5 @@ public class BaseController : MonoBehaviour, IAttackable, IDamageable
     {
         return baseCharacter.IsDead;
     }
+
 }
