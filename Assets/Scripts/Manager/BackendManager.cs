@@ -118,7 +118,7 @@ public class BackendManager : SingletonMono<BackendManager>
 
     //현재 초기화 상태를 나타냄
     public UniTask<bool> InitializationTask { get; private set; }
-    //UniTask.State를 가짐: Pending, Succeeded, Faulted, Canceled.
+    public static bool isInitializationCompeleted = false;
 
     //현재 초기화 상태를 제어
     private UniTaskCompletionSource<bool> _initializationTcs;
@@ -140,6 +140,40 @@ public class BackendManager : SingletonMono<BackendManager>
         InitializationTask = _initializationTcs.Task;
         InitializeAndLoginAsync().Forget();
 
+    }
+
+    public static async UniTask CheckInterentAsync()
+    {
+        //처음 말고 두번째 부터 초기화면으로 왔을때 실행
+        if (!isInitializationCompeleted)
+        {
+            return;
+        }
+
+        try
+        {
+
+            while (!await IsNetworkAvailableAsync(true))
+            {
+                Debug.LogWarning($"인터넷 연결에 실패했습니다.");
+
+                // UIManager를 통해 재시도 팝업을 띄우고 사용자 응답을 기다립니다.
+                bool userWantsToRetry = await UIManager.Instance.GetUI<NoticeNetworkError>().ShowAndWaitForResponse("인터넷 연결을 확인해주세요.\n다시 시도하시겠습니까?", true);
+
+                if (userWantsToRetry)
+                {
+                    Debug.Log("사용자가 재시도를 선택했습니다. 네트워크 상태를 다시 확인합니다.");
+                    await UniTask.Delay(500); // 잠시 후 재시도
+                }
+            }
+
+            await PlayerDataManager.Instance.InitializeResourcesAsync();
+            await PlayerDataManager.Instance.LoadDataFromCloundAsync();
+        }
+        catch(Exception ex)
+        {
+            Debug.LogException(ex);
+        }
     }
 
 
@@ -201,6 +235,7 @@ public class BackendManager : SingletonMono<BackendManager>
             //플레이어 데이터 매니저가 비동기를 가질 때까지는 외부에서 자원 넣어줘야 할듯
             await PlayerDataManager.Instance.InitializeResourcesAsync();
             await PlayerDataManager.Instance.LoadDataFromCloundAsync();
+            isInitializationCompeleted = true;
         }
         catch (Exception e)
         {
