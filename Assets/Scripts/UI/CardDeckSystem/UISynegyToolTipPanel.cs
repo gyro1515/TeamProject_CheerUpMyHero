@@ -11,34 +11,26 @@ public class UISynegyToolTipPanel : BasePopUpUI
 {
     [SerializeField] TextMeshProUGUI synergyToolTipText;
     [SerializeField] TextMeshProUGUI synergyToolTipDescriptionText;
-
+    Dictionary<SynergyGrade, string> colorBySynergyGrade = new Dictionary<SynergyGrade, string>()
+    {
+        { SynergyGrade.Bronze, "<color=#754A2D>" },
+        { SynergyGrade.Gold, "<color=#E4FF00>" },
+        { SynergyGrade.Prism, "<color=#C4F7F7>" }
+    };
     protected override void Awake()
     {
         base.Awake();
         GetComponent<Image>().color = new Color(1, 1, 1, 0);
         GetComponent<Button>().onClick.AddListener(CloseParentPopup);
+
     }
     public void OnSynergyClicked(UnitSynergyType synergyType, int currentCount)
     //public void OnSynergyClicked(UnitSynergyType synergyType, SynergyGrade currentCount)
     {
-        // TODO: 시너지 효과 설명 데이터 테이블 만들어서 불러오기
-
+        SynergyData synergyData = DataManager.SynergyEffectData.GetData((int)synergyType * 1000 + currentCount);
         // 아래는 테스트
-        string effectText = "";
-        switch (currentCount)
-        {
-            case 0:
-                effectText = "브론즈";
-                break;
-            case 1:
-                effectText = "골드";
-                break;
-            case 2:
-                effectText = "프리즘";
-                break;
-
-        }
-        synergyToolTipText.text = $"{synergyType} {effectText} 시너지 효과";
+        
+        synergyToolTipText.text = $"{synergyData.synergyTypeText} {colorBySynergyGrade[(SynergyGrade)currentCount]}{synergyData.synergyGradeText}</color> 시너지 효과";
         synergyToolTipDescriptionText.text = DataManager.SynergyEffectData.GetData((int)synergyType * 1000 + currentCount).effectDescription;
         if (gameObject.activeSelf) return;
         OpenUI(0.1f);

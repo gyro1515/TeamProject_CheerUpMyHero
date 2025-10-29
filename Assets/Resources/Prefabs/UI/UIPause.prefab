@@ -1689,6 +1689,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ce25dc14cbd840c4c9b0d4f2c1061fd0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  POPUP_UI_WARNING: "\uD574\uB2F9 UI\uB294 \uD31D\uC5C5\uC785\uB2C8\uB2E4. \uC791\uC5C5
+    \uD6C4 \uBE44\uD65C\uC131\uD654 \uD574\uC8FC\uC138\uC694."
 --- !u!114 &4322473117769785688
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2037,6 +2039,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ce25dc14cbd840c4c9b0d4f2c1061fd0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  POPUP_UI_WARNING: "\uD574\uB2F9 UI\uB294 \uD31D\uC5C5\uC785\uB2C8\uB2E4. \uC791\uC5C5
+    \uD6C4 \uBE44\uD65C\uC131\uD654 \uD574\uC8FC\uC138\uC694."
 --- !u!114 &359556680584339487
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2328,6 +2332,7 @@ GameObject:
   - component: {fileID: 2030121288245343497}
   - component: {fileID: 4966107416494258327}
   - component: {fileID: 4883335258534070471}
+  - component: {fileID: 4775510817755507163}
   m_Layer: 5
   m_Name: SpeedGameBtn
   m_TagString: Untagged
@@ -2350,10 +2355,10 @@ RectTransform:
   - {fileID: 3695379911615221933}
   m_Father: {fileID: 3439926410204768528}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 1, y: 1}
-  m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -110}
-  m_SizeDelta: {x: 110, y: 110}
+  m_AnchorMin: {x: 0.9, y: 0.88}
+  m_AnchorMax: {x: 1, y: 0.94}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 1, y: 1}
 --- !u!222 &2030121288245343497
 CanvasRenderer:
@@ -2437,6 +2442,20 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &4775510817755507163
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2387670899019749450}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 86710e43de46f6f4bac7c8e50813a599, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_AspectMode: 0
+  m_AspectRatio: 0.93807584
 --- !u!1 &2431772437282664377
 GameObject:
   m_ObjectHideFlags: 0
@@ -5250,6 +5269,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ce25dc14cbd840c4c9b0d4f2c1061fd0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  POPUP_UI_WARNING: "\uD574\uB2F9 UI\uB294 \uD31D\uC5C5\uC785\uB2C8\uB2E4. \uC791\uC5C5
+    \uD6C4 \uBE44\uD65C\uC131\uD654 \uD574\uC8FC\uC138\uC694."
 --- !u!225 &6071482722605240582
 CanvasGroup:
   m_ObjectHideFlags: 0
@@ -5611,6 +5632,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ce25dc14cbd840c4c9b0d4f2c1061fd0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  POPUP_UI_WARNING: "\uD574\uB2F9 UI\uB294 \uD31D\uC5C5\uC785\uB2C8\uB2E4. \uC791\uC5C5
+    \uD6C4 \uBE44\uD65C\uC131\uD654 \uD574\uC8FC\uC138\uC694."
 --- !u!114 &7564212261623062319
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6402,6 +6425,7 @@ GameObject:
   - component: {fileID: 4324655743354224315}
   - component: {fileID: 7739553071550780957}
   - component: {fileID: 2346635991047573839}
+  - component: {fileID: 3200709094851117521}
   m_Layer: 5
   m_Name: PauseButton
   m_TagString: Untagged
@@ -6424,10 +6448,10 @@ RectTransform:
   - {fileID: 889396622007418543}
   m_Father: {fileID: 3439926410204768528}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 1, y: 1}
+  m_AnchorMin: {x: 0.9, y: 0.94}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 110, y: 110}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 1, y: 1}
 --- !u!222 &4324655743354224315
 CanvasRenderer:
@@ -6511,6 +6535,20 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &3200709094851117521
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7792303538690910112}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 86710e43de46f6f4bac7c8e50813a599, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_AspectMode: 0
+  m_AspectRatio: 0.93807685
 --- !u!1 &7808368144606489468
 GameObject:
   m_ObjectHideFlags: 0
@@ -7864,6 +7902,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ce25dc14cbd840c4c9b0d4f2c1061fd0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  POPUP_UI_WARNING: "\uD574\uB2F9 UI\uB294 \uD31D\uC5C5\uC785\uB2C8\uB2E4. \uC791\uC5C5
+    \uD6C4 \uBE44\uD65C\uC131\uD654 \uD574\uC8FC\uC138\uC694."
 --- !u!114 &5533574475782362245
 MonoBehaviour:
   m_ObjectHideFlags: 0

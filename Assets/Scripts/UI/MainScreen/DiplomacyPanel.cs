@@ -13,7 +13,9 @@ public class DiplomacyPanel : BasePopUpUI
 
     [Header("팝업 및 패널 참조")]
     [SerializeField] private LaterUpdatePopup laterUpdatePopup;
-    [SerializeField] private GachaUIPanel gachaUIPanel; 
+    [SerializeField] private MainScreenUI mainScreenUI;
+
+    private GachaUIPanel gachaPanel;
     protected override void Awake()
     {
         base.Awake(); 
@@ -25,7 +27,10 @@ public class DiplomacyPanel : BasePopUpUI
         backButton?.onClick.AddListener(OnBackButtonClicked);
     }
 
-
+    private void Start()
+    {
+        gachaPanel = UIManager.Instance.GetUI<GachaUIPanel>();
+    }
     private void OnEmbassyClicked()
     {
         LaterUpdatePopup();
@@ -45,17 +50,19 @@ public class DiplomacyPanel : BasePopUpUI
     {
         Debug.Log("모험가 길드 방문하기 버튼 클릭됨");
 
-        if (gachaUIPanel != null)
-            {
-                gameObject.SetActive(false);
+        if (gachaPanel != null)
+        {
 
-                gachaUIPanel.OpenUI(); // GachaUIPanel 열기
-            }
-            else
-            {
-                Debug.LogError("GachaUIPanel이 DiplomacyPanel에 연결되지 않았습니다!");
-            }
+            FadeManager.Instance.SwitchGameObjects(mainScreenUI.gameObject, gachaPanel.gameObject);
+            //UIManager.Instance.CloseUI<MainScreenUI>();
+            //UIManager.Instance.OpenUI<GachaUIPanel>();
+        }
+        else
+        {
+            Debug.LogError("GachaUIRootObject가 DiplomacyPanel에 연결되지 않았습니다!");
+        }
     }
+
 
     private void OnBackButtonClicked()
     {

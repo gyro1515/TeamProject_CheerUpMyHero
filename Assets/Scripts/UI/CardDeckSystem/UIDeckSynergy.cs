@@ -4,43 +4,43 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
-
+public enum SynergyIcon
+{
+    // 프리즘
+    Kingdom_2,
+    Empire_2,
+    Mage_2,
+    Cleric_2,
+    Hero_2,
+    Frost_2,
+    Burn_2,
+    Poison_2,
+    // 골드
+    Kingdom_1,
+    Empire_1,
+    Mage_1,
+    Cleric_1,
+    Berserker_1,
+    Archer_1,
+    Hero_1,
+    Frost_1,
+    Burn_1,
+    Poison_1,
+    // 브론즈
+    Kingdom_0,
+    Empire_0,
+    Mage_0,
+    Cleric_0,
+    Berserker_0,
+    Archer_0,
+    Hero_0,
+    Frost_0,
+    Burn_0,
+    Poison_0,
+}
 public class UIDeckSynergy : MonoBehaviour
 {
-    enum SynergyIcon
-    {
-        // 프리즘
-        Kingdom_2,
-        Empire_2,
-        Mage_2,
-        Cleric_2,
-        Hero_2,
-        Frost_2,
-        Burn_2,
-        Poison_2,
-        // 골드
-        Kingdom_1,
-        Empire_1,
-        Mage_1,
-        Cleric_1,
-        Berserker_1,
-        Archer_1,
-        Hero_1,
-        Frost_1,
-        Burn_1,
-        Poison_1,
-        // 브론즈
-        Kingdom_0,
-        Empire_0,
-        Mage_0,
-        Cleric_0,
-        Berserker_0,
-        Archer_0,
-        Hero_0,
-        Frost_0,
-        Burn_0,
-        Poison_0,
-    }
+    
     [Header("시너지 UI 설정")]
     [SerializeField] GameObject synergyIconPrefab;
     [SerializeField] Transform synergyIconParent;
@@ -230,6 +230,9 @@ public class UIDeckSynergy : MonoBehaviour
     }
     void UpdateSynergyUI()
     {
+        // 저장된 시너지들 초기화
+        PlayerDataManager.AppliedDeckUnitSynergies.Clear();
+
         int activeSynergyCount = 0;
         for (int typeIdx = 0; typeIdx < _allSynergyTypes.Length; typeIdx++)
         {
@@ -257,9 +260,16 @@ public class UIDeckSynergy : MonoBehaviour
                 //synergyIconGOList[(int)iconKey].SetActive(true);
                 synergyIconGOListForAuto[(int)iconKey].gameObject.SetActive(true);
                 activeSynergyCount++;
+                // 활성화된 시너지 저장
+                PlayerDataManager.AppliedDeckUnitSynergies[_allSynergyTypes[typeIdx]] = (SynergyGrade)i;
                 break;
             }
         }
+        /*foreach (var item in PlayerDataManager.AppliedDeckUnitSynergies)
+        {
+            Debug.Log($"{item.Key}시너지의 {item.Value}등급 활성화");
+        }*/
+
         UpdateSynergyUISize(activeSynergyCount);
     }
     void UpdateSynergyUISize(int activeSynergyCount)

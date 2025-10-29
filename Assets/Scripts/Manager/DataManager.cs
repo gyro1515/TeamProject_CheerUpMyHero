@@ -161,10 +161,11 @@ public class DataManager : SingletonMono<DataManager>
     }
 
     // 유닛 카드 시너지에 사용할 아이콘 저장(골드만) 
-    public Dictionary<UnitSynergyType, Sprite> SynergyIconSprites { get; private set; } = new Dictionary<UnitSynergyType, Sprite>();
+    //public Dictionary<UnitSynergyType, Sprite> SynergyIconSprites { get; private set; } = new Dictionary<UnitSynergyType, Sprite>();
     // 유닛 카드 타입(딜/힐탱)에 사용할 아이콘
     public Dictionary<UnitType, Sprite> UnitTypeIconSprites { get; private set; } = new Dictionary<UnitType, Sprite>();
-
+    // 배틀씬/카드덱 선택에서 사용할 아이콘 저장(브론즈, 골드, 프리즘 전부)
+    public Dictionary<(UnitSynergyType, SynergyGrade), Sprite> SynergyIconSprites { get; private set; } = new Dictionary<(UnitSynergyType, SynergyGrade), Sprite>();
     // 유닛 시너지 툴팁 설명 데이터
     private DataBase<SynergyData, SynergyEffectSO> _synergyEffectData;
     public static DataBase<SynergyData, SynergyEffectSO> SynergyEffectData
@@ -201,8 +202,14 @@ public class DataManager : SingletonMono<DataManager>
         {
             if (type == UnitSynergyType.None) continue;
             Sprite[] sprites = Resources.LoadAll<Sprite>($"Synergy/{type.ToString()}");
+            for(int i = 0; i < sprites.Length; i++)
+            {
+                // 브론즈, 골드, 프리즘 스프라이트 저장
+                SynergyIconSprites[(type, (SynergyGrade)i)] = sprites[i];
+            }
+            
             // 골드 스프라이트만 저장
-            SynergyIconSprites[type] = sprites[1];
+            //SynergyIconSprites[type] = sprites[1];
         }
     }
     void MakeUnitTypeIconSpritesData()
