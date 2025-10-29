@@ -865,6 +865,9 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
 
     public async UniTask SaveDataToCloudAsync()
     {
+        if (!GameManager.IsTutorialCompleted)
+            return;
+
         try
         {
             //저장 중이라는 표시를 띄울수도 있음. 근데 요즘 모바일 겜 중에 그런건 없으니..
@@ -958,7 +961,21 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
             Debug.LogException(ex);
         }
     }
+    //홈 버튼 등으로 백그라운드로 갈때 호출
+    private void OnApplicationPause(bool pauseStatus)
+    {
+        if (pauseStatus)
+        {
+            Debug.Log("앱이 백그라운드로 전환되었습니다. 저장을 시도합니다.");
+            // await를 사용하지 않고 Task를 바로 실행시킵니다.
+            SaveDataToCloudAsync().Forget();
+        }
+    }
+
+
     #endregion
+
+
 }
 
 [System.Serializable]

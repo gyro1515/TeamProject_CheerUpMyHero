@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 
 public class GachaUIPanel : BaseUI, IBackButtonHandler
 {
@@ -33,8 +33,8 @@ public class GachaUIPanel : BaseUI, IBackButtonHandler
     {
 
         backButton?.onClick.AddListener(OnBackButtonClicked);
-        pullOneButton?.onClick.AddListener(OnPullOneClicked);
-        pullTenButton?.onClick.AddListener(OnPullTenClicked);
+        pullOneButton?.onClick.AddListener(() => { OnPullOneClicked().Forget(); });
+        pullTenButton?.onClick.AddListener(() => { OnPullTenClicked().Forget(); });
 
         _limitedPitySubscriber = EventManager.GetSubscriber<LimitedPityCountUpdatedEvent>();
         _standardPitySubscriber = EventManager.GetSubscriber<StandardPityCountUpdatedEvent>();
@@ -111,7 +111,7 @@ public class GachaUIPanel : BaseUI, IBackButtonHandler
         }
     }
 
-    private async void OnPullOneClicked()
+    private async UniTaskVoid OnPullOneClicked()
     {
         pullOneButton.interactable = false;
         //pullTenButton.interactable = false;
@@ -223,7 +223,7 @@ public class GachaUIPanel : BaseUI, IBackButtonHandler
         }
     }
 
-    private async void OnPullTenClicked()
+    private async UniTaskVoid OnPullTenClicked()
     {
         //pullOneButton.interactable = false;
         pullTenButton.interactable = false;
