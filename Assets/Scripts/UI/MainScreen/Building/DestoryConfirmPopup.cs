@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -68,13 +69,24 @@ public class DestroyConfirmPopup : BasePopUpUI
         { ResourceType.MagicStone, magicStoneRefundText }
     };
     }
-    private void OnYesButtonClicked()
+    private async void OnYesButtonClicked()
     {
-        if (_controller != null && _targetTile != null)
+        try
         {
-            _controller.ConfirmDestruction(_targetTile);
+            if (_controller != null && _targetTile != null)
+            {
+                await _controller.ConfirmDestruction(_targetTile);
+            }
         }
-        base.CloseUI();
+        catch (Exception ex) 
+        {
+            Debug.LogException(ex);
+            Debug.LogWarning("에러 팝업: 에러가 나서 파괴 명령이 실패했습니다.");
+        }
+        finally
+        {
+            base.CloseUI();
+        }
     }
 
     private void OnNoButtonClicked()

@@ -300,21 +300,22 @@ public class ConstructionUpgradePanel : BasePopUpUI
     }
 
     // --- 액션 버튼 ---
-    private void OnActionButtonClick()
+    //원래 async 있는 버튼 쪽에 try catch finally를 다는데, 여기선 건설 함수 내부에서 예외처리를 해줘서 생략
+    private async void OnActionButtonClick()
     {
         if (_targetTile == null) return;
 
         if (_mode == PanelMode.Construction && _constructionData != null)
         {
-            MainScreenBuildingController.Instance.BuildBuildingOnTile(_targetTile, _constructionData.idNumber);
+            await MainScreenBuildingController.Instance.BuildBuildingOnTile(_targetTile, _constructionData.idNumber);
         }
         else if (_mode == PanelMode.Upgrade)
         {
-            MainScreenBuildingController.Instance.UpgradeBuildingOnTile(_targetTile);
+            await MainScreenBuildingController.Instance.UpgradeBuildingOnTile(_targetTile);
         }
         else if (_mode == PanelMode.Repair)
         {
-            MainScreenBuildingController.Instance.RepairBuildingOnTile(_targetTile);
+            await MainScreenBuildingController.Instance.RepairBuildingOnTile(_targetTile);
         }
 
         CloseUI();

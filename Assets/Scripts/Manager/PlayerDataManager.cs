@@ -356,7 +356,7 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
         return totalCostMap.Select(pair => new Cost { resourceType = pair.Key, amount = pair.Value }).ToList();
     }
 
-    public void DestroyBuildingAt(int x, int y)
+    public async UniTask DestroyBuildingAt(int x, int y)
     {
         var buildingData = _TileDataHandler.BuildingGridData[x, y];
         if (buildingData == null) return;
@@ -365,13 +365,13 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
         foreach (var cost in totalCost)
         {
             int refundAmount = Mathf.FloorToInt(cost.amount * 0.5f);
-            AddResource(cost.resourceType, refundAmount);
+            await AddResource(cost.resourceType, refundAmount);
         }
 
         _TileDataHandler.BuildingGridData[x, y] = null;
         _TileDataHandler.CooldownEndTimeGrid[x, y] = DateTime.MinValue;
 
-        SaveDataToCloudAsync();
+        await SaveDataToCloudAsync();
 
         Debug.Log($"({x},{y}) 위치의 {buildingData.buildingName} 파괴 완료 및 자원 환급.");
     }
@@ -461,45 +461,53 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
     //비동기로 시작씬에서 호출.
     public async UniTask InitializeResourcesAsync()
     {
-        // 5가지 자원을 모두 딕셔너리에 추가하고 초기 수량을 설정.
-        //_resources[ResourceType.Gold] = 10000;
-        //_resources[ResourceType.Wood] = 10000;
-        //_resources[ResourceType.Iron] = 10000;
-        //_resources[ResourceType.Food] = CurrentFood;
-        //_resources[ResourceType.MagicStone] = 10000;
-        //_resources[ResourceType.Bm] = 0; 
-        //_resources[ResourceType.Ticket] = 0;
+        try
+        {// 5가지 자원을 모두 딕셔너리에 추가하고 초기 수량을 설정.
+         //_resources[ResourceType.Gold] = 10000;
+         //_resources[ResourceType.Wood] = 10000;
+         //_resources[ResourceType.Iron] = 10000;
+         //_resources[ResourceType.Food] = CurrentFood;
+         //_resources[ResourceType.MagicStone] = 10000;
+         //_resources[ResourceType.Bm] = 0; 
+         //_resources[ResourceType.Ticket] = 0;
 
-        Dictionary<ResourceType, int> serverData = await BackendManager.LoadEconomyData();
+            Dictionary<ResourceType, int> serverData = await BackendManager.LoadEconomyData();
 
-        if (serverData == null)
-        {
-            Debug.LogError("인터넷 확인");
-        }
-        else
-        {
-            foreach (ResourceType resource in serverData.Keys)
+            if (serverData == null)
             {
-                Debug.Log(resource);
-                _resources[resource] = serverData[resource];
+                Debug.LogError("인터넷 확인");
             }
-            Debug.Log("재화 불러오기 완료");
-        }
+            else
+            {
+                foreach (ResourceType resource in serverData.Keys)
+                {
+                    Debug.Log(resource);
+                    _resources[resource] = serverData[resource];
+                }
+                Debug.Log("재화 불러오기 완료");
+            }
 #if UNITY_EDITOR //테스트 코드
-        Debug.LogWarning("[테스트] 게임 시작 시 스테이지 (1, 3) 강제 클리어 처리.");
+            Debug.LogWarning("[테스트] 게임 시작 시 스테이지 (1, 3) 강제 클리어 처리.");
 
-        List<List<bool>> fakeServerResponse = new() { new List<bool> { true, true, true } };
-        //List<(int main, int sub)> fakeServerResponse = new List<(int main, int sub)> { (1, 3) };
+            List<List<bool>> fakeServerResponse = new() { new List<bool> { true, true, true } };
+            //List<(int main, int sub)> fakeServerResponse = new List<(int main, int sub)> { (1, 3) };
 
-        UpdateClearedStagesFromServer(fakeServerResponse);
+            UpdateClearedStagesFromServer(fakeServerResponse);
 
-        if (1 == 1 && 3 == 3)
-        {
-            Debug.Log("<color=green>[테스트 보상]</color> 스테이지 1-3 최초 클리어 테스트 보상: 티켓 10개 지급!");
-            AddResource(ResourceType.Ticket, 10);
+            if (1 == 1 && 3 == 3)
+            {
+                Debug.Log("<color=green>[테스트 보상]</color> 스테이지 1-3 최초 클리어 테스트 보상: 티켓 10개 지급!");
+                await AddResource(ResourceType.Ticket, 10);
+            }
+
+   #endif 
         }
-
-#endif
+        catch (Exception ex) //실패하면 정상적으로 진행 안되니까 재시도??
+        { 
+        
+            Debug.LogException(ex);
+        }
+  
     }
 
     // 특정 자원의 현재 수량을 반환하는 메서드
@@ -514,7 +522,7 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
     }
 
     // 특정 자원의 수량을 변경하는 메서드
-    public async void AddResource(ResourceType type, int amount)
+    public async UniTask AddResource(ResourceType type, int amount)
     {
         Debug.Log($"<color=yellow>[PlayerData AddResource]</color> '{type}' 자원 {amount} 변경 요청 받음.");
 
@@ -549,19 +557,33 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
         }
     }
 
-    public (int gold, int wood, int iron, int magicStone) ApplyDefeatPenalties()
+    public async UniTask<(int gold, int wood, int iron, int magicStone)> ApplyDefeatPenalties()
     {
-        var resourcePenalties = ApplyResourcePenalty();
+        var resourcePenalties = await ApplyResourcePenalty();
 
         return resourcePenalties;
     }
 
-    public (int gold, int wood, int iron, int magicStone) ApplyResourcePenalty()
+    public async UniTask<(int gold, int wood, int iron, int magicStone)> ApplyResourcePenalty()
     {
-        int goldPenalty = Mathf.CeilToInt(GetResourceAmount(ResourceType.Gold) * 0.05f); AddResource(ResourceType.Gold, -goldPenalty);
-        int woodPenalty = Mathf.CeilToInt(GetResourceAmount(ResourceType.Wood) * 0.05f); AddResource(ResourceType.Wood, -woodPenalty);
-        int ironPenalty = Mathf.CeilToInt(GetResourceAmount(ResourceType.Iron) * 0.05f); AddResource(ResourceType.Iron, -ironPenalty);
-        int magicStonePenalty = Mathf.CeilToInt(GetResourceAmount(ResourceType.MagicStone) * 0.05f); AddResource(ResourceType.MagicStone, -magicStonePenalty);
+        int goldPenalty = Mathf.CeilToInt(GetResourceAmount(ResourceType.Gold) * 0.05f); 
+        int woodPenalty = Mathf.CeilToInt(GetResourceAmount(ResourceType.Wood) * 0.05f); 
+        int ironPenalty = Mathf.CeilToInt(GetResourceAmount(ResourceType.Iron) * 0.05f); 
+        int magicStonePenalty = Mathf.CeilToInt(GetResourceAmount(ResourceType.MagicStone) * 0.05f); 
+
+        // 2. 실행할 비동기 작업(Task)들을 리스트에 담습니다.
+        //    - 이때 await를 사용하지 않아 모든 작업이 즉시 "시작"됩니다.
+        var penaltyTasks = new List<UniTask>
+        {
+            AddResource(ResourceType.Gold, -goldPenalty),
+            AddResource(ResourceType.Wood, -woodPenalty),
+            AddResource(ResourceType.Iron, -ironPenalty),
+            AddResource(ResourceType.MagicStone, -magicStonePenalty)
+        };
+
+        // 3. Task.WhenAll을 사용해 리스트의 모든 작업이 완료될 때까지 "한 번만" 기다립니다.
+        await UniTask.WhenAll(penaltyTasks);
+
         Debug.Log($"패배 페널티: 골드 -{goldPenalty}, 목재 -{woodPenalty}, 철 -{ironPenalty}, 마력석 -{magicStonePenalty}");
         return (goldPenalty, woodPenalty, ironPenalty, magicStonePenalty);
     }
@@ -726,7 +748,7 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
         _clearedStagesEvent?.Publish(new ClearedStagesUpdatedEvent());
         Debug.Log("ClearedStagesUpdatedEvent 발행 완료.");
     }
-    public void MarkLocalStageClear(int mainStage, int subStage)
+    public async UniTask MarkLocalStageClear(int mainStage, int subStage)
     {
         if (IsStageCleared(mainStage, subStage)) return;
 
@@ -735,7 +757,7 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
 
         if (mainStage == 1 && subStage == 3)
         {
-            AddResource(ResourceType.Ticket, 10);
+            await AddResource(ResourceType.Ticket, 10);
             Debug.Log("<color=green>[보상 지급]</color> 스테이지 1-3 최초 클리어 보상: 티켓 10개 지급!");
         }
         _clearedStagesEvent?.Publish(new ClearedStagesUpdatedEvent());
@@ -841,7 +863,7 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
     }
 
 
-    public async void SaveDataToCloudAsync()
+    public async UniTask SaveDataToCloudAsync()
     {
         try
         {
@@ -888,24 +910,24 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
 
     public async UniTask LoadDataFromCloundAsync()
     {
-        PlayerSaveData loadedData = await BackendManager.LoadDataAsync();
-
-        //처음 실행하면 초기 데이터 세팅
-        if (loadedData == null)
-        {
-            //일단 가챠 유닛 제외 전부 넣어둠
-            List<int> initalUnitIds = new List<int>();
-            for (int i = 100001; i < 100011; i++)
-            {
-                initalUnitIds.Add(i);
-            }
-
-            CardGenerate(initalUnitIds);
-            return;
-        }
-
         try
         {
+            PlayerSaveData loadedData = await BackendManager.LoadDataAsync();
+
+            //처음 실행하면 초기 데이터 세팅
+            if (loadedData == null)
+            {
+                //일단 가챠 유닛 제외 전부 넣어둠
+                List<int> initalUnitIds = new List<int>();
+                for (int i = 100001; i < 10011; i++)
+                {
+                    initalUnitIds.Add(i);
+                }
+
+                CardGenerate(initalUnitIds);
+                return;
+            }
+
             SettingDataManager.Instance.LoadClearData(loadedData.ClearData);
             UpdateClearedStagesFromServer(loadedData.ClearData);
             ConvertIntToDeck(loadedData.DeckPresets);
@@ -922,7 +944,7 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
 
             //일단 가챠 유닛 제외 전부 넣어둠
             List<int> initalUnitIds = new List<int>();
-            for (int i = 100001; i < 100011; i++)
+            for (int i = 100001; i < 10011; i++)
             {
                 initalUnitIds.Add(i);
             }

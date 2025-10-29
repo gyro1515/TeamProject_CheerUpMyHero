@@ -15,7 +15,13 @@ public class GachaUIPanel : BaseUI, IBackButtonHandler
 
     [Header("천장 시스템 UI")]
     [SerializeField] private TextMeshProUGUI limitedPityText; // 1페이지 천장 텍스트
+    [SerializeField] private Image limitedPityBackground;  
     [SerializeField] private TextMeshProUGUI standardPityText; // 2페이지 천장 텍스트
+    [SerializeField] private Image standardPityBackground;
+    [Header("천장 색상 설정")]
+    [SerializeField] private Color defaultPityColor = Color.white; // 기본 배경색
+    [SerializeField] private Color warningPityColor = Color.yellow; // 140+ 경고색
+    [SerializeField] private int pityWarningThreshold = 140; // 경고 시작 횟수
     [Header("연출 패널")]
     [SerializeField] private GachaSequenceController gachaSequenceController;
 
@@ -61,6 +67,10 @@ public class GachaUIPanel : BaseUI, IBackButtonHandler
         if (limitedPityText != null)
         {
             limitedPityText.text = $"{e.NewCount} / {PlayerDataManager.LIMITED_GACHA_PITY_LIMIT}";
+            if (limitedPityBackground != null)
+            {
+                limitedPityBackground.color = (e.NewCount >= pityWarningThreshold) ? warningPityColor : defaultPityColor;
+            }
         }
     }
 
@@ -69,6 +79,10 @@ public class GachaUIPanel : BaseUI, IBackButtonHandler
         if (standardPityText != null)
         {
             standardPityText.text = $"{e.NewCount} / {PlayerDataManager.STANDARD_GACHA_PITY_LIMIT}";
+            if (standardPityBackground != null)
+            {
+                standardPityBackground.color = (e.NewCount >= pityWarningThreshold) ? warningPityColor : defaultPityColor;
+            }
         }
     }
   
@@ -79,11 +93,21 @@ public class GachaUIPanel : BaseUI, IBackButtonHandler
 
         if (limitedPityText != null)
         {
+            int count = PlayerDataManager.Instance.LimitedGachaPityCount;
             limitedPityText.text = $"{PlayerDataManager.Instance.LimitedGachaPityCount} / {PlayerDataManager.LIMITED_GACHA_PITY_LIMIT}";
+            if (limitedPityBackground != null)
+            {
+                limitedPityBackground.color = (count >= pityWarningThreshold) ? warningPityColor : defaultPityColor;
+            }
         }
         if (standardPityText != null)
         {
+            int count = PlayerDataManager.Instance.StandardGachaPityCount;
             standardPityText.text = $"{PlayerDataManager.Instance.StandardGachaPityCount} / {PlayerDataManager.STANDARD_GACHA_PITY_LIMIT}";
+            if (standardPityBackground != null)
+            {
+                standardPityBackground.color = (count >= pityWarningThreshold) ? warningPityColor : defaultPityColor;
+            }
         }
     }
 
@@ -118,7 +142,7 @@ public class GachaUIPanel : BaseUI, IBackButtonHandler
                 return; 
             }
 
-             PlayerDataManager.Instance.AddResource(ResourceType.Ticket, -1);
+             await PlayerDataManager.Instance.AddResource(ResourceType.Ticket, -1);
 
             // --- 2. 페이지별 천장 정보 가져오기 ---
             int currentPity = (currentPage == 0) ? PlayerDataManager.Instance.LimitedGachaPityCount : PlayerDataManager.Instance.StandardGachaPityCount;
@@ -195,7 +219,7 @@ public class GachaUIPanel : BaseUI, IBackButtonHandler
                 //pullTenButton.interactable = false;
             }
 
-            PlayerDataManager.Instance.SaveDataToCloudAsync();
+            await PlayerDataManager.Instance.SaveDataToCloudAsync();
         }
     }
 
@@ -224,7 +248,7 @@ public class GachaUIPanel : BaseUI, IBackButtonHandler
                 Debug.LogWarning("티켓 부족 (10회)!");
                 return; // 뽑기 중단 (finally에서 버튼 활성화됨)
             }
-            PlayerDataManager.Instance.AddResource(ResourceType.Ticket, -10);
+            await PlayerDataManager.Instance.AddResource(ResourceType.Ticket, -10);
 
             List<int> resultIds = new List<int>(); // 10개 결과를 담을 리스트
             //bool gotEpicInBatch = false; // 10회 뽑기 중 에픽 나왔는지 확인용
@@ -290,7 +314,7 @@ public class GachaUIPanel : BaseUI, IBackButtonHandler
                 pullTenButton.interactable = false; 
             }
 
-            PlayerDataManager.Instance.SaveDataToCloudAsync();
+            await PlayerDataManager.Instance.SaveDataToCloudAsync();
         }
     }
 
