@@ -396,7 +396,7 @@ public class GameManager : SingletonMono<GameManager>
             Debug.LogWarning("AnalyticsService 인스턴스가 없습니다. 스테이지 통계를 기록할 수 없습니다.");
         }
         
-        Debug.Log($"{stageId}, {hasChallenge}, {isClearedButTryAgain}");
+        Debug.Log($"사용된 유닛 통계: {ConvertToJson<Dictionary<PoolType, int>>(this.PlayerHQ.UnitSpawnCnt)}");
     }
 
     private string ConvertToJson<T>(T obj)

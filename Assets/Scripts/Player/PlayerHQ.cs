@@ -94,12 +94,15 @@ public class PlayerHQ : BaseHQ
         // 251015 변경 -> 커먼 유닛은 8번, 레어는 4번
         int tmpUpgradeCntByRarity = upgradeCntByRarity[(int)unitRarity];
         bool isLegendary = false;
-        if (unitSpawnCnt[poolType] >= tmpUpgradeCntByRarity)
+
+        // [수정됨] 카운트가 0보다 크고, 강화 주기(N)의 배수일 때 강화
+        if (unitSpawnCnt[poolType] > 0 && unitSpawnCnt[poolType] % tmpUpgradeCntByRarity == 0)
         {
-            unitSpawnCnt[poolType] = 0;
+            //unitSpawnCnt[poolType] = 0;
             isLegendary = true;
         }
-        else if (unitSpawnCnt[poolType] == tmpUpgradeCntByRarity - 1)
+
+        else if (unitSpawnCnt[poolType] % tmpUpgradeCntByRarity == tmpUpgradeCntByRarity - 1)
         {
             // 유닛 슬롯에 전설 유닛 소환 가능 알리기
             uiSlot.SetOutLineForSpawnLegendaryUnit();
