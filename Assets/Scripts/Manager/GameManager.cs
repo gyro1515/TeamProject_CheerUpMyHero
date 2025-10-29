@@ -1,3 +1,4 @@
+using Cysharp.Threading.Tasks;
 using Newtonsoft.Json;
 using System.Collections;
 using System.Collections.Generic;
@@ -148,7 +149,7 @@ public class GameManager : SingletonMono<GameManager>
         }
     }
 
-    public void ShowResultUI(bool isVictory)
+    public async void ShowResultUI(bool isVictory)
     {
         EventManager.GetPublisher<BattleEndedEvent>().Publish(new BattleEndedEvent { IsVictory = isVictory });
 
@@ -244,12 +245,25 @@ public class GameManager : SingletonMono<GameManager>
             {
                 finalMagicStone += Random.Range(totalMagicStoneMin, totalMagicStoneMax + 1);
             }
+            try
+            {
+                //계산된 보상을 PlayerDataManager에 추가
+                var rewardTasks = new List<UniTask>()
+                {
+                    PlayerDataManager.Instance.AddResource(ResourceType.Gold, finalGold),
+                    PlayerDataManager.Instance.AddResource(ResourceType.Wood, finalWood),
+                    PlayerDataManager.Instance.AddResource(ResourceType.Iron, finalIron),
+                    PlayerDataManager.Instance.AddResource(ResourceType.MagicStone, finalMagicStone),
+                };
 
-            //계산된 보상을 PlayerDataManager에 추가
-            PlayerDataManager.Instance.AddResource(ResourceType.Gold, finalGold);
-            PlayerDataManager.Instance.AddResource(ResourceType.Wood, finalWood);
-            PlayerDataManager.Instance.AddResource(ResourceType.Iron, finalIron);
-            PlayerDataManager.Instance.AddResource(ResourceType.MagicStone, finalMagicStone);
+                await UniTask.WhenAll(rewardTasks);
+            }
+            catch (System.Exception ex)
+            {
+                Debug.LogException(ex);
+                Debug.LogWarning("에러 팝업: 에러가 나서 보상을 주지 못했습니다.");
+            }
+
 
             // 스테이지 클리어 효과음 출력함.
             AudioManager.PlayOneShot(DataManager.AudioData.StageClearSE);
@@ -261,7 +275,7 @@ public class GameManager : SingletonMono<GameManager>
         {
             Debug.Log("패배 페널티를 적용합니다.");
 
-            var penalties = PlayerDataManager.Instance.ApplyResourcePenalty();
+            var penalties = await PlayerDataManager.Instance.ApplyResourcePenalty();
 
             // 스테이지 패배 효과음
             AudioManager.PlayOneShot(DataManager.AudioData.StageFailSE);
@@ -270,38 +284,53 @@ public class GameManager : SingletonMono<GameManager>
             RewardPanelUI?.OpenUI(-penalties.gold, -penalties.wood, -penalties.iron, -penalties.magicStone, false);
         }
 
-        PlayerDataManager.Instance.SaveDataToCloudAsync();
+        await PlayerDataManager.Instance.SaveDataToCloudAsync();
     }
-    public void ClearStage()
+    public async void ClearStage()
     {
-        // 플레이어 선택 스테이지 데이터 기반으로 세팅
-        (int mainIdx, int subIdx) = PlayerDataManager.Instance.SelectedStageIdx;
-        Debug.Log($"스테이지{mainIdx + 1}-{subIdx + 1} 클리어");
-        // 스테이지 데이터 가져와서 해금하기
-        // 최대 서브 스테이지를 클리어 했다면 다음 메인 스테이지 해금, 서브 인덱스 1으로
-
-        bool isFirstClear = !PlayerDataManager.Instance.IsStageCleared(mainIdx + 1, subIdx + 1);
-        if (isFirstClear)
+        try
         {
-            Debug.Log($"스테이지 {mainIdx + 1}-{subIdx + 1} 최초 클리어!");
-            PlayerDataManager.Instance.MarkLocalStageClear(mainIdx + 1, subIdx + 1);
-        }
 
-        else
-        {
-            Debug.Log($"스테이지 {mainIdx + 1}-{subIdx + 1}은(는) 이미 클리어한 스테이지입니다.");
-        }
-    
-        int maxSubIdx = SettingDataManager.Instance.MainStageData[mainIdx].subStages.Count;
-        if (++subIdx >= maxSubIdx)
-        {
-            subIdx = 0;
-            SettingDataManager.Instance.MainStageData[++mainIdx].isUnlocked = true;
-        }
-        // 서브 스테이지 해금
-        SettingDataManager.Instance.MainStageData[mainIdx].subStages[subIdx].isUnlocked = true;
+            // 플레이어 선택 스테이지 데이터 기반으로 세팅
+            (int mainIdx, int subIdx) = PlayerDataManager.Instance.SelectedStageIdx;
+            Debug.Log($"스테이지{mainIdx + 1}-{subIdx + 1} 클리어");
+            // 스테이지 데이터 가져와서 해금하기
+            // 최대 서브 스테이지를 클리어 했다면 다음 메인 스테이지 해금, 서브 인덱스 1으로
 
-        GameManager.IsStageAndDestinySelected = false; // 스테이지 선택부터 다시 하도록 설정
+            bool isFirstClear = !PlayerDataManager.Instance.IsStageCleared(mainIdx + 1, subIdx + 1);
+            if (isFirstClear)
+            {
+                Debug.Log($"스테이지 {mainIdx + 1}-{subIdx + 1} 최초 클리어!");
+                await PlayerDataManager.Instance.MarkLocalStageClear(mainIdx + 1, subIdx + 1);
+            }
+
+            else
+            {
+                Debug.Log($"스테이지 {mainIdx + 1}-{subIdx + 1}은(는) 이미 클리어한 스테이지입니다.");
+            }
+
+            int maxSubIdx = SettingDataManager.Instance.MainStageData[mainIdx].subStages.Count;
+            if (++subIdx >= maxSubIdx)
+            {
+                subIdx = 0;
+                SettingDataManager.Instance.MainStageData[++mainIdx].isUnlocked = true;
+            }
+            // 서브 스테이지 해금
+            SettingDataManager.Instance.MainStageData[mainIdx].subStages[subIdx].isUnlocked = true;
+
+            await PlayerDataManager.Instance.SaveDataToCloudAsync();
+
+            GameManager.IsStageAndDestinySelected = false; // 스테이지 선택부터 다시 하도록 설정
+
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogException(ex);
+            Debug.LogWarning("에러 팝업: 에러가 나서 보상을 주지 못했습니다.");
+        }
+        
+        //finally는 없다. 스테이지 클리어하고 인터넷 없으면 그냥 결과 날라가는거다!
+
     }
 
     private void CollectStageResultAnalyticsEvent(bool isVictory)

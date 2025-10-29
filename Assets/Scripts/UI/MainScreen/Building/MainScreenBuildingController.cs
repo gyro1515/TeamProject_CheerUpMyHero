@@ -1,3 +1,4 @@
+using Cysharp.Threading.Tasks;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -285,7 +286,7 @@ public class MainScreenBuildingController : MonoBehaviour
     }
 
     // ---------------- 건설 ----------------
-    public void BuildBuildingOnTile(BuildingTile tile, int buildingBaseID)
+    public async UniTask BuildBuildingOnTile(BuildingTile tile, int buildingBaseID)
     {
         if (tile == null) { Debug.LogError("tile이 null입니다."); return; }
 
@@ -306,34 +307,46 @@ public class MainScreenBuildingController : MonoBehaviour
             }
         }
 
-        // 비용 차감
-        foreach (var cost in constructionData.costs)
-            PlayerDataManager.Instance.AddResource(cost.resourceType, -cost.amount);
-
-        // 1레벨 데이터 가져오기
-        var level1Data = DataManager.Instance.BuildingUpgradeData.GetData(constructionData.nextLevel);
-        if (level1Data == null)
+        try
         {
-            Debug.LogError($"ID {constructionData.nextLevel}의 1레벨 데이터를 찾을 수 없습니다.");
-            return;
+            // 비용 차감
+            foreach (var cost in constructionData.costs)
+                await PlayerDataManager.Instance.AddResource(cost.resourceType, -cost.amount);
+
+            // 1레벨 데이터 가져오기
+            var level1Data = DataManager.Instance.BuildingUpgradeData.GetData(constructionData.nextLevel);
+            if (level1Data == null)
+            {
+                Debug.LogError($"ID {constructionData.nextLevel}의 1레벨 데이터를 찾을 수 없습니다.");
+                return;
+            }
+
+            // 저장 & 반영
+            PlayerDataManager.Instance._TileDataHandler.BuildingGridData[tile.X, tile.Y] = level1Data;
+            tile.SetBuilding(level1Data);
+
+            onGridStateChangedEventPub.Publish();
+
+            // 건설 효과음
+            AudioManager.PlayOneShot(DataManager.AudioData.buildingSE);
+
+            Debug.Log($"{tile.X},{tile.Y}에 {level1Data.buildingName} 건설 완료!");
+
+            await PlayerDataManager.Instance.SaveDataToCloudAsync();
         }
-
-        // 저장 & 반영
-        PlayerDataManager.Instance._TileDataHandler.BuildingGridData[tile.X, tile.Y] = level1Data;
-        tile.SetBuilding(level1Data);
-
-        onGridStateChangedEventPub.Publish();
-
-        // 건설 효과음
-        AudioManager.PlayOneShot(DataManager.AudioData.buildingSE);
-
-        Debug.Log($"{tile.X},{tile.Y}에 {level1Data.buildingName} 건설 완료!");
-        DeselectTile();
-        PlayerDataManager.Instance.SaveDataToCloudAsync();
+        catch (Exception ex)
+        {
+            Debug.LogException(ex);
+            Debug.LogWarning("에러 팝업: 에러가 나서 건설 실패했습니다.");
+        }
+        finally
+        {
+            DeselectTile();
+        }
     }
 
     // ---------------- 업그레이드 ----------------
-    public void UpgradeBuildingOnTile(BuildingTile tile)
+    public async UniTask UpgradeBuildingOnTile(BuildingTile tile)
     {
         if (tile == null) { Debug.LogError("tile이 null입니다."); return; }
 
@@ -381,29 +394,44 @@ public class MainScreenBuildingController : MonoBehaviour
             }
         }
 
-        // --- 비용 차감 ---
-        foreach (var finalCost in finalCosts)
+        try
         {
-            PlayerDataManager.Instance.AddResource(finalCost.type, -finalCost.amount);
+
+            // --- 비용 차감 ---
+            foreach (var finalCost in finalCosts)
+            {
+                await PlayerDataManager.Instance.AddResource(finalCost.type, -finalCost.amount);
+            }
+
+            // --- 저장 & 반영 ---
+            PlayerDataManager.Instance._TileDataHandler.BuildingGridData[tile.X, tile.Y] = next;
+            tile.SetBuilding(next);
+
+            // 효과음 출력
+            AudioManager.PlayOneShot(DataManager.AudioData.buildingSE);
+
+            onGridStateChangedEventPub.Publish();
+
+            Debug.Log($"{current.buildingName} Lv.{current.level} → Lv.{next.level} 업그레이드 완료!");
+
+            await PlayerDataManager.Instance.SaveDataToCloudAsync();
+
+        }
+        catch( Exception ex ) 
+        {
+            Debug.LogException(ex);
+            Debug.LogWarning("에러 팝업: 에러가 나서 건물 업그레이드에 실패했습니다.");
         }
 
-        // --- 저장 & 반영 ---
-        PlayerDataManager.Instance._TileDataHandler.BuildingGridData[tile.X, tile.Y] = next;
-        tile.SetBuilding(next);
-
-        // 효과음 출력
-        AudioManager.PlayOneShot(DataManager.AudioData.buildingSE);
-
-        onGridStateChangedEventPub.Publish();
-
-        Debug.Log($"{current.buildingName} Lv.{current.level} → Lv.{next.level} 업그레이드 완료!");
-        DeselectTile();
-
-        PlayerDataManager.Instance.SaveDataToCloudAsync();
+        finally
+        {
+            DeselectTile();
+        }
+       
     }
 
     // ------수리------
-    public void RepairBuildingOnTile(BuildingTile tile)
+    public async UniTask RepairBuildingOnTile(BuildingTile tile)
     {
         var currentBuildingData = PlayerDataManager.Instance._TileDataHandler.BuildingGridData[tile.X, tile.Y];
         if (currentBuildingData == null) return;
@@ -439,21 +467,34 @@ public class MainScreenBuildingController : MonoBehaviour
             return;
         }
 
-        // 모든 자원을 차감
-        foreach (var cost in repairCosts)
+        try
         {
-            int costAmount = Mathf.CeilToInt(cost.amount * 0.5f);
-            PlayerDataManager.Instance.AddResource(cost.resourceType, -costAmount);
+
+            // 모든 자원을 차감
+            foreach (var cost in repairCosts)
+            {
+                int costAmount = Mathf.CeilToInt(cost.amount * 0.5f);
+                await PlayerDataManager.Instance.AddResource(cost.resourceType, -costAmount);
+            }
+
+            //상태를 'Damaged'에서 'Repairing'으로 변경
+            PlayerDataManager.Instance._TileDataHandler.TileStatusGrid[tile.X, tile.Y] = TileStatus.Repairing;
+            PlayerDataManager.Instance.UpdateAllBuildingEffects();
+
+            tile.UpdateStatusVisual();
+            Debug.Log($"타일 ({tile.X},{tile.Y})의 수리를 시작합니다. 남은 턴: {PlayerDataManager.Instance._TileDataHandler.TileStatusGrid[tile.X, tile.Y]}");
+            await PlayerDataManager.Instance.SaveDataToCloudAsync();
+        }
+        catch (Exception ex) 
+        {
+            Debug.LogException(ex);
+            Debug.LogWarning("에러 팝업: 에러가 나서 수리에 실패했습니다..");
+        }
+        finally
+        {
+            DeselectTile();
         }
 
-        //상태를 'Damaged'에서 'Repairing'으로 변경
-        PlayerDataManager.Instance._TileDataHandler.TileStatusGrid[tile.X, tile.Y] = TileStatus.Repairing;
-        PlayerDataManager.Instance.UpdateAllBuildingEffects();
-
-        tile.UpdateStatusVisual();
-        Debug.Log($"타일 ({tile.X},{tile.Y})의 수리를 시작합니다. 남은 턴: {PlayerDataManager.Instance._TileDataHandler.TileStatusGrid[tile.X, tile.Y]}");
-        DeselectTile();
-        PlayerDataManager.Instance.SaveDataToCloudAsync();
     }
 
     public void InitiateDestruction(BuildingTile tile)
@@ -478,9 +519,9 @@ public class MainScreenBuildingController : MonoBehaviour
         destroyPopup.OpenPopup(tile, buildingInfo, refundAmounts, this);
     }
 
-    public void ConfirmDestruction(BuildingTile tile)
+    public async UniTask ConfirmDestruction(BuildingTile tile)
     {
-        PlayerDataManager.Instance.DestroyBuildingAt(tile.X, tile.Y);
+        await PlayerDataManager.Instance.DestroyBuildingAt(tile.X, tile.Y);
 
         UpdateTileUI(tile);
         PlayerDataManager.Instance.UpdateAllSynergyEffects();
@@ -581,6 +622,7 @@ public class MainScreenBuildingController : MonoBehaviour
     }
     #endregion
 
+    //광고 들어오면 그때 비동기화
     private void PerformMoveOrSwap(BuildingTile destinationTile, bool applyNewCooldown = true)
     {
         var dataHandler = PlayerDataManager.Instance._TileDataHandler;
@@ -620,10 +662,11 @@ public class MainScreenBuildingController : MonoBehaviour
         _sourceDragTile = null;
         dragIcon.gameObject.SetActive(false);
 
-        PlayerDataManager.Instance.SaveDataToCloudAsync();
+        PlayerDataManager.Instance.SaveDataToCloudAsync().Forget(ex => Debug.LogException(ex)); // 아직 광고도 없는데 그냥 위치 바꾼거 저장 실패해도 되지 않을까?
     }
 
 
+    //광고 들어오면 그때 비동기화
     public void ConfirmAdAndMove(BuildingTile source, BuildingTile destination)
     {
         AdManager.Instance.ShowRewardedAd(() =>
@@ -643,6 +686,8 @@ public class MainScreenBuildingController : MonoBehaviour
             _sourceDragTile = source;
             PerformMoveOrSwap(destination, false);
         });
+
+        PlayerDataManager.Instance.SaveDataToCloudAsync().Forget(ex => Debug.LogException(ex)); // 아직 광고도 없는데 광고보고 저장되는지 안되는지는 상관없지 않을까?
     }
 }
 

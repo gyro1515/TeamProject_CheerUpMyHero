@@ -174,16 +174,26 @@ public class DeckPresetController : BaseUI, IBackButtonHandler
         deckNameInputField.ActivateInputField();
     }
 
-    private void OnConfirmNameChange()
+    private async void OnConfirmNameChange()
     {
-        string newName = deckNameInputField.text;
-        if (string.IsNullOrWhiteSpace(newName)) return;
+        try
+        {
+            string newName = deckNameInputField.text;
+            if (string.IsNullOrWhiteSpace(newName)) return;
 
-        PlayerDataManager.Instance.DeckPresets[_currentDeckIndex].DeckName = newName;
-        PlayerDataManager.Instance.SaveDataToCloudAsync();
-
-        //ExitEditMode();
-        editNamePanel.CloseUI();
+            PlayerDataManager.Instance.DeckPresets[_currentDeckIndex].DeckName = newName;
+            await PlayerDataManager.Instance.SaveDataToCloudAsync();
+        }
+        catch (Exception ex)
+        {
+            Debug.LogException(ex);
+            Debug.LogWarning("에러 팝업: 에러가 나서 이름을 바꾸지 못했습니다.");
+        }
+        finally
+        {
+            //ExitEditMode();
+            editNamePanel.CloseUI();
+        }
     }
 
     public void ExitEditMode()
@@ -244,12 +254,25 @@ public class DeckPresetController : BaseUI, IBackButtonHandler
         }
     }
 
-    private void CompleteFormationDirect()
+    //버튼에 등록하는 것 중에서 맨 마지막에 실행된다. => void로 해도 않을까?
+    private async void CompleteFormationDirect()
     {
         Debug.Log("편성 완료. 모든 덱 정보를 저장하고 전투씬으로 이동");
-        PlayerDataManager.Instance.SaveDataToCloudAsync();
 
-        SceneLoader.Instance.StartLoadScene(SceneState.BattleScene);
+        try
+        {
+            await PlayerDataManager.Instance.SaveDataToCloudAsync();
+        }
+        catch (Exception ex) 
+        {
+            Debug.LogException(ex);
+            Debug.LogWarning("에러 팝업: 에러가 나서 덱을 저장하지 못했습니다.");
+        }
+        finally
+        {
+            SceneLoader.Instance.StartLoadScene(SceneState.BattleScene);
+        }
+        
         /* if (_stageSelectUI != null)
          {
              FadeManager.Instance.SwitchGameObjects(gameObject, _stageSelectUI.gameObject);

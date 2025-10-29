@@ -109,7 +109,7 @@ public class UIManager : SingletonMono<UIManager>, ISceneResettable
             Debug.Log("뒤로 가기: 열린 UI 없음 (게임 종료 로직 등 수행)");
 #if UNITY_EDITOR
             // 에디터에서는 플레이 모드를 종료
-            EditorApplication.isPlaying = false;
+            //EditorApplication.isPlaying = false;
 #else
         // 실제 빌드된 환경에서는 애플리케이션 종료
         Application.Quit();
