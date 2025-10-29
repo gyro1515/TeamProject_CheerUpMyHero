@@ -958,7 +958,21 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
             Debug.LogException(ex);
         }
     }
+    //홈 버튼 등으로 백그라운드로 갈때 호출
+    private void OnApplicationPause(bool pauseStatus)
+    {
+        if (pauseStatus)
+        {
+            Debug.Log("앱이 백그라운드로 전환되었습니다. 저장을 시도합니다.");
+            // await를 사용하지 않고 Task를 바로 실행시킵니다.
+            SaveDataToCloudAsync().Forget();
+        }
+    }
+
+
     #endregion
+
+
 }
 
 [System.Serializable]
