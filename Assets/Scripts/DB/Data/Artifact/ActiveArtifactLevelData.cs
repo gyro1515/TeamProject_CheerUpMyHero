@@ -17,6 +17,7 @@ public class ActiveArtifactLevelData : ArtifactData
     
     public float summonHealth;              // 거석
     public float summonDuration;            // 거석
+    public PoolType summonPoolType;         // 거석
 
     public int woodCost;
     public int goldCost;
