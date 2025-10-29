@@ -9,10 +9,14 @@ public class GachaResultIcon : MonoBehaviour
     [SerializeField] private Image rarityBorderImage;  // 앞면 등급 테두리
     [SerializeField] private Image characterImage;     // 앞면 캐릭터 이미지
     [SerializeField] private Image backgroundMaskImage; // BackgroundMask 오브젝트의 Image 컴포넌트
+
+    [Header("등급별 카드 뒷면 스프라이트")]
+    [SerializeField] private Sprite commonBackSprite; // Common 등급용 뒷면
+    [SerializeField] private Sprite rareBackSprite;   // Rare 등급용 뒷면
+    [SerializeField] private Sprite epicBackSprite;   // Epic 등급용 뒷면
     private int _resultId;
     public bool IsFlipped { get; private set; } = false;
     private GachaSequenceController _controller;
-    private Color _rarityColor;
 
     // 카드를 생성할 때 연출 감독이 호출하는 함수
     public void Setup(int id, GachaSequenceController controller, bool showAsFlipped = false)
@@ -24,7 +28,7 @@ public class GachaResultIcon : MonoBehaviour
 
         if (unitData != null)
         {
-            Color rarityColor = GetColorForRarity(unitData.rarity);
+            cardBackImage.sprite = GetBackSpriteForRarity(unitData.rarity);
 
             // 1. 가챠 전용 일러스트(gachaHeroSprite)가 있는지 확인
             if (unitData.gachaHeroSprite != null)
@@ -43,17 +47,14 @@ public class GachaResultIcon : MonoBehaviour
                 rarityBorderImage.sprite = unitData.unitBGSprite; // 유닛 배경 스프라이트 할당
                 rarityBorderImage.color = Color.white; // 색상 보정 (이미지 자체 색상 사용)
             }
-
-            cardBackImage.color = rarityColor;
         }
         else
         {
             Debug.LogError($"[GachaResultIcon] ID: {_resultId}에 해당하는 유닛 데이터를 찾을 수 없습니다!");
-            _rarityColor = GetColorForRarity(Rarity.common);
             characterImage.sprite = null;
             backgroundMaskImage.gameObject.SetActive(false); // 오류 시 배경 숨김
             rarityBorderImage.gameObject.SetActive(false); // 오류 시 배경 숨김
-            cardBackImage.color = _rarityColor;
+            cardBackImage.sprite = commonBackSprite; // 오류 시 기본 뒷면
         }
 
         GetComponent<Button>().onClick.AddListener(OnClick);
@@ -121,18 +122,14 @@ public class GachaResultIcon : MonoBehaviour
             });
         });
     }
-
-
-
-    // ID로 등급별 색상 반환
-    private Color GetColorForRarity(Rarity rarity)
+    private Sprite GetBackSpriteForRarity(Rarity rarity)
     {
         switch (rarity)
         {
-            case Rarity.epic: return Color.yellow;
-            case Rarity.rare: return Color.magenta;
-            case Rarity.common: return Color.blue;
-            default: return Color.white;
+            case Rarity.epic: return epicBackSprite;
+            case Rarity.rare: return rareBackSprite;
+            case Rarity.common: return commonBackSprite;
+            default: return commonBackSprite; // 기본값
         }
     }
 }
