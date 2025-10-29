@@ -46,7 +46,7 @@ public class UIWaveWarning : BaseUI
     public override void OpenUI()
     {
         base.OpenUI();
-        AudioManager.PlayOneShot(DataManager.AudioData.waveWarningSE);
+        AudioManager.PlayOneShot(DataManager.AudioData.waveWarningSE, 0.6f);
         enabled = true;
     }
     public override void CloseUI()

@@ -112,7 +112,7 @@ public class AudioManager : SingletonMono<AudioManager>
         }
     }
 
-    public static AudioClip SelectBGM(SceneState sceneState, float volume = 1.0f)
+    public static AudioClip SelectBGM(SceneState sceneState, float volume = 0.8f)
     {
         AudioClip clip = null;
 

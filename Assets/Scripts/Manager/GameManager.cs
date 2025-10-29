@@ -254,7 +254,7 @@ public class GameManager : SingletonMono<GameManager>
                 finalMagicStone += Random.Range(totalMagicStoneMin, totalMagicStoneMax + 1);
             }
             // 스테이지 클리어 효과음 출력함.
-            AudioManager.PlayOneShot(DataManager.AudioData.StageClearSE);
+            AudioManager.PlayOneShot(DataManager.AudioData.StageClearSE, 0.7f);
 
             RewardPanelUI?.OpenUI(finalGold, finalWood, finalIron, finalMagicStone, true);
             try
@@ -291,7 +291,7 @@ public class GameManager : SingletonMono<GameManager>
             }
 
             // 스테이지 패배 효과음
-            AudioManager.PlayOneShot(DataManager.AudioData.StageFailSE);
+            AudioManager.PlayOneShot(DataManager.AudioData.StageFailSE, 0.7f);
 
             // 결과창 UI 열기 (차감된 값이므로 음수로 전달)
             RewardPanelUI?.OpenUI(-penalties.gold, -penalties.wood, -penalties.iron, -penalties.magicStone, false);
