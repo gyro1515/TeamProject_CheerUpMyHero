@@ -62,10 +62,18 @@ public class StoryScrollController : MonoBehaviour
             StopCoroutine(scrollCoroutine);
             scrollCoroutine = null;
         }
+        if(GameManager.IsTutorialCompleted)
+        {
+            Debug.Log("스토리 스킵! 튜토리얼 클리어로 메인 씬으로 이동합니다.");
+            SceneLoader.Instance.StartLoadScene(SceneState.MainScene);
+        }
+        else
+        {
+            Debug.Log("스토리 스킵! 튜토리얼으로 이동합니다.");
+            SceneLoader.Instance.StartLoadScene(SceneState.BattleScene);
+        }
+        
 
-        Debug.Log("스토리 스킵! 메인 씬으로 이동합니다.");
-        SceneLoader.Instance.StartLoadScene(SceneState.MainScene);
-
-        storyPanelRoot.SetActive(false);
+        //storyPanelRoot.SetActive(false);
     }
 }
