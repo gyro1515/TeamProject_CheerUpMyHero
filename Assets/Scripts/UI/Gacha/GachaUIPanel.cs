@@ -118,7 +118,7 @@ public class GachaUIPanel : BaseUI
                 return; 
             }
 
-             PlayerDataManager.Instance.AddResource(ResourceType.Ticket, -1);
+             await PlayerDataManager.Instance.AddResource(ResourceType.Ticket, -1);
 
             // --- 2. 페이지별 천장 정보 가져오기 ---
             int currentPity = (currentPage == 0) ? PlayerDataManager.Instance.LimitedGachaPityCount : PlayerDataManager.Instance.StandardGachaPityCount;
@@ -195,7 +195,7 @@ public class GachaUIPanel : BaseUI
                 //pullTenButton.interactable = false;
             }
 
-            PlayerDataManager.Instance.SaveDataToCloudAsync();
+            await PlayerDataManager.Instance.SaveDataToCloudAsync();
         }
     }
 
@@ -224,7 +224,7 @@ public class GachaUIPanel : BaseUI
                 Debug.LogWarning("티켓 부족 (10회)!");
                 return; // 뽑기 중단 (finally에서 버튼 활성화됨)
             }
-            PlayerDataManager.Instance.AddResource(ResourceType.Ticket, -10);
+            await PlayerDataManager.Instance.AddResource(ResourceType.Ticket, -10);
 
             List<int> resultIds = new List<int>(); // 10개 결과를 담을 리스트
             //bool gotEpicInBatch = false; // 10회 뽑기 중 에픽 나왔는지 확인용
@@ -290,7 +290,7 @@ public class GachaUIPanel : BaseUI
                 pullTenButton.interactable = false; 
             }
 
-            PlayerDataManager.Instance.SaveDataToCloudAsync();
+            await PlayerDataManager.Instance.SaveDataToCloudAsync();
         }
     }
 
