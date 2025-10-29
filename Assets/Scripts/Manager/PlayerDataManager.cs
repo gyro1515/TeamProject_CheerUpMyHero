@@ -931,6 +931,9 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
                 return;
             }
 
+            //튜토리얼 끝날때 까지 저장 x => 저장된다면, 튜토리얼이 끝난 것 => 저장된 데이터가 있다면, 튜토리얼이 끝난 것
+            //GameManager.IsTutorialCompleted = true; 
+
             SettingDataManager.Instance.LoadClearData(loadedData.ClearData);
             UpdateClearedStagesFromServer(loadedData.ClearData);
             ConvertIntToDeck(loadedData.DeckPresets);
