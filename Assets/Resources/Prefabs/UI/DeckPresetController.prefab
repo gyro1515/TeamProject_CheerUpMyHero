@@ -5122,6 +5122,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   POPUP_UI_WARNING: "\uD574\uB2F9 UI\uB294 \uD31D\uC5C5\uC785\uB2C8\uB2E4. \uC791\uC5C5
     \uD6C4 \uBE44\uD65C\uC131\uD654 \uD574\uC8FC\uC138\uC694."
+  openSound: {fileID: 0}
+  closeSound: {fileID: 0}
 --- !u!114 &505523068911734285
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8104,6 +8106,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   POPUP_UI_WARNING: "\uD574\uB2F9 UI\uB294 \uD31D\uC5C5\uC785\uB2C8\uB2E4. \uC791\uC5C5
     \uD6C4 \uBE44\uD65C\uC131\uD654 \uD574\uC8FC\uC138\uC694."
+  openSound: {fileID: 0}
+  closeSound: {fileID: 0}
 --- !u!114 &911932910620415494
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9619,7 +9623,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &111323160967730204
 RectTransform:
   m_ObjectHideFlags: 0
@@ -9748,6 +9752,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   POPUP_UI_WARNING: "\uD574\uB2F9 UI\uB294 \uD31D\uC5C5\uC785\uB2C8\uB2E4. \uC791\uC5C5
     \uD6C4 \uBE44\uD65C\uC131\uD654 \uD574\uC8FC\uC138\uC694."
+  openSound: {fileID: 0}
+  closeSound: {fileID: 0}
   synergyToolTipText: {fileID: 1244526337033891772}
   synergyToolTipDescriptionText: {fileID: 3641790131159201179}
 --- !u!1 &6966203084934300505
@@ -10791,7 +10797,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &8379759407817011219
 RectTransform:
   m_ObjectHideFlags: 0
@@ -12352,6 +12358,10 @@ PrefabInstance:
     - target: {fileID: 338492365707641000, guid: 1beed7494cc8c4348aa7790f39b48bc6, type: 3}
       propertyPath: m_SizeDelta.y
       value: 108
+      objectReference: {fileID: 0}
+    - target: {fileID: 637172335018973339, guid: 1beed7494cc8c4348aa7790f39b48bc6, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 6.979492
       objectReference: {fileID: 0}
     - target: {fileID: 914552170029505858, guid: 1beed7494cc8c4348aa7790f39b48bc6, type: 3}
       propertyPath: m_SizeDelta.y
