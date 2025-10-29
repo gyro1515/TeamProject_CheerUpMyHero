@@ -598,7 +598,6 @@ public class BackendManager : SingletonMono<BackendManager>
     }
 
     //나중에 서버로 이사가야 함
-    //그니까 일단 void도 대충 하자
     public static async UniTask ChangeEconomy(string id, int amount)
     {
         var status = await CanCommunicateAsync(nameof(ChangeEconomy));
