@@ -200,6 +200,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   POPUP_UI_WARNING: "\uD574\uB2F9 UI\uB294 \uD31D\uC5C5\uC785\uB2C8\uB2E4. \uC791\uC5C5
     \uD6C4 \uBE44\uD65C\uC131\uD654 \uD574\uC8FC\uC138\uC694."
+  openSound: {fileID: 0}
+  closeSound: {fileID: 0}
   _challengeElementPrefab: {fileID: 652262870818787126, guid: 6fb9931f433b47f4f8963e80931b466f, type: 3}
   _challengeElementsCreatePosition: {fileID: 1681805516247655984}
   _rewardBonusText: {fileID: 258988232449079348}
@@ -395,6 +397,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   POPUP_UI_WARNING: "\uD574\uB2F9 UI\uB294 \uD31D\uC5C5\uC785\uB2C8\uB2E4. \uC791\uC5C5
     \uD6C4 \uBE44\uD65C\uC131\uD654 \uD574\uC8FC\uC138\uC694."
+  openSound: {fileID: 0}
+  closeSound: {fileID: 0}
   _icon: {fileID: 646585179636760665}
   _title: {fileID: 771357425423304688}
   _description: {fileID: 1991631236282970765}
@@ -1290,6 +1294,8 @@ GameObject:
   - component: {fileID: 8129023690980083844}
   - component: {fileID: 7855672292250939237}
   - component: {fileID: 8114824876402679756}
+  - component: {fileID: 1880788417412834762}
+  - component: {fileID: 1386988746764185176}
   m_Layer: 5
   m_Name: UIDestinyRoullette
   m_TagString: Untagged
@@ -1446,6 +1452,44 @@ CanvasGroup:
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
+--- !u!222 &1880788417412834762
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4005768256265191720}
+  m_CullTransparentMesh: 1
+--- !u!114 &1386988746764185176
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4005768256265191720}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 0, g: 0, b: 0, a: 1}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 0}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
 --- !u!1 &4156115782806110105
 GameObject:
   m_ObjectHideFlags: 0
@@ -2346,6 +2390,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   POPUP_UI_WARNING: "\uD574\uB2F9 UI\uB294 \uD31D\uC5C5\uC785\uB2C8\uB2E4. \uC791\uC5C5
     \uD6C4 \uBE44\uD65C\uC131\uD654 \uD574\uC8FC\uC138\uC694."
+  openSound: {fileID: 0}
+  closeSound: {fileID: 0}
 --- !u!1 &6341676600705692888
 GameObject:
   m_ObjectHideFlags: 0
