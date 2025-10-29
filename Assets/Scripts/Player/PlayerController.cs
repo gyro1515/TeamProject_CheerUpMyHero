@@ -145,8 +145,8 @@ public class PlayerController : BaseController
         {
             //player.TargetUnit = UnitManager.Instance.FindClosestTarget(player, true);
             player.TargetUnit = UnitManager.Instance.FindClosestTarget(player, true, out Transform targetPos);
-            if (targetPos != null)
-                Debug.Log($"타겟위치: {targetPos.position.x}");
+            /*if (targetPos != null)
+                Debug.Log($"타겟위치: {targetPos.position.x}");*/
             yield return wait;
         }
     }
