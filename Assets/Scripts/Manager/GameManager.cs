@@ -277,9 +277,17 @@ public class GameManager : SingletonMono<GameManager>
         }
         else // =============== 패배했을 경우 ===============
         {
-            Debug.Log("패배 페널티를 적용합니다.");
+            (int gold, int wood, int iron, int magicStone) penalties = (0, 0, 0, 0);
+            if (GameManager.IsTutorialCompleted)
+            {
+                Debug.Log("패배 페널티를 적용합니다.");
 
-            var penalties = await PlayerDataManager.Instance.ApplyResourcePenalty();
+                penalties = await PlayerDataManager.Instance.ApplyResourcePenalty();
+            }
+            else
+            {
+                Debug.Log("튜토리얼에서는 패널티 없습니다.");
+            }
 
             // 스테이지 패배 효과음
             AudioManager.PlayOneShot(DataManager.AudioData.StageFailSE);

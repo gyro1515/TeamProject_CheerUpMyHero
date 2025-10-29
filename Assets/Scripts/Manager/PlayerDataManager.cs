@@ -148,7 +148,7 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
     {
         Debug.Log($"전투 종료 감지! (승리: {e.IsVictory})");
         _TileDataHandler.AdvanceRepairTurn();
-        if (!e.IsVictory)
+        if (!e.IsVictory && GameManager.IsTutorialCompleted) // 튜토리얼 중에는 영지 타일 데미지 없음
         {
             _TileDataHandler.DamageRandomTile();
         }
