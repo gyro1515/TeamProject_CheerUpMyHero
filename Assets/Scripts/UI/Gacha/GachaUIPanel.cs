@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Threading.Tasks;
 
-public class GachaUIPanel : BaseUI 
+public class GachaUIPanel : BaseUI, IBackButtonHandler
 {
     [Header("UI 참조")]
     [SerializeField] private Button backButton; 
@@ -47,11 +47,11 @@ public class GachaUIPanel : BaseUI
         _limitedPitySubscriber.Subscribe(HandleLimitedPityUpdate);
         _standardPitySubscriber.Subscribe(HandleStandardPityUpdate);
         UpdateInitialPityCounters();
+        UIManager.PubishAddUIStackEvent(this);
     }
  void OnDisable()
     {
-        
-
+        UIManager.PublishRemoveUIStackEvent();
         _limitedPitySubscriber?.Unsubscribe(HandleLimitedPityUpdate);
         _standardPitySubscriber?.Unsubscribe(HandleStandardPityUpdate);
     }
@@ -344,5 +344,11 @@ public class GachaUIPanel : BaseUI
         {
             Debug.LogError("MainScreenUIObject가 GachaUIPanel에 연결되지 않았습니다!");
         }
+    }
+
+    public void OnBackPressed()
+    {
+        Debug.Log($"{gameObject.name} 뒤로 가기 버튼 눌림");
+        OnBackButtonClicked();
     }
 }

@@ -65,6 +65,18 @@ public class GachaSequenceController : BasePopUpUI
             envelopeVideoPlayer.prepareCompleted -= OnVideoPrepared;
         }
     }
+    public override void OnBackPressed()
+    {
+        Debug.Log($"{gameObject.name} 뒤로가기: ");
+        if(skipButton.gameObject.activeSelf)
+        {
+            OnSkipClicked();
+        }
+        else
+        {
+            OnGridResultConfirmed();
+        }
+    }
     public void StartGachaSequence(List<int> resultIds)
     {
         _currentGachaResults = resultIds;
