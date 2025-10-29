@@ -23,6 +23,7 @@ public class AudioData : ScriptableObject
     public AudioClip StageClearSE;
     public AudioClip StageFailSE;
     public AudioClip ClearArtifactSE;
+    public AudioClip BattleStartSE;
 
     [Header("UI 효과음")]
     public AudioClip levelUpSE;
@@ -30,12 +31,18 @@ public class AudioData : ScriptableObject
     public AudioClip cardEquipSE;
     public AudioClip artifactEquipSE;
     public AudioClip stageModifierselectedSE;
+    public AudioClip buttonTouchSE;
+    public AudioClip optionOpenSE;
+    public AudioClip optionQuitSE;
+    public AudioClip waveWarningSE;
 
     [Header("전투 효과음")]
     public AudioClip[] monsterWaveSE_oak;
     public AudioClip magicUnitAttackSE;
     public AudioClip[] meleeUnitAttackSE;
     public AudioClip archerUnitAttackSE;
+    public AudioClip hqDestroySE;
+    public AudioClip playerWarningHpSE;
 
     [Header("유물 효과음")]
     public AudioClip AF_IceBreath;

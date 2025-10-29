@@ -34,6 +34,7 @@ public abstract class BaseHQ : BaseCharacter, IDamageable
         CancelInvoke("SpawnUnit"); //게임 매니저에 있는 Time.timeScale = 0f;일시정지일뿐이라서 시간이 다시 흐르면 멈췄던 Invoke가 재시작되므로,
                                    //'완전한 종료'를 위해 CancelInvoke가 필요
         OnDead -= Dead;
+        AudioManager.PlayOneShotByCameraDistance(DataManager.AudioData.hqDestroySE, gameObject.transform);
         Debug.Log("HQDead");
         gameObject.SetActive(false);
         Destroy(gameObject);

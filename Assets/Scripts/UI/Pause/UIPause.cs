@@ -51,6 +51,7 @@ public class UIPause : BaseUI, IBackButtonHandler
         _settingPanelCanvasGroup.blocksRaycasts = true;*/
         /*_settingPanel.SetActive(true);
         _settingMenuScript.ShowPausePanel();*/
+
         _settingPanelPopUpUI.OpenUI();
     }
 

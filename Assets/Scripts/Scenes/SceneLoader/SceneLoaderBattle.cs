@@ -31,6 +31,8 @@ public class SceneLoaderBattle : MonoBehaviour
         //Debug.Log($"Prefab/Map/Map{mainStageIdx + 1}_{subStageIdx + 1}");
         // 현재는 연결된 맵 소환
         Instantiate(map);
+        AudioManager.PlayOneShotByCameraDistance(DataManager.AudioData.BattleStartSE, gameObject.transform);
+
     }
 
     private void Update()
