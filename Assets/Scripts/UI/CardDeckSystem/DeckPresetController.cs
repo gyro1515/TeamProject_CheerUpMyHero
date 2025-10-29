@@ -87,7 +87,7 @@ public class DeckPresetController : BaseUI, IBackButtonHandler
     {
         UIManager.PubishAddUIStackEvent(this);
 
-        _tourDeck?.OpenUI();
+        if(!GameManager.IsTutorialCompleted) _tourDeck?.OpenUI();
     }
 
     private void Start()
@@ -231,7 +231,7 @@ public class DeckPresetController : BaseUI, IBackButtonHandler
 
     public void OnUnitSelected(int slotIndex, int unitId)
     {
-        AudioManager.PlayOneShot(DataManager.AudioData.cardEquipSE);
+        AudioManager.PlayOneShot(DataManager.AudioData.cardEquipSE, 0.8f);
         PlayerDataManager.Instance.DeckPresets[_currentDeckIndex].UnitIds[slotIndex] = unitId;
         PlayerDataManager.Instance.DeckPresets[_currentDeckIndex].BaseUnitDatas[slotIndex] = DataManager.PlayerUnitData.GetData(unitId);
         UpdateUnitSlotsUI();

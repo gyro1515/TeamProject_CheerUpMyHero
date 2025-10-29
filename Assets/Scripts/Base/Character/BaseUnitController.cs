@@ -59,16 +59,16 @@ public abstract class BaseUnitController : BaseController
         {
             if (baseUnit.CognizanceRange < 2f)
             {
-                AudioManager.PlayRandomOneShotByCameraDistance(DataManager.AudioData.meleeUnitAttackSE, gameObject.transform);
+                AudioManager.PlayRandomOneShotByCameraDistance(DataManager.AudioData.meleeUnitAttackSE, gameObject.transform, 0.3f);
             }
             else
             {
                 if ((baseUnit.UnitData.synergyType & UnitSynergyType.Archer) != 0)
-                    AudioManager.PlayOneShotByCameraDistance(DataManager.AudioData.archerUnitAttackSE, gameObject.transform);
+                    AudioManager.PlayOneShotByCameraDistance(DataManager.AudioData.archerUnitAttackSE, gameObject.transform, 0.5f);
                 else if ((baseUnit.UnitData.synergyType & UnitSynergyType.Mage) != 0)
-                    AudioManager.PlayOneShotByCameraDistance(DataManager.AudioData.magicUnitAttackSE, gameObject.transform);
+                    AudioManager.PlayOneShotByCameraDistance(DataManager.AudioData.magicUnitAttackSE, gameObject.transform, 0.5f);
                 else
-                    AudioManager.PlayOneShotByCameraDistance(DataManager.AudioData.archerUnitAttackSE, gameObject.transform);
+                    AudioManager.PlayOneShotByCameraDistance(DataManager.AudioData.archerUnitAttackSE, gameObject.transform, 0.5f);
             }
 
             if ((baseUnit.UnitData.synergyType & UnitSynergyType.Burn) != 0)
