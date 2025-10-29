@@ -269,6 +269,7 @@ public class GachaSequenceController : BasePopUpUI
         resultGridPanel.SetActive(true); // 4번 (그리드)로 복귀
         currentState = GachaState.Grid;
         skipButton.gameObject.SetActive(true); // "모두 뒤집기" 버튼 다시 표시
+        _lastClickedIcon?.Flip(false);
         _lastClickedIcon = null; // 클릭했던 아이콘 정보 리셋
         CheckIfAllCardsFlipped();
     }
