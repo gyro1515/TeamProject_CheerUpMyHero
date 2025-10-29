@@ -14,12 +14,16 @@ public class StoryScrollController : MonoBehaviour
 
     private Coroutine scrollCoroutine;
 
+    private void OnEnable()
+    {
+        StartStory();
+    }
     private void Start()
     {
         skipButton?.onClick.AddListener(OnSkipClicked);
     }
 
-    public void StartStory()
+    void StartStory()
     {
         storyPanelRoot.SetActive(true);
         
