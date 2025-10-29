@@ -539,7 +539,7 @@ public class BackendManager : SingletonMono<BackendManager>
 
     //예시 코드
     public static async UniTask SaveDataAsync(Dictionary<string, object> data)
-    {
+    {        
         var status = await CanCommunicateAsync(nameof(SaveDataAsync));
         if (status != CommunicationStatus.Success)
         {

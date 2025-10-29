@@ -865,6 +865,9 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
 
     public async UniTask SaveDataToCloudAsync()
     {
+        if (!GameManager.IsTutorialCompleted)
+            return;
+
         try
         {
             //저장 중이라는 표시를 띄울수도 있음. 근데 요즘 모바일 겜 중에 그런건 없으니..
