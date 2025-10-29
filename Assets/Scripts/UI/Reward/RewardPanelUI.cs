@@ -31,9 +31,9 @@ public class RewardPanelUI : BaseUI
     [SerializeField] private Button returnButton_Victory;
 
     [Header("패배 버튼")]
-    [SerializeField] private Button reformDeckButton;
-    [SerializeField] private Button retryButton_Defeat;
-    [SerializeField] private Button returnButton_Defeat;
+    [SerializeField] private Button reformDeckButton; // 251029: 재도전으로 변경: 덱 재편성으로 이동
+    [SerializeField] private Button retryButton_Defeat; // 251029: 사용 안함
+    [SerializeField] private Button returnButton_Defeat; // 251029: 스테이지 선택으로 변경: 메인으로 이동하여 스테이지 선택 가능하도록
 
     private CanvasGroup canvasGroup;
 
@@ -51,9 +51,14 @@ public class RewardPanelUI : BaseUI
         reformDeckButton.onClick.AddListener(OnReformDeckButton);
 
         retryButton_Victory.onClick.AddListener(OnRetryButton);
-        retryButton_Defeat.onClick.AddListener(OnRetryButton);
+        //retryButton_Defeat.onClick.AddListener(OnRetryButton);
         returnButton_Victory.onClick.AddListener(OnReturnToMainButton);
-        returnButton_Defeat.onClick.AddListener(OnReturnToMainButton);
+            
+        returnButton_Defeat.onClick.AddListener(() => 
+        {
+            GameManager.IsStageAndDestinySelected = false; // 스테이지 선택 가능하도록 설정
+            OnReturnToMainButton();  
+        });
     }
 
     public void OpenUI(int gold, int wood, int iron, int magicStone, bool isVictory)
