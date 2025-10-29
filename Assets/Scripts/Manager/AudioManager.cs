@@ -13,11 +13,11 @@ public class AudioManager : SingletonMono<AudioManager>
     [SerializeField] private AudioSource sfxSource;  // 효과음 오디오소스 
 
     [Header("볼륨 크기")]
-    [SerializeField] private float masterVolume = 0.2f;
+    [SerializeField] private float masterVolume = 1.0f;
     [SerializeField] private float bgmVolume = 1.0f;
     [SerializeField] private float sfxVolume = 1.0f;
     [SerializeField] private float distance = 7.5f; // 거리에 따른 음량 감쇠 기준 거리
-    [SerializeField] private float attenuation = 0.1f; // 거리에 따른 음량 감쇠 비율
+    [SerializeField] private float attenuation = 0.2f; // 거리에 따른 음량 감쇠 비율
 
     /*[Header("BGM 페이드 효과")]
     [SerializeField] private float bgmFadeDuration = 0.5f;*/
@@ -81,10 +81,12 @@ public class AudioManager : SingletonMono<AudioManager>
         if(dist > Instance.distance) // 기준 거리 넘으면 감쇠 적용
         {
             PlayOneShot(clip, vol * Instance.attenuation);
+            //Debug.Log($"거리 {dist}라서 감쇠 적용됨");
         }
         else
         {
             PlayOneShot(clip, vol);
+            //Debug.Log($"거리 {dist}라서 감쇠 없음");
         }
     }
     // 거리 기반 효과음 랜덤 재생

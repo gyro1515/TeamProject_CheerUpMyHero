@@ -14,7 +14,7 @@ public class PlayerHealerSplashController : BaseUnitController
     private Coroutine healAnimRoutine;
     private bool isAttacking = false;
     Transform targetPos = null;
-    IDamageable targetForAttack;
+    IDamageable targetForAttack = null;
     BaseCharacter HealTarget;
     float healCognizanceRange = 2f;
 
