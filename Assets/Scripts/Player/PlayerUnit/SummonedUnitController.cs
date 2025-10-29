@@ -46,9 +46,14 @@ public class SummonedUnitController : PlayerUnit
     private IEnumerator LifetimeCoroutine()
     {
         yield return new WaitForSeconds(_lifeTimeDuration);
+
+        if(IsDead) yield break; // 이미 죽었으면 리턴
+
         Debug.Log($"{name} (소환수) 지속시간 만료. 사라집니다.");
         IsDead = true;
+        UnitManager.Instance.RemoveUnitFromList(this, true);
         BaseController.SetDead();
+        Debug.Log($"{UnitManager.PlayerUnitList.Count}");
     }
     public override void SetStatMultiplier(float statMultiplier, bool isSpawnHero = false)
     {

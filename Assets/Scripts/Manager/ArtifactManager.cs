@@ -25,7 +25,7 @@ public class ArtifactManager : SingletonMono<ArtifactManager>
 
         // LoadArtifactData(); // 외부에서 호출하도록 옮김
         InitializeEquippedArtifacts();
-        SetAfDataForTest(); // 추후 삭제 예정***********
+        //SetAfDataForTest(); // 추후 삭제 예정***********
 
         // 패시브 유물 테스트 ----- // 세이브 없을때만 호출하도록 옮김
         AddArtifact(08010001);

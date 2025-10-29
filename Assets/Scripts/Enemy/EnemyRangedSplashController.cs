@@ -72,7 +72,7 @@ public class EnemyRangedSplashController : BaseUnitController
             hitCount++;
         }*/
         // 251020 우선순위 큐로 로직 변경 -> O(n log n) -> O(n log k)
-        List<BaseCharacter> allPlayers = UnitManager.Instance.PlayerUnitList;
+        List<BaseCharacter> allPlayers = UnitManager.PlayerUnitList;
         int hitCount = 0;
         selectedUnitPQ.Clear();
         foreach (BaseCharacter player in allPlayers)

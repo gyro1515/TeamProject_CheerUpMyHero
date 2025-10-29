@@ -15,8 +15,8 @@ public class UnitManager : SingletonMono<UnitManager>
     //[Header("유닛 확인용")]
     List<BaseCharacter> playerUnitList = new List<BaseCharacter>();
     List<BaseCharacter> enemyUnitList = new List<BaseCharacter>();
-    public List<BaseCharacter> PlayerUnitList { get { return playerUnitList; } }
-    public List<BaseCharacter> EnemyUnitList { get { return enemyUnitList; } }
+    public static List<BaseCharacter> PlayerUnitList { get { return Instance.playerUnitList; } }
+    public static List<BaseCharacter> EnemyUnitList { get { return Instance.enemyUnitList; } }
 
     LayerMask playerLayerMask;
     LayerMask enemyLayerMask;

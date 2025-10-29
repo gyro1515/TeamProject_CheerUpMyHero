@@ -27,6 +27,10 @@ public class ResourceUI : BaseUI
         if (bmText) _resourceTexts.Add(ResourceType.Bm, bmText);
         if (ticketText) _resourceTexts.Add(ResourceType.Ticket, ticketText);
 
+      
+    }
+    protected virtual void OnEnable()
+    {
         if (PlayerDataManager.Instance != null)
         {
             PlayerDataManager.Instance.OnResourceChangedEvent += OnResourceUpdated;
@@ -37,6 +41,7 @@ public class ResourceUI : BaseUI
             Debug.LogError("PlayerDataManager 인스턴스를 찾을 수 없습니다! (ResourceUI Awake)");
         }
     }
+
 
     protected virtual void OnDisable()
     {

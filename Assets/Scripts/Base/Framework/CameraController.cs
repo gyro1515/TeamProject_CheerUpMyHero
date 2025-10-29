@@ -133,7 +133,7 @@ public class CameraController : MonoBehaviour
     // 가장 오른쪽에 있는 아군 유닛을 찾는 함수
     private Transform FindFrontMostUnit()
     {
-        List<BaseCharacter> playerUnits = UnitManager.Instance.PlayerUnitList;
+        List<BaseCharacter> playerUnits = UnitManager.PlayerUnitList;
         if (playerUnits == null || playerUnits.Count == 0) return null;
 
         Transform frontMostUnit = null;

@@ -12,15 +12,19 @@ public class Skill_GiantCoffin : ActiveSkillEffect
 
         Vector3 playerPos = GameManager.Instance.Player.transform.position;
         Vector3 summonPos = playerPos + new Vector3(offset, 0, 0);
-        PoolType poolTypeToSummon = levelData.summonPoolType;
+
+        // 현재는 소환 수 고정, 추후 소환수가 달라진다면 아래 내용 사용
+
+        /*PoolType poolTypeToSummon = levelData.summonPoolType;
         if (poolTypeToSummon == PoolType.None)
         {
             Debug.LogWarning($"summonPoolType이 'None'입니다. 'Allies_UnitGolem'으로 강제 설정합니다.");
             // 3. Allies_UnitGolem으로 강제로 바꿔치기합니다.
             poolTypeToSummon = PoolType.Allies_UnitGolem;
-        }
+        }*/
+
         //  PoolType으로 소환수 오브젝트 풀링
-        GameObject summon = ObjectPoolManager.Instance.Get(poolTypeToSummon);
+        GameObject summon = ObjectPoolManager.Instance.Get(PoolType.Allies_UnitGolem);
         if (summon != null)
         {
             summon.transform.position = summonPos;

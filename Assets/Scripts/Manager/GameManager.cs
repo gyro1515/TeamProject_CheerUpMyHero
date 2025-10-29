@@ -36,17 +36,21 @@ public class GameManager : SingletonMono<GameManager>
     bool isStageAndDestinySelected = false;
     public static bool IsStageAndDestinySelected { get => Instance.isStageAndDestinySelected; set => Instance.isStageAndDestinySelected = value; }
 
+    bool isTutorialCompleted = false;
+    public static bool IsTutorialCompleted { get => Instance.isTutorialCompleted; set => Instance.isTutorialCompleted = value; }
+
     bool isClearedButTryAgain = false;
 
     protected override void Awake()
     {
         base.Awake();
-        RewardPanelUI = UIManager.Instance.GetUI<RewardPanelUI>();
-        UIStageClearArtifactSelect = UIManager.Instance.GetUI<UIStageClearArtifactSelect>();
+        // 배틀 씬에만 존재해야 합니다
+        /*RewardPanelUI = UIManager.Instance.GetUI<RewardPanelUI>();
+        UIStageClearArtifactSelect = UIManager.Instance.GetUI<UIStageClearArtifactSelect>();*/
 
-        // ===============효과음 테스트용 공간===================
-        
-        // ======================================================
+        // 튜토리얼 완료 여부 설정
+        // TODO: 서버에서 불러오기
+        isTutorialCompleted = false;
     }
     private void Update()
     {
@@ -273,9 +277,17 @@ public class GameManager : SingletonMono<GameManager>
         }
         else // =============== 패배했을 경우 ===============
         {
-            Debug.Log("패배 페널티를 적용합니다.");
+            (int gold, int wood, int iron, int magicStone) penalties = (0, 0, 0, 0);
+            if (GameManager.IsTutorialCompleted)
+            {
+                Debug.Log("패배 페널티를 적용합니다.");
 
-            var penalties = await PlayerDataManager.Instance.ApplyResourcePenalty();
+                penalties = await PlayerDataManager.Instance.ApplyResourcePenalty();
+            }
+            else
+            {
+                Debug.Log("튜토리얼에서는 패널티 없습니다.");
+            }
 
             // 스테이지 패배 효과음
             AudioManager.PlayOneShot(DataManager.AudioData.StageFailSE);
@@ -373,8 +385,16 @@ public class GameManager : SingletonMono<GameManager>
             stageUsedUnit_String = ConvertToJson<Dictionary<PoolType, int>>(this.PlayerHQ.UnitSpawnCnt), //일단 풀타입으로 내보내고, 나중에 통계 정리할때 유닛 붙이기로 어짜피 내가 해야하니..
         };
 
-        AnalyticsService.Instance.RecordEvent(stageResultEvent);
-        Debug.Log("<color=cyan>스테이지 통계가 기록되었습니다</color>");
+        if (AnalyticsService.Instance != null)
+        {
+            AnalyticsService.Instance.RecordEvent(stageResultEvent);
+            Debug.Log("<color=cyan>스테이지 통계가 기록되었습니다</color>");
+        }
+        else
+        {
+            Debug.LogWarning("AnalyticsService 인스턴스가 없습니다. 스테이지 통계를 기록할 수 없습니다.");
+        }
+        
         Debug.Log($"{stageId}, {hasChallenge}, {isClearedButTryAgain}");
     }
 

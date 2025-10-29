@@ -72,7 +72,7 @@ public class EnemyMeleeSplashController : BaseUnitController
             enemy.Damageable.TakeDamage(enemyUnit.AtkPower);
             hitCount++;
         }*/
-        List<BaseCharacter> allPlayers = UnitManager.Instance.PlayerUnitList;
+        List<BaseCharacter> allPlayers = UnitManager.PlayerUnitList;
         int hitCount = 0;
         selectedUnitPQ.Clear();
         foreach (BaseCharacter player in allPlayers)

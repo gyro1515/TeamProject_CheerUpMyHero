@@ -14,7 +14,7 @@ public class PlayerHealerSplashController : BaseUnitController
     private Coroutine healAnimRoutine;
     private bool isAttacking = false;
     Transform targetPos = null;
-    IDamageable targetForAttack;
+    IDamageable targetForAttack = null;
     BaseCharacter HealTarget;
     float healCognizanceRange = 2f;
 
@@ -108,7 +108,7 @@ public class PlayerHealerSplashController : BaseUnitController
             enemy.Damageable.TakeDamage(playerUnit.AtkPower);
             hitCount++;
         }*/
-        List<BaseCharacter> allEnemies = UnitManager.Instance.EnemyUnitList;
+        List<BaseCharacter> allEnemies = UnitManager.EnemyUnitList;
         int hitCount = 0;
         // 우선 큐 비우기
         selectedUnitPQ.Clear();
@@ -351,7 +351,7 @@ public class PlayerHealerSplashController : BaseUnitController
     private BaseCharacter FindClosestInjuredAlly()
     {
         float healthThreshold = 0.8f; // 체력이 80% 이하인 아군만 대상
-        List<BaseCharacter> allAllies = UnitManager.Instance.PlayerUnitList;
+        List<BaseCharacter> allAllies = UnitManager.PlayerUnitList;
 
         // --- 1순위: 플레이어 캐릭터 ---
         BaseCharacter player = GameManager.Instance.Player;

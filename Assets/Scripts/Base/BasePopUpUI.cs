@@ -10,6 +10,8 @@ public class BasePopUpUI : BaseUI, IBackButtonHandler
 {
     [Header("해당 UI는 팝업입니다. 작업 후 비활성화 해주세요.")]
     [SerializeField, ReadOnly] string POPUP_UI_WARNING = "해당 UI는 팝업입니다. 작업 후 비활성화 해주세요.";
+    [SerializeField] AudioClip openSound;
+    [SerializeField] AudioClip closeSound;
     protected CanvasGroup _canvasGroup;
     protected bool _isFade = false;
     /*IEventPublisher<AddUIStackEvent> onAddUIStack;
@@ -38,6 +40,7 @@ public class BasePopUpUI : BaseUI, IBackButtonHandler
     {
         if (_isFade) return;
         base.OpenUI();
+        if(openSound) AudioManager.PlayOneShot(openSound);
         _isFade = true;
         FadeManager.FadeInUI(_canvasGroup, SetFadeFalse);
     }
@@ -46,6 +49,7 @@ public class BasePopUpUI : BaseUI, IBackButtonHandler
     {
         if (_isFade) return;
         base.OpenUI();
+        if(openSound) AudioManager.PlayOneShot(openSound);
         _isFade = true;
         afterFade += SetFadeFalse;
         FadeManager.FadeInUI(_canvasGroup, afterFade);
@@ -53,6 +57,7 @@ public class BasePopUpUI : BaseUI, IBackButtonHandler
     public override void CloseUI()
     {
         if (_isFade) return;
+        if(closeSound) AudioManager.PlayOneShot(closeSound);
         _isFade = true;
         FadeManager.FadeOutUI(_canvasGroup, () => { base.CloseUI(); SetFadeFalse(); });
     }
@@ -68,6 +73,7 @@ public class BasePopUpUI : BaseUI, IBackButtonHandler
     protected void JustOpenUI() // 페이드 없이 열기
     {
         base.OpenUI();
+        if(openSound) AudioManager.PlayOneShot(openSound);
         _canvasGroup.alpha = 1f;
         _canvasGroup.interactable = true;
         _canvasGroup.blocksRaycasts = true;

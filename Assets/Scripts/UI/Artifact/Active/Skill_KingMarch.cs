@@ -12,7 +12,7 @@ public class Skill_KingMarch : ActiveSkillEffect
         float atkPercent = levelData.attackBonusPercent;
         float atkSpeedPercent = levelData.attackSpeedBonusPercent;
 
-        List<BaseCharacter> allies = UnitManager.Instance.PlayerUnitList;
+        List<BaseCharacter> allies = UnitManager.PlayerUnitList;
         foreach (var ally in allies.ToList())
         {
             if (ally == null || ally.IsDead) continue;

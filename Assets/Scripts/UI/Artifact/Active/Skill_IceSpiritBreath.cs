@@ -17,7 +17,7 @@ public class Skill_IceSpiritBreath : ActiveSkillEffect
         float damage = (GameManager.Instance.Player.AtkPower) * levelData.damageBonusPercent / 100f; // 예시 피해량
         Debug.Log(damage);
         float playerX = GameManager.Instance.Player.transform.position.x;
-        List<BaseCharacter> enemies = UnitManager.Instance.EnemyUnitList;
+        List<BaseCharacter> enemies = UnitManager.EnemyUnitList;
 
         foreach (var enemy in enemies.ToList())
         {

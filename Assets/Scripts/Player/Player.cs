@@ -12,6 +12,21 @@ public class Player : BaseUnit
     float curMana;
     int curLevel = 1;
     int curExp = 0; // 나중에는 PlayerDataManager에서 관리
+    // --- 사운드 재생을 위한 플래그 ---
+    private bool isPlayedSound70 = false;
+    private bool isPlayedSound40 = false;
+    private bool isPlayedSound10 = false;
+    public override float CurHp
+    {
+        get => base.CurHp;
+        set
+        {
+            base.CurHp = value;
+            if (curHp == MaxHp) return; // 최대 체력이라면 아래 실행x
+            // 체력 비율에 따른 효과음 재생
+            CheckHealthRatioAndPlaySound();
+        }
+    }
     public float CurMana { get { return curMana; }  set
         {
             curMana = value;
@@ -128,6 +143,53 @@ public class Player : BaseUnit
     protected override float GetStatBonus(StatType type)
     {
         return ArtifactManager.Instance.GetPassiveArtifactStatBonus(EffectTarget.Player, type);
+    }
+    void CheckHealthRatioAndPlaySound()
+    {
+        int healthRatio = Mathf.CeilToInt(curHp / MaxHp * 100);
+        Debug.Log($"현재 체력 비율{healthRatio}");
+        // 1. 체력이 10% 이하이고, 아직 10% 사운드를 재생한 적이 없다면
+        if (healthRatio <= 10 && !isPlayedSound10)
+        {
+            AudioManager.PlayOneShotByCameraDistance(DataManager.AudioData.playerWarningHpSE, gameObject.transform, 1.5f);
+            isPlayedSound10 = true;  // "재생했음"으로 표시
+        }
+        // 2. 체력이 40% 이하이고, 아직 40% 사운드를 재생한 적이 없다면
+        else if (healthRatio <= 40 && !isPlayedSound40)
+        {
+            AudioManager.PlayOneShotByCameraDistance(DataManager.AudioData.playerWarningHpSE, gameObject.transform, 1.5f);
+            isPlayedSound40 = true;  // "재생했음"으로 표시
+        }
+        // 3. 체력이 70% 이하이고, 아직 70% 사운드를 재생한 적이 없다면
+        else if (healthRatio <= 70 && !isPlayedSound70)
+        {
+            AudioManager.PlayOneShotByCameraDistance(DataManager.AudioData.playerWarningHpSE, gameObject.transform, 1.5f);
+            isPlayedSound70 = true;  // "재생했음"으로 표시
+        }
+
+        // (중요) 체력이 회복되었을 때 플래그를 다시 false로 리셋
+        ResetSoundFlags(healthRatio);
+    }
+    void ResetSoundFlags(int healthRatio)
+    {
+        // 70%보다 체력이 많아지면 모든 플래그 리셋
+        if (healthRatio > 70)
+        {
+            isPlayedSound70 = false;
+            isPlayedSound40 = false;
+            isPlayedSound10 = false;
+        }
+        // 40%보다 많아지면 40%와 10% 플래그 리셋
+        else if (healthRatio > 40)
+        {
+            isPlayedSound40 = false;
+            isPlayedSound10 = false;
+        }
+        // 10%보다 많아지면 10% 플래그만 리셋
+        else if (healthRatio > 10)
+        {
+            isPlayedSound10 = false;
+        }
     }
 }
 #region 플레이어 레벨 업 이벤트

@@ -31,14 +31,15 @@ public class SceneLoaderBattle : MonoBehaviour
         //Debug.Log($"Prefab/Map/Map{mainStageIdx + 1}_{subStageIdx + 1}");
         // 현재는 연결된 맵 소환
         Instantiate(map);
+        AudioManager.PlayOneShot(DataManager.AudioData.BattleStartSE);
     }
 
-    private void Update()
+    /*private void Update()
     {
         if (Input.GetKeyDown(KeyCode.Space))
         {
             SceneLoader.Instance.StartLoadScene(SceneState.MainScene);
         }
-    }
+    }*/
 }
 

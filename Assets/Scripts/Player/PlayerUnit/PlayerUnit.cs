@@ -23,7 +23,6 @@ public class PlayerUnit : BaseUnit
     {
         base.OnEnable();
         UnitManager.Instance.AddUnitList(this, true);
-        
     }
 
     // SetStatMultiplier 

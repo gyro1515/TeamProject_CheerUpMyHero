@@ -107,6 +107,7 @@ public class UISpawnUnitSlot : MonoBehaviour
 
         if(outlineGOForCanSpawnLegendary.activeSelf) outlineGOForCanSpawnLegendary.SetActive(false);
 
+        // 이거 같은 경우는 반응이 느려질거 같아요.
         PlayerDataManager.Instance.AddResource(ResourceType.Food, -_foodConsumption);
         SetTimerIconActive(true);
         CheckCanSpawnUnitByCost();

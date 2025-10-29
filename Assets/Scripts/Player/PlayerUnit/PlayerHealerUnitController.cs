@@ -279,7 +279,7 @@ public class PlayerHealerUnitController : BaseUnitController
     private BaseCharacter FindClosestInjuredAlly()
     {
         float healthThreshold = 0.8f; // 체력이 80% 이하인 아군만 대상
-        List<BaseCharacter> allAllies = UnitManager.Instance.PlayerUnitList;
+        List<BaseCharacter> allAllies = UnitManager.PlayerUnitList;
 
         // --- 1순위: 플레이어 캐릭터 ---
         BaseCharacter player = GameManager.Instance.Player;
