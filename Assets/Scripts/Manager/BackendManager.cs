@@ -1,6 +1,5 @@
 using Cysharp.Threading.Tasks;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Unity.Services.Analytics;
@@ -13,6 +12,15 @@ using Unity.Services.Economy;
 using Unity.Services.Economy.Model;
 using UnityEngine;
 using UnityEngine.Networking;
+
+public enum CommunicationStatus
+{
+    Success,
+    Failure_NotInitialized,
+    Failure_NetworkUnavailable,
+    Failure_UserCancelled,
+    // 필요하다면 다른 실패 원인 추가 (e.g., Failure_ServiceMaintenance)
+}
 
 public class BackendManager : SingletonMono<BackendManager>
 {
@@ -127,6 +135,7 @@ public class BackendManager : SingletonMono<BackendManager>
     {
         base.Awake();
 
+
         _initializationTcs = new UniTaskCompletionSource<bool>();
         InitializationTask = _initializationTcs.Task;
         InitializeAndLoginAsync().Forget();
@@ -139,8 +148,24 @@ public class BackendManager : SingletonMono<BackendManager>
     {
         try
         {
-            // 1. UGS 서비스 초기화
-            await UnityServices.InitializeAsync();
+            //0.인터넷 확인
+            while (!await IsNetworkAvailableAsync(true))
+            {
+                Debug.LogWarning($"인터넷 연결에 실패했습니다.");
+
+                // UIManager를 통해 재시도 팝업을 띄우고 사용자 응답을 기다립니다.
+                bool userWantsToRetry = await UIManager.Instance.GetUI<NoticeNetworkError>().ShowAndWaitForResponse("인터넷 연결을 확인해주세요.\n다시 시도하시겠습니까?", true);
+
+                if (userWantsToRetry)
+                {
+                    Debug.Log("사용자가 재시도를 선택했습니다. 네트워크 상태를 다시 확인합니다.");
+                    await UniTask.Delay(500); // 잠시 후 재시도
+                }
+            }
+
+
+                // 1. UGS 서비스 초기화
+                await UnityServices.InitializeAsync();
 
             Debug.Log($"<color=cyan>UGS 초기화 성공!</color>");
 
@@ -267,10 +292,10 @@ public class BackendManager : SingletonMono<BackendManager>
         }
     }
 
-    private UniTask<T> EnqueueRequestAsync<T>(Func<UniTask<T>> action)
+    private UniTask<T> EnqueueRequestAsync<T>(Func<UniTask<T>> action, string apiName)
     {
-        // 제네릭 요청 객체 생성
-        var request = new QueuedRequest<T>(action);
+        // action을 직접 전달하는 대신, ExecuteWithRetryAsync로 감싸서 전달합니다.
+        var request = new QueuedRequest<T>(() => ExecuteWithRetryAsync(action, apiName));
 
         lock (_queueLock)
         {
@@ -291,9 +316,9 @@ public class BackendManager : SingletonMono<BackendManager>
     }
 
     // 반환 값이 없는 버전을 위한 오버로딩
-    private UniTask EnqueueRequestAsync(Func<UniTask> action)
+    private UniTask EnqueueRequestAsync(Func<UniTask> action, string apiName)
     {
-        var request = new QueuedRequest(action);
+        var request = new QueuedRequest(() => ExecuteWithRetryAsync(action, apiName));
 
         lock (_queueLock)
         {
@@ -307,6 +332,59 @@ public class BackendManager : SingletonMono<BackendManager>
         return request.Task;
     }
     #endregion
+
+    #region 재시도 로직
+    private async UniTask<T> ExecuteWithRetryAsync<T>(Func<UniTask<T>> action, [CallerMemberName] string apiName = "")
+    {
+        while (true)
+        {
+            try
+            {
+                // 실제 작업을 실행하고 성공하면 결과를 즉시 반환
+                return await action();
+            }
+            // 재화 WriteLock 충돌 시 자동 재시도
+            catch (EconomyException ex) when (ex.Reason == EconomyExceptionReason.Conflict)
+            {
+                Debug.LogWarning($"[{apiName}] 재화 충돌 감지. 데이터 동기화 후 자동 재시도합니다.");
+                await InternalLoadEconomyData(); // 최신 재화 정보(WriteLock 포함) 갱신
+                continue; // 팝업 없이 즉시 재시도
+            }
+            // UGS의 일반적인 네트워크 오류
+            catch (RequestFailedException ex)
+            {
+                Debug.LogError($"[{apiName}] 네트워크 오류: {ex.Message}");
+                // UIManager를 통해 팝업을 띄우고 사용자 선택을 기다림
+                bool shouldRetry = await UIManager.Instance.GetUI<NoticeNetworkError>().ShowAndWaitForResponse("서버 통신 실패, 네트워크 연결이 불안정합니다.\n다시 시도하시겠습니까?");
+
+                if (shouldRetry)
+                {
+                    continue; // while 루프의 처음으로 돌아가 재시도
+                }
+                // 사용자가 '취소'를 선택하면 새로운 예외를 발생시켜 외부로 알림
+                throw new OperationCanceledException("사용자가 작업을 취소했습니다.");
+            }
+            
+            catch (Exception e)
+            {
+                // 재시도 대상이 아닌 다른 모든 예외는 그대로 다시 throw
+                Debug.LogError($"[{apiName}] 처리 불가능한 예외: {e.Message}");
+                throw;
+            }
+        }
+    }
+
+    // 반환값이 없는 UniTask 버전을 위한 오버로딩
+    private async UniTask ExecuteWithRetryAsync(Func<UniTask> action, [CallerMemberName] string apiName = "")
+    {
+        await ExecuteWithRetryAsync<bool>(async () =>
+        {
+            await action();
+            return true; // 제네릭 메서드 재사용을 위한 더미 값 반환
+        }, apiName);
+    }
+    #endregion
+
 
     #region 서버와 통신 가능 여부 체크
     // 서비스 초기화가 완료될 때까지 기다림
@@ -324,7 +402,7 @@ public class BackendManager : SingletonMono<BackendManager>
     }
 
     //인터넷 연결 선제적 확인
-    private static async UniTask<bool> IsNetworkAvailableAsync(bool forceCheck = false)
+    private static async UniTask<bool> IsNetworkAvailableAsync(bool forceCheck)
     {
         //캐시가 만료되지 않았다면, 이전 네트워크 결과 불러오기
         if (!forceCheck && Time.realtimeSinceStartup - _lastNetworkCheckTime < Constants.NETWORK_CACHE_DURATION && _isNetworkAvailableCache)
@@ -356,6 +434,7 @@ public class BackendManager : SingletonMono<BackendManager>
             if (!success)
             {
                 Debug.LogWarning($"네트워크 확인 실패: {request.error}");
+                return false;
             }
             return success;
         }
@@ -374,22 +453,36 @@ public class BackendManager : SingletonMono<BackendManager>
 
     // 서버 통신 가능여부 종합 체크
     // 반환값에 enum을 추가하면 실패 이유도 같이 반환 가능
-    private static async UniTask<bool> CanCommunicateAsync(string apiKey) //apikey = 메서드 이름
+    private static async UniTask<CommunicationStatus> CanCommunicateAsync(string apiKey, bool forceCheck = false) //apikey = 메서드 이름
     {
         // 1. 초기화 확인
         if (!await EnsureInstanceAndInitializedAsync()) 
         {
             Debug.LogWarning($"초기화가 완료되지 않았습니다.");
-            return false;
+            return CommunicationStatus.Failure_NotInitialized;
         }
             
         // 2. 네트워크 확인
-        if (!await IsNetworkAvailableAsync())
+        while (!await IsNetworkAvailableAsync(forceCheck))
         {
             Debug.LogWarning($"인터넷 연결에 실패했습니다.");
-            return false;
+
+            // UIManager를 통해 재시도 팝업을 띄우고 사용자 응답을 기다립니다.
+            bool userWantsToRetry = await UIManager.Instance.GetUI<NoticeNetworkError>().ShowAndWaitForResponse("인터넷 연결을 확인해주세요.\n다시 시도하시겠습니까?");
+
+            if (userWantsToRetry)
+            {
+                Debug.Log("사용자가 재시도를 선택했습니다. 네트워크 상태를 다시 확인합니다.");
+                await UniTask.Delay(500); // 잠시 후 재시도
+            }
+            else
+            {
+                Debug.Log("사용자가 재시도를 취소했습니다.");
+                return CommunicationStatus.Failure_UserCancelled; // 사용자가 취소했음을 반환
+            }
         }
-            
+
+
         // 3. 서비스 상태 확인 (점검 등)
 
         // 4. 과도한 호출 방지
@@ -397,7 +490,7 @@ public class BackendManager : SingletonMono<BackendManager>
 
         // 5. 로그인 유효 확인
 
-        return true;
+        return CommunicationStatus.Success;
     }
 
     #endregion
@@ -412,69 +505,46 @@ public class BackendManager : SingletonMono<BackendManager>
     //예시 코드
     public static async UniTask SaveDataAsync(Dictionary<string, object> data)
     {
-        if (!await CanCommunicateAsync(nameof(SaveDataAsync)))
+        var status = await CanCommunicateAsync(nameof(SaveDataAsync));
+        if (status != CommunicationStatus.Success)
         {
-            Debug.LogError("서버 연결 불가");
-            //이유도 같이 나오게 할 예정
-
-            return;
+            // 성공이 아닌 모든 경우에 예외를 던지고 종료
+            throw new InvalidOperationException($"서버 통신 사전 검사 실패: {status}");
         }
-        await Instance.EnqueueRequestAsync(() => Instance.InternalSaveDataAsync(data));
+        await Instance.EnqueueRequestAsync(() => Instance.InternalSaveDataAsync(data), nameof(SaveDataAsync));
     }
 
     public static async UniTask<PlayerSaveData> LoadDataAsync()
     {
-        if (!await CanCommunicateAsync(nameof(LoadDataAsync)))
+        var status = await CanCommunicateAsync(nameof(SaveDataAsync));
+        if (status != CommunicationStatus.Success)
         {
-            Debug.LogError("서버 연결 불가");
-            //이유도 같이 나오게 할 예정
-
-            return null;
+            throw new InvalidOperationException("서버와 통신할 수 없는 상태입니다.");
         }
-
-        return await Instance.EnqueueRequestAsync(() => Instance.InternalLoadDataAsync());
-    }
-
-    //Analytic는 현재 인터넷 연결 없이도 저장 후 데이터 전송
-    public static async UniTask SendStageAnalyticsAsync(Dictionary<string, object> data) //일단 딕셔너리로 적긴 했는데, struct도 같이활용 예정
-    {
-        //서비스 초기화 여부랑 Analytic 활성화 여부만 체크
-        //Analytic는 사용자가 제공 거부를 할 수 있으므로 강제로 키지 않음
-        if (!IsAnalyticsCollectionStarted)
-        {
-            Debug.Log("<color=green>Analytic가 실행되지 않아 통계가 전송되지 않습니다.</color>");
-            return;
-        }
-
-        if (!await EnsureInstanceAndInitializedAsync())
-            return;
-
-        await Instance.EnqueueRequestAsync(() => Instance.InternalSendStageAnalyticsAsync(data));
+        return await Instance.EnqueueRequestAsync(() => Instance.InternalLoadDataAsync(), nameof(LoadDataAsync));
     }
 
 
     public static async UniTask<int> OneNormalGachaAsync()
     {
-        if (!await CanCommunicateAsync(nameof(OneNormalGachaAsync)))
+        var status = await CanCommunicateAsync(nameof(SaveDataAsync));
+        if (status != CommunicationStatus.Success)
         {
-            Debug.LogError("서버 연결 불가");
-
-            return -1;
+            throw new InvalidOperationException("서버와 통신할 수 없는 상태입니다.");
         }
 
-        return await Instance.EnqueueRequestAsync(() => Instance.InternalOneNormalGachaAsync());
+        return await Instance.EnqueueRequestAsync(() => Instance.InternalOneNormalGachaAsync(), nameof(OneNormalGachaAsync));
     }
 
     public static async UniTask<List<int>> TenNormalGachaAsync()
     {
-        if (!await CanCommunicateAsync(nameof(TenNormalGachaAsync)))
+        var status = await CanCommunicateAsync(nameof(SaveDataAsync));
+        if (status != CommunicationStatus.Success)
         {
-            Debug.LogError("서버 연결 불가");
-
-            return null;
+            throw new InvalidOperationException("서버와 통신할 수 없는 상태입니다.");
         }
 
-        return await Instance.EnqueueRequestAsync(() => Instance.InternalTenNormalGachaAsync());
+        return await Instance.EnqueueRequestAsync(() => Instance.InternalTenNormalGachaAsync(), nameof(TenNormalGachaAsync));
     }
 
 
@@ -483,26 +553,26 @@ public class BackendManager : SingletonMono<BackendManager>
     //사실 이렇게 하지말고 팝업처리까지 백엔드매니저에서 해야함
     public static async UniTask<Dictionary<ResourceType, int>> LoadEconomyData()
     {
-        if (!await CanCommunicateAsync(nameof(LoadEconomyData)))
+        var status = await CanCommunicateAsync(nameof(LoadEconomyData));
+        if (status != CommunicationStatus.Success)
         {
-            Debug.LogError("서버 연결 불가");
-            return null;
+            throw new InvalidOperationException("서버와 통신할 수 없는 상태입니다.");
         }
 
-        return await Instance.EnqueueRequestAsync(() => Instance.InternalLoadEconomyData());
+        return await Instance.EnqueueRequestAsync(() => Instance.InternalLoadEconomyData(), nameof(LoadEconomyData));
     }
 
     //나중에 서버로 이사가야 함
     //그니까 일단 void도 대충 하자
     public static async UniTask ChangeEconomy(string id, int amount)
     {
-        if (!await CanCommunicateAsync(nameof(ChangeEconomy)))
+        var status = await CanCommunicateAsync(nameof(ChangeEconomy));
+        if (status != CommunicationStatus.Success)
         {
-            Debug.LogError("서버 연결 불가");
-            return;
+            throw new InvalidOperationException("서버와 통신할 수 없는 상태입니다.");
         }
 
-        await Instance.EnqueueRequestAsync(() => Instance.InternalChangeEnconmyAsync(id, amount));
+        await Instance.EnqueueRequestAsync(() => Instance.InternalChangeEnconmyAsync(id, amount), nameof(ChangeEconomy));
     }
 
 
@@ -583,6 +653,7 @@ public class BackendManager : SingletonMono<BackendManager>
         catch (Exception ex)
         {
             Debug.LogException(ex);
+            throw;
         }
     }
 
@@ -598,26 +669,14 @@ public class BackendManager : SingletonMono<BackendManager>
                 result = keyName.Value.GetAs<PlayerSaveData>();
             }
 
-            if (result == null)
-            {
-                Debug.Log("클라우드 세이브가 기존 데이터가 없을 경우 null만 반환한다는게 확인되었습니다.");
-            }
-
             return result;
         }
         catch (Exception ex)
         {
             Debug.LogException(ex);
-            return result;
+            throw;
         }
 
-    }
-
-    private async UniTask InternalSendStageAnalyticsAsync(Dictionary<string, object> data)
-    {
-        // TODO: 실제 통계 전송 작업 로직 필요
-        Debug.LogWarning("InternalSendStageAnalyticsAsync가 아직 구현되지 않았습니다.");
-        await UniTask.CompletedTask; // 컴파일러 경고 제거 및 비동기 시그니처 유지 용도
     }
 
     private async UniTask<int> InternalOneNormalGachaAsync()
@@ -633,8 +692,7 @@ public class BackendManager : SingletonMono<BackendManager>
         catch (CloudCodeException exception)
         {
             Debug.LogException(exception);
-            //실패시 -1 반환
-            return -1;
+            throw;
         }
     }
 
@@ -651,8 +709,7 @@ public class BackendManager : SingletonMono<BackendManager>
         catch (CloudCodeException exception)
         {
             Debug.LogException(exception);
-            //실패시 -1 반환
-            return null;
+            throw;
         }
     }
 
@@ -674,7 +731,7 @@ public class BackendManager : SingletonMono<BackendManager>
                 }
                 else
                 {
-                    throw new System.InvalidOperationException("오류: 자원을 불러오는 내부 로직에 문제가 있습니다.");
+                    throw new InvalidOperationException("오류: 자원을 불러오는 내부 로직에 문제가 있습니다.");
                 }
             }
 
@@ -691,10 +748,17 @@ public class BackendManager : SingletonMono<BackendManager>
 
     private async UniTask InternalChangeEnconmyAsync(string id, int amount)
     {
-        if (!writeLocks.ContainsKey(id))
+        
+        string currentWriteLock = string.Empty;
+
+        if (writeLocks.ContainsKey(id))
+        {
+            currentWriteLock = writeLocks[id];
+        }
+        else
         {
             Debug.LogWarning("재화가 동기화되지 않았습니다");
-            return;
+            //그냥 넘어가게 하면, 알아서 오류를 뱉을 것. EconomyException을 새로 정의 못해서 이렇게 함.
         }
 
         if (amount == 0)
@@ -703,7 +767,7 @@ public class BackendManager : SingletonMono<BackendManager>
             return;
         }
 
-        string currentWriteLock = writeLocks[id];
+
 
         try
         {
@@ -721,10 +785,12 @@ public class BackendManager : SingletonMono<BackendManager>
             }
         }
 
-        catch (EconomyException e)
+        catch (Exception e)
         {
             Debug.LogException(e);
+            throw;
         }
+        
     }
 
 }
