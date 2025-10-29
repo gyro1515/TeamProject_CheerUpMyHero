@@ -71,7 +71,7 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
     public Dictionary<int, BaseUnitData> OwnedCardData { get; private set; } = new Dictionary<int, BaseUnitData>();
     IEventSubscriber<GridStateChangedEvent> onGridStateChangedEvent;
     IEventSubscriber<BattleEndedEvent> onBattleEndedEvent;
-    #region 시너지 보너스
+    #region 영지 시너지 보너스
     //모든 시너지 효과를 합산하여 저장할 프로퍼티들
     public float SynergyUnitCooldownReduction { get; private set; }
     public float SynergyFoodProductionBonus { get; private set; }

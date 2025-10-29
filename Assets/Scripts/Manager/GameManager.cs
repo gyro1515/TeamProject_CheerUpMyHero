@@ -374,8 +374,16 @@ public class GameManager : SingletonMono<GameManager>
             stageUsedUnit_String = ConvertToJson<Dictionary<PoolType, int>>(this.PlayerHQ.UnitSpawnCnt), //일단 풀타입으로 내보내고, 나중에 통계 정리할때 유닛 붙이기로 어짜피 내가 해야하니..
         };
 
-        AnalyticsService.Instance.RecordEvent(stageResultEvent);
-        Debug.Log("<color=cyan>스테이지 통계가 기록되었습니다</color>");
+        if (AnalyticsService.Instance != null)
+        {
+            AnalyticsService.Instance.RecordEvent(stageResultEvent);
+            Debug.Log("<color=cyan>스테이지 통계가 기록되었습니다</color>");
+        }
+        else
+        {
+            Debug.LogWarning("AnalyticsService 인스턴스가 없습니다. 스테이지 통계를 기록할 수 없습니다.");
+        }
+        
         Debug.Log($"{stageId}, {hasChallenge}, {isClearedButTryAgain}");
     }
 
