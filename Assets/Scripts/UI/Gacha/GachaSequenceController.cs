@@ -72,7 +72,11 @@ public class GachaSequenceController : BasePopUpUI
         {
             OnSkipClicked();
         }
-        else
+        else if(resultCardPanel.activeSelf && singleConfirmButton.gameObject.activeSelf)
+        {
+            OnSingleResultConfirmed();
+        }
+        else if (gridConfirmButton.gameObject.activeSelf)
         {
             OnGridResultConfirmed();
         }
