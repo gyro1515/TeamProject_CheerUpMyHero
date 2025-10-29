@@ -24,6 +24,7 @@ public class UIUnitCardInScroll : MonoBehaviour
     [SerializeField] Image unitIconImg;
     [SerializeField] Image unitTypeIcon;
     [SerializeField] UIUnitSynergeIconArea synergyIconArea;
+    [SerializeField] UIRarityIconArea rarityIconArea;
 
 
     [SerializeField] GameObject GreyBlocker;
@@ -43,9 +44,11 @@ public class UIUnitCardInScroll : MonoBehaviour
     //카드 데이터 갱신
     public void UpdateCardData(int cardNum, bool canSelect)
     {
+        //BaseUnitData data = cardData[cardNum];
         cardNameText.text = $"{cardData[cardNum].unitName}";
         unitType.text = $"{cardData[cardNum].unitType.ToString()}";
-        rarity.text = $"{cardData[cardNum].rarity.ToString()}";
+        //rarity.text = $"{cardData[cardNum].rarity.ToString()}";
+        rarityIconArea.SetIconCnt((int)cardData[cardNum].rarity);
         costText.text = $"코스트\n{cardData[cardNum].cost.ToString("F0")}";
         healthText.text = $"체력\n{cardData[cardNum].health.ToString("F0")}";
         atkPowerText.text = $"공격력\n{cardData[cardNum].atkPower.ToString("F0")}";

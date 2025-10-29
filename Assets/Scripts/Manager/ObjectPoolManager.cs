@@ -145,6 +145,7 @@ public enum PoolType // *******251016: 새로운 풀링 오브젝트 추가시 �
     FXMapExplosion1,
     FXMapExplosion2,
     FXMapExplosion3,
+    FXHealEffect,
     #endregion
     Allies_UnitGolem
 }

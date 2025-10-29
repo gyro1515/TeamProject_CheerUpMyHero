@@ -156,7 +156,7 @@ public class GameManager : SingletonMono<GameManager>
         }
     }
 
-    public async void ShowResultUI(bool isVictory)
+    public async UniTaskVoid ShowResultUI(bool isVictory)
     {
         EventManager.GetPublisher<BattleEndedEvent>().Publish(new BattleEndedEvent { IsVictory = isVictory });
 
@@ -299,7 +299,7 @@ public class GameManager : SingletonMono<GameManager>
 
         await PlayerDataManager.Instance.SaveDataToCloudAsync();
     }
-    public async void ClearStage()
+    public async UniTaskVoid ClearStage()
     {
         try
         {

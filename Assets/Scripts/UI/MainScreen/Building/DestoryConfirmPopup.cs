@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using Cysharp.Threading.Tasks;
 
 public class DestroyConfirmPopup : BasePopUpUI
 {
@@ -23,7 +24,7 @@ public class DestroyConfirmPopup : BasePopUpUI
     protected override void Awake()
     {
         base.Awake();
-        yesButton.onClick.AddListener(OnYesButtonClicked);
+        yesButton.onClick.AddListener(() => { OnYesButtonClicked().Forget(); });
         noButton.onClick.AddListener(OnNoButtonClicked);
 
         InitializeDictionary();
@@ -69,7 +70,7 @@ public class DestroyConfirmPopup : BasePopUpUI
         { ResourceType.MagicStone, magicStoneRefundText }
     };
     }
-    private async void OnYesButtonClicked()
+    private async UniTaskVoid OnYesButtonClicked()
     {
         try
         {

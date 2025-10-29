@@ -1,3 +1,4 @@
+using Cysharp.Threading.Tasks;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -107,8 +108,8 @@ public class UISpawnUnitSlot : MonoBehaviour
 
         if(outlineGOForCanSpawnLegendary.activeSelf) outlineGOForCanSpawnLegendary.SetActive(false);
 
-        // 이거 같은 경우는 반응이 느려질거 같아요.
-        PlayerDataManager.Instance.AddResource(ResourceType.Food, -_foodConsumption);
+        // 이거 같은 경우는 반응이 느려질거 같아요. => 컴파일 경고 안뜨게 했습니다.
+        PlayerDataManager.Instance.AddResource(ResourceType.Food, -_foodConsumption).Forget();
         SetTimerIconActive(true);
         CheckCanSpawnUnitByCost();
         GameManager.Instance.PlayerHQ.SpawnUnit(playerUnitType, this);
