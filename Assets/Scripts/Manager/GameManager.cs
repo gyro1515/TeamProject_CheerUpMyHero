@@ -140,7 +140,10 @@ public class GameManager : SingletonMono<GameManager>
         Time.timeScale = 0f;
 
         if (UIStageClearArtifactSelect == null)
+        {
             UIStageClearArtifactSelect = UIManager.Instance.GetUI<UIStageClearArtifactSelect>();
+            //UIStageClearArtifactSelect.CloseUI();
+        }
 
         (int mainIdx, int subIdx) = PlayerDataManager.Instance.SelectedStageIdx;
         if (subIdx + 1 == 9)
@@ -168,6 +171,7 @@ public class GameManager : SingletonMono<GameManager>
         if (RewardPanelUI == null)
         {
             RewardPanelUI = UIManager.Instance.GetUI<RewardPanelUI>();
+            RewardPanelUI.gameObject.SetActive(false);
         }
 
         int finalGold = 0;
@@ -249,6 +253,10 @@ public class GameManager : SingletonMono<GameManager>
             {
                 finalMagicStone += Random.Range(totalMagicStoneMin, totalMagicStoneMax + 1);
             }
+            // 스테이지 클리어 효과음 출력함.
+            AudioManager.PlayOneShot(DataManager.AudioData.StageClearSE);
+
+            RewardPanelUI?.OpenUI(finalGold, finalWood, finalIron, finalMagicStone, true);
             try
             {
                 //계산된 보상을 PlayerDataManager에 추가
@@ -267,13 +275,6 @@ public class GameManager : SingletonMono<GameManager>
                 Debug.LogException(ex);
                 Debug.LogWarning("에러 팝업: 에러가 나서 보상을 주지 못했습니다.");
             }
-
-
-            // 스테이지 클리어 효과음 출력함.
-            AudioManager.PlayOneShot(DataManager.AudioData.StageClearSE);
-
-            RewardPanelUI?.OpenUI(finalGold, finalWood, finalIron, finalMagicStone, true);
-
         }
         else // =============== 패배했을 경우 ===============
         {
