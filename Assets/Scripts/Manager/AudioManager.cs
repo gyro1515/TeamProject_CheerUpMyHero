@@ -34,6 +34,7 @@ public class AudioManager : SingletonMono<AudioManager>
         if (sfxSource == null)
         {
             sfxSource = gameObject.AddComponent<AudioSource>();
+            sfxSource.outputAudioMixerGroup = sfxGroup;
         }
 
         SceneManager.sceneLoaded += OnSceneLoaded;
