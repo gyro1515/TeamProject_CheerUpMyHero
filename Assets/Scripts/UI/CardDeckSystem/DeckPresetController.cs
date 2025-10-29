@@ -262,16 +262,14 @@ public class DeckPresetController : BaseUI, IBackButtonHandler
         try
         {
             await PlayerDataManager.Instance.SaveDataToCloudAsync();
+            SceneLoader.Instance.StartLoadScene(SceneState.BattleScene);
         }
         catch (Exception ex) 
         {
             Debug.LogException(ex);
             Debug.LogWarning("에러 팝업: 에러가 나서 덱을 저장하지 못했습니다.");
         }
-        finally
-        {
-            SceneLoader.Instance.StartLoadScene(SceneState.BattleScene);
-        }
+
         
         /* if (_stageSelectUI != null)
          {
