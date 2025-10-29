@@ -1,9 +1,5 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics.Tracing;
-using UnityEngine;
-using UnityEngine.SceneManagement;
 
 // 구독자에게 노출될 인터페이스
 public interface IEventSubscriber<T> where T : struct
@@ -14,7 +10,7 @@ public interface IEventSubscriber<T> where T : struct
 // 발행자에게 노출될 인터페이스
 public interface IEventPublisher<T> where T : struct
 {
-    void Publish(T eventData);
+    void Publish(in T eventData);
     public void Publish();
 }
 
@@ -47,7 +43,7 @@ public class EventManager : SingletonMono<EventManager>
         {
             Publish(new T());
         }
-        public void Publish(T eventData)
+        public void Publish(in T eventData)
         {
             _onPublish?.Invoke(eventData);
         }

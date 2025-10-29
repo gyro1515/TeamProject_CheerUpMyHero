@@ -57,14 +57,14 @@ public class GachaResultIcon : MonoBehaviour
         }
 
         GetComponent<Button>().onClick.AddListener(OnClick);
-        if (showAsFlipped) Flip(false);
+        if (showAsFlipped) FlipSimple(false);
         else ShowBack();
     }
     // 카드를 클릭했을 때
     private void OnClick()
     {
         if (IsFlipped) return; // 이미 뒤집혔으면 무시
-        _controller.OnGridCardClicked(this, _resultId); 
+        _controller.OnGridCardClicked(this, _resultId);
     }
 
     public void ShowBack()
@@ -75,17 +75,54 @@ public class GachaResultIcon : MonoBehaviour
     }
 
     // 카드를 앞면으로 뒤집음
-    public void Flip(bool withAnimation = true)
+    public void FlipSimple(bool withAnimation = true)
     {
         if (IsFlipped) return;
         IsFlipped = true;
 
-        if (withAnimation) { /*  뒤집히는 애니메이션 */ }
-
-        cardBackImage.gameObject.SetActive(false);
-        cardFrontGroup.SetActive(true);
-        _controller?.OnCardFlipped(this);
+        if (withAnimation && gameObject.activeInHierarchy)
+        {
+            // 애니메이션 재생
+            transform.DOScaleX(0f, 0.15f).SetEase(Ease.InQuad).OnComplete(() => {
+                cardBackImage.gameObject.SetActive(false);
+                cardFrontGroup.SetActive(true);
+                transform.DOScaleX(1f, 0.15f).SetEase(Ease.OutQuad).OnComplete(() => {
+                    // ✨ 1. 애니메이션 끝나면 '단순 보고' (CheckIfAllFlipped용)
+                    _controller?.OnCardFlipped(this);
+                });
+            });
+        }
+        else // 즉시 뒤집기
+        {
+            transform.localScale = Vector3.one;
+            cardBackImage.gameObject.SetActive(false);
+            cardFrontGroup.SetActive(true);
+            _controller?.OnCardFlipped(this); // ✨ '단순 보고'
+        }
     }
+
+    // --- ✨ "상세보기용 뒤집기" 함수 (카드 클릭 전용) ✨ ---
+    /// <summary>
+    /// 카드를 앞면으로 뒤집고, 애니메이션이 끝나면 '상세보기'를 요청합니다.
+    /// </summary>
+    public void FlipForDetail()
+    {
+        if (IsFlipped) return; // 이미 뒤집히는 중/완료면 무시
+        IsFlipped = true;
+
+        // 1. 뒤집기 애니메이션 시작
+        transform.DOScaleX(0f, 0.15f).SetEase(Ease.InQuad).OnComplete(() => {
+            cardBackImage.gameObject.SetActive(false);
+            cardFrontGroup.SetActive(true);
+            // 2. 카드가 완전히 뒤집힌 후
+            transform.DOScaleX(1f, 0.15f).SetEase(Ease.OutQuad).OnComplete(() => {
+                // 3. 상세보기 콜백 호출
+                _controller?.OnCardFlipAnimationFinished(this);
+            });
+        });
+    }
+
+
 
     // ID로 등급별 색상 반환
     private Color GetColorForRarity(Rarity rarity)

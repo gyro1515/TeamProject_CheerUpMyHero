@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -41,9 +42,11 @@ public class GachaSequenceController : BasePopUpUI
     [SerializeField] private GameObject resultIconPrefab;
     [SerializeField] private Button gridConfirmButton;
 
+    private Queue<int> _epicRevealQueue = new Queue<int>();
+
     private List<int> _currentGachaResults;
     private GachaResultIcon _lastClickedIcon;
-
+    private int _pendingResultId; 
     protected override void Awake()
     {
         base.Awake();
@@ -91,6 +94,7 @@ public class GachaSequenceController : BasePopUpUI
         skipButton.gameObject.SetActive(true);
 
         foreach (Transform child in gridContentParent) Destroy(child.gameObject);
+        _epicRevealQueue.Clear(); // 에픽 대기열 비우기
 
         envelopePanelObject.transform.SetAsLastSibling();
         skipButton.transform.SetAsLastSibling();
@@ -191,13 +195,16 @@ public class GachaSequenceController : BasePopUpUI
 
         // 그리드를 '미리' 채웁니다. (이때 에픽들은 모두 미리 뒤집어 놓을 수 있음)
         PopulateResultGrid(false, highestEpicId); // flipAll = false
-
-        if (highestEpicId != -1) // 에픽이 하나라도 있다! (1-2-3-4 순서)
+        _epicRevealQueue.Clear();
+        var allEpics = _currentGachaResults.Where(id => IsResultEpic(id)).ToList();
+        foreach (var epicId in allEpics)
         {
-            // 3번 (단일 에픽 카드)을 '가장 높은 등급의' 에픽으로 먼저 표시
-            ShowSingleResultCard(highestEpicId, true);
-            currentState = GachaState.CardReveal;
-            skipButton.gameObject.SetActive(false);
+            _epicRevealQueue.Enqueue(epicId);
+        }
+        if (_epicRevealQueue.Count > 0) // 에픽이 하나라도 있다! (1-2-3-3-3...-4 순서)
+        {
+            // 3-4. "다음 에픽 보여주기" 함수 호출
+            ShowNextEpicInQueue();
         }
         else // 에픽이 없다! (1-2-4-3 순서)
         {
@@ -220,12 +227,30 @@ public class GachaSequenceController : BasePopUpUI
             var iconScript = iconGO.GetComponent<GachaResultIcon>();
 
 
-            bool showFlipped = flipAll || (epicToPreReveal != -1 && currentId == epicToPreReveal);
-
+            bool showFlipped = flipAll || IsResultEpic(currentId);
             iconScript.Setup(currentId, this, showFlipped);
         }
 
         CheckIfAllCardsFlipped();
+    }
+    private void ShowNextEpicInQueue()
+    {
+        if (_epicRevealQueue.Count > 0)
+        {
+            int epicIdToShow = _epicRevealQueue.Dequeue();
+            // 2. 3번(상세) 화면 표시
+            ShowSingleResultCard(epicIdToShow, true);
+            currentState = GachaState.CardReveal;
+            skipButton.gameObject.SetActive(false);
+        }
+        else
+        {
+            // 3. 대기열에 더 이상 에픽이 없으면 4번(그리드) 화면 표시
+            resultGridPanel.SetActive(true);
+            currentState = GachaState.Grid;
+            skipButton.gameObject.SetActive(true);
+            CheckIfAllCardsFlipped();
+        }
     }
 
     // 3-2. 단일 결과 카드 표시 (데이터 접근 수정)
@@ -271,9 +296,21 @@ public class GachaSequenceController : BasePopUpUI
     // 4. (에픽 없을 때) 그리드에서 뒤집힌 카드를 클릭하면 호출됨
     public void OnGridCardClicked(GachaResultIcon clickedIcon, int resultId)
     {
-        _lastClickedIcon = clickedIcon;
-        resultGridPanel.SetActive(false); // 그리드 숨기고
-        ShowSingleResultCard(resultId);   // 단일 카드 표시
+        _lastClickedIcon = clickedIcon; // 클릭한 아이콘 기억
+        _pendingResultId = resultId;  // 보여줄 ID 임시 저장
+        clickedIcon.FlipForDetail();
+        //resultGridPanel.SetActive(false); // 그리드 숨기고
+        //ShowSingleResultCard(resultId);   // 단일 카드 표시
+        //currentState = GachaState.CardReveal;
+        //skipButton.gameObject.SetActive(false);
+    }
+    public void OnCardFlipAnimationFinished(GachaResultIcon icon)
+    {
+        // 1. 그리드 패널을 숨깁니다.
+        resultGridPanel.SetActive(false);
+        // 2. 임시 저장해둔 ID로 3번 상세 카드 화면을 켭니다.
+        ShowSingleResultCard(_pendingResultId);
+        // 3. 상태 변경
         currentState = GachaState.CardReveal;
         skipButton.gameObject.SetActive(false);
     }
@@ -282,13 +319,16 @@ public class GachaSequenceController : BasePopUpUI
     private void OnSingleResultConfirmed()
     {
         resultCardPanel.SetActive(false);
-        resultGridPanel.SetActive(true); // 4번 (그리드)로 복귀
+        ShowNextEpicInQueue();
         currentState = GachaState.Grid;
-        skipButton.gameObject.SetActive(true); // "모두 뒤집기" 버튼 다시 표시
-        _lastClickedIcon?.Flip(false);
-        _lastClickedIcon = null; // 클릭했던 아이콘 정보 리셋
+        skipButton.gameObject.SetActive(true);
+
+        //_lastClickedIcon?.FlipSimple(false);
+        _lastClickedIcon = null;
+
         CheckIfAllCardsFlipped();
     }
+
 
     // 5-2. 10회 그리드(4번)의 "확인" 버튼 클릭 시
     private void OnGridResultConfirmed()
@@ -311,12 +351,24 @@ public class GachaSequenceController : BasePopUpUI
         {
             // --- 2단계 스킵: 그리드의 모든 카드 뒤집기 ---
             Debug.Log("스킵 2단계: 모든 카드 뒤집기");
-
-            FlipAllRemainingCards(); // 모든 카드를 뒤집는 새 함수 호출
+            StartCoroutine(CoFlipAllRemainingCards());
             skipButton.gameObject.SetActive(false); // 모든 카드를 뒤집었으니 스킵 버튼 숨기기
+            _lastClickedIcon = null;
         }
     }
+    private IEnumerator CoFlipAllRemainingCards()
+    {
+        foreach (Transform child in gridContentParent)
+        {
+            GachaResultIcon iconScript = child.GetComponent<GachaResultIcon>();
+            if (iconScript != null && !iconScript.IsFlipped)
+            {
+                iconScript.FlipSimple(true);
 
+                yield return new WaitForSeconds(0.1f);
+            }
+        }
+    }
     private int FindHighestEpicOrFirstEpic(List<int> results)
     {
         foreach (int id in results)
@@ -326,19 +378,6 @@ public class GachaSequenceController : BasePopUpUI
         return -1; // 에픽 없음
     }
     // --- 헬퍼 함수 (데이터 접근 수정) ---
-    private void FlipAllRemainingCards()
-    {
-        foreach (Transform child in gridContentParent)
-        {
-            GachaResultIcon iconScript = child.GetComponent<GachaResultIcon>();
-            if (iconScript != null)
-            {
-                // false: 애니메이션 없이 즉시 / true: 애니메이션 재생
-                iconScript.Flip(false);
-            }
-        }
-        CheckIfAllCardsFlipped();
-    }
     public void OnCardFlipped(GachaResultIcon icon)
     {
         CheckIfAllCardsFlipped();
