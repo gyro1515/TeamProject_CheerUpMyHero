@@ -34,7 +34,7 @@ public class UIArtifactStatPanel : MonoBehaviour, IEndDragHandler
     [SerializeField] private ScrollRect _scrollRect;
     [SerializeField] private Image[] _paginationDots;
 
-    private int _pageCount = 2;
+    //private int _pageCount = 2;
     private int _currentPageIndex = 0;
     private Coroutine _snapCoroutine;
 

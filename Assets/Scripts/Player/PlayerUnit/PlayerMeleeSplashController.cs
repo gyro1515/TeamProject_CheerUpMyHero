@@ -84,7 +84,7 @@ public class PlayerMeleeSplashController : BaseUnitController
             hitCount++;
         }*/
         // 251020 우선순위 큐로 로직 변경 -> O(n log n) -> O(n log k)
-        List<BaseCharacter> allEnemies = UnitManager.Instance.EnemyUnitList;
+        List<BaseCharacter> allEnemies = UnitManager.EnemyUnitList;
         int hitCount = 0;
         // 우선 큐 비우기
         selectedUnitPQ.Clear();

@@ -13,6 +13,7 @@ public class PlayerUnitSO : MonoSO<BaseUnitData>
 	public List<BaseUnitData> allianceCommon; 
 	public List<BaseUnitData> allianceRare; 
 	public List<BaseUnitData> allianceEpic;
+	public List<BaseUnitData> spawnedUnit;
 
     public override List<BaseUnitData> GetList()
     {
@@ -84,6 +85,15 @@ public class PlayerUnitSO : MonoSO<BaseUnitData>
             data.unitBGSprite = SetBgFromSynergy(data.synergyType);
             data.unitIconSprite = Resources.Load<Sprite>($"UnitIcon/{data.poolType.ToString()}");
             data.gachaHeroSprite = Resources.Load<Sprite>($"GachaHero/{data.poolType.ToString()}");
+        }
+        for (int i = 0; i < spawnedUnit.Count; i++)
+        {
+            var data = spawnedUnit[i];
+            if (data == null) continue;
+
+            // 풀타입과 아이디 넘버 둘 다로 접근 가능하게 설정
+            DB[(int)data.poolType] = data;
+            DB[data.idNumber] = data;
         }
     }
     Sprite SetBgFromSynergy(UnitSynergyType synergyType)

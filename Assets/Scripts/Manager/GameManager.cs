@@ -41,8 +41,9 @@ public class GameManager : SingletonMono<GameManager>
     protected override void Awake()
     {
         base.Awake();
-        RewardPanelUI = UIManager.Instance.GetUI<RewardPanelUI>();
-        UIStageClearArtifactSelect = UIManager.Instance.GetUI<UIStageClearArtifactSelect>();
+        // 배틀 씬에만 존재해야 합니다
+        /*RewardPanelUI = UIManager.Instance.GetUI<RewardPanelUI>();
+        UIStageClearArtifactSelect = UIManager.Instance.GetUI<UIStageClearArtifactSelect>();*/
 
         // ===============효과음 테스트용 공간===================
         

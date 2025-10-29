@@ -19,8 +19,8 @@ public class AudioManager : SingletonMono<AudioManager>
     [SerializeField] private float distance = 7.5f; // 거리에 따른 음량 감쇠 기준 거리
     [SerializeField] private float attenuation = 0.1f; // 거리에 따른 음량 감쇠 비율
 
-    [Header("BGM 페이드 효과")]
-    [SerializeField] private float bgmFadeDuration = 0.5f;
+    /*[Header("BGM 페이드 효과")]
+    [SerializeField] private float bgmFadeDuration = 0.5f;*/
 
 
     protected override void Awake()

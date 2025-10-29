@@ -99,7 +99,7 @@ public class EnemyHealerSplashController : BaseUnitController
             enemy.Damageable.TakeDamage(enemyUnit.AtkPower);
             hitCount++;
         }*/
-        List<BaseCharacter> allPlayers = UnitManager.Instance.PlayerUnitList;
+        List<BaseCharacter> allPlayers = UnitManager.PlayerUnitList;
         int hitCount = 0;
         selectedUnitPQ.Clear();
         foreach (BaseCharacter player in allPlayers)
@@ -255,7 +255,7 @@ public class EnemyHealerSplashController : BaseUnitController
     private BaseCharacter FindClosestInjuredAlly()
     {
         float healthThreshold = 0.8f;
-        List<BaseCharacter> allAllies = UnitManager.Instance.EnemyUnitList;
+        List<BaseCharacter> allAllies = UnitManager.EnemyUnitList;
 
         BaseCharacter closestTanker = null;
         BaseCharacter closestHealer = null;

@@ -91,7 +91,7 @@ public class PlayerRangedSplashController : BaseUnitController
         // 시간 비교
         //sw.Restart();
         // UnitManager가 관리하는 전체 적 리스트를 가져옴
-        List<BaseCharacter> allEnemies = UnitManager.Instance.EnemyUnitList;
+        List<BaseCharacter> allEnemies = UnitManager.EnemyUnitList;
         int hitCount = 0;
         // 우선 큐 비우기
         selectedUnitPQ.Clear();

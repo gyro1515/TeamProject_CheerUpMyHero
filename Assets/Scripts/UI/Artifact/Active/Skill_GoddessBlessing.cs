@@ -18,7 +18,7 @@ public class Skill_GoddessBlessing : ActiveSkillEffect
 
         yield return new WaitForSeconds(delay);
 
-        List<BaseCharacter> allies = UnitManager.Instance.PlayerUnitList;
+        List<BaseCharacter> allies = UnitManager.PlayerUnitList;
         foreach (var ally in allies.ToList())
         {
             if (ally == null || ally.IsDead) continue;

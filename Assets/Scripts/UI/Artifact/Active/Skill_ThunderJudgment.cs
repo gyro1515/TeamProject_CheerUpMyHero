@@ -19,7 +19,7 @@ public class Skill_ThunderJudgment : ActiveSkillEffect
 
         for (int i = 0; i < hitCount; i++)
         {
-            List<BaseCharacter> enemies = UnitManager.Instance.EnemyUnitList;
+            List<BaseCharacter> enemies = UnitManager.EnemyUnitList;
             foreach (var enemy in enemies.ToList())
             {
                 if (enemy == null || enemy.IsDead) continue;

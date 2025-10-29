@@ -26,7 +26,7 @@ public class GachaSequenceController : BasePopUpUI
     [SerializeField] private Button envelopeButton;
     [SerializeField] private Sprite videoTexture;
     [SerializeField] private RenderTexture renderTexture;
-    [SerializeField] private int skipFrame = 2;
+    //[SerializeField] private int skipFrame = 2;
 
     [Header("단일 카드 UI")]
     [SerializeField] private Image singleResultImage;

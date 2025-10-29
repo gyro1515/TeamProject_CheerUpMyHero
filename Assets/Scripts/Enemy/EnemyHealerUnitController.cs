@@ -194,7 +194,7 @@ public class EnemyHealerUnitController : BaseUnitController
     private BaseCharacter FindClosestInjuredAlly()
     {
         float healthThreshold = 0.8f;
-        List<BaseCharacter> allAllies = UnitManager.Instance.EnemyUnitList;
+        List<BaseCharacter> allAllies = UnitManager.EnemyUnitList;
 
         // 우선순위: 탱커 > 힐러 > 딜러
         BaseCharacter closestTanker = null;
