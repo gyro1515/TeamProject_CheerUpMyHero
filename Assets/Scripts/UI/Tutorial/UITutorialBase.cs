@@ -13,7 +13,7 @@ public abstract class UITutorialBase : BaseUI, IBackButtonHandler
     int stepIdx = 0;
     int maxStep = -1;
 
-    private void Awake()
+    protected virtual void Awake()
     {
         leftBtn.onClick.AddListener(OnLeftButtonClicked);
         rightBtn.onClick.AddListener(OnRightButtonClicked);
@@ -24,6 +24,11 @@ public abstract class UITutorialBase : BaseUI, IBackButtonHandler
         if (maxStep > 0 )
         {
             tutorialSteps[0].SetActive(true);
+
+            for (int i = 1; i < maxStep; i++)
+            {
+                tutorialSteps[i].SetActive(false);
+            }
         }
     }
 
