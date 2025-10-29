@@ -23,7 +23,7 @@ public class SecondStartGroup : MonoBehaviour
         // 실제 백엔드 로그인 로직으로 교체 필요
         googleLoginButton?.onClick.AddListener(OnLoginClicked);
         appleLoginButton?.onClick.AddListener(OnLoginClicked);
-        guestLoginButton?.onClick.AddListener(OnLoginClicked);
+        guestLoginButton?.onClick.AddListener(OnGuestLoginButtonClicked);
     }
     private void OnLoginClicked()
     {
@@ -39,7 +39,10 @@ public class SecondStartGroup : MonoBehaviour
             _startUIController?.OnLoginSuccess();
         }
     }
-
+    private void OnGuestLoginButtonClicked()
+    {
+        _startUIController?.OnLoginSuccess();
+    }
     // OnDestroy에서 리스너 제거 (안전 코드)
     private void OnDestroy()
     {

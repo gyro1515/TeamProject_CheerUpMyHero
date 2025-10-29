@@ -10,6 +10,7 @@ public class AudioSettingUI : MonoBehaviour, IBackButtonHandler
     [SerializeField] private Slider masterSlider;
     [SerializeField] private Slider bgmSlider;
     [SerializeField] private Slider sfxSlider;
+    [SerializeField] private Button backButton;
 
     // 저장 키
     private const string KEY_Master = "Master_VOL";
@@ -51,6 +52,7 @@ public class AudioSettingUI : MonoBehaviour, IBackButtonHandler
             AudioManager.Instance.SetSFXVolumeLinear(v);
             sfxSlider.onValueChanged.AddListener(OnSfxSliderChanged);
         }
+        backButton?.onClick.AddListener(OnBackBtn);
     }
 
     public void OnMasterSliderChanged(float value)
@@ -90,7 +92,10 @@ public class AudioSettingUI : MonoBehaviour, IBackButtonHandler
         gameObject.SetActive(false);
         Time.timeScale = 1f;
     }
-
+    public void OnBackBtn()
+    {
+        gameObject.SetActive(false);
+    }
     public void OnBackPressed()
     {
         Debug.Log("[AudioSettingUI] OnBackPressed");
