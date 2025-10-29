@@ -8,7 +8,10 @@ public class UITutorialDeck : UITutorialBase
     {
         base.OnSkipButtonClicked();
 
-        GameManager.IsTutorialCompleted = true;
-        //TODO : 서버도 변경해줘야 함.
+        if(!GameManager.IsTutorialCompleted)
+        {
+            GameManager.IsTutorialCompleted = true;
+            //TODO : 서버도 변경해줘야 함.
+        }
     }
 }

@@ -87,7 +87,7 @@ public class DeckPresetController : BaseUI, IBackButtonHandler
     {
         UIManager.PubishAddUIStackEvent(this);
 
-        _tourDeck?.OpenUI();
+        if(!GameManager.IsTutorialCompleted) _tourDeck?.OpenUI();
     }
 
     private void Start()
