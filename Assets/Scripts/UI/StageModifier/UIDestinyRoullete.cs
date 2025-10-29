@@ -191,8 +191,9 @@ public class UIDestinyRoullette : BaseUI
 
     private void OnChallengeButtonClicked()
     {
+        _effectPopup.gameObject.SetActive(false);
+
         _challengePopup.OpenUI();
-        _effectPopup.CloseUI();
     }
 
     private void OnConfirmButtonClicked()
