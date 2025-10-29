@@ -70,7 +70,7 @@ public class RewardPanelUI : BaseUI
         // 골드 보상/페널티
         victoryButtonGroup.SetActive(isVictory);
         defeatButtonGroup.SetActive(!isVictory);
-        penaltyInfoText.gameObject.SetActive(!isVictory);
+        penaltyInfoText.gameObject.SetActive(!isVictory && GameManager.IsTutorialCompleted);
      
         if (!isVictory && GameManager.IsTutorialCompleted)
         {

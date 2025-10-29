@@ -56,6 +56,7 @@ public class UIStageClearArtifactSelect : BaseUI
     //스테이지 9 끝났을때 전용
     public void OpenSelectUI(ArtifactType type, bool isSub9)
     {
+        OpenUI();
         AudioManager.PlayOneShot(DataManager.AudioData.ClearArtifactSE);
         is9StageAndFirst = isSub9;
         _type = type;
