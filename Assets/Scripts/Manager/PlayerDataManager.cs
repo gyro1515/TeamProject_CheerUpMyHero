@@ -4,6 +4,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -728,7 +729,7 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
     }
 
     //현재 서버에서 List<List<bool>>을 쓰고 있어서, 거기에 맞출께용
-    public void UpdateClearedStagesFromServer(List<List<bool>> serverClearedStages) //서버에서 클리어 
+    public void UpdateClearedStagesFromServer(List<List<bool>> serverClearedStages) //서버에서 해금 데이터 가져옴 
     {
         clearedStages.Clear(); // 일단 로컬 정보 초기화
         //foreach (var stage in serverClearedStages)
@@ -740,7 +741,29 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
         {
             for(int j = 0; j < serverClearedStages[i].Count; j++)
             {
-                clearedStages[(i + 1, j + 1)] = serverClearedStages[i][j];
+                //생각해보니, 모든 데이터를 볼 필요없이 true까지인 것만 보면 되는거 아닌가?
+
+                if (serverClearedStages[i][j])
+                    clearedStages[(i + 1, j + 1)] = serverClearedStages[i][j];
+                else
+                {
+                    //예시: 1-5까지 깸 => 1-6까지 unlock = true (세팅 데이터 매니저 = 우리가 보는 스테이지 화면 정보)
+                    //serverClearedStages[0][5]지 true, serverClearedStages[0][6] 부터 false
+                    //근데 serverClearedStages[0][5]는 false여야 함 => 수동으로 처리
+
+                    //만약 ClearedStages[0][8]까지 true라면, serverClearedStages[1][0] 부터 false
+                    if (j == 0)
+                    {
+                        clearedStages[(i, 8)] = false;
+                    }
+                    else
+                    {
+                        clearedStages[(i + 1, j)] = false;
+                    }
+                    break;
+                }
+
+                
             }
         }
 
@@ -886,7 +909,7 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
         // 1. 현재 PlayerDataManager의 상태를 스냅샷으로 생성
         var saveData = new PlayerSaveData
         {
-            ClearData = SettingDataManager.Instance.SaveClearData(),
+            UnlockData = SettingDataManager.Instance.SaveClearData(), //주의 사항: 클리어 데이터가 아니고 해금 데이터. 마지막으로 true인 스테이지는 클리어된게 아니다. 
             DeckPresets = ConvertDeckToInt(), // 딕셔너리 전체 저장 //하니까 직렬화에서 에러나서 저장할땐 int로 하겠습니당
             DeckNames = SaveDeckName(),
             ActiveDeckIndex = this.ActiveDeckIndex,
@@ -934,8 +957,8 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
             //튜토리얼 끝날때 까지 저장 x => 저장된다면, 튜토리얼이 끝난 것 => 저장된 데이터가 있다면, 튜토리얼이 끝난 것
             //GameManager.IsTutorialCompleted = true; 
 
-            SettingDataManager.Instance.LoadClearData(loadedData.ClearData);
-            UpdateClearedStagesFromServer(loadedData.ClearData);
+            SettingDataManager.Instance.LoadClearData(loadedData.UnlockData);
+            UpdateClearedStagesFromServer(loadedData.UnlockData);
             ConvertIntToDeck(loadedData.DeckPresets);
             LoadDeckName(loadedData.DeckNames);
             this.ActiveDeckIndex = loadedData.ActiveDeckIndex;
@@ -944,8 +967,10 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
             ArtifactManager.Instance.LoadArtifactData(loadedData.OwnedArtifacts, loadedData.EquippedArtifacts);
 
         }
-        catch (NullReferenceException)
+
+        catch (Exception ex) when (ex.GetType().Name == "DeserializationException" || ex is NullReferenceException) //문자열 비교라서 보기 안좋지만, 세이브파일 일치하지 않는건 개발 단계에서만 생기는 거라 대충처리합니다. 
         {
+            
             Debug.Log("세이브 데이터가 손상되었거나 이전 개발 버전입니다.");
 
             //일단 가챠 유닛 제외 전부 넣어둠
@@ -985,8 +1010,8 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
 public class PlayerSaveData
 {
     // 1. 스테이지 해금 정보
-    //SettingDataManger와 연계 필요
-    public List<List<bool>> ClearData;
+    //주의 사항: 클리어 데이터가 아니고 해금 데이터. 마지막으로 true인 스테이지는 클리어된게 아니다.
+    public List<List<bool>> UnlockData;
 
     // 2. 덱 데이터
     public Dictionary<int, List<int>> DeckPresets;
