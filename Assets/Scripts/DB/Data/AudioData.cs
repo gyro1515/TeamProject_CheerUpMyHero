@@ -43,6 +43,7 @@ public class AudioData : ScriptableObject
     public AudioClip archerUnitAttackSE;
     public AudioClip hqDestroySE;
     public AudioClip playerWarningHpSE;
+    public AudioClip unitHealSE;
 
     [Header("유물 효과음")]
     public AudioClip AF_IceBreath;
