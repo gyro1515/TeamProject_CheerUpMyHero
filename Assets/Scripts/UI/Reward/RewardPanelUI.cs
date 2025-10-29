@@ -126,7 +126,6 @@ public class RewardPanelUI : BaseUI
                 nextStageButton.gameObject.SetActive(false);
                 retryButton_Victory.gameObject.SetActive(false);
                 // 테스트로 튜토리얼 클리어
-                GameManager.IsTutorialCompleted = true;
             }
             // 패배시 다시하기만 활성화
             else

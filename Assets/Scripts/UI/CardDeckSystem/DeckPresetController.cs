@@ -63,6 +63,9 @@ public class DeckPresetController : BaseUI, IBackButtonHandler
     // 시너지별 카운트 저장용 딕셔너리
     Dictionary<UnitSynergyType, int> synergyCounts = new Dictionary<UnitSynergyType, int>();
 
+    //튜토리얼
+    private UITutorialDeck _tourDeck;
+
     /*private void Update()
     {
         if (Input.GetKeyDown(KeyCode.Space)) //테스트 코드
@@ -73,10 +76,18 @@ public class DeckPresetController : BaseUI, IBackButtonHandler
     private void Awake()
     {
         uiDeckSynergy.Init();// 생성자 꼬이지 않게 여기서 먼저 초기화
+        Debug.Log(GameManager.IsTutorialCompleted);
+        if (!GameManager.IsTutorialCompleted)
+        {
+            _tourDeck = UIManager.Instance.GetUI<UITutorialDeck>();
+            _tourDeck?.CloseUI();
+        }
     }
     private void OnEnable()
     {
         UIManager.PubishAddUIStackEvent(this);
+
+        _tourDeck?.OpenUI();
     }
 
     private void Start()
@@ -115,6 +126,8 @@ public class DeckPresetController : BaseUI, IBackButtonHandler
     private void OnDisable()
     {
         UIManager.PublishRemoveUIStackEvent();
+
+        _tourDeck?.CloseUI();
     }
     #region UI 생성 및 업데이트
 
