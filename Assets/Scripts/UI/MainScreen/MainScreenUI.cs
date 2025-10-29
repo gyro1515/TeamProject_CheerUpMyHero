@@ -67,10 +67,7 @@ public class MainScreenUI : BaseUI, IBackButtonHandler
     private void OnAdviserButtonClck()
     {
         //OpenPanel(_battlePanelCanvasGroup);
-        if (_deckSelectPopup != null)
-        {
-            _deckSelectPopup.OpenUI();
-        }
+        OnDeckSelectButtonClick();
         //OpenPanel(_testPanelCanvasGroup);
     }
 
@@ -105,10 +102,10 @@ public class MainScreenUI : BaseUI, IBackButtonHandler
             {
                 Debug.LogError("UIManager에서 _uiStageSelect 찾을 수 없습니다!");
             }
-            if (_deckSelectPopup != null)
-            {
-                _deckSelectPopup.CloseUI();
-            }
+            //if (_deckSelectPopup != null)
+            //{
+            //    _deckSelectPopup.CloseUI();
+            //}
         }
             
             

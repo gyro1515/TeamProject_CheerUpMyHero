@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Threading.Tasks;
 
-public class GachaUIPanel : BasePopUpUI 
+public class GachaUIPanel : BaseUI 
 {
     [Header("UI 참조")]
     [SerializeField] private Button backButton; 
@@ -21,10 +21,10 @@ public class GachaUIPanel : BasePopUpUI
 
     private IEventSubscriber<LimitedPityCountUpdatedEvent> _limitedPitySubscriber;
     private IEventSubscriber<StandardPityCountUpdatedEvent> _standardPitySubscriber;
+    private MainScreenUI mainScreenUI;
 
-    protected override void Awake()
+     void Awake()
     {
-        base.Awake(); 
 
         backButton?.onClick.AddListener(OnBackButtonClicked);
         pullOneButton?.onClick.AddListener(OnPullOneClicked);
@@ -38,17 +38,19 @@ public class GachaUIPanel : BasePopUpUI
             Debug.LogError("ContractPagesController가 GachaUIPanel에 연결되지 않았습니다!");
         }
     }
-
-    protected override void OnEnable()
+    private void Start()
     {
-        base.OnEnable();
+        mainScreenUI = UIManager.Instance.GetUI<MainScreenUI>();    
+    }
+    void OnEnable()
+    {
         _limitedPitySubscriber.Subscribe(HandleLimitedPityUpdate);
         _standardPitySubscriber.Subscribe(HandleStandardPityUpdate);
         UpdateInitialPityCounters();
     }
-    protected override void OnDisable()
+ void OnDisable()
     {
-        base.OnDisable();
+        
 
         _limitedPitySubscriber?.Unsubscribe(HandleLimitedPityUpdate);
         _standardPitySubscriber?.Unsubscribe(HandleStandardPityUpdate);
@@ -293,20 +295,54 @@ public class GachaUIPanel : BasePopUpUI
     }
 
     private int GetForcedEpicResult(int pageIndex)
-    { 
-        return UnityEngine.Random.Range(125001, 130000);
+    {
+        List<int> epicPool;
+
+        if (pageIndex == 0) // 1페이지 (한정/픽업)
+        {
+            epicPool = new List<int> { 120003,125001,125002, 125003 };
+        }
+        else // 2페이지 (상시)
+        {
+            epicPool = new List<int> { 120003, 125001, 125002, 125003 };
+        }
+
+
+        // 2. 에픽 풀이 비어있는지 확인
+        if (epicPool.Count == 0)
+        {
+            Debug.LogError($"[천장 오류] {pageIndex + 1}페이지의 에픽 풀이 비어있습니다!");
+            return -1; // 실패
+        }
+
+        // 3. 에픽 목록 중에서 랜덤으로 한 명을 고릅니다.
+        int randomIndex = UnityEngine.Random.Range(0, epicPool.Count);
+        int resultId = epicPool[randomIndex];
+
+        Debug.Log($"<color=yellow>[천장 발동!]</color> 확정 에픽 유닛 (ID: {resultId}) 반환.");
+
+        return resultId;
     }
-    private bool IsResultEpic(int id) 
-    { 
-        return id > 125000; 
+    private bool IsResultEpic(int id)
+    {
+        if (id == -1) return false;
+
+        var unitData = DataManager.PlayerUnitData.GetData(id);
+
+        if (unitData == null) return false; // 데이터가 없으면 에픽 아님
+
+        return unitData.rarity == Rarity.epic;
     }
     private void OnBackButtonClicked()
     {
-        CloseUI();
-    }
+        if (mainScreenUI != null)
+        {
+            FadeManager.Instance.SwitchGameObjects(gameObject, mainScreenUI.gameObject);
 
-    public override void OnBackPressed()
-    {
-        OnBackButtonClicked();
+        }
+        else
+        {
+            Debug.LogError("MainScreenUIObject가 GachaUIPanel에 연결되지 않았습니다!");
+        }
     }
 }
