@@ -34,12 +34,22 @@ public class UIPause : BaseUI, IBackButtonHandler
     }
     private void Start()
     {
-        GameManager.Instance.enemyHQ.WaveSystem.OnWarningDisplayed += () =>
+        if (GameManager.Instance != null &&
+                 GameManager.Instance.enemyHQ != null &&
+                 GameManager.Instance.enemyHQ.WaveSystem != null)
         {
-            ApplySpeed(SpeedState.X1); // 웨이브 경고 시 배속 초기화
-        };
-        GameManager.Instance.enemyHQ.WaveSystem.SetOnWarningEnd(() => ApplySpeed(CurrentSpeed));
-        UIManager.PubishAddUIStackEvent(this);
+            Debug.Log("[UIPause] enemyHQ 및 WaveSystem 발견. 리스너를 등록합니다.");
+            GameManager.Instance.enemyHQ.WaveSystem.OnWarningDisplayed += () =>
+            {
+                ApplySpeed(SpeedState.X1); // 웨이브 경고 시 배속 초기화
+            };
+            GameManager.Instance.enemyHQ.WaveSystem.SetOnWarningEnd(() => ApplySpeed(CurrentSpeed));
+        }
+        else
+        {
+            Debug.LogWarning("[UIPause] enemyHQ 또는 WaveSystem을 찾을 수 없습니다. (StartScene에서는 정상 동작입니다)");
+        }
+        UIManager.PubishAddUIStackEvent(this); 
     }
     private void OnPauseButtonClicked()
     {

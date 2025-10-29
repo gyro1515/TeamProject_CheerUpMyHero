@@ -32,6 +32,11 @@ public class SceneLoaderBattle : MonoBehaviour
         // 현재는 연결된 맵 소환
         Instantiate(map);
         AudioManager.PlayOneShot(DataManager.AudioData.BattleStartSE);
+
+        if (!GameManager.IsTutorialCompleted)
+        {
+            UIManager.Instance.GetUI<UITutorialBattle>();
+        }
     }
 
     /*private void Update()
