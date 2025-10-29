@@ -36,6 +36,9 @@ public class GameManager : SingletonMono<GameManager>
     bool isStageAndDestinySelected = false;
     public static bool IsStageAndDestinySelected { get => Instance.isStageAndDestinySelected; set => Instance.isStageAndDestinySelected = value; }
 
+    bool isTutorialCompleted = false;
+    public static bool IsTutorialCompleted { get => Instance.isTutorialCompleted; set => Instance.isTutorialCompleted = value; }
+
     bool isClearedButTryAgain = false;
 
     protected override void Awake()
@@ -45,9 +48,9 @@ public class GameManager : SingletonMono<GameManager>
         /*RewardPanelUI = UIManager.Instance.GetUI<RewardPanelUI>();
         UIStageClearArtifactSelect = UIManager.Instance.GetUI<UIStageClearArtifactSelect>();*/
 
-        // ===============효과음 테스트용 공간===================
-        
-        // ======================================================
+        // 튜토리얼 완료 여부 설정
+        // TODO: 서버에서 불러오기
+        isTutorialCompleted = false;
     }
     private void Update()
     {
