@@ -16,9 +16,12 @@ public class AudioManager : SingletonMono<AudioManager>
     [SerializeField] private float masterVolume = 0.2f;
     [SerializeField] private float bgmVolume = 1.0f;
     [SerializeField] private float sfxVolume = 1.0f;
+    [SerializeField] private float distance = 7.5f; // 거리에 따른 음량 감쇠 기준 거리
+    [SerializeField] private float attenuation = 0.1f; // 거리에 따른 음량 감쇠 비율
 
     [Header("BGM 페이드 효과")]
     [SerializeField] private float bgmFadeDuration = 0.5f;
+
 
     protected override void Awake()
     {
@@ -56,17 +59,39 @@ public class AudioManager : SingletonMono<AudioManager>
     }
 
     // ============================ 효과음 =============================
+    // 기본 효과음 재생
     public static void PlayOneShot(AudioClip clip, float vol = 1.0f)
     {
         float volume = Instance.masterVolume * Instance.sfxVolume;
         Instance.sfxSource.PlayOneShot(clip, vol * volume);
     }
-
+    // 랜덤 효과음 재생
     public static void PlayRandomOneShot(AudioClip[] clip, float vol = 1.0f)
     {
         int randomInt = Random.Range(0, clip.Length);
-        float volume = Instance.masterVolume * Instance.sfxVolume;
-        Instance.sfxSource.PlayOneShot(clip[randomInt], vol * volume);
+        //float volume = Instance.masterVolume * Instance.sfxVolume;
+        //Instance.sfxSource.PlayOneShot(clip[randomInt], vol * volume);
+        PlayOneShot(clip[randomInt], vol);
+    }
+    // 거리 기반 효과음 재생
+    public static void PlayOneShotByCameraDistance(AudioClip clip, Transform pos, float vol = 1.0f)
+    {
+        Camera camera  = Camera.main;
+        float dist = Mathf.Abs(camera.transform.position.x - pos.position.x);
+        if(dist > Instance.distance) // 기준 거리 넘으면 감쇠 적용
+        {
+            PlayOneShot(clip, vol * Instance.attenuation);
+        }
+        else
+        {
+            PlayOneShot(clip, vol);
+        }
+    }
+    // 거리 기반 효과음 랜덤 재생
+    public static void PlayRandomOneShotByCameraDistance(AudioClip[] clip, Transform pos, float vol = 1.0f)
+    {
+        int randomInt = Random.Range(0, clip.Length);
+        PlayOneShotByCameraDistance(clip[randomInt], pos, vol);
     }
     // =================================================================
 
@@ -79,6 +104,7 @@ public class AudioManager : SingletonMono<AudioManager>
         {
             Instance.bgmSource.clip = clip;
             Instance.bgmSource.volume = volume * Instance.masterVolume * Instance.bgmVolume;
+            if(Instance.bgmSource.loop == false) Instance.bgmSource.loop = true;
             Instance.bgmSource.Play();
         }
     }
@@ -120,9 +146,13 @@ public class AudioManager : SingletonMono<AudioManager>
                 }
             }
         }
-        else
+        else if (sceneState == SceneState.MainScene)
         {
             clip = DataManager.AudioData.mainBGM;
+        }
+        else if (sceneState == SceneState.StartScene)
+        {
+            clip = DataManager.AudioData.startBGM;
         }
 
         return clip;

@@ -7,6 +7,7 @@ public class AudioData : ScriptableObject
 {
     [Header("배경음")]
     public AudioClip mainBGM;
+    public AudioClip startBGM;
     
     [Header("전투 배경음")]
     public AudioClip chapter1BGM;
