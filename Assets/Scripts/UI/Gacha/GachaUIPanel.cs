@@ -139,10 +139,10 @@ public class GachaUIPanel : BaseUI, IBackButtonHandler
             if (PlayerDataManager.Instance.GetResourceAmount(ResourceType.Ticket) < 1)
             {
                 Debug.LogWarning("티켓 부족!");
-                return; 
+                return;
             }
 
-             await PlayerDataManager.Instance.AddResource(ResourceType.Ticket, -1);
+            await PlayerDataManager.Instance.AddResource(ResourceType.Ticket, -1);
 
             // --- 2. 페이지별 천장 정보 가져오기 ---
             int currentPity = (currentPage == 0) ? PlayerDataManager.Instance.LimitedGachaPityCount : PlayerDataManager.Instance.StandardGachaPityCount;
@@ -165,7 +165,7 @@ public class GachaUIPanel : BaseUI, IBackButtonHandler
                 else // currentPage == 1
                 {
                     Debug.Log("BackendManager [상시] (천장) 뽑기 호출 중...");
-                    resultId = await BackendManager.OneNormalGachaAsync(); 
+                    resultId = await BackendManager.OneNormalGachaAsync();
                 }
 
                 // 천장 발동 시, 서버 결과와 상관없이 클라이언트에서 강제 에픽 ID 할당 
@@ -223,9 +223,7 @@ public class GachaUIPanel : BaseUI, IBackButtonHandler
         }
     }
 
-
-    // 10회 뽑기 함수 (주석 해제 및 수정)
-    private async void OnPullTenClicked() 
+    private async void OnPullTenClicked()
     {
         //pullOneButton.interactable = false;
         pullTenButton.interactable = false;
@@ -306,12 +304,12 @@ public class GachaUIPanel : BaseUI, IBackButtonHandler
             if (PlayerDataManager.Instance != null)
             {
                 pullOneButton.interactable = PlayerDataManager.Instance.GetResourceAmount(ResourceType.Ticket) >= 1;
-                pullTenButton.interactable = PlayerDataManager.Instance.GetResourceAmount(ResourceType.Ticket) >= 10; 
+                pullTenButton.interactable = PlayerDataManager.Instance.GetResourceAmount(ResourceType.Ticket) >= 10;
             }
             else
             {
                 //pullOneButton.interactable = false;
-                pullTenButton.interactable = false; 
+                pullTenButton.interactable = false;
             }
 
             await PlayerDataManager.Instance.SaveDataToCloudAsync();
