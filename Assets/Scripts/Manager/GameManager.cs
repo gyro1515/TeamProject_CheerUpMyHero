@@ -36,6 +36,9 @@ public class GameManager : SingletonMono<GameManager>
     bool isStageAndDestinySelected = false;
     public static bool IsStageAndDestinySelected { get => Instance.isStageAndDestinySelected; set => Instance.isStageAndDestinySelected = value; }
 
+    bool isTutorialCompleted = false;
+    public static bool IsTutorialCompleted { get => Instance.isTutorialCompleted; set => Instance.isTutorialCompleted = value; }
+
     bool isClearedButTryAgain = false;
 
     protected override void Awake()
@@ -45,9 +48,9 @@ public class GameManager : SingletonMono<GameManager>
         /*RewardPanelUI = UIManager.Instance.GetUI<RewardPanelUI>();
         UIStageClearArtifactSelect = UIManager.Instance.GetUI<UIStageClearArtifactSelect>();*/
 
-        // ===============효과음 테스트용 공간===================
-        
-        // ======================================================
+        // 튜토리얼 완료 여부 설정
+        // TODO: 서버에서 불러오기
+        isTutorialCompleted = false;
     }
     private void Update()
     {
@@ -137,7 +140,10 @@ public class GameManager : SingletonMono<GameManager>
         Time.timeScale = 0f;
 
         if (UIStageClearArtifactSelect == null)
+        {
             UIStageClearArtifactSelect = UIManager.Instance.GetUI<UIStageClearArtifactSelect>();
+            //UIStageClearArtifactSelect.CloseUI();
+        }
 
         (int mainIdx, int subIdx) = PlayerDataManager.Instance.SelectedStageIdx;
         if (subIdx + 1 == 9)
@@ -150,7 +156,7 @@ public class GameManager : SingletonMono<GameManager>
         }
     }
 
-    public async void ShowResultUI(bool isVictory)
+    public async UniTaskVoid ShowResultUI(bool isVictory)
     {
         EventManager.GetPublisher<BattleEndedEvent>().Publish(new BattleEndedEvent { IsVictory = isVictory });
 
@@ -165,6 +171,7 @@ public class GameManager : SingletonMono<GameManager>
         if (RewardPanelUI == null)
         {
             RewardPanelUI = UIManager.Instance.GetUI<RewardPanelUI>();
+            RewardPanelUI.gameObject.SetActive(false);
         }
 
         int finalGold = 0;
@@ -246,6 +253,10 @@ public class GameManager : SingletonMono<GameManager>
             {
                 finalMagicStone += Random.Range(totalMagicStoneMin, totalMagicStoneMax + 1);
             }
+            // 스테이지 클리어 효과음 출력함.
+            AudioManager.PlayOneShot(DataManager.AudioData.StageClearSE);
+
+            RewardPanelUI?.OpenUI(finalGold, finalWood, finalIron, finalMagicStone, true);
             try
             {
                 //계산된 보상을 PlayerDataManager에 추가
@@ -264,19 +275,20 @@ public class GameManager : SingletonMono<GameManager>
                 Debug.LogException(ex);
                 Debug.LogWarning("에러 팝업: 에러가 나서 보상을 주지 못했습니다.");
             }
-
-
-            // 스테이지 클리어 효과음 출력함.
-            AudioManager.PlayOneShot(DataManager.AudioData.StageClearSE);
-
-            RewardPanelUI?.OpenUI(finalGold, finalWood, finalIron, finalMagicStone, true);
-
         }
         else // =============== 패배했을 경우 ===============
         {
-            Debug.Log("패배 페널티를 적용합니다.");
+            (int gold, int wood, int iron, int magicStone) penalties = (0, 0, 0, 0);
+            if (GameManager.IsTutorialCompleted)
+            {
+                Debug.Log("패배 페널티를 적용합니다.");
 
-            var penalties = await PlayerDataManager.Instance.ApplyResourcePenalty();
+                penalties = await PlayerDataManager.Instance.ApplyResourcePenalty();
+            }
+            else
+            {
+                Debug.Log("튜토리얼에서는 패널티 없습니다.");
+            }
 
             // 스테이지 패배 효과음
             AudioManager.PlayOneShot(DataManager.AudioData.StageFailSE);
@@ -287,7 +299,7 @@ public class GameManager : SingletonMono<GameManager>
 
         await PlayerDataManager.Instance.SaveDataToCloudAsync();
     }
-    public async void ClearStage()
+    public async UniTaskVoid ClearStage()
     {
         try
         {

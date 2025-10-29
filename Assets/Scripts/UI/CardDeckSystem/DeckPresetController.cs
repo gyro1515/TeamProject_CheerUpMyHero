@@ -7,6 +7,7 @@ using System.Text;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using Cysharp.Threading.Tasks;
 
 public class DeckPresetController : BaseUI, IBackButtonHandler
 {
@@ -99,7 +100,7 @@ public class DeckPresetController : BaseUI, IBackButtonHandler
         resetButton.onClick.AddListener(OnResetClicked);
         completeButton.onClick.AddListener(OnCompleteClicked);
         adviserButton.onClick.AddListener(GoToMainScene);
-        confirmNameButton.onClick.AddListener(OnConfirmNameChange);
+        confirmNameButton.onClick.AddListener(() => { OnConfirmNameChange().Forget(); });
         cancelNameButton.onClick.AddListener(editNamePanel.CloseUI);
         autoButton.onClick.AddListener(OnAutoFormClicked);
         relicButton.onClick.AddListener(OnRelicButtonClicked);
@@ -174,7 +175,7 @@ public class DeckPresetController : BaseUI, IBackButtonHandler
         deckNameInputField.ActivateInputField();
     }
 
-    private async void OnConfirmNameChange()
+    private async UniTaskVoid OnConfirmNameChange()
     {
         try
         {
@@ -246,32 +247,30 @@ public class DeckPresetController : BaseUI, IBackButtonHandler
 
         if (hasEmptySlot && !dontAskAgain)
         {
-            confirmationPopup.Open(CompleteFormationDirect);
+            confirmationPopup.Open(() => { CompleteFormationDirect().Forget();});
         }
         else
         {
-            CompleteFormationDirect();
+            CompleteFormationDirect().Forget();
         }
     }
 
     //버튼에 등록하는 것 중에서 맨 마지막에 실행된다. => void로 해도 않을까?
-    private async void CompleteFormationDirect()
+    private async UniTaskVoid CompleteFormationDirect()
     {
         Debug.Log("편성 완료. 모든 덱 정보를 저장하고 전투씬으로 이동");
 
         try
         {
             await PlayerDataManager.Instance.SaveDataToCloudAsync();
+            SceneLoader.Instance.StartLoadScene(SceneState.BattleScene);
         }
         catch (Exception ex) 
         {
             Debug.LogException(ex);
             Debug.LogWarning("에러 팝업: 에러가 나서 덱을 저장하지 못했습니다.");
         }
-        finally
-        {
-            SceneLoader.Instance.StartLoadScene(SceneState.BattleScene);
-        }
+
         
         /* if (_stageSelectUI != null)
          {

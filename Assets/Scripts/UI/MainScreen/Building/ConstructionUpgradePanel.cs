@@ -6,6 +6,7 @@ using System.Text;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using Cysharp.Threading.Tasks;
 
 public class ConstructionUpgradePanel : BasePopUpUI
 {
@@ -45,11 +46,11 @@ public class ConstructionUpgradePanel : BasePopUpUI
     {
         base.Awake();
         //_canvasGroup = GetComponent<CanvasGroup>();
-        actionButton.onClick.AddListener(OnActionButtonClick);
+        actionButton.onClick.AddListener(() => { OnActionButtonClick().Forget(); });
         closeButton.onClick.AddListener(() => CloseUI());
         destroyButton.onClick.AddListener(OnDestroyButtonClicked);
     }
-    public override void CloseUI() 
+    public override void CloseUI()
     {
         if (MainScreenBuildingController.Instance != null)
         {
@@ -301,7 +302,7 @@ public class ConstructionUpgradePanel : BasePopUpUI
 
     // --- 액션 버튼 ---
     //원래 async 있는 버튼 쪽에 try catch finally를 다는데, 여기선 건설 함수 내부에서 예외처리를 해줘서 생략
-    private async void OnActionButtonClick()
+    private async UniTaskVoid OnActionButtonClick()
     {
         if (_targetTile == null) return;
 
@@ -327,8 +328,8 @@ public class ConstructionUpgradePanel : BasePopUpUI
             gameObject.SetActive(false);
             MainScreenBuildingController.Instance.InitiateDestruction(_targetTile);
 
-                MainScreenBuildingController.Instance.DeselectTile();
-                _targetTile = null;
+            MainScreenBuildingController.Instance.DeselectTile();
+            _targetTile = null;
         }
     }
     // --- 헬퍼 함수 ---
@@ -351,29 +352,29 @@ public class ConstructionUpgradePanel : BasePopUpUI
         { ResourceType.MagicStone, "마력석" }
     };
 
-    public static string GetResourceNameInKorean(ResourceType type)                                                          
+    public static string GetResourceNameInKorean(ResourceType type)
         => ResourceNames.TryGetValue(type, out var name) ? name : type.ToString();
 
 
     // ===== 건물 효과 값 문자열 변환 =====
-// effectType에 따라 표시 방식을 다르게 처리
-// 1) 증가율(%) 효과: 퍼센트 기호 붙여서 표시
-// 2) 고정값 효과: Min과 Max가 같으면 단일값 표시
-// 3) 범위 효과: Min과 Max가 다르면 "Min~Max" 형식으로 표시
+    // effectType에 따라 표시 방식을 다르게 처리
+    // 1) 증가율(%) 효과: 퍼센트 기호 붙여서 표시
+    // 2) 고정값 효과: Min과 Max가 같으면 단일값 표시
+    // 3) 범위 효과: Min과 Max가 다르면 "Min~Max" 형식으로 표시
 
-   private string GetEffectValueString(BuildingEffect effect)
-     => effect.effectType switch
-     {
-         BuildingEffectType.IncreaseFoodGainSpeed or
-         BuildingEffectType.AdditionalWoodProduction or
-         BuildingEffectType.AdditionalIronProduction or
-         BuildingEffectType.MagicStoneFindChance or
-         BuildingEffectType.UnitCoolDown
-         => $"{effect.effectValueMin}%",
-         _ => effect.effectValueMin == effect.effectValueMax
-                 ? effect.effectValueMin.ToString()
-                 : $"{effect.effectValueMin}~{effect.effectValueMax}"
-     };
+    private string GetEffectValueString(BuildingEffect effect)
+      => effect.effectType switch
+      {
+          BuildingEffectType.IncreaseFoodGainSpeed or
+          BuildingEffectType.AdditionalWoodProduction or
+          BuildingEffectType.AdditionalIronProduction or
+          BuildingEffectType.MagicStoneFindChance or
+          BuildingEffectType.UnitCoolDown
+          => $"{effect.effectValueMin}%",
+          _ => effect.effectValueMin == effect.effectValueMax
+                  ? effect.effectValueMin.ToString()
+                  : $"{effect.effectValueMin}~{effect.effectValueMax}"
+      };
     private static readonly Dictionary<BuildingEffectType, string> EffectNames = new()
 {
     { BuildingEffectType.MaximumFood, "식량 최대 저장량" },

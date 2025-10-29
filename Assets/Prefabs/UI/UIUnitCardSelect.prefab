@@ -1500,6 +1500,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   POPUP_UI_WARNING: "\uD574\uB2F9 UI\uB294 \uD31D\uC5C5\uC785\uB2C8\uB2E4. \uC791\uC5C5
     \uD6C4 \uBE44\uD65C\uC131\uD654 \uD574\uC8FC\uC138\uC694."
+  openSound: {fileID: 0}
+  closeSound: {fileID: 0}
   infiniteScroll: {fileID: 4942170351150694086}
   selectButton: {fileID: 4802253305950777995}
   SeleckBlocker: {fileID: 2899282236650406336}
@@ -1732,7 +1734,7 @@ MonoBehaviour:
     m_SelectOnDown: {fileID: 0}
     m_SelectOnLeft: {fileID: 0}
     m_SelectOnRight: {fileID: 0}
-  m_Transition: 1
+  m_Transition: 0
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
     m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
@@ -1754,7 +1756,7 @@ MonoBehaviour:
     m_DisabledTrigger: Disabled
   m_Interactable: 1
   m_TargetGraphic: {fileID: 844969638847377489}
-  toggleTransition: 1
+  toggleTransition: 0
   graphic: {fileID: 7146226494345897232}
   m_Group: {fileID: 0}
   onValueChanged:
@@ -1908,7 +1910,7 @@ RectTransform:
   m_GameObject: {fileID: 2633411091575093206}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: -1, z: 1}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 5722699770983032015}
@@ -5894,7 +5896,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: -1.8, y: 0}
   m_AnchorMax: {x: 2.8, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 11, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1258193500007606663
@@ -6605,6 +6607,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   POPUP_UI_WARNING: "\uD574\uB2F9 UI\uB294 \uD31D\uC5C5\uC785\uB2C8\uB2E4. \uC791\uC5C5
     \uD6C4 \uBE44\uD65C\uC131\uD654 \uD574\uC8FC\uC138\uC694."
+  openSound: {fileID: 0}
+  closeSound: {fileID: 0}
   inputfield: {fileID: 8675512519999591015}
   noButton: {fileID: 4550684245345277688}
   yesButton: {fileID: 6529761778531015308}
@@ -6791,6 +6795,10 @@ PrefabInstance:
       propertyPath: m_SizeDelta.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4877052781080390193, guid: 592cdd2debe2fad4ba2695d4e30575b7, type: 3}
+      propertyPath: m_fontSize
+      value: 72
+      objectReference: {fileID: 0}
     - target: {fileID: 5130445877226224675, guid: 592cdd2debe2fad4ba2695d4e30575b7, type: 3}
       propertyPath: m_Name
       value: Card (2)
@@ -6908,6 +6916,10 @@ PrefabInstance:
     - target: {fileID: 2897971243542143602, guid: 592cdd2debe2fad4ba2695d4e30575b7, type: 3}
       propertyPath: m_SizeDelta.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4877052781080390193, guid: 592cdd2debe2fad4ba2695d4e30575b7, type: 3}
+      propertyPath: m_fontSize
+      value: 72
       objectReference: {fileID: 0}
     - target: {fileID: 5130445877226224675, guid: 592cdd2debe2fad4ba2695d4e30575b7, type: 3}
       propertyPath: m_Name
@@ -7035,6 +7047,10 @@ PrefabInstance:
       propertyPath: m_SizeDelta.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4877052781080390193, guid: 592cdd2debe2fad4ba2695d4e30575b7, type: 3}
+      propertyPath: m_fontSize
+      value: 72
+      objectReference: {fileID: 0}
     - target: {fileID: 5130445877226224675, guid: 592cdd2debe2fad4ba2695d4e30575b7, type: 3}
       propertyPath: m_Name
       value: Card
@@ -7153,6 +7169,10 @@ PrefabInstance:
       propertyPath: m_SizeDelta.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4877052781080390193, guid: 592cdd2debe2fad4ba2695d4e30575b7, type: 3}
+      propertyPath: m_fontSize
+      value: 72
+      objectReference: {fileID: 0}
     - target: {fileID: 5130445877226224675, guid: 592cdd2debe2fad4ba2695d4e30575b7, type: 3}
       propertyPath: m_Name
       value: Card (4)
@@ -7270,6 +7290,10 @@ PrefabInstance:
     - target: {fileID: 2897971243542143602, guid: 592cdd2debe2fad4ba2695d4e30575b7, type: 3}
       propertyPath: m_SizeDelta.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4877052781080390193, guid: 592cdd2debe2fad4ba2695d4e30575b7, type: 3}
+      propertyPath: m_fontSize
+      value: 72
       objectReference: {fileID: 0}
     - target: {fileID: 5130445877226224675, guid: 592cdd2debe2fad4ba2695d4e30575b7, type: 3}
       propertyPath: m_Name

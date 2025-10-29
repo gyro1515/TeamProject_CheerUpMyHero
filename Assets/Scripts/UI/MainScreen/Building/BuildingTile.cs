@@ -28,6 +28,8 @@ public class BuildingTile : MonoBehaviour, IBeginDragHandler, IDragHandler, IEnd
     [SerializeField] private Image tileImage; // 타일 이미지를 표시할 Image 컴포넌트
     [SerializeField] public Sprite emptyTileSprite; // 건물이 없을 때 표시할 기본 빈 타일 이미지
     [SerializeField] private Sprite diplomacyBuildingSprite; // 외교 건물 스프라이트 
+    [SerializeField] private Sprite yeongjugwanBuildingSprite; // 영주관 건물 스프라이트 
+    [SerializeField] private Sprite militaryBuildingSprite; // 군사구역 건물 스프라이트 
 
     public int X { get; private set; }
     public int Y { get; private set; }
@@ -76,7 +78,32 @@ public class BuildingTile : MonoBehaviour, IBeginDragHandler, IDragHandler, IEnd
                 // 외교 타일의 초기 상태 업데이트 (잠김/해제)
                 UpdateDiplomacyTileStatus();
             }
-            // ------------------------------------
+            if (x == 4 && y == 0)
+            {
+                // 영주관 건물 스프라이트 설정
+                if (yeongjugwanBuildingSprite != null)
+                {
+                    tileImage.sprite = yeongjugwanBuildingSprite;
+                    if (tileButton != null) tileButton.interactable = true;
+                }
+                else
+                {
+                    Debug.LogWarning($"(4,0) 타일({name})에 yeongjugwanBuildingSprite가 연결되지 않았습니다.");
+                }
+            }
+            if (x == 4 && y == 2)
+            {
+                // 외교 건물 스프라이트 설정
+                if (militaryBuildingSprite != null)
+                {
+                    tileImage.sprite = militaryBuildingSprite;
+                    if (tileButton != null) tileButton.interactable = true;
+                }
+                else
+                {
+                    Debug.LogWarning($"(4,1) 타일({name})에 militaryBuildingSprite가 연결되지 않았습니다.");
+                }
+            }
         }
 
         tileButton?.onClick.RemoveAllListeners(); 
@@ -153,12 +180,11 @@ public class BuildingTile : MonoBehaviour, IBeginDragHandler, IDragHandler, IEnd
 
     public void SetBuilding(BuildingUpgradeData buildingData)
     {
-        if (X == 4 && Y == 1)
+        if (MyTileType == TileType.Special)
         {
-            _buildingData = buildingData;
-            return;
+            _buildingData = buildingData; // 데이터는 받아올 수 있지만 (아마 null)
+            return; // ✨ 스프라이트를 덮어쓰지 않고 즉시 종료!
         }
-
         _buildingData = buildingData; 
 
         tileImage.sprite = (buildingData == null || buildingData.buildingSprite == null)
@@ -218,6 +244,11 @@ public class BuildingTile : MonoBehaviour, IBeginDragHandler, IDragHandler, IEnd
 
         if (cooldownOverlay != null) cooldownOverlay.gameObject.SetActive(isCoolingDown);
         if (cooldownTimerText != null) cooldownTimerText.gameObject.SetActive(isCoolingDown);
+        if (isCoolingDown)
+        {
+            TimeSpan remainingTime = cooldownEndTime - DateTime.UtcNow;
+            UpdateTimerText(remainingTime);
+        }
         if (isCoolingDown && repairTurnText != null)
         {
             repairTurnText.gameObject.SetActive(false);

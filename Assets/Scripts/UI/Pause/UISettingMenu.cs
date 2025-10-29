@@ -35,15 +35,15 @@ public class UISettingMenu : BaseUI
     #endregion
 
     #region 조작 패널 변경 패널
-    [Header("조작 패널 변경 버튼")]
-    [SerializeField] private Button _controlSettingButton;
+    [Header("튜토리얼 다시 보기 패널 버튼")]
+    [SerializeField] private Button _tutorialRetryButton;
 
-    [Header("조작 패널 변경 패널")]
-    [SerializeField] private BasePopUpUI _controlSettingPanel;
+    //[Header("튜토리얼 다시보기 패널")]
+    //[SerializeField] private BasePopUpUI _tutorialRetryPanel;
 
-    private void OnControlSettingButtonClicked()
+    private void OnTutorialRetryButtonClicked()
     {
-        _controlSettingPanel.OpenUI();
+        Debug.Log("튜토리얼 다시 보기 버튼입니다");
     }
     #endregion
 
@@ -80,7 +80,7 @@ public class UISettingMenu : BaseUI
     {
         _soundSettingButton.onClick.AddListener(OnSoundSettingButtonClicked);
         _fpsSettingButton.onClick.AddListener(OnFPSSettingButtonClicked);
-        _controlSettingButton.onClick.AddListener(OnControlSettingButtonClicked);
+        _tutorialRetryButton.onClick.AddListener(OnTutorialRetryButtonClicked);
         _giveUpButton.onClick.AddListener(OnGiveUpButtonClicked);
         _resumeButton.onClick.AddListener(OnResumeButtonClicked);
 

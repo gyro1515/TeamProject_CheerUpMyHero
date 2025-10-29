@@ -22,11 +22,11 @@ public class AudioManager : SingletonMono<AudioManager>
     /*[Header("BGM 페이드 효과")]
     [SerializeField] private float bgmFadeDuration = 0.5f;*/
 
-
+    Camera mainCam;
     protected override void Awake()
     {
         base.Awake();
-
+        mainCam = Camera.main;
         LoadMixerAssets();
         InitBGMSource();      // BGM AudioSource 확보
         InitSFXPool();        // SFX 풀 구성 (프리팹 없음도 안전)
@@ -34,6 +34,7 @@ public class AudioManager : SingletonMono<AudioManager>
         if (sfxSource == null)
         {
             sfxSource = gameObject.AddComponent<AudioSource>();
+            sfxSource.outputAudioMixerGroup = sfxGroup;
         }
 
         SceneManager.sceneLoaded += OnSceneLoaded;
@@ -76,8 +77,8 @@ public class AudioManager : SingletonMono<AudioManager>
     // 거리 기반 효과음 재생
     public static void PlayOneShotByCameraDistance(AudioClip clip, Transform pos, float vol = 1.0f)
     {
-        Camera camera  = Camera.main;
-        float dist = Mathf.Abs(camera.transform.position.x - pos.position.x);
+        if(Instance.mainCam == null) Instance.mainCam = Camera.main;
+        float dist = Mathf.Abs(Instance.mainCam.transform.position.x - pos.position.x);
         if(dist > Instance.distance) // 기준 거리 넘으면 감쇠 적용
         {
             PlayOneShot(clip, vol * Instance.attenuation);

@@ -232,6 +232,11 @@ public class PlayerHealerUnitController : BaseUnitController
             yield return null;
         }
         HealTarget.Damageable.TakeHeal(playerUnit.AtkPower * 0.5f);
+        GameObject fxHeal = ObjectPoolManager.Instance.Get(PoolType.FXHealEffect);
+        //fxHeal.transform.SetParent(HealTarget.transform);
+        fxHeal.transform.position = HealTarget.transform.position + new Vector3(0f, 0.7f, 0f);
+        AudioManager.PlayOneShotByCameraDistance(DataManager.AudioData.unitHealSE, HealTarget.transform);
+
         animator.speed = 1f;
         while (normalizedTime >= 0f && normalizedTime < 1f)
         {

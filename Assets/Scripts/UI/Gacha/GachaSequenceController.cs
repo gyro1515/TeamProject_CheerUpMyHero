@@ -28,11 +28,10 @@ public class GachaSequenceController : BasePopUpUI
     [SerializeField] private Sprite videoTexture;
     [SerializeField] private RenderTexture renderTexture;
     //[SerializeField] private int skipFrame = 2;
-
+    
     [Header("단일 카드 UI")]
     [SerializeField] private Image singleResultImage;
     [SerializeField] private Image singleRarityBorder;
-    [SerializeField] private TextMeshProUGUI singleRarityText;
     [SerializeField] private TextMeshProUGUI singleUnitNameText;
     [SerializeField] private Button singleConfirmButton;
     [SerializeField] private Image singleCardBackgroundMaskImage;
@@ -41,6 +40,11 @@ public class GachaSequenceController : BasePopUpUI
     [SerializeField] private Transform gridContentParent;
     [SerializeField] private GameObject resultIconPrefab;
     [SerializeField] private Button gridConfirmButton;
+
+    [Header("단일 카드 별 등급 컨테이너")]
+    [SerializeField] private GameObject commonStarsContainer; // 별 1개짜리 그룹
+    [SerializeField] private GameObject rareStarsContainer;   // 별 2개짜리 그룹
+    [SerializeField] private GameObject epicStarsContainer;   // 별 3개짜리 그룹 
 
     private Queue<int> _epicRevealQueue = new Queue<int>();
 
@@ -261,7 +265,7 @@ public class GachaSequenceController : BasePopUpUI
         if (unitData != null)
         {
             singleUnitNameText.text = unitData.unitName;
-            singleRarityText.text = unitData.rarity.ToString();
+            SetRarityStars(unitData.rarity); // 별 그룹 제어 함수 호출
 
             // 1. 가챠 전용 일러스트(gachaHeroSprite)가 있는지 확인
             if (unitData.gachaHeroSprite != null)
@@ -283,7 +287,7 @@ public class GachaSequenceController : BasePopUpUI
         {
             Debug.LogError($"[GachaSequence] ID: {resultId} 데이터 없음!");
             singleUnitNameText.text = "???";
-            singleRarityText.text = "Unknown";
+            SetRarityStars(Rarity.common); // 예시: 오류 시 1개 그룹만 표시
             singleResultImage.sprite = null;
             singleCardBackgroundMaskImage.gameObject.SetActive(false);
             singleRarityBorder.gameObject.SetActive(false);
@@ -291,7 +295,28 @@ public class GachaSequenceController : BasePopUpUI
 
         resultCardPanel.SetActive(true);
     }
+    private void SetRarityStars(Rarity rarity)
+    {
+        if (commonStarsContainer == null || rareStarsContainer == null || epicStarsContainer == null) return;
 
+        commonStarsContainer.SetActive(false);
+        rareStarsContainer.SetActive(false);
+        epicStarsContainer.SetActive(false);
+
+        // 2. 등급에 따라 별 켜기
+        switch (rarity)
+        {
+            case Rarity.common: // 커먼: 별 1개
+                commonStarsContainer.SetActive(true);
+                break;
+            case Rarity.rare: // 레어: 별 2개
+                rareStarsContainer.SetActive(true);
+                break;
+            case Rarity.epic: // 에픽: 별 3개
+                epicStarsContainer.SetActive(true);
+                break;
+        }
+    }
 
     // 4. (에픽 없을 때) 그리드에서 뒤집힌 카드를 클릭하면 호출됨
     public void OnGridCardClicked(GachaResultIcon clickedIcon, int resultId)

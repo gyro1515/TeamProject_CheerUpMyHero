@@ -1,5 +1,6 @@
 using Cysharp.Threading.Tasks;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -63,7 +64,25 @@ public class MainScreenBuildingController : MonoBehaviour
     }
     private void Start()
     {
+        StartCoroutine(Co_InitializeMainScreen());
+    }
+
+    private IEnumerator Co_InitializeMainScreen()
+    {
+        yield return null;
+
+
         UpdateAllTilesUI();
+
+        if (PlayerDataManager.Instance != null)
+        {
+            Debug.Log("[MainController] 씬 로드 완료. 시너지 강제 갱신 시작.");
+            PlayerDataManager.Instance.UpdateAllSynergyEffects();
+        }
+        else
+        {
+            Debug.LogError("PlayerDataManager가 준비되지 않아 시너지를 갱신할 수 없습니다.");
+        }
     }
     void Update()
     {
@@ -74,12 +93,9 @@ public class MainScreenBuildingController : MonoBehaviour
             var dataHandler = PlayerDataManager.Instance._TileDataHandler;
             DateTime cooldownEndTime = dataHandler.CooldownEndTimeGrid[tile.X, tile.Y];
 
-            if (cooldownEndTime > DateTime.UtcNow)
-            {
-                TimeSpan remainingTime = cooldownEndTime - DateTime.UtcNow;
-                tile.UpdateTimerText(remainingTime);
-            }
+            tile.UpdateCooldownStatus();
         }
+
     }
     private void OnEnable()
     {
@@ -144,6 +160,7 @@ public class MainScreenBuildingController : MonoBehaviour
             Debug.LogWarning("외교 타일(4,1)을 찾을 수 없어 상태를 업데이트할 수 없습니다.");
         }
     }
+
     private void UpdateAllTilesUI()
     {
         if (_tiles == null) return;
@@ -170,6 +187,21 @@ public class MainScreenBuildingController : MonoBehaviour
         if (tile.X == 4 && tile.Y == 1)
         {
             HandleDiplomacyTileClick(tile);
+            return;
+        }
+        if ((tile.X == 4 && tile.Y == 0) || (tile.X == 4 && tile.Y == 2))
+        {
+            // "추후 업데이트" 팝업 표시
+            if (laterUpdatePopup != null)
+            {
+                laterUpdatePopup.Show("추후 업데이트 될 예정입니다.");
+            }
+            else
+            {
+                Debug.LogError("laterUpdatePopup MainScreenBuildingController에 연결되지 않았습니다!");
+            }
+
+            DeselectTile(); // 선택 프레임/시너지 패널 숨김
             return;
         }
         if (synergyPanel != null)
@@ -549,7 +581,17 @@ public class MainScreenBuildingController : MonoBehaviour
         }
         Debug.Log("모든 타일의 시각적 상태를 업데이트했습니다.");
     }
-
+    private void LaterUpdatePopup()
+    {
+        if (laterUpdatePopup != null)
+        {
+            laterUpdatePopup.Show("추후 업데이트 될 내용입니다.");
+        }
+        else
+        {
+            Debug.Log("알림: 추후 업데이트 될 내용입니다.");
+        }
+    }
     #region 드래그 앤 드랍 로직
 
     public void StartDrag(BuildingTile sourceTile)

@@ -38,6 +38,6 @@ public class FXObjectPool : BasePoolable
     IEnumerator ActiveFalseRoutine()
     {
         yield return wait;
-        gameObject.SetActive(false);
+        if(gameObject.activeSelf) gameObject.SetActive(false);
     }
 }
