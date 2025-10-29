@@ -59,31 +59,31 @@ public abstract class BaseUnitController : BaseController
         {
             if (baseUnit.CognizanceRange < 2f)
             {
-                AudioManager.PlayRandomOneShot(DataManager.AudioData.meleeUnitAttackSE);
+                AudioManager.PlayRandomOneShotByCameraDistance(DataManager.AudioData.meleeUnitAttackSE, gameObject.transform);
             }
             else
             {
                 if ((baseUnit.UnitData.synergyType & UnitSynergyType.Archer) != 0)
-                    AudioManager.PlayOneShot(DataManager.AudioData.archerUnitAttackSE);
+                    AudioManager.PlayOneShotByCameraDistance(DataManager.AudioData.archerUnitAttackSE, gameObject.transform);
                 else if ((baseUnit.UnitData.synergyType & UnitSynergyType.Mage) != 0)
-                    AudioManager.PlayOneShot(DataManager.AudioData.magicUnitAttackSE);
+                    AudioManager.PlayOneShotByCameraDistance(DataManager.AudioData.magicUnitAttackSE, gameObject.transform);
                 else
-                    AudioManager.PlayOneShot(DataManager.AudioData.archerUnitAttackSE);
+                    AudioManager.PlayOneShotByCameraDistance(DataManager.AudioData.archerUnitAttackSE, gameObject.transform);
             }
 
             if ((baseUnit.UnitData.synergyType & UnitSynergyType.Burn) != 0)
             {
-                AudioManager.PlayOneShot(DataManager.AudioData.synergy_fireSE);
+                AudioManager.PlayOneShotByCameraDistance(DataManager.AudioData.synergy_fireSE, gameObject.transform);
             }
 
             if ((baseUnit.UnitData.synergyType & UnitSynergyType.Frost) != 0)
             {
-                AudioManager.PlayOneShot(DataManager.AudioData.synergy_iceSE);
+                AudioManager.PlayOneShotByCameraDistance(DataManager.AudioData.synergy_iceSE, gameObject.transform);
             }
 
             if ((baseUnit.UnitData.synergyType & UnitSynergyType.Poison) != 0)
             {
-                AudioManager.PlayOneShot(DataManager.AudioData.synergy_poisonSE);
+                AudioManager.PlayOneShotByCameraDistance(DataManager.AudioData.synergy_poisonSE, gameObject.transform);
             }
         }
     }

@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Threading.Tasks;
 
-public class GachaUIPanel : BaseUI 
+public class GachaUIPanel : BaseUI, IBackButtonHandler
 {
     [Header("UI 참조")]
     [SerializeField] private Button backButton; 
@@ -15,7 +15,13 @@ public class GachaUIPanel : BaseUI
 
     [Header("천장 시스템 UI")]
     [SerializeField] private TextMeshProUGUI limitedPityText; // 1페이지 천장 텍스트
+    [SerializeField] private Image limitedPityBackground;  
     [SerializeField] private TextMeshProUGUI standardPityText; // 2페이지 천장 텍스트
+    [SerializeField] private Image standardPityBackground;
+    [Header("천장 색상 설정")]
+    [SerializeField] private Color defaultPityColor = Color.white; // 기본 배경색
+    [SerializeField] private Color warningPityColor = Color.yellow; // 140+ 경고색
+    [SerializeField] private int pityWarningThreshold = 140; // 경고 시작 횟수
     [Header("연출 패널")]
     [SerializeField] private GachaSequenceController gachaSequenceController;
 
@@ -47,11 +53,11 @@ public class GachaUIPanel : BaseUI
         _limitedPitySubscriber.Subscribe(HandleLimitedPityUpdate);
         _standardPitySubscriber.Subscribe(HandleStandardPityUpdate);
         UpdateInitialPityCounters();
+        UIManager.PubishAddUIStackEvent(this);
     }
  void OnDisable()
     {
-        
-
+        UIManager.PublishRemoveUIStackEvent();
         _limitedPitySubscriber?.Unsubscribe(HandleLimitedPityUpdate);
         _standardPitySubscriber?.Unsubscribe(HandleStandardPityUpdate);
     }
@@ -61,6 +67,10 @@ public class GachaUIPanel : BaseUI
         if (limitedPityText != null)
         {
             limitedPityText.text = $"{e.NewCount} / {PlayerDataManager.LIMITED_GACHA_PITY_LIMIT}";
+            if (limitedPityBackground != null)
+            {
+                limitedPityBackground.color = (e.NewCount >= pityWarningThreshold) ? warningPityColor : defaultPityColor;
+            }
         }
     }
 
@@ -69,6 +79,10 @@ public class GachaUIPanel : BaseUI
         if (standardPityText != null)
         {
             standardPityText.text = $"{e.NewCount} / {PlayerDataManager.STANDARD_GACHA_PITY_LIMIT}";
+            if (standardPityBackground != null)
+            {
+                standardPityBackground.color = (e.NewCount >= pityWarningThreshold) ? warningPityColor : defaultPityColor;
+            }
         }
     }
   
@@ -79,11 +93,21 @@ public class GachaUIPanel : BaseUI
 
         if (limitedPityText != null)
         {
+            int count = PlayerDataManager.Instance.LimitedGachaPityCount;
             limitedPityText.text = $"{PlayerDataManager.Instance.LimitedGachaPityCount} / {PlayerDataManager.LIMITED_GACHA_PITY_LIMIT}";
+            if (limitedPityBackground != null)
+            {
+                limitedPityBackground.color = (count >= pityWarningThreshold) ? warningPityColor : defaultPityColor;
+            }
         }
         if (standardPityText != null)
         {
+            int count = PlayerDataManager.Instance.StandardGachaPityCount;
             standardPityText.text = $"{PlayerDataManager.Instance.StandardGachaPityCount} / {PlayerDataManager.STANDARD_GACHA_PITY_LIMIT}";
+            if (standardPityBackground != null)
+            {
+                standardPityBackground.color = (count >= pityWarningThreshold) ? warningPityColor : defaultPityColor;
+            }
         }
     }
 
@@ -344,5 +368,11 @@ public class GachaUIPanel : BaseUI
         {
             Debug.LogError("MainScreenUIObject가 GachaUIPanel에 연결되지 않았습니다!");
         }
+    }
+
+    public void OnBackPressed()
+    {
+        Debug.Log($"{gameObject.name} 뒤로 가기 버튼 눌림");
+        OnBackButtonClicked();
     }
 }

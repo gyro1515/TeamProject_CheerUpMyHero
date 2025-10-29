@@ -22,7 +22,7 @@ public class DataManager : SingletonMono<DataManager>
     public ItemSO ItemSO => ItemData.SO; */
 
     private DataBase<ArtifactData, ArtifactSO> _artifactData;
-    public DataBase<ArtifactData, ArtifactSO> ArtifactData
+    public static DataBase<ArtifactData, ArtifactSO> ArtifactData
     {
         get
         {

@@ -146,6 +146,7 @@ public enum PoolType // *******251016: 새로운 풀링 오브젝트 추가시 �
     FXMapExplosion2,
     FXMapExplosion3,
     #endregion
+    Allies_UnitGolem
 }
 
 public class ObjectPoolManager : SingletonMono<ObjectPoolManager>, ISceneResettable
@@ -248,7 +249,10 @@ public class ObjectPoolManager : SingletonMono<ObjectPoolManager>, ISceneResetta
             pools.Add( type, objectPool );
         }
     }
-
+    public void ReturnObjectToPool(GameObject obj)
+    {
+        OnReleaseObject(obj);
+    }
     private GameObject CreateObject(GameObject obj, PoolType type, Transform container)
     {
         if (_isCleaning) return null;

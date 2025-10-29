@@ -29,6 +29,10 @@ public class ArtifactManager : SingletonMono<ArtifactManager>
 
         // 패시브 유물 테스트 ----- // 세이브 없을때만 호출하도록 옮김
         AddArtifact(08010001);
+        AddArtifact(08010002);
+        AddArtifact(08010003);
+        AddArtifact(08010004);
+        AddArtifact(08010005);
         //AddArtifact(080200025);
         //AddArtifact(080200024);
         //AddArtifact(080200035);
@@ -59,7 +63,7 @@ public class ArtifactManager : SingletonMono<ArtifactManager>
     // 플레이어 소유에 유물 추가하는 메서드
     public void AddArtifact(int id)
     {
-        if (DataManager.Instance.ArtifactData.TryGetValue(id, out ArtifactData data))
+        if (DataManager.ArtifactData.TryGetValue(id, out ArtifactData data))
         {
             OwnedArtifacts.Add(data);
         }
@@ -129,7 +133,7 @@ public class ArtifactManager : SingletonMono<ArtifactManager>
     // 특정 패시브 아티팩트 id로 값 얻어오는 메서드
     public float GetPassiveArtifactDataValue(int idNumber)
     {
-        if (DataManager.Instance.ArtifactData.TryGetValue(idNumber, out ArtifactData data))
+        if (DataManager.ArtifactData.TryGetValue(idNumber, out ArtifactData data))
         {
             if (data is PassiveArtifactData passiveArtifactData)
             {
