@@ -306,6 +306,7 @@ public class ConstructionUpgradePanel : BasePopUpUI
     {
         if (_targetTile == null) return;
 
+        actionButton.interactable = false;
         if (_mode == PanelMode.Construction && _constructionData != null)
         {
             await MainScreenBuildingController.Instance.BuildBuildingOnTile(_targetTile, _constructionData.idNumber);
@@ -320,6 +321,8 @@ public class ConstructionUpgradePanel : BasePopUpUI
         }
 
         CloseUI();
+        actionButton.interactable = true;
+
     }
     private void OnDestroyButtonClicked()
     {

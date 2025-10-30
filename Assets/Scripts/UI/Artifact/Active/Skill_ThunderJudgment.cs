@@ -23,7 +23,12 @@ public class Skill_ThunderJudgment : ActiveSkillEffect
             foreach (var enemy in enemies.ToList())
             {
                 if (enemy == null || enemy.IsDead) continue;
+                if (enemy.GetComponent<EnemyHQ>() != null)
+                {
+                    continue; // HQ는 번개 건너뛰기
+                }
                 if (damage > 0) enemy.GetComponent<IDamageable>()?.TakeDamage(damage);
+                Debug.Log(damage);
             }
             yield return new WaitForSeconds(interval);
         }

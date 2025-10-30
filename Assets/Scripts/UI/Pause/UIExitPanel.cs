@@ -1,9 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UIGiveUpPanel : BaseUI
+public class UIExitPanel : BaseUI
 {
     [Header("버튼")]
     [SerializeField] private Button _yesButton;
@@ -16,24 +17,27 @@ public class UIGiveUpPanel : BaseUI
 
     private void Awake()
     {
-        _yesButton.onClick.AddListener(OnGiveUpYesButtonClicked);
-        _noButton.onClick.AddListener(OnGiveUpNoButtonClicked);
+        _yesButton.onClick.AddListener(OnExitYesButtonClicked);
+        _noButton.onClick.AddListener(OnExitNoButtonClicked);
 
         _canvasGroup = GetComponent<CanvasGroup>();
     }
 
-    private void OnGiveUpYesButtonClicked()
+    private void OnExitYesButtonClicked()
     {
-        FadeManager.FadeOutUI(_canvasGroup);
-        FadeManager.FadeOutUI(_settingMenuPanel);
-        Time.timeScale = 1.0f;
-        GameManager.Instance.ShowResultUI(false).Forget(); // await 일부러 뺀거에 컴파일 경고 안뜨드록 처리
+#if UNITY_EDITOR
+        // 에디터에서는 플레이 모드를 종료
+        EditorApplication.isPlaying = false;
+#else
+        // 실제 빌드된 환경에서는 애플리케이션 종료
+        Application.Quit();
+#endif
     }
 
-    private void OnGiveUpNoButtonClicked()
+    private void OnExitNoButtonClicked()
     {
         FadeManager.FadeOutUI(_canvasGroup);
         FadeManager.FadeOutUI(_settingMenuPanel);
-        Time.timeScale = 1.0f;
+        CloseUI();
     }
 }

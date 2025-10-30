@@ -72,6 +72,7 @@ public class DestroyConfirmPopup : BasePopUpUI
     }
     private async UniTaskVoid OnYesButtonClicked()
     {
+        yesButton.interactable = false;
         try
         {
             if (_controller != null && _targetTile != null)
@@ -86,6 +87,7 @@ public class DestroyConfirmPopup : BasePopUpUI
         }
         finally
         {
+            yesButton.interactable = true;  
             base.CloseUI();
         }
     }

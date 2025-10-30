@@ -71,9 +71,11 @@ public class UISettingMenu : BaseUI
     #region 전투 포기 패널
     [Header("전투 포기 버튼")]
     [SerializeField] private Button _giveUpButton;
+    [SerializeField] private Button _exitButton;
 
     [Header("포기 선택 패널")]
     [SerializeField] private BasePopUpUI _giveUpPanel;
+    [SerializeField] private BasePopUpUI _exitPanel;
 
     private void OnGiveUpButtonClicked()
     {
@@ -103,6 +105,14 @@ public class UISettingMenu : BaseUI
         _fpsSettingButton.onClick.AddListener(OnFPSSettingButtonClicked);
         _tutorialRetryButton.onClick.AddListener(OnTutorialRetryButtonClicked);
         _giveUpButton.onClick.AddListener(OnGiveUpButtonClicked);
+        if (_exitButton != null)
+        {
+            _exitButton.onClick.AddListener(OnExitButtonClicked);
+        }
+        else
+        {
+            Debug.LogWarning("_exitButton이 현재 씬에 할당(연결)되지 않았습니다.");
+        }
         _resumeButton.onClick.AddListener(OnResumeButtonClicked);
 
         /*_allPanels = new List<CanvasGroup>
@@ -122,6 +132,17 @@ public class UISettingMenu : BaseUI
                 panel.blocksRaycasts = false;
             }
         }*/
+    }
+    private void OnExitButtonClicked()
+    {
+        if (_exitPanel != null)
+        {
+            _exitPanel.OpenUI();
+        }
+        else
+        {
+            Debug.LogWarning("Exit Panel이 현재 씬에 할당(연결)되지 않았습니다.");
+        }
     }
     private void OnDisable()
     {

@@ -19,16 +19,12 @@ public class LoginConfirmPopup : BasePopUpUI
 
         if (startUIController == null)
         {
-            Debug.LogError("LoginConfirmPopup에 StartUI가 연결되지 않았습니다!");
+            Debug.Log("LoginConfirmPopup에 StartUI가 연결되지 않았습니다!");
         }
     }
 
-    public void Show(string message)
+    public void Show()
     {
-        if (messageText != null)
-        {
-            messageText.text = message;
-        }
         OpenUI(); // 팝업 띄우기
     }
 
