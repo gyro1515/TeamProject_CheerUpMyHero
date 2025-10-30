@@ -261,7 +261,10 @@ public class CardFilter : MonoBehaviour
                 SetUnitType(button.unitType);
             });
         }
-
+        foreach (UnitSelectBtnInUnitCard button in unitButtonList)
+        {
+            button.btnImg.color = Color.white;
+        }
         search.onClick.AddListener(OnSearch);
     }
 

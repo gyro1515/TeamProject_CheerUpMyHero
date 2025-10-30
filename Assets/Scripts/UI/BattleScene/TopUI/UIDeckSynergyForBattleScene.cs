@@ -11,8 +11,6 @@ public class UIDeckSynergyForBattleScene : MonoBehaviour
     [SerializeField] RectTransform layoutGropRT;
     [SerializeField] HorizontalLayoutGroup synergyLayoutGroup;
 
-    
-
     UnitSynergyType[] _allSynergyTypes = (UnitSynergyType[])Enum.GetValues(typeof(UnitSynergyType));
     List<GameObject> synergyIconGOList = new List<GameObject>();
     private Dictionary<SynergyIcon, (UnitSynergyType, SynergyGrade)> synergyIconToTypeAndGrade = new()
@@ -88,14 +86,18 @@ public class UIDeckSynergyForBattleScene : MonoBehaviour
         { (UnitSynergyType.Poison, SynergyGrade.Bronze), SynergyIcon.Poison_0 },
 
     };
+
+    IEventSubscriber<FinishTutorialDeckSettingEvent> finishTutorialDeckSettingEventSub;
     private void Awake()
     {
+        finishTutorialDeckSettingEventSub = EventManager.GetSubscriber<FinishTutorialDeckSettingEvent>();
+        finishTutorialDeckSettingEventSub.Subscribe(UpdateSynergyUI);
         // 테스트
         /*Button btn = gameObject.AddComponent<Button>();
         btn.onClick.AddListener(() =>
         {
             int cnt = 0;
-            for(int i = 0; i <  slotContainer.childCount; i++)
+            for (int i = 0; i < slotContainer.childCount; i++)
             {
                 if (slotContainer.GetChild(i).gameObject.activeSelf)
                     cnt++;
@@ -110,6 +112,14 @@ public class UIDeckSynergyForBattleScene : MonoBehaviour
             synergyIconGOList.Add(iconGO);
             iconGO.SetActive(false);
         }
+        UpdateSynergyUI();
+    }
+    void UpdateSynergyUI(FinishTutorialDeckSettingEvent e)
+    {
+        UpdateSynergyUI();
+    }
+    void UpdateSynergyUI()
+    {
         int activeSynergyCount = 0;
         foreach (var typeAndGrade in PlayerDataManager.AppliedDeckUnitSynergies)
         {
@@ -121,6 +131,15 @@ public class UIDeckSynergyForBattleScene : MonoBehaviour
     }
     void UpdateSynergyUISize(int activeSynergyCount)
     {
+        if(activeSynergyCount == 0)
+        {
+            slotContainer.gameObject.SetActive(false);
+            return;
+        }
+        else
+        {
+            slotContainer.gameObject.SetActive(true);
+        }
         float rectSizeX = layoutGropRT.rect.size.x;
         float rectSizeY = layoutGropRT.rect.size.y;
         rectSizeX -= synergyLayoutGroup.padding.left + synergyLayoutGroup.padding.right;
