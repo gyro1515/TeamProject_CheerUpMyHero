@@ -12,6 +12,7 @@ public class GachaUIPanel : BaseUI, IBackButtonHandler
     [SerializeField] private ContractPagesController contractPagesController;
     [SerializeField] private Button pullOneButton;        // 1회 뽑기 버튼
     [SerializeField] private Button pullTenButton;        // 10회 뽑기 버튼
+    [SerializeField] private Button characterInfoButton;        // 10회 뽑기 버튼
 
     [Header("천장 시스템 UI")]
     [SerializeField] private TextMeshProUGUI limitedPityText; // 1페이지 천장 텍스트
@@ -110,7 +111,7 @@ public class GachaUIPanel : BaseUI, IBackButtonHandler
             }
         }
     }
-
+  
     private async UniTaskVoid OnPullOneClicked()
     {
         pullOneButton.interactable = false;
