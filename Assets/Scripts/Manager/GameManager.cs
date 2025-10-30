@@ -200,7 +200,6 @@ public class GameManager : SingletonMono<GameManager>
             (int mainIdx, int subIdx) = PlayerDataManager.Instance.SelectedStageIdx;
             bool isTestEndStage = (mainIdx + 1 == 2 && subIdx + 1 == 9);
 
-            StageRewardData rewardData = DataManager.Instance.RewardData.GetData(currentStageID);
             if (rewardData == null)
             {
                 return; // 보상 데이터가 없으면 함수 종료
