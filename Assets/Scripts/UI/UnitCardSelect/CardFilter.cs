@@ -48,7 +48,7 @@ public class CardFilter : MonoBehaviour
 
     //선택 불가 카드
     public HashSet<int> greyCardSet { get; private set; } = new();
-
+    
 
     //필터 조건
     private bool isAsending = true;
