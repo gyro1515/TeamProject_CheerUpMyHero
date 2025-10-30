@@ -44,7 +44,7 @@ public static class Modifiercalculator
 
     private static float CalculateDestinyBonus(EffectTarget target, StatType type, BaseUnitData unitData)
     {
-        StageDestinyData destiny = PlayerDataManager.Instance.currentDastiny;
+        StageDestinyData destiny = PlayerDataManager.Instance.currentDestiny;
 
         if (destiny == null)
         {
@@ -111,7 +111,7 @@ public static class Modifiercalculator
     #region 조건 체크
     private static bool HasCondition(EffectTarget target, StatType type)
     {
-        StageDestinyData destiny = PlayerDataManager.Instance.currentDastiny;
+        StageDestinyData destiny = PlayerDataManager.Instance.currentDestiny;
 
         if (destiny != null && destiny.modifiers != null)
         {
