@@ -65,7 +65,7 @@ public class DeckPresetController : BaseUI, IBackButtonHandler
 
     //튜토리얼
     private UITutorialDeck _tourDeck;
-
+    private IEventSubscriber<SynergyDataUpdatedEvent> _synergyUpdateSubscriber;
     /*private void Update()
     {
         if (Input.GetKeyDown(KeyCode.Space)) //테스트 코드
@@ -82,6 +82,8 @@ public class DeckPresetController : BaseUI, IBackButtonHandler
             _tourDeck = UIManager.Instance.GetUI<UITutorialDeck>();
             _tourDeck?.CloseUI();
         }
+        _synergyUpdateSubscriber = EventManager.GetSubscriber<SynergyDataUpdatedEvent>();
+        _synergyUpdateSubscriber.Subscribe(OnDeckRulesChanged);
     }
     private void OnEnable()
     {
@@ -126,7 +128,7 @@ public class DeckPresetController : BaseUI, IBackButtonHandler
     private void OnDisable()
     {
         UIManager.PublishRemoveUIStackEvent();
-
+        _synergyUpdateSubscriber?.Unsubscribe(OnDeckRulesChanged);
         _tourDeck?.CloseUI();
     }
     #region UI 생성 및 업데이트
@@ -140,7 +142,11 @@ public class DeckPresetController : BaseUI, IBackButtonHandler
 
         UpdateUnitSlotsUI();
     }
-
+    private void OnDeckRulesChanged(SynergyDataUpdatedEvent e)
+    {
+        Debug.Log("건물/시너지 변경 감지. 덱 유효성 검사 시작...");
+        ValidateDeckAndUpdateUI();
+    }
     private void UpdateUnitSlotsUI()
     {
         // 251023: DeckPreset의 baseUnitDatas를 사용하도록 변경
@@ -158,10 +164,48 @@ public class DeckPresetController : BaseUI, IBackButtonHandler
             unitSlots[i].SetData(currentDeckUnitDatas[i], i);
         }
         UpdateCompleteButtonState();
-        // TODO: 시너지 UI 업데이트 기능 구현 필요
         UpdateSynergyUI();
+        ValidateDeckAndUpdateUI();
     }
+    private void ValidateDeckAndUpdateUI()
+    {
+        // 1. 현재 덱의 유닛 리스트 가져오기
+        List<BaseUnitData> currentDeck = PlayerDataManager.Instance.DeckPresets[_currentDeckIndex].BaseUnitDatas;
 
+        // 2. 덱에 유닛이 하나도 없으면 비활성화 (기존 로직)
+        if (currentDeck.All(data => data == null))
+        {
+            completeButton.interactable = false;
+            return;
+        }
+
+        // 3. PlayerDataManager에서 현재 최대 슬롯 수 가져오기
+        int maxEpicUnits = PlayerDataManager.Instance.EpicUnitSlots;
+        int maxRareUnits = PlayerDataManager.Instance.RareUnitSlots;
+
+        // 4. 현재 덱의 등급별 유닛 수 세기
+        int currentEpicCount = currentDeck.Count(data => data != null && data.rarity == Rarity.epic);
+        int currentRareCount = currentDeck.Count(data => data != null && data.rarity == Rarity.rare);
+
+        // 5. 유효성 검사
+        if (currentEpicCount > maxEpicUnits)
+        {
+            // 에픽 슬롯 초과 (병영 파괴/판매됨)
+            //completeButton.interactable = false;
+            //UIManager.Instance.ShowInfoPopup($"병영이 파괴되어 에픽 유닛({currentEpicCount}/{maxEpicUnits})을 사용할 수 없습니다. 덱을 수정해주세요.");
+        }
+        else if (currentRareCount > maxRareUnits)
+        {
+            // 레어 슬롯 초과
+            completeButton.interactable = false;
+            //UIManager.Instance.ShowInfoPopup($"병영 레벨이 낮아 레어 유닛({currentRareCount}/{maxRareUnits})을 사용할 수 없습니다. 덱을 수정해주세요.");
+        }
+        else
+        {
+            // 모든 조건 통과
+            completeButton.interactable = true;
+        }
+    }
     private void UpdateSynergyUI()
     {
         uiDeckSynergy?.CheckDeckUnitSynergy(PlayerDataManager.Instance.DeckPresets[_currentDeckIndex].BaseUnitDatas);
