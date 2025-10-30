@@ -11,8 +11,21 @@ public class UIRandomAndChallenge : MonoBehaviour
     [SerializeField] Button challengeButton;
     private void Awake()
     {
-        randomButton.onClick.AddListener(() => randomPopup.OpenUI());
-        challengeButton.onClick.AddListener(() => challengePopup.OpenUI());
+        randomButton.onClick.AddListener(OnRandomButtonClicked);
+        challengeButton.onClick.AddListener(OnChallengeButtonClicked);
     }
 
+    private void OnRandomButtonClicked()
+    {
+        if (!GameManager.IsTutorialCompleted) return;
+
+        randomPopup.OpenUI();
+    }
+
+    private void OnChallengeButtonClicked()
+    {
+        if (!GameManager.IsTutorialCompleted) return;
+
+        challengePopup.OpenUI();
+    }
 }
