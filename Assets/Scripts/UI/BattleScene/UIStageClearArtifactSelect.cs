@@ -70,6 +70,8 @@ public class UIStageClearArtifactSelect : BaseUI
 
     private void RandomCreate(ArtifactType type)
     {
+        int currentChapter = PlayerDataManager.Instance.SelectedStageIdx.mainStageIdx;
+
         List<ArtifactData> data = new List<ArtifactData>();
 
         if (type == ArtifactType.Active)
@@ -79,7 +81,7 @@ public class UIStageClearArtifactSelect : BaseUI
         }
         else
         {
-            List<PassiveArtifactData> randomPAf = ArtifactManager.Instance.GetRandomPassiveArtifact(PassiveArtifactRandomCreateCount);
+            List<PassiveArtifactData> randomPAf = ArtifactManager.Instance.GetRandomPassiveArtifact(PassiveArtifactRandomCreateCount, currentChapter);
             data = randomPAf.Cast<ArtifactData>().ToList();
         }
         UpdateSlot(data);
