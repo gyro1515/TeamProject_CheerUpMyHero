@@ -79,7 +79,7 @@ public class EnemyWaveSystem : MonoBehaviour
             // 기존 적 유닛 스폰 일시 정지
             enemyHQ.SetSpawnEnemyActive(false);
             // 웨이브 시작
-            AudioManager.PlayRandomOneShotByCameraDistance(DataManager.AudioData.monsterWaveSE_oak, gameObject.transform);
+            AudioManager.PlayRandomOneShotByCameraDistance(DataManager.AudioData.monsterWaveSE_oak, gameObject.transform, 0.5f);
             StartCoroutine(WaveRoutine(waveIdx++));
             Debug.Log($"{waveIdx}번째 웨이브 시작");
             onStartWave.Publish(new StartWaveEvent { waveIdx = waveIdx });
@@ -90,7 +90,7 @@ public class EnemyWaveSystem : MonoBehaviour
     {
         if (WaveData.Count <= 2 ) return;
 
-        AudioManager.PlayRandomOneShotByCameraDistance(DataManager.AudioData.monsterWaveSE_oak, gameObject.transform);
+        AudioManager.PlayRandomOneShotByCameraDistance(DataManager.AudioData.monsterWaveSE_oak, gameObject.transform, 0.5f);
 
         StartCoroutine(WaveRoutine(2));
         Debug.Log("체력 70퍼 이하라서 방어 웨이브 스폰함");

@@ -40,7 +40,7 @@ public class BasePopUpUI : BaseUI, IBackButtonHandler
     {
         if (_isFade) return;
         base.OpenUI();
-        if(openSound) AudioManager.PlayOneShot(openSound);
+        if(openSound) AudioManager.PlayOneShot(openSound, 0.3f);
         _isFade = true;
         FadeManager.FadeInUI(_canvasGroup, SetFadeFalse);
     }
@@ -49,7 +49,7 @@ public class BasePopUpUI : BaseUI, IBackButtonHandler
     {
         if (_isFade) return;
         base.OpenUI();
-        if(openSound) AudioManager.PlayOneShot(openSound);
+        if(openSound) AudioManager.PlayOneShot(openSound, 0.3f);
         _isFade = true;
         afterFade += SetFadeFalse;
         FadeManager.FadeInUI(_canvasGroup, afterFade);
@@ -57,7 +57,7 @@ public class BasePopUpUI : BaseUI, IBackButtonHandler
     public override void CloseUI()
     {
         if (_isFade) return;
-        if(closeSound) AudioManager.PlayOneShot(closeSound);
+        if(closeSound) AudioManager.PlayOneShot(closeSound, 0.3f);
         _isFade = true;
         FadeManager.FadeOutUI(_canvasGroup, () => { base.CloseUI(); SetFadeFalse(); });
     }
@@ -73,7 +73,7 @@ public class BasePopUpUI : BaseUI, IBackButtonHandler
     protected void JustOpenUI() // 페이드 없이 열기
     {
         base.OpenUI();
-        if(openSound) AudioManager.PlayOneShot(openSound);
+        if(openSound) AudioManager.PlayOneShot(openSound, 0.3f);
         _canvasGroup.alpha = 1f;
         _canvasGroup.interactable = true;
         _canvasGroup.blocksRaycasts = true;

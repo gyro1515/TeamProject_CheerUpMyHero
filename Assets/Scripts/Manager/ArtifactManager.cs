@@ -80,7 +80,7 @@ public class ArtifactManager : SingletonMono<ArtifactManager>
         if (slotIndex < 0 || slotIndex >= ArtifactSlotCount) return;
 
         EquippedArtifacts[slotIndex] = artifact;
-        AudioManager.PlayOneShot(DataManager.AudioData.artifactEquipSE);
+        AudioManager.PlayOneShot(DataManager.AudioData.artifactEquipSE, 0.8f);
         OnEquippedArtifactChanged?.Invoke();
     }
 

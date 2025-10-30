@@ -89,6 +89,11 @@ public class MainScreenUI : BaseUI, IBackButtonHandler
         // "덱 선택" 버튼 클릭 시 실행될 로직
         //Debug.Log("덱을 선택하고 다음 단계로 넘어갑니다.");
 
+        if (!GameManager.IsTutorialCompleted)
+        {
+            GameManager.IsStageAndDestinySelected = true;
+            PlayerDataManager.Instance.SelectedStageIdx = (0, 1);
+        }
         // 스테이지 선택을 이미 했다면 덱 선택으로
         if (GameManager.IsStageAndDestinySelected)
         {

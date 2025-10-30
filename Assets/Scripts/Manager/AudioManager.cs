@@ -21,6 +21,10 @@ public class AudioManager : SingletonMono<AudioManager>
 
     /*[Header("BGM 페이드 효과")]
     [SerializeField] private float bgmFadeDuration = 0.5f;*/
+    // 저장 키
+    private const string KEY_Master = "Master_VOL";
+    private const string KEY_BGM = "BGM_VOL";
+    private const string KEY_SFX = "SFX_VOL";
 
     Camera mainCam;
     protected override void Awake()
@@ -36,7 +40,12 @@ public class AudioManager : SingletonMono<AudioManager>
             sfxSource = gameObject.AddComponent<AudioSource>();
             sfxSource.outputAudioMixerGroup = sfxGroup;
         }
-
+        float v = PlayerPrefs.GetFloat(KEY_Master, 1f);
+        SetMasterVolumeLinear(v);
+        v = PlayerPrefs.GetFloat(KEY_BGM, 1f);
+        SetBGMVolumeLinear(v);
+        v = PlayerPrefs.GetFloat(KEY_SFX, 1f);
+        SetSFXVolumeLinear(v);
         SceneManager.sceneLoaded += OnSceneLoaded;
     }
 
@@ -112,7 +121,7 @@ public class AudioManager : SingletonMono<AudioManager>
         }
     }
 
-    public static AudioClip SelectBGM(SceneState sceneState, float volume = 1.0f)
+    public static AudioClip SelectBGM(SceneState sceneState, float volume = 0.8f)
     {
         AudioClip clip = null;
 

@@ -52,7 +52,11 @@ public class StartUI : BaseUI
     public void OnLoginSuccess()
     {
         Debug.Log("StartUI: 로그인 성공 신호 받음. 스토리 씬 시작.");
-        if (secondStartGroup != null) secondStartGroup.gameObject.SetActive(false); // 로그인 그룹 끄기
-        if (storyScrollController != null) storyScrollController.StartStory(); // 스토리 패널 켜기
+        if(secondStartGroup != null && storyScrollController != null)
+        {
+            FadeManager.Instance.SwitchGameObjects(secondStartGroup.gameObject, storyScrollController.gameObject);
+        }
+        /*if (secondStartGroup != null) secondStartGroup.gameObject.SetActive(false); // 로그인 그룹 끄기
+        if (storyScrollController != null) storyScrollController.StartStory(); // 스토리 패널 켜기*/
     }
 }

@@ -360,7 +360,7 @@ public class MainScreenBuildingController : MonoBehaviour
             onGridStateChangedEventPub.Publish();
 
             // 건설 효과음
-            AudioManager.PlayOneShot(DataManager.AudioData.buildingSE);
+            AudioManager.PlayOneShot(DataManager.AudioData.buildingSE, 0.5f);
 
             Debug.Log($"{tile.X},{tile.Y}에 {level1Data.buildingName} 건설 완료!");
 
