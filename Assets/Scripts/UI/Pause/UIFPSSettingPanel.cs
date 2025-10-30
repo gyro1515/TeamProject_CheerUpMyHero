@@ -8,6 +8,7 @@ public class UIFPSSettingPanel : BaseUI
     [Header("FPS버튼")]
     [SerializeField] private Button _30fpsButton;
     [SerializeField] private Button _60fpsButton;
+    [SerializeField] private Button _120fpsButton;
 
     private CanvasGroup _canvasGroup;
 
@@ -15,6 +16,7 @@ public class UIFPSSettingPanel : BaseUI
     {
         _30fpsButton.onClick.AddListener(On30FPSButtonClicked);
         _60fpsButton.onClick.AddListener(On60FPSButtonClicked);
+        _120fpsButton.onClick.AddListener(On120FPSButtonClicked);
 
         _canvasGroup = GetComponent<CanvasGroup>();
     }
@@ -30,6 +32,12 @@ public class UIFPSSettingPanel : BaseUI
     {
         Application.targetFrameRate = 60;
         Debug.Log("FPSSettingPanel -> 60프레임 고정");
+        FadeManager.FadeOutUI(_canvasGroup);
+    }    
+    private void On120FPSButtonClicked()
+    {
+        Application.targetFrameRate = 120;
+        Debug.Log("FPSSettingPanel -> 120프레임 고정");
         FadeManager.FadeOutUI(_canvasGroup);
     }    
 }
