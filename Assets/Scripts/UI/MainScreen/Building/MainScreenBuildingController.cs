@@ -555,7 +555,7 @@ public class MainScreenBuildingController : MonoBehaviour
     public async UniTask ConfirmDestruction(BuildingTile tile)
     {
         await PlayerDataManager.Instance.DestroyBuildingAt(tile.X, tile.Y);
-
+        tile.UpdateStatusVisual();
         UpdateTileUI(tile);
         PlayerDataManager.Instance.UpdateAllSynergyEffects();
         if (synergyPanel != null)
