@@ -24,6 +24,7 @@ public class UITimer : MonoBehaviour
     UIHeroCinematic uIHeroCinematic; // 용사 컷씬 UI
     HeroData selectedHeroData; // 소환할 용사 데이터
     bool checkUnknownHero = false; // 용사 알 수 없음 체크용
+    bool isFirstWaveSpeachDone = false; // 첫 웨이브 대사 출력 여부 체크
 
     private void Awake()
     {
@@ -60,6 +61,14 @@ public class UITimer : MonoBehaviour
             //float spendTime = Time.time - startTime;
             remainTime -= Time.deltaTime; 
             UpdateTimer();
+
+            // 튜토리얼 미완료 시 10초 전에 첫 웨이브 컷씬 대사 출력
+            if (!GameManager.IsTutorialCompleted && !isFirstWaveSpeachDone && remainTime <= 10f)
+            {
+                isFirstWaveSpeachDone = true;
+                uIHeroCinematic.OpenHeroCinematic(HeroCinematicType.CutSceneForFirstWave);
+            }
+
             // 타이머 3초 전에 소환 예정 대사 출력
             // 용사 스폰 예정 대사 출력
             if (remainTime <= 3f)
@@ -99,8 +108,16 @@ public class UITimer : MonoBehaviour
             gameObject.SetActive(false);
             return;
         }*/
+        if (GameManager.IsTutorialCompleted)
+        {
+            this.totalTime = timeSyncEvent.waveTime * timeSyncEvent.maxWaveCount; // 용사 타이머는 웨이브 타임 * 최대 웨이브 수
+        }
+        else
+        {
+            this.totalTime = 15f; // 튜토리얼에서는 15초로 고정
+        }
 
-        this.totalTime = timeSyncEvent.waveTime * timeSyncEvent.maxWaveCount; // 용사 타이머는 웨이브 타임 * 최대 웨이브 수
+
         // TODO: totalTime은 게임 환경에 따라 여기서 길이를 조절할 수 있음 ********
         Debug.Log($"용사 타이머 세팅: {totalTime}초");
         // 타이머 시작
@@ -112,12 +129,14 @@ public class UITimer : MonoBehaviour
     }
     void CheckWaveForFirstHeroSpeach(StartWaveEvent startWaveEvent)
     {
+        if (!GameManager.IsTutorialCompleted) return;
         // 용사는 1웨이브 시작시에만 대사 출력
         if (startWaveEvent.waveIdx != 1) return;
+        if (isFirstWaveSpeachDone) return;
         // 용사 컷씬 대사 출력
         //Debug.Log("첫 웨이브에 어떤 용사인지 출력");
         if (!checkUnknownHero) uIHeroCinematic.OpenHeroCinematic(HeroCinematicType.CutSceneForFirstWave);
-
+        isFirstWaveSpeachDone = true;
     }
 }
 #region 용사 소환 이벤트
