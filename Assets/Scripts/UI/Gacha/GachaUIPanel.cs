@@ -216,7 +216,7 @@ public class GachaUIPanel : BaseUI, IBackButtonHandler
             if (PlayerDataManager.Instance != null)
             {
                 pullOneButton.interactable = PlayerDataManager.Instance.GetResourceAmount(ResourceType.Ticket) >= 1;
-                //pullTenButton.interactable = PlayerDataManager.Instance.GetResourceAmount(ResourceType.Ticket) >= 10;
+                pullTenButton.interactable = PlayerDataManager.Instance.GetResourceAmount(ResourceType.Ticket) >= 10;
             }
             else
             {
