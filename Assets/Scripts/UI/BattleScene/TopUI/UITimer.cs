@@ -66,7 +66,8 @@ public class UITimer : MonoBehaviour
             if (!GameManager.IsTutorialCompleted && !isFirstWaveSpeachDone && remainTime <= 10f)
             {
                 isFirstWaveSpeachDone = true;
-                uIHeroCinematic.OpenHeroCinematic(HeroCinematicType.CutSceneForFirstWave);
+                //uIHeroCinematic.OpenHeroCinematic(HeroCinematicType.CutSceneForFirstWave);
+                UIManager.Instance.GetUI<UITurorialHero>();
             }
 
             // 타이머 3초 전에 소환 예정 대사 출력
