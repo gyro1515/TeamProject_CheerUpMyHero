@@ -40,15 +40,21 @@ public class AudioManager : SingletonMono<AudioManager>
             sfxSource = gameObject.AddComponent<AudioSource>();
             sfxSource.outputAudioMixerGroup = sfxGroup;
         }
-        float v = PlayerPrefs.GetFloat(KEY_Master, 1f);
-        SetMasterVolumeLinear(v);
-        v = PlayerPrefs.GetFloat(KEY_BGM, 1f);
-        SetBGMVolumeLinear(v);
-        v = PlayerPrefs.GetFloat(KEY_SFX, 1f);
-        SetSFXVolumeLinear(v);
+        
         SceneManager.sceneLoaded += OnSceneLoaded;
     }
-
+    private void Start()
+    {
+        float v = PlayerPrefs.GetFloat(KEY_Master, 1f);
+        //this.masterVolume = v;
+        SetMasterVolumeLinear(v);
+        v = PlayerPrefs.GetFloat(KEY_BGM, 1f);
+        //this.bgmVolume = v;
+        SetBGMVolumeLinear(v);
+        v = PlayerPrefs.GetFloat(KEY_SFX, 1f);
+        //this.sfxVolume = v;
+        SetSFXVolumeLinear(v);
+    }
     protected override void OnDestroy()
     {
         base.OnDestroy();
@@ -308,6 +314,7 @@ public class AudioManager : SingletonMono<AudioManager>
         float value = Mathf.Clamp(linear01, 0.0001f, 1f); // 0은 -∞dB → 안전 가드 값 사용
         float dB = Mathf.Log10(value) * 20f;              // 선형 → dB 변환
         mixer.SetFloat(param, dB);                        // 파라미터 적용
+        //Debug.Log("사운드 초기화");
     }
     
     private float GetLinear(string param)

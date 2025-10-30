@@ -27,13 +27,7 @@ public class UIChallengePopupForDeck : BasePopUpUI
         CreateElements();
     }
 
-    protected override void OnEnable()
-    {
-        base.OnEnable();
-
-        OnResetButtonClicked();
-    }
-
+    
     private void CreateElements()    // 각 챌린지 요소 UI들 재생성해서 리스트에 넣음
     {
         var modifierList = DataManager.Instance.StageModifierData.Values;

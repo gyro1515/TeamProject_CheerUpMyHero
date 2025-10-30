@@ -40,7 +40,16 @@ public class GameManager : SingletonMono<GameManager>
     public static bool IsTutorialCompleted { get => Instance.isTutorialCompleted; set => Instance.isTutorialCompleted = value; }
 
     bool isClearedButTryAgain = false;
-
+    // 일시 정지 여부
+    bool isPaused = false;
+    public static bool IsPaused
+    {
+        get => Instance.isPaused;
+        set
+        {
+            Instance.isPaused = value;
+        }
+    }
     protected override void Awake()
     {
         base.Awake();
@@ -243,11 +252,15 @@ public class GameManager : SingletonMono<GameManager>
                 }
             }
 
+            float challengeBonusMultiplier = Modifiercalculator.GetRewardMultiplier();
+            float challengeBonusPercent = (challengeBonusMultiplier - 1f) * 100f;
+
             //최종 보상을 계산
-            finalGold = rewardData.rewardGold;
-            finalWood = rewardData.rewardWood + Mathf.CeilToInt(totalBaseWood * (1 + totalBonusWoodPercent / 100f));
-            finalIron = rewardData.rewardIron + Mathf.CeilToInt(totalBaseIron * (1 + totalBonusIronPercent / 100f));
-            finalMagicStone = rewardData.rewardMagicStone;
+            //도전 보상 적용 로직도 여기에 추가하겠습니다
+            finalGold = Mathf.CeilToInt(rewardData.rewardGold * (1 + challengeBonusPercent / 100f));
+            finalWood = rewardData.rewardWood + Mathf.CeilToInt(totalBaseWood * (1 + (totalBonusWoodPercent + challengeBonusPercent) / 100f));
+            finalIron = rewardData.rewardIron + Mathf.CeilToInt(totalBaseIron * (1 + (totalBonusIronPercent + challengeBonusPercent) / 100f));
+            finalMagicStone = Mathf.CeilToInt(rewardData.rewardMagicStone * (1 + challengeBonusPercent / 100f));
 
             if (Random.Range(0, 100) < totalMagicStoneChance)
             {
@@ -378,7 +391,7 @@ public class GameManager : SingletonMono<GameManager>
 
             stageChallengeData_String = ConvertToJson<Dictionary<int, int>>(playerDataManager.activeChallenges),
             stageConstruction_String = ConvertToJson<TileDataSnapshot>(playerDataManager._TileDataHandler.GetSnapshot()),
-            stageDestinyId_Int = playerDataManager.currentDastiny.idNumber,
+            stageDestinyId_Int = playerDataManager.currentDestiny.idNumber,
             stageId_Int = stageId,
             stageSupplyLevel_Int = playerDataManager.SupplyLevel,
             stageTimeTaken_Float = Time.time - StartTime,

@@ -24,6 +24,7 @@ public class DeckPresetController : BaseUI, IBackButtonHandler
     [SerializeField] private CanvasGroup viewModeCanvasGroup; // 평상시 UI 그룹
     [SerializeField] private CanvasGroup editNameCanvasGroup; // 이름 수정 UI 그룹
     [SerializeField] private DeckNameEditPanel editNamePanel; // 이름 수정 UI 패널
+    [SerializeField] private LaterUpdatePopup laterUpdatePopup; // 이름 수정 UI 패널
 
     [Header("--- 하위 컨트롤러 ---")]
     [SerializeField] private DeckTabController deckTabController;
@@ -65,7 +66,7 @@ public class DeckPresetController : BaseUI, IBackButtonHandler
 
     //튜토리얼
     private UITutorialDeck _tourDeck;
-
+    private IEventSubscriber<SynergyDataUpdatedEvent> _synergyUpdateSubscriber;
     /*private void Update()
     {
         if (Input.GetKeyDown(KeyCode.Space)) //테스트 코드
@@ -82,12 +83,14 @@ public class DeckPresetController : BaseUI, IBackButtonHandler
             _tourDeck = UIManager.Instance.GetUI<UITutorialDeck>();
             _tourDeck?.CloseUI();
         }
+        _synergyUpdateSubscriber = EventManager.GetSubscriber<SynergyDataUpdatedEvent>();
+        _synergyUpdateSubscriber.Subscribe(OnDeckRulesChanged);
     }
     private void OnEnable()
     {
         UIManager.PubishAddUIStackEvent(this);
-
-        if(!GameManager.IsTutorialCompleted) _tourDeck?.OpenUI();
+        ValidateDeckAndUpdateUI();
+        if (!GameManager.IsTutorialCompleted) _tourDeck?.OpenUI();
     }
 
     private void Start()
@@ -126,7 +129,7 @@ public class DeckPresetController : BaseUI, IBackButtonHandler
     private void OnDisable()
     {
         UIManager.PublishRemoveUIStackEvent();
-
+        _synergyUpdateSubscriber?.Unsubscribe(OnDeckRulesChanged);
         _tourDeck?.CloseUI();
     }
     #region UI 생성 및 업데이트
@@ -140,7 +143,11 @@ public class DeckPresetController : BaseUI, IBackButtonHandler
 
         UpdateUnitSlotsUI();
     }
-
+    private void OnDeckRulesChanged(SynergyDataUpdatedEvent e)
+    {
+        Debug.Log("건물/시너지 변경 감지. 덱 유효성 검사 시작...");
+        ValidateDeckAndUpdateUI();
+    }
     private void UpdateUnitSlotsUI()
     {
         // 251023: DeckPreset의 baseUnitDatas를 사용하도록 변경
@@ -158,8 +165,82 @@ public class DeckPresetController : BaseUI, IBackButtonHandler
             unitSlots[i].SetData(currentDeckUnitDatas[i], i);
         }
         UpdateCompleteButtonState();
-        // TODO: 시너지 UI 업데이트 기능 구현 필요
+        ValidateDeckAndUpdateUI();
         UpdateSynergyUI();
+    }
+    private void ValidateDeckAndUpdateUI()
+    {
+        // 1. 덱 데이터 및 슬롯 제한 가져오기
+        List<BaseUnitData> currentDeck = PlayerDataManager.Instance.DeckPresets[_currentDeckIndex].BaseUnitDatas;
+        int maxEpicUnits = PlayerDataManager.Instance.EpicUnitSlots;
+        int maxRareUnits = PlayerDataManager.Instance.RareUnitSlots;
+
+        // 2. 현재 유효한 등급 유닛 카운터
+        int validEpicCount = 0;
+        int validRareCount = 0;
+
+        bool isDeckValid = true; // 덱이 유효한지(편성 완료 가능한지)
+        string popupMessage = ""; // 팝업에 띄울 메시지
+
+        // 3. (핵심) 모든 덱 슬롯 UI를 순회
+        for (int i = 0; i < unitSlots.Count; i++)
+        {
+            if (unitSlots[i] == null) continue; // 슬롯 UI가 없으면 건너뛰기
+
+            BaseUnitData unitData = currentDeck[i]; // 해당 슬롯의 데이터
+
+            if (unitData == null)
+            {
+                // 빈 슬롯은 항상 유효
+                unitSlots[i].SetValidationState(true);
+                continue;
+            }
+
+            // 4. 등급별 유효성 검사
+            if (unitData.rarity == Rarity.epic)
+            {
+                if (validEpicCount < maxEpicUnits)
+                {
+                    // 허용 범위 내의 에픽
+                    unitSlots[i].SetValidationState(true);
+                    validEpicCount++;
+                }
+                else
+                {
+                    // 허용 범위를 초과한 에픽
+                    unitSlots[i].SetValidationState(false); // ✨ 불투명 레이어 켜기
+                    isDeckValid = false;
+                    popupMessage = $"병영 레벨이 낮아 \n에픽 유닛을 사용할 수 없습니다.\n덱을 수정해주세요.";
+                }
+            }
+            else if (unitData.rarity == Rarity.rare)
+            {
+                if (validRareCount < maxRareUnits)
+                {
+                    // 허용 범위 내의 레어
+                    unitSlots[i].SetValidationState(true);
+                    validRareCount++;
+                }
+                else
+                {
+                    // 허용 범위를 초과한 레어
+                    unitSlots[i].SetValidationState(false); // ✨ 불투명 레이어 켜기
+                    isDeckValid = false;
+                    popupMessage = $"병영 레벨이 낮아\n레어 유닛을 사용할 수 없습니다.\n덱을 수정해주세요.";
+                }
+            }
+            else // Common
+            {
+                unitSlots[i].SetValidationState(true); // 커먼은 항상 유효
+            }
+        }
+
+        // 5. 최종 버튼 상태 결정 및 팝업 띄우기
+        completeButton.interactable = isDeckValid;
+        if (!isDeckValid)
+        {
+            laterUpdatePopup.Show(popupMessage);
+        }
     }
 
     private void UpdateSynergyUI()

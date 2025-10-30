@@ -7,6 +7,8 @@ public static class Modifiercalculator
 {
     private static Dictionary<(EffectTarget, StatType), float> _multiplierCache = new Dictionary<(EffectTarget, StatType), float>();
 
+    private const float RewardBonusPerPoint = 3.0f;
+
     public static void EndBattle()
     {
         _multiplierCache?.Clear();
@@ -44,7 +46,7 @@ public static class Modifiercalculator
 
     private static float CalculateDestinyBonus(EffectTarget target, StatType type, BaseUnitData unitData)
     {
-        StageDestinyData destiny = PlayerDataManager.Instance.currentDastiny;
+        StageDestinyData destiny = PlayerDataManager.Instance.currentDestiny;
 
         if (destiny == null)
         {
@@ -106,12 +108,41 @@ public static class Modifiercalculator
 
         return bonusValue;
     }
+
+    public static float GetRewardMultiplier()
+    {
+        Dictionary<int, int> challenges = PlayerDataManager.Instance.activeChallenges;
+
+        if (challenges == null || challenges.Count == 0)
+            return 1f;
+
+        float totalPoint = 0f;
+
+        foreach (var challenge in challenges)
+        {
+            int id = challenge.Key;
+            int level = challenge.Value;
+
+            if (level <= 0)
+                continue;
+
+            StageChallengeData challengeData = DataManager.Instance.StageModifierData.GetData(id) as StageChallengeData;
+
+            if (challengeData == null)
+                continue;
+
+            totalPoint += challengeData.pointPerLevel * level;
+        }
+
+        float bonusPercent = totalPoint * RewardBonusPerPoint;
+        return 1f + bonusPercent / 100f;
+    }
     #endregion
 
-    #region 조건 체크
+        #region 조건 체크
     private static bool HasCondition(EffectTarget target, StatType type)
     {
-        StageDestinyData destiny = PlayerDataManager.Instance.currentDastiny;
+        StageDestinyData destiny = PlayerDataManager.Instance.currentDestiny;
 
         if (destiny != null && destiny.modifiers != null)
         {

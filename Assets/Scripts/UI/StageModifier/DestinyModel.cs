@@ -74,7 +74,7 @@ public class DestinyModel
             Debug.Log("적용할 운명 효과 null임. 운명 관련 로직에 문제 있어요");
             return;
         }
-        PlayerDataManager.Instance.currentDastiny = destiny;
+        PlayerDataManager.Instance.currentDestiny = destiny;
         Debug.Log($"{destiny.name} 효과 잘 적용됨");
     }
 }

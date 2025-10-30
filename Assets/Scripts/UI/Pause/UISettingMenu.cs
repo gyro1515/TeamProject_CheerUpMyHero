@@ -146,6 +146,7 @@ public class UISettingMenu : BaseUI
     }
     private void OnDisable()
     {
+        GameManager.IsPaused = false;
         OnResumeButton?.Invoke();
     }
     /*public void showPanel(CanvasGroup target)

@@ -823,7 +823,7 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
         _standardPityPublisher?.Publish(new StandardPityCountUpdatedEvent { NewCount = StandardGachaPityCount });
     }
     #endregion
-    public StageDestinyData currentDastiny { get; set; } = new StageDestinyData();
+    public StageDestinyData currentDestiny { get; set; } = new StageDestinyData();
     public Dictionary<int, int> activeChallenges { get; private set; } = new Dictionary<int, int>();
 
 

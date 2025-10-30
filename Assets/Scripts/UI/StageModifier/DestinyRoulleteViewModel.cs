@@ -43,17 +43,15 @@ public class DestinyRoulleteViewModel
         OnChallengeStateChanged?.Invoke(false);
         OnSpinTestChanged?.Invoke(true);
 
-        if (_stage.Item1 == OneNine.Item1 && _stage.Item2 == OneNine.Item2)
-        {
-            _fortuneProbability = 1f;
-            OnWheelVisualSet?.Invoke(1.0f, 0.0f, 0.0f);
-        }
-        else
-        {
-            // 행운 확률 계산 + 확률 적용해서 돌림판 세팅
-            _fortuneProbability = _model.GetFortuneProbability(_gameMode, _stage);
-            OnWheelVisualSet?.Invoke(_fortuneProbability, 1.0f - _fortuneProbability, _fortuneProbability * 360);
-        }
+        //if (_stage.Item1 == OneNine.Item1 && _stage.Item2 == OneNine.Item2)
+        //{
+        //    _fortuneProbability = 1f;
+        //    OnWheelVisualSet?.Invoke(1.0f, 0.0f, 0.0f);
+        //}
+        
+        // 행운 확률 계산 + 확률 적용해서 돌림판 세팅
+        _fortuneProbability = _model.GetFortuneProbability(_gameMode, _stage);
+        OnWheelVisualSet?.Invoke(_fortuneProbability, 1.0f - _fortuneProbability, _fortuneProbability * 360);
 
         // 랜덤 시작 각도 만들고 반영하기
         float randomStartAngle = UnityEngine.Random.Range(0f, 360f);
@@ -79,21 +77,19 @@ public class DestinyRoulleteViewModel
     {
         _isSpinning = false;
 
-        if (_stage.Item1 == OneNine.Item1 && _stage.Item2 == OneNine.Item2)
-        {
-            const int heroTimerFortuneId = 9010003;
-            _selectedDestiny = _model.GetSpecificDestiny(heroTimerFortuneId);
-        }
-        else
-        {
-            // 화살표 위치 고려하여 결과 산출 -> 행운이냐 불행이냐
-            float arrowPoint = finalAngle % 360;
-            float fortuneAngleRange = _fortuneProbability * 360;
-            DestinyType destinyType = arrowPoint <= fortuneAngleRange ? DestinyType.Fortune : DestinyType.Misfortune;
+        //if (_stage.Item1 == OneNine.Item1 && _stage.Item2 == OneNine.Item2)
+        //{
+        //    const int heroTimerFortuneId = 9010003;
+        //    _selectedDestiny = _model.GetSpecificDestiny(heroTimerFortuneId);
+        //}
 
-            // 랜덤 운명 뽑아서 결과창 띄움
-            _selectedDestiny = _model.GetRandomDestiny(destinyType);
-        }
+        // 화살표 위치 고려하여 결과 산출 -> 행운이냐 불행이냐
+        float arrowPoint = finalAngle % 360;
+        float fortuneAngleRange = _fortuneProbability * 360;
+        DestinyType destinyType = arrowPoint <= fortuneAngleRange ? DestinyType.Fortune : DestinyType.Misfortune;
+
+        // 랜덤 운명 뽑아서 결과창 띄움
+        _selectedDestiny = _model.GetRandomDestiny(destinyType);
 
         if (_selectedDestiny != null)
         {
