@@ -294,14 +294,26 @@ public class DeckPresetController : BaseUI, IBackButtonHandler
              Debug.LogError("UIManager에서 UIStageSelect를 찾을 수 없습니다!");
          }*/
     }
+    private void ShuffleList<T>(List<T> list)
+    {
+        for (int i = 0; i < list.Count - 1; i++)
+        {
+            int randomIndex = UnityEngine.Random.Range(i, list.Count);
+            T temp = list[i];
+            list[i] = list[randomIndex];
+            list[randomIndex] = temp;
+        }
+    }
+
     private void OnAutoFormClicked()
     {
-        Debug.Log("자동 편성 시작");
+        Debug.Log("등급을 고려한 자동 편성 시작");
 
-        //현재 덱의 빈 슬롯이 몇 개인지, 어느 위치인지 확인함
+        // --- 1. 현재 덱 상태 및 빈 슬롯 확인 ---
         List<int> currentUnitIds = PlayerDataManager.Instance.DeckPresets[_currentDeckIndex].UnitIds;
         List<BaseUnitData> baseUnitDatas = PlayerDataManager.Instance.DeckPresets[_currentDeckIndex].BaseUnitDatas;
         List<int> emptySlotIndexes = new List<int>();
+
         for (int i = 0; i < currentUnitIds.Count; i++)
         {
             if (currentUnitIds[i] == -1)
@@ -316,35 +328,79 @@ public class DeckPresetController : BaseUI, IBackButtonHandler
             return;
         }
 
-        // 플레이어가 보유한 모든 유닛 ID 목록
-        List<int> ownedUnitIds = new List<int>(PlayerDataManager.Instance.OwnedCardData.Keys);
+        // --- 2. 병영 레벨에 따른 슬롯 제한 및 현재 덱 상태 계산 ---
+        // (PlayerDataManager가 이미 계산해 둔 값을 가져옴)
+        int maxEpicUnits = PlayerDataManager.Instance.EpicUnitSlots;
+        int maxRareUnits = PlayerDataManager.Instance.RareUnitSlots;
 
-        //이미 현재 덱에 편성된 유닛은 후보에서 제외
-        ownedUnitIds.RemoveAll(id => currentUnitIds.Contains(id));
+        // 현재 덱에 이미 편성된 유닛들의 등급별 카운트
+        int currentEpicCount = baseUnitDatas.Count(data => data != null && data.rarity == Rarity.epic);
+        int currentRareCount = baseUnitDatas.Count(data => data != null && data.rarity == Rarity.rare);
 
-        //남은 후보 유닛들을 무작위로 섞기
-        for (int i = 0; i < ownedUnitIds.Count; i++)
+        Debug.Log($"현재 덱 상태: 에픽 {currentEpicCount}/{maxEpicUnits}, 레어 {currentRareCount}/{maxRareUnits}");
+
+        // --- 3. 덱에 편성할 후보 유닛 목록 생성 (등급별 분리) ---
+
+        // 3-1. 덱에 없는, 소유한 모든 유닛 '데이터' 가져오기
+        List<BaseUnitData> availableUnits = PlayerDataManager.Instance.OwnedCardData.Values
+            .Where(unitData => unitData != null && !currentUnitIds.Contains(unitData.idNumber)) // 덱에 이미 없는 유닛
+            .ToList();
+
+        // 3-2. 등급별로 분리
+        List<BaseUnitData> epicCandidates = availableUnits.Where(u => u.rarity == Rarity.epic).ToList();
+        List<BaseUnitData> rareCandidates = availableUnits.Where(u => u.rarity == Rarity.rare).ToList();
+        List<BaseUnitData> commonCandidates = availableUnits.Where(u => u.rarity == Rarity.common).ToList();
+
+        // 3-3. 각 후보 리스트 섞기 (같은 등급 내에서는 무작위)
+        ShuffleList(epicCandidates);
+        ShuffleList(rareCandidates);
+        ShuffleList(commonCandidates);
+
+        Debug.Log($"편성 가능 후보: 에픽 {epicCandidates.Count}명, 레어 {rareCandidates.Count}명, 커먼 {commonCandidates.Count}명");
+
+        // --- 4. 빈 슬롯에 우선순위(에픽 -> 레어 -> 커먼)대로 채우기 ---
+        foreach (int slotIndexToFill in emptySlotIndexes)
         {
-            int randomIndex = UnityEngine.Random.Range(i, ownedUnitIds.Count);
-            int temp = ownedUnitIds[i];
-            ownedUnitIds[i] = ownedUnitIds[randomIndex];
-            ownedUnitIds[randomIndex] = temp;
-        }
+            BaseUnitData unitToPlace = null;
 
-        //빈 슬롯에 섞인 유닛들을 순서대로 채워 넣기
-        int unitsToFill = Mathf.Min(emptySlotIndexes.Count, ownedUnitIds.Count);
-        for (int i = 0; i < unitsToFill; i++)
-        {
-            int slotIndexToFill = emptySlotIndexes[i];
-            int unitIdToPlace = ownedUnitIds[i];
-            currentUnitIds[slotIndexToFill] = unitIdToPlace;
-            baseUnitDatas[slotIndexToFill] = PlayerDataManager.Instance.OwnedCardData[ownedUnitIds[i]];
+            // 1순위: 에픽 슬롯이 남았고 (현재 < 최대), 에픽 후보가 있는가?
+            if (currentEpicCount < maxEpicUnits && epicCandidates.Count > 0)
+            {
+                unitToPlace = epicCandidates[0];
+                epicCandidates.RemoveAt(0); // 사용한 후보는 목록에서 제거
+                currentEpicCount++; // 덱의 에픽 카운트 증가
+                Debug.Log($"빈 슬롯 {slotIndexToFill}에 [에픽] 유닛 {unitToPlace.unitName} 배치");
+            }
+            // 2순위: 레어 슬롯이 남았고, 레어 후보가 있는가?
+            else if (currentRareCount < maxRareUnits && rareCandidates.Count > 0)
+            {
+                unitToPlace = rareCandidates[0];
+                rareCandidates.RemoveAt(0);
+                currentRareCount++;
+                Debug.Log($"빈 슬롯 {slotIndexToFill}에 [레어] 유닛 {unitToPlace.unitName} 배치");
+            }
+            // 3순위: 커먼 후보가 있는가? (커먼은 슬롯 제한 없음)
+            else if (commonCandidates.Count > 0)
+            {
+                unitToPlace = commonCandidates[0];
+                commonCandidates.RemoveAt(0);
+                Debug.Log($"빈 슬롯 {slotIndexToFill}에 [커먼] 유닛 {unitToPlace.unitName} 배치");
+            }
+            else
+            {
+                // 모든 후보(커먼 포함)를 다 썼는데도 슬롯이 비었으면 중단
+                Debug.Log("더 이상 채울 후보 유닛이 없습니다.");
+                break; // foreach 루프 중단
+            }
+
+            currentUnitIds[slotIndexToFill] = unitToPlace.idNumber;
+            baseUnitDatas[slotIndexToFill] = unitToPlace;
         }
 
         // 덱 장착 오디오 재생
         AudioManager.PlayOneShot(DataManager.AudioData.cardEquipSE);
 
-        //변경된 덱 정보로 UI를 새로고침
+        // 변경된 덱 정보로 UI를 새로고침
         UpdateUnitSlotsUI();
     }
     private void OnRelicButtonClicked() 
