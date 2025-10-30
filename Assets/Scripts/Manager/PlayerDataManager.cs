@@ -444,7 +444,11 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
             Debug.LogWarning($"유닛 해금 실패, ID:{id} 에 해당하는 유닛이 존재하지 않거나 세팅되지 않았습니다.");
             return;
         }
-
+        if (OwnedCardData.ContainsKey(id))
+        {
+            Debug.Log("중복 획득. 유닛 강화시스템 언젠가 추가 예정...");
+            return;
+        }
         OwnedCardData[id] = AllCardData[id];
     }
     #endregion

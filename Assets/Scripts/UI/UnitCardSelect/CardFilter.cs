@@ -72,11 +72,14 @@ public class CardFilter : MonoBehaviour
             AllCardList = new(PlayerDataManager.Instance.OwnedCardData.Keys);
 
         }
+        else
+        {
+            AllCardList.Clear();
+            AllCardList.AddRange(PlayerDataManager.Instance.OwnedCardData.Keys);
+        }
 
         UsableCardList.Clear();
         UsableCardList.AddRange(AllCardList);
-
-        //못 얻은 카드 빼기, 가챠 나오면 구현 예정
 
         //중복 카드 빼기
         List<int> nowDeck = new(PlayerDataManager.Instance.DeckPresets[PlayerDataManager.Instance.ActiveDeckIndex].UnitIds); //현재 덱 불러오기
