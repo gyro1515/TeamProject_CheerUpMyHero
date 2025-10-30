@@ -119,11 +119,11 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
             LoadDecks();
             // TODO: 추후 아래 테스트 카드 생성 부분 제거 필요
             //테스트용 카드 생성*********
-            List<BaseUnitData> unitList = DataManager.PlayerUnitData.SO.allianceCommon;
-            for (int i = 0; i < unitList.Count; i++)
-            {
-                OwnedCardData[unitList[i].idNumber] = unitList[i];
-            }
+            //List<BaseUnitData> unitList = DataManager.PlayerUnitData.SO.allianceCommon;
+            //for (int i = 0; i < unitList.Count; i++)
+            //{
+            //    OwnedCardData[unitList[i].idNumber] = unitList[i];
+            //}
             // **************************
 
             onGridStateChangedEvent = EventManager.GetSubscriber<GridStateChangedEvent>();
@@ -937,12 +937,13 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
             {
                 //일단 가챠 유닛 제외 전부 넣어둠
                 List<int> initalUnitIds = new List<int>();
-                for (int i = 100001; i < 10011; i++)
+                for (int i = 100001; i < 100011; i++)
                 {
                     initalUnitIds.Add(i);
                 }
 
                 CardGenerate(initalUnitIds);
+                Debug.Log($"유닛해금 시도: {initalUnitIds.Count}");
                 return;
             }
 
@@ -970,7 +971,7 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
 
             //일단 가챠 유닛 제외 전부 넣어둠
             List<int> initalUnitIds = new List<int>();
-            for (int i = 100001; i < 10011; i++)
+            for (int i = 100001; i < 100011; i++)
             {
                 initalUnitIds.Add(i);
             }
