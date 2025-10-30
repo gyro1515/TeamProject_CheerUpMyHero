@@ -30,7 +30,7 @@ public class CardFilter : MonoBehaviour
     private InfiniteScroll infiniteScroll;
 
     //모든 카드
-    public List<int> AllCardList { get; private set; }
+    public List<int> AllCardList { get; private set; } = new();
 
     //가능한 카드(못 얻은 카드, 중복 카드 제외)
     public List<int> UsableCardList { get; private set; } = new();
@@ -68,17 +68,9 @@ public class CardFilter : MonoBehaviour
         int rareInDeck = 0;
         int epicInDeck = 0;
 
-        if (AllCardList == null)
-        {
-            //AllCardList = new(PlayerDataManager.Instance.cardDic.Keys);
-            AllCardList = new(PlayerDataManager.Instance.OwnedCardData.Keys);
 
-        }
-        else
-        {
-            AllCardList.Clear();
-            AllCardList.AddRange(PlayerDataManager.Instance.OwnedCardData.Keys);
-        }
+        AllCardList.Clear();
+        AllCardList.AddRange(PlayerDataManager.Instance.OwnedCardData.Keys);
 
         UsableCardList.Clear();
         UsableCardList.AddRange(AllCardList);
