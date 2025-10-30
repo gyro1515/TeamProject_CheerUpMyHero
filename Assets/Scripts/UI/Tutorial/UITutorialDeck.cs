@@ -1,3 +1,4 @@
+using Cysharp.Threading.Tasks;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -11,7 +12,7 @@ public class UITutorialDeck : UITutorialBase
         if(!GameManager.IsTutorialCompleted)
         {
             GameManager.IsTutorialCompleted = true;
-            //TODO : 서버도 변경해줘야 함.
+            PlayerDataManager.Instance.SaveDataToCloudAsync().Forget(); //여기선 저장 실패해도 되겠지..?
         }
     }
 }

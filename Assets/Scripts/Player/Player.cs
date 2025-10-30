@@ -69,7 +69,7 @@ public class Player : BaseUnit
         OnDead += () =>
         {
             UnitManager.Instance.RemoveUnitFromList(this, true);
-            GameManager.Instance.ShowResultUI(false);
+            GameManager.Instance.ShowResultUI(false).Forget(); // await 일부러 뺀거에 컴파일 경고 안뜨드록 처리
         };
         onPlayerLevelUpEvent = EventManager.GetPublisher<PlayerLevelUpEvent>();
 

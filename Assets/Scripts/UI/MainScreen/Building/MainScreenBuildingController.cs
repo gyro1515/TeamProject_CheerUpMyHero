@@ -22,6 +22,7 @@ public class MainScreenBuildingController : MonoBehaviour
     [SerializeField] private DestroyConfirmPopup destroyPopup;
     [SerializeField] private DiplomacyPanel diplomacyPanel;
     [SerializeField] private LaterUpdatePopup laterUpdatePopup;
+    [SerializeField] private LoginConfirmPopup loginconfirmPopup;
 
     [Header("드래그 앤 드랍")]
     [SerializeField] private Image dragIcon;
@@ -192,9 +193,9 @@ public class MainScreenBuildingController : MonoBehaviour
         if ((tile.X == 4 && tile.Y == 0) || (tile.X == 4 && tile.Y == 2))
         {
             // "추후 업데이트" 팝업 표시
-            if (laterUpdatePopup != null)
+            if (loginconfirmPopup != null)
             {
-                laterUpdatePopup.Show("추후 업데이트 될 예정입니다.");
+                loginconfirmPopup.Show();
             }
             else
             {
@@ -554,7 +555,7 @@ public class MainScreenBuildingController : MonoBehaviour
     public async UniTask ConfirmDestruction(BuildingTile tile)
     {
         await PlayerDataManager.Instance.DestroyBuildingAt(tile.X, tile.Y);
-
+        tile.UpdateStatusVisual();
         UpdateTileUI(tile);
         PlayerDataManager.Instance.UpdateAllSynergyEffects();
         if (synergyPanel != null)

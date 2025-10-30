@@ -12,6 +12,7 @@ public class GachaUIPanel : BaseUI, IBackButtonHandler
     [SerializeField] private ContractPagesController contractPagesController;
     [SerializeField] private Button pullOneButton;        // 1회 뽑기 버튼
     [SerializeField] private Button pullTenButton;        // 10회 뽑기 버튼
+    [SerializeField] private Button characterInfoButton;        // 10회 뽑기 버튼
 
     [Header("천장 시스템 UI")]
     [SerializeField] private TextMeshProUGUI limitedPityText; // 1페이지 천장 텍스트
@@ -110,7 +111,7 @@ public class GachaUIPanel : BaseUI, IBackButtonHandler
             }
         }
     }
-
+  
     private async UniTaskVoid OnPullOneClicked()
     {
         pullOneButton.interactable = false;
@@ -200,6 +201,10 @@ public class GachaUIPanel : BaseUI, IBackButtonHandler
             // --- 5. 페이지별 천장 카운터 업데이트 ---
             if (currentPage == 0) PlayerDataManager.Instance.UpdateLimitedPityCount(isEpicResult);
             else PlayerDataManager.Instance.UpdateStandardPityCount(isEpicResult);
+
+            //5.9 얻은 유닛 해금
+            PlayerDataManager.Instance.UnLockUnit(resultId);
+
         }
         catch (Exception ex)
         {
@@ -291,6 +296,13 @@ public class GachaUIPanel : BaseUI, IBackButtonHandler
             if (gachaSequenceController != null)
             {
                 gachaSequenceController.StartGachaSequence(resultIds);
+            }
+
+            //3.9 유닛 해금
+
+            foreach (int id in resultIds)
+            {
+                PlayerDataManager.Instance.UnLockUnit(id);
             }
 
         }

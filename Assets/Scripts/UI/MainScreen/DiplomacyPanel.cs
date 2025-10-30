@@ -12,7 +12,7 @@ public class DiplomacyPanel : BasePopUpUI
     [SerializeField] private Button backButton;
 
     [Header("팝업 및 패널 참조")]
-    [SerializeField] private LaterUpdatePopup laterUpdatePopup;
+    [SerializeField] private LoginConfirmPopup laterUpdatePopup;
     [SerializeField] private MainScreenUI mainScreenUI;
 
     private GachaUIPanel gachaPanel;
@@ -74,7 +74,7 @@ public class DiplomacyPanel : BasePopUpUI
     {
         if (laterUpdatePopup != null)
         {
-            laterUpdatePopup.Show("추후 업데이트 될 내용입니다.");
+            laterUpdatePopup.Show();
         }
         else
         {

@@ -29,7 +29,7 @@ public class UIMiniMapIcon : BasePoolable
         RectTransform.offsetMax = new Vector2(RectTransform.offsetMax.x, 0f);
         RectTransform.offsetMin = new Vector2(RectTransform.offsetMin.x, 0f);
         // 앵커 x = 0.5/0.5이므로 sizeDelta로 width 설정
-        RectTransform.sizeDelta = new Vector2(25f, RectTransform.sizeDelta.y); // width 설정
+        RectTransform.sizeDelta = new Vector2(50f, RectTransform.sizeDelta.y); // width 설정
     }
     public void ResetRectTransformForHeroAndBoss()
     {
@@ -37,7 +37,7 @@ public class UIMiniMapIcon : BasePoolable
         //Debug.Log($"{RectTransform.offsetMin} / {RectTransform.offsetMax}");
         RectTransform.offsetMax = new Vector2(RectTransform.offsetMax.x, -24.5f);
         RectTransform.offsetMin = new Vector2(RectTransform.offsetMin.x, 0f);
-        RectTransform.sizeDelta = new Vector2(35f, RectTransform.sizeDelta.y); // width 설정
+        RectTransform.sizeDelta = new Vector2(70f, RectTransform.sizeDelta.y); // width 설정
     }
 
 

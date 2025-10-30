@@ -31,7 +31,7 @@ public class SecondStartGroup : MonoBehaviour
 
         if (loginConfirmPopup != null)
         {
-            loginConfirmPopup.Show("추후 업데이트 예정된 내용입니다.");
+            loginConfirmPopup.Show();
         }
         else
         {

@@ -45,12 +45,6 @@ public class CardFilter : MonoBehaviour
     //수정사항 적용한 최종 출력 카드
     public List<int> ModifiedCardList { get; private set; } = new();
 
-    //현재 덱의 레어, 에픽 수
-    int rareInDeck;
-    int epicInDeck;
-    //편성 가능한 최대 레어, 에픽 수
-    int maxRareInDeck = 1;
-    int maxEpicInDeck = 1;
 
     //선택 불가 카드
     public HashSet<int> greyCardSet { get; private set; } = new();
@@ -66,17 +60,28 @@ public class CardFilter : MonoBehaviour
     //카드 선택창이 켜질때만 실행 or 리셋
     public void UpdateUsable()
     {
+        //편성 가능한 최대 레어, 에픽 수
+        int maxRareInDeck = PlayerDataManager.Instance.RareUnitSlots;
+        int maxEpicInDeck = PlayerDataManager.Instance.EpicUnitSlots;
+
+        //현재 덱의 레어, 에픽 수
+        int rareInDeck = 0;
+        int epicInDeck = 0;
+
         if (AllCardList == null)
         {
             //AllCardList = new(PlayerDataManager.Instance.cardDic.Keys);
             AllCardList = new(PlayerDataManager.Instance.OwnedCardData.Keys);
 
         }
+        else
+        {
+            AllCardList.Clear();
+            AllCardList.AddRange(PlayerDataManager.Instance.OwnedCardData.Keys);
+        }
 
         UsableCardList.Clear();
         UsableCardList.AddRange(AllCardList);
-
-        //못 얻은 카드 빼기, 가챠 나오면 구현 예정
 
         //중복 카드 빼기
         List<int> nowDeck = new(PlayerDataManager.Instance.DeckPresets[PlayerDataManager.Instance.ActiveDeckIndex].UnitIds); //현재 덱 불러오기

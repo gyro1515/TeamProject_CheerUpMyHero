@@ -70,6 +70,8 @@ public class UIStageClearArtifactSelect : BaseUI
 
     private void RandomCreate(ArtifactType type)
     {
+        int currentChapter = PlayerDataManager.Instance.SelectedStageIdx.mainStageIdx;
+
         List<ArtifactData> data = new List<ArtifactData>();
 
         if (type == ArtifactType.Active)
@@ -79,7 +81,7 @@ public class UIStageClearArtifactSelect : BaseUI
         }
         else
         {
-            List<PassiveArtifactData> randomPAf = ArtifactManager.Instance.GetRandomPassiveArtifact(PassiveArtifactRandomCreateCount);
+            List<PassiveArtifactData> randomPAf = ArtifactManager.Instance.GetRandomPassiveArtifact(PassiveArtifactRandomCreateCount, currentChapter);
             data = randomPAf.Cast<ArtifactData>().ToList();
         }
         UpdateSlot(data);
@@ -153,7 +155,7 @@ public class UIStageClearArtifactSelect : BaseUI
                 return;
             }
 
-            FadeManager.FadeOutUI(_canvasGroup, () => GameManager.Instance.ShowResultUI(true));
+            FadeManager.FadeOutUI(_canvasGroup, () => GameManager.Instance.ShowResultUI(true).Forget()); // await 일부러 뺀거에 컴파일 경고 안뜨드록 처리
 
         }
     }
