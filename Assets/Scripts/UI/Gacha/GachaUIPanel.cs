@@ -55,6 +55,18 @@ public class GachaUIPanel : BaseUI, IBackButtonHandler
         _standardPitySubscriber.Subscribe(HandleStandardPityUpdate);
         UpdateInitialPityCounters();
         UIManager.PubishAddUIStackEvent(this);
+        if (PlayerDataManager.Instance != null)
+        {
+            int currentTickets = PlayerDataManager.Instance.GetResourceAmount(ResourceType.Ticket);
+            pullOneButton.interactable = currentTickets >= 1;  
+            pullTenButton.interactable = currentTickets >= 10; 
+        }
+        else
+        {
+            // 플레이어 데이터가 없으면 둘 다 비활성화
+            pullOneButton.interactable = false;
+            pullTenButton.interactable = false;
+        }
     }
  void OnDisable()
     {

@@ -109,6 +109,12 @@ public class SettingDataManager : SingletonMono<SettingDataManager>
                 bool result = boolListList[i][j];
                 if (result)
                 {
+                    if(j == 0)
+                    {
+                        MainStageData[i].isUnlocked = true;
+                    }
+
+                    
                     MainStageData[i].subStages[j].isUnlocked = result;
                     Debug.Log($"{i + 1}-{j + 1} 클리어 결과 로드");
                 }
