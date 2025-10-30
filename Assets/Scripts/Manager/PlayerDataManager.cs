@@ -487,21 +487,6 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
                 }
                 Debug.Log("재화 불러오기 완료");
             }
-#if UNITY_EDITOR //테스트 코드
-            Debug.LogWarning("[테스트] 게임 시작 시 스테이지 (1, 3) 강제 클리어 처리.");
-
-            List<List<bool>> fakeServerResponse = new() { new List<bool> { true, true, true } };
-            //List<(int main, int sub)> fakeServerResponse = new List<(int main, int sub)> { (1, 3) };
-
-            UpdateClearedStagesFromServer(fakeServerResponse);
-
-            if (1 == 1 && 3 == 3)
-            {
-                Debug.Log("<color=green>[테스트 보상]</color> 스테이지 1-3 최초 클리어 테스트 보상: 티켓 10개 지급!");
-                await AddResource(ResourceType.Ticket, 10);
-            }
-
-   #endif 
         }
         catch (Exception ex) //실패하면 정상적으로 진행 안되니까 재시도??
         { 
@@ -778,10 +763,10 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
         Debug.Log($"<color=cyan>[PlayerData]</color> 스테이지 ({mainStage}, {subStage}) 로컬 최초 클리어 기록!");
         clearedStages[(mainStage, subStage)] = true;
 
-        if (mainStage == 1 && subStage == 3)
+        if (mainStage == 1 && subStage == 2)
         {
             await AddResource(ResourceType.Ticket, 10);
-            Debug.Log("<color=green>[보상 지급]</color> 스테이지 1-3 최초 클리어 보상: 티켓 10개 지급!");
+            Debug.Log("<color=green>[보상 지급]</color> 스테이지 1-2 최초 클리어 보상: 티켓 10개 지급!");
         }
         _clearedStagesEvent?.Publish(new ClearedStagesUpdatedEvent());
         Debug.Log("[PlayerData] ClearedStagesUpdatedEvent 발행 완료.");

@@ -115,7 +115,7 @@ public class BuildingTile : MonoBehaviour, IBeginDragHandler, IDragHandler, IEnd
     {
         if (!(X == 4 && Y == 1)) return;
 
-        bool isUnlocked = PlayerDataManager.Instance.IsStageCleared(1, 3);
+        bool isUnlocked = PlayerDataManager.Instance.IsStageCleared(1, 2);
 
         if (isUnlocked)
         {
