@@ -395,8 +395,20 @@ public class GameManager : SingletonMono<GameManager>
         {
             Debug.LogWarning("AnalyticsService 인스턴스가 없습니다. 스테이지 통계를 기록할 수 없습니다.");
         }
-        
-        Debug.Log($"사용된 유닛 통계: {ConvertToJson<Dictionary<PoolType, int>>(this.PlayerHQ.UnitSpawnCnt)}");
+#if UNITY_EDITOR
+        Debug.Log($"통계: \n 1. 용사소환여부: {this.PlayerHQ.IsSpawnHero} \n" +
+            $"2. 도전 여부: {hasChallenge} \n" +
+            $"3. 클리어 여부: {isVictory} \n" +
+            $"4. 이미 클리어한 경우: {isClearedButTryAgain} \n" +
+            $"5. 도전 정보: {ConvertToJson<Dictionary<int, int>>(playerDataManager.activeChallenges)} \n" +
+            $"6. 건설 정보: {ConvertToJson<TileDataSnapshot>(playerDataManager._TileDataHandler.GetSnapshot())}\n" +
+            $"7. 운명 ID: {playerDataManager.currentDestiny.idNumber}" +
+            $"8. 스테이지 ID: {stageId} \n" +
+            $"9. 보급 레벨: {playerDataManager.SupplyLevel}\n" +
+            $"10.클리어 시간: {Time.time - StartTime} \n" + //이건 전송되는 통계하고 차이 있을듯
+            $"11.장착 유물: {ArtifactManager.Instance.SaveArtifactData(ArtifactManager.Instance.EquippedArtifacts)}\n" +
+            $"11. 사용한 유닛:{ConvertToJson<Dictionary<PoolType, int>>(this.PlayerHQ.UnitSpawnCnt)}");
+#endif
     }
 
     private string ConvertToJson<T>(T obj)
