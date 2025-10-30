@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.Build.Player;
 using UnityEngine;
 
 public class UIPlayerUnitSpawnPanel : BaseUI
@@ -12,22 +13,24 @@ public class UIPlayerUnitSpawnPanel : BaseUI
 
     IEventPublisher<FinishTutorialDeckSettingEvent> finishTutorialDeckSettingEventPub;
     UnitSynergyType[] _allSynergyTypes = (UnitSynergyType[])Enum.GetValues(typeof(UnitSynergyType));
+    SynergyGrade[] _allSynergyGrades = (SynergyGrade[])Enum.GetValues(typeof(SynergyGrade));
     // 시너지별 카운트 저장
     Dictionary<UnitSynergyType, int> synergyCounts = new Dictionary<UnitSynergyType, int>();
-    List<List<int>> coutsForSynergyGrade = new List<List<int>>()
+    /*List<List<int>> coutsForSynergyGrade = new List<List<int>>()
     {
         new List<int>(), // None
         new List<int>{2, 4, 6 }, // Kingdom
-        new List<int>{2, 4, 6 }, // Empire
-        new List<int>{2, 4, 6 }, // Mage
-        new List<int>{3, 4, 6 }, // Cleric
-        new List<int>{3, 5 },    // Berserker
-        new List<int>{3, 5 },    // Archer
-        new List<int>{2, 4, 6 }, // Hero
-        new List<int>{2, 3, 5 }, // Frost
-        new List<int>{1, 2, 3 }, // Burn
-        new List<int>{2, 3, 5 }, // Poison
-    };
+        new List<int> { 2, 4, 6 }, // Empire
+        new List<int> { 2, 4, 6 }, // Mage
+        new List<int> { 3, 4, 6 }, // Cleric
+        new List<int> { 3, 5 },    // Berserker
+        new List<int> { 3, 5 },    // Archer
+        new List<int> { 2, 4, 6 }, // Hero
+        new List<int> { 2, 3, 5 }, // Frost
+        new List<int> { 1, 2, 3 }, // Burn
+        new List<int> { 2, 3, 5 }, // Poison
+    };*/
+    Dictionary<(UnitSynergyType, SynergyGrade), int> coutsForSynergyGrade = new Dictionary<(UnitSynergyType, SynergyGrade), int>();
     private void Awake()
     {
         finishTutorialDeckSettingEventPub = EventManager.GetPublisher<FinishTutorialDeckSettingEvent>();
@@ -113,23 +116,33 @@ public class UIPlayerUnitSpawnPanel : BaseUI
     }
     void ApplySynergyForPlayerData()
     {
+        foreach (UnitSynergyType type in _allSynergyTypes)
+        {
+            foreach (var grade in _allSynergyGrades)
+            {
+                // 기존에 적용된 시너지 모두 초기화
+                SynergyData data = DataManager.SynergyEffectData.GetData((int)type * 1000 + (int)grade);
+                if (data == null) break;
+                coutsForSynergyGrade[(type, grade)] = data.requiredUnitCount;
+            }
+        }
         // 저장된 시너지들 초기화
         PlayerDataManager.AppliedDeckUnitSynergies.Clear();
-        for (int typeIdx = 0; typeIdx < _allSynergyTypes.Length; typeIdx++)
+        foreach (UnitSynergyType type in _allSynergyTypes)
         {
             // 시너지 없음 패스
-            if (_allSynergyTypes[typeIdx] == UnitSynergyType.None) continue;
-
+            if (type == UnitSynergyType.None) continue;
             // 개수 최소 시너지 미만 패스
-            if (synergyCounts[_allSynergyTypes[typeIdx]] < coutsForSynergyGrade[typeIdx][0]) continue;
+            if (synergyCounts[type] < coutsForSynergyGrade[(type, SynergyGrade.Bronze)]) continue;
 
             // 제일 큰 것부터 체크
-            for (int i = coutsForSynergyGrade[typeIdx].Count - 1; i >= 0; i--)
+            for (int i = _allSynergyGrades.Length - 1; i >= 0; i--)
             {
-                if (synergyCounts[_allSynergyTypes[typeIdx]] < coutsForSynergyGrade[typeIdx][i]) continue; // 해당 등급을 만족하는 개수가 아니면 패스
-                
+                if (!coutsForSynergyGrade.TryGetValue((type, _allSynergyGrades[i]), out int synergyCnt)) continue;
+                if (synergyCounts[type] < synergyCnt) continue; // 해당 등급을 만족하는 개수가 아니면 패스
+
                 // 활성화된 시너지 저장
-                PlayerDataManager.AppliedDeckUnitSynergies[_allSynergyTypes[typeIdx]] = (SynergyGrade)i;
+                PlayerDataManager.AppliedDeckUnitSynergies[type] = (SynergyGrade)i;
                 break;
             }
         }

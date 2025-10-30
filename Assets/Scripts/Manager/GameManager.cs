@@ -44,10 +44,14 @@ public class GameManager : SingletonMono<GameManager>
     bool isPaused = false;
     public static bool IsPaused
     {
-        get => Instance.isPaused;
+        get
+        {
+            if (Instance) return Instance.isPaused;
+            return false;
+        }
         set
         {
-            Instance.isPaused = value;
+            if(Instance) Instance.isPaused = value;
         }
     }
     protected override void Awake()

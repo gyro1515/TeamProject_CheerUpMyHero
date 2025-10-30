@@ -60,8 +60,11 @@ public class UIDeckSynergy : MonoBehaviour
     // enum 배열
     UnitSynergyType[] _allSynergyTypes = (UnitSynergyType[])Enum.GetValues(typeof(UnitSynergyType));
     SynergyIcon[] _allSynergies = (SynergyIcon[])Enum.GetValues(typeof(SynergyIcon));
-    // 시너지 체크용 배열
-    List<List<int>> coutsForSynergyGrade = new List<List<int>>() 
+    SynergyGrade[] _allSynergyGrades = (SynergyGrade[])Enum.GetValues(typeof(SynergyGrade));
+
+    // 시너지 체크용 자료구조
+    Dictionary<(UnitSynergyType, SynergyGrade), int> coutsForSynergyGrade = new Dictionary<(UnitSynergyType, SynergyGrade), int>();
+    /*List<List<int>> coutsForSynergyGrade = new List<List<int>>() 
     {
         new List<int>(), // None
         new List<int>{2, 4, 6 }, // Kingdom
@@ -74,7 +77,7 @@ public class UIDeckSynergy : MonoBehaviour
         new List<int>{2, 3, 5 }, // Frost
         new List<int>{1, 2, 3 }, // Burn
         new List<int>{2, 3, 5 }, // Poison
-    };
+    };*/
     // UnitSynergyType, count -> SynergyIcon
     private Dictionary<(UnitSynergyType, int), SynergyIcon> _iconMap = new()
     {
@@ -198,6 +201,17 @@ public class UIDeckSynergy : MonoBehaviour
             synergyIconGOListForAuto.Add(iconSlot);
             iconGO.SetActive(false);
         }
+        // 데이터 매니저에서 시너지 등급별 필요 유닛 수 불러와서 저장
+        foreach (UnitSynergyType type in _allSynergyTypes)
+        {
+            foreach (var grade in _allSynergyGrades)
+            {
+                // 기존에 적용된 시너지 모두 초기화
+                SynergyData data = DataManager.SynergyEffectData.GetData((int)type * 1000 + (int)grade);
+                if (data == null) break;
+                coutsForSynergyGrade[(type, grade)] = data.requiredUnitCount;
+            }
+        }
     }
     public void CheckDeckUnitSynergy(List<BaseUnitData> currentDeckUnitDatas)
     {
@@ -234,34 +248,35 @@ public class UIDeckSynergy : MonoBehaviour
         PlayerDataManager.AppliedDeckUnitSynergies.Clear();
 
         int activeSynergyCount = 0;
-        for (int typeIdx = 0; typeIdx < _allSynergyTypes.Length; typeIdx++)
+        foreach (UnitSynergyType type in _allSynergyTypes)
         {
             // 시너지 없음 패스
-            if (_allSynergyTypes[typeIdx] == UnitSynergyType.None) continue;
+            if (type == UnitSynergyType.None) continue;
 
             // 우선 해당 계열 전부 비활성화
-            for (int i = 0; i < coutsForSynergyGrade[typeIdx].Count; i++)
+            for (int i = 0; i < _allSynergyGrades.Length; i++)
             {
-                SynergyIcon iconKey = _iconMap[(_allSynergyTypes[typeIdx], i)];
+                if (!_iconMap.TryGetValue((type, i), out SynergyIcon iconKey)) continue;
                 //synergyIconGOList[(int)iconKey].SetActive(false);
                 synergyIconGOListForAuto[(int)iconKey].gameObject.SetActive(false);
             }
 
             // 개수 최소 시너지 미만 패스
-            if (synergyCounts[_allSynergyTypes[typeIdx]] < coutsForSynergyGrade[typeIdx][0]) continue;
+            if (synergyCounts[type] < coutsForSynergyGrade[(type, SynergyGrade.Bronze)]) continue;
 
             // 제일 큰 것부터 체크
-            for (int i = coutsForSynergyGrade[typeIdx].Count - 1; i >= 0; i-- )
+            for (int i = _allSynergyGrades.Length - 1; i >= 0; i--)
             {
-                if (synergyCounts[_allSynergyTypes[typeIdx]] < coutsForSynergyGrade[typeIdx][i]) continue; // 해당 등급을 만족하는 개수가 아니면 패스
+                if (!coutsForSynergyGrade.TryGetValue((type, _allSynergyGrades[i]), out int synergyCnt)) continue;
+                if (synergyCounts[type] < synergyCnt) continue; // 해당 등급을 만족하는 개수가 아니면 패스
 
                 // 해당 등급 아이콘 활성화
-                SynergyIcon iconKey = _iconMap[(_allSynergyTypes[typeIdx], i)];
+                SynergyIcon iconKey = _iconMap[(type, i)];
                 //synergyIconGOList[(int)iconKey].SetActive(true);
                 synergyIconGOListForAuto[(int)iconKey].gameObject.SetActive(true);
                 activeSynergyCount++;
                 // 활성화된 시너지 저장
-                PlayerDataManager.AppliedDeckUnitSynergies[_allSynergyTypes[typeIdx]] = (SynergyGrade)i;
+                PlayerDataManager.AppliedDeckUnitSynergies[type] = (SynergyGrade)i;
                 break;
             }
         }
