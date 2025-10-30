@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -18,6 +19,8 @@ public class UIArtifact : BaseUI, IBackButtonHandler
     private CanvasGroup _canvasGroup;
 
     private ArtifactUIPresenter _presenter;
+
+    private bool _isInitialized = false;
     #endregion
 
     #region 이벤트 시스템
@@ -61,11 +64,19 @@ public class UIArtifact : BaseUI, IBackButtonHandler
     private void OnEnable()
     {
         UIManager.PubishAddUIStackEvent(this);
+
+        if (!_isInitialized)
+        {
+            StartCoroutine(InitializeUIAfterFrame());
+        }
+        else
+        {
+            RefreshUI();
+        }
     }
     private void Start()
     {
-        _gotoCardDeckButton.onClick.AddListener(OnCardDeckClicked);
-        _presenter.InitialDisplay();
+        
     }
     private void OnDisable()
     {
@@ -77,6 +88,21 @@ public class UIArtifact : BaseUI, IBackButtonHandler
         _presenter?.Dispose();
     }
     #endregion
+
+    private IEnumerator InitializeUIAfterFrame()
+    {
+        yield return null;
+
+        _gotoCardDeckButton.onClick.AddListener(OnCardDeckClicked);
+        _presenter.InitialDisplay();
+
+        _isInitialized = true;
+    }
+
+    private void RefreshUI()
+    {
+        _presenter?.InitialDisplay();
+    }
 
     #region 버튼
     private void OnCardDeckClicked()

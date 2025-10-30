@@ -72,6 +72,8 @@ public class ArtifactUIPresenter
     #region Handle 메서드 : 유물 데이터 변경
     public void HandleEquippedArtifactChanged()
     {
+        if (_model == null || _model.EquippedArtifacts == null) return;
+
         // 각 스탯 종류별 뷰모델 만들어서 뷰모델로 이루어진 뷰모델 덩어리 만듬
         StatPanelViewModel statVM = new StatPanelViewModel
         {
@@ -88,11 +90,17 @@ public class ArtifactUIPresenter
         _statPanelView.RefreshStatPanelUI(statVM);
 
         List<UIArtifactEquipSlot> slots = _equipPanelView.GetSlots();
+
+        if (slots == null || slots.Count == 0) return;
+
         for (int i = 0; i < slots.Count; i++)
         {
-            ArtifactData artifact = _model.EquippedArtifacts[i];
-            EquipSlotViewModel vm = CreateEquipSlotViewModel(artifact);
-            slots[i].RefreshArtifactEquipSlotDisplay(vm);
+            if (1 < _model.EquippedArtifacts.Count)
+            {
+                ArtifactData artifact = _model.EquippedArtifacts[i];
+                EquipSlotViewModel vm = CreateEquipSlotViewModel(artifact);
+                slots[i].RefreshArtifactEquipSlotDisplay(vm);
+            }
         }
     }
 
