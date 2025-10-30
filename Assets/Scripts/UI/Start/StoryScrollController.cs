@@ -26,7 +26,7 @@ public class StoryScrollController : MonoBehaviour
     void StartStory()
     {
         storyPanelRoot.SetActive(true);
-        
+
         // 2. 스크롤 위치를 맨 위(1.0)로 즉시 설정
         scrollRect.verticalNormalizedPosition = 1f;
 
@@ -37,7 +37,7 @@ public class StoryScrollController : MonoBehaviour
 
     private IEnumerator AutoScroll()
     {
-        scrollRect.verticalNormalizedPosition = 0f;
+        //scrollRect.verticalNormalizedPosition = 0f;
 
         yield return new WaitForEndOfFrame();
         float startPosition = 1f; // 맨 아래
