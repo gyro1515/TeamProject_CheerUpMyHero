@@ -19,7 +19,7 @@ public class LoginConfirmPopup : BasePopUpUI
 
         if (startUIController == null)
         {
-            Debug.LogWarning("LoginConfirmPopup에 StartUI가 연결되지 않았습니다!");
+            Debug.Log("LoginConfirmPopup에 StartUI가 연결되지 않았습니다!");
         }
     }
 

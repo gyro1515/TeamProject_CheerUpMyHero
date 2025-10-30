@@ -22,6 +22,10 @@ public class Skill_IceSpiritBreath : ActiveSkillEffect
         foreach (var enemy in enemies.ToList())
         {
             if (enemy == null || enemy.IsDead) continue;
+            if (enemy.GetComponent<EnemyHQ>() != null)
+            {
+                continue; 
+            }
             if (enemy.transform.position.x > playerX && enemy.transform.position.x <= playerX + range)
             {
                 if (damage > 0) enemy.GetComponent<IDamageable>()?.TakeDamage(damage);
