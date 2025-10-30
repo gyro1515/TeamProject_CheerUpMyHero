@@ -200,6 +200,10 @@ public class GachaUIPanel : BaseUI, IBackButtonHandler
             // --- 5. 페이지별 천장 카운터 업데이트 ---
             if (currentPage == 0) PlayerDataManager.Instance.UpdateLimitedPityCount(isEpicResult);
             else PlayerDataManager.Instance.UpdateStandardPityCount(isEpicResult);
+
+            //5.9 얻은 유닛 해금
+            PlayerDataManager.Instance.UnLockUnit(resultId);
+
         }
         catch (Exception ex)
         {
@@ -291,6 +295,13 @@ public class GachaUIPanel : BaseUI, IBackButtonHandler
             if (gachaSequenceController != null)
             {
                 gachaSequenceController.StartGachaSequence(resultIds);
+            }
+
+            //3.9 유닛 해금
+
+            foreach (int id in resultIds)
+            {
+                PlayerDataManager.Instance.UnLockUnit(id);
             }
 
         }
