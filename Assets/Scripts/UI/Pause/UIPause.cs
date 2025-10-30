@@ -53,6 +53,7 @@ public class UIPause : BaseUI, IBackButtonHandler
     }
     private void OnPauseButtonClicked()
     {
+        GameManager.IsPaused = true;
         Time.timeScale = 0.0f;
         /*_settingPanel.SetActive(true);
         _settingPanelCanvasGroup.alpha = 0.0f;

@@ -40,7 +40,16 @@ public class GameManager : SingletonMono<GameManager>
     public static bool IsTutorialCompleted { get => Instance.isTutorialCompleted; set => Instance.isTutorialCompleted = value; }
 
     bool isClearedButTryAgain = false;
-
+    // 일시 정지 여부
+    bool isPaused = false;
+    public static bool IsPaused
+    {
+        get => Instance.isPaused;
+        set
+        {
+            Instance.isPaused = value;
+        }
+    }
     protected override void Awake()
     {
         base.Awake();

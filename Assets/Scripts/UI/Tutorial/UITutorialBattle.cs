@@ -13,6 +13,6 @@ public class UITutorialBattle : UITutorialBase
     protected override void OnSkipButtonClicked()
     {
         base.OnSkipButtonClicked();
-        Time.timeScale = 1.0f;
+        if(!GameManager.IsPaused) Time.timeScale = 1.0f;
     }
 }
