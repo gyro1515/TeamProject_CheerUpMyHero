@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using System.Collections;
 using System.Collections.Generic;
 using System.Resources;
+using System.Runtime.CompilerServices;
 using System.Text;
 using Unity.Services.Analytics;
 using UnityEngine;
@@ -60,9 +61,11 @@ public class GameManager : SingletonMono<GameManager>
         // 튜토리얼 완료 여부 설정
         // TODO: 서버에서 불러오기
         isTutorialCompleted = false;
+        Application.targetFrameRate = 120;
     }
     private void Update()
     {
+#if UNITY_EDITOR
         // 테스트
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
@@ -118,6 +121,7 @@ public class GameManager : SingletonMono<GameManager>
                 enemyHQ.CurHp = enemyHQ.MaxHp * 0.5f;
             }
         }
+#endif
         if (IsBattleStarted)
         {
             PlayerDataManager.Instance.AddFoodOverTime(Time.deltaTime);
@@ -193,6 +197,10 @@ public class GameManager : SingletonMono<GameManager>
             var StageData = PlayerDataManager.Instance.SelectedStageIdx;
 
             StageRewardData rewardData = DataManager.Instance.RewardData.GetData((StageData.mainStageIdx + 1) * 1000 + StageData.subStageIdx + 1);
+            (int mainIdx, int subIdx) = PlayerDataManager.Instance.SelectedStageIdx;
+            bool isTestEndStage = (mainIdx + 1 == 2 && subIdx + 1 == 9);
+
+            StageRewardData rewardData = DataManager.Instance.RewardData.GetData(currentStageID);
             if (rewardData == null)
             {
                 return; // 보상 데이터가 없으면 함수 종료
@@ -270,7 +278,15 @@ public class GameManager : SingletonMono<GameManager>
             // 스테이지 클리어 효과음 출력함.
             AudioManager.PlayOneShot(DataManager.AudioData.StageClearSE, 0.7f);
 
-            RewardPanelUI?.OpenUI(finalGold, finalWood, finalIron, finalMagicStone, true);
+            if (isTestEndStage)
+            {
+                UIManager.Instance.GetUI<UITestEndPopup>().OpenUI();
+            }
+            else
+            {
+                RewardPanelUI?.OpenUI(finalGold, finalWood, finalIron, finalMagicStone, true);
+            }
+
             try
             {
                 //계산된 보상을 PlayerDataManager에 추가
@@ -335,6 +351,21 @@ public class GameManager : SingletonMono<GameManager>
             {
                 Debug.Log($"스테이지 {mainIdx + 1}-{subIdx + 1}은(는) 이미 클리어한 스테이지입니다.");
             }
+            // ===================================테스트 리미트 로직=======================================
+            const bool ENABLE_TEST_STAGE_lIMIT = true;
+            if (ENABLE_TEST_STAGE_lIMIT)
+            {
+                int curMainStage = mainIdx + 1;
+                int curSubStage = subIdx + 1;
+
+                if (curMainStage == 2 &&  curSubStage == 9)
+                {
+                    await PlayerDataManager.Instance.SaveDataToCloudAsync();
+                    GameManager.IsStageAndDestinySelected = false;
+                    return;
+                }
+            }
+            // =================================================================================================
 
             int maxSubIdx = SettingDataManager.Instance.MainStageData[mainIdx].subStages.Count;
             if (++subIdx >= maxSubIdx)
