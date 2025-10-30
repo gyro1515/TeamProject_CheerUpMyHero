@@ -76,6 +76,21 @@ public class DeckPresetController : BaseUI, IBackButtonHandler
     }*/
     private void Awake()
     {
+        if (!GameManager.IsTutorialCompleted)
+        {
+            Debug.Log("튜토리얼 덱 세팅");
+            int activeDeckIndex = PlayerDataManager.Instance.ActiveDeckIndex;
+            //List<int> deckUnitIds = PlayerDataManager.Instance.DeckPresets[activeDeckIndex].UnitIds;
+            List<BaseUnitData> deckBaseUnitDatas = PlayerDataManager.Instance.DeckPresets[activeDeckIndex].BaseUnitDatas;
+            deckBaseUnitDatas[0] = null;
+            deckBaseUnitDatas[1] = null;
+            deckBaseUnitDatas[2] = null;
+            deckBaseUnitDatas[3] = null;
+            deckBaseUnitDatas[4] = null;
+            deckBaseUnitDatas[5] = null;
+            deckBaseUnitDatas[6] = null;
+            deckBaseUnitDatas[7] = null;
+        }
         uiDeckSynergy.Init();// 생성자 꼬이지 않게 여기서 먼저 초기화
         Debug.Log(GameManager.IsTutorialCompleted);
         if (!GameManager.IsTutorialCompleted)
