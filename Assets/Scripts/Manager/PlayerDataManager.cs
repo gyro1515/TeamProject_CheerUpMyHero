@@ -918,7 +918,10 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
             EquippedArtifacts = ArtifactManager.Instance.SaveArtifactData(ArtifactManager.Instance.EquippedArtifacts),
 
             // TileDataHandler의 상태를 직렬화 가능한 형태로 변환
-            TileGridData = _TileDataHandler.GetSnapshot()
+            TileGridData = _TileDataHandler.GetSnapshot(),
+
+            LimitedGachaPityCount = this.LimitedGachaPityCount,
+            StandardGachaPityCount = this.StandardGachaPityCount
         };
 
         Dictionary<string, object> cloudData = new();
@@ -955,7 +958,7 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
             }
 
             //튜토리얼 끝날때 까지 저장 x => 저장된다면, 튜토리얼이 끝난 것 => 저장된 데이터가 있다면, 튜토리얼이 끝난 것
-            //GameManager.IsTutorialCompleted = true; 
+            GameManager.IsTutorialCompleted = true; 
 
             SettingDataManager.Instance.LoadClearData(loadedData.UnlockData);
             UpdateClearedStagesFromServer(loadedData.UnlockData);
@@ -965,6 +968,9 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
             CardGenerate(loadedData.OwnedCardData);
             _TileDataHandler.RestoreFromSnapshot(loadedData.TileGridData);
             ArtifactManager.Instance.LoadArtifactData(loadedData.OwnedArtifacts, loadedData.EquippedArtifacts);
+
+            this.LimitedGachaPityCount = loadedData.LimitedGachaPityCount;
+            this.StandardGachaPityCount = loadedData.StandardGachaPityCount;
 
         }
 
@@ -1030,6 +1036,11 @@ public class PlayerSaveData
 
     //6. 장착한 유물
     public string EquippedArtifacts;
+
+    //7. 가챠 천장
+    public int LimitedGachaPityCount;
+    public int StandardGachaPityCount;
+
 }
 
 

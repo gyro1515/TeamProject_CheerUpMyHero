@@ -27,7 +27,7 @@ public class UIGiveUpPanel : BaseUI
         FadeManager.FadeOutUI(_canvasGroup);
         FadeManager.FadeOutUI(_settingMenuPanel);
         Time.timeScale = 1.0f;
-        GameManager.Instance.ShowResultUI(false);
+        GameManager.Instance.ShowResultUI(false).Forget(); // await 일부러 뺀거에 컴파일 경고 안뜨드록 처리
     }
 
     private void OnGiveUpNoButtonClicked()

@@ -153,7 +153,7 @@ public class UIStageClearArtifactSelect : BaseUI
                 return;
             }
 
-            FadeManager.FadeOutUI(_canvasGroup, () => GameManager.Instance.ShowResultUI(true));
+            FadeManager.FadeOutUI(_canvasGroup, () => GameManager.Instance.ShowResultUI(true).Forget()); // await 일부러 뺀거에 컴파일 경고 안뜨드록 처리
 
         }
     }

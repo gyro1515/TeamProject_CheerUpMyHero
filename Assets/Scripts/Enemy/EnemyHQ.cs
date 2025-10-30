@@ -85,9 +85,9 @@ public class EnemyHQ : BaseHQ
         }
         else
         {
-            GameManager.Instance.ShowResultUI(true);
+            GameManager.Instance.ShowResultUI(true).Forget(); // await 일부러 뺀거에 컴파일 경고 안뜨드록 처리
         }
-        GameManager.Instance.ClearStage();
+        GameManager.Instance.ClearStage().Forget(); //// await 일부러 뺀거에 컴파일 경고 안뜨드록 처리
         Debug.Log("적군 HQ 파괴! 승리!");
     }
     void SetUnitCoolTime()
