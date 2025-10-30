@@ -4,7 +4,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
-
+public enum UIState
+{
+    Main,
+    CardDeck,
+    Battle
+}
 public class UISettingMenu : BaseUI
 {
     #region 사운드 패널
@@ -37,6 +42,7 @@ public class UISettingMenu : BaseUI
     #region 조작 패널 변경 패널
     [Header("튜토리얼 다시 보기 패널 버튼")]
     [SerializeField] private Button _tutorialRetryButton;
+    [SerializeField] private UIState uiState;
 
     //[Header("튜토리얼 다시보기 패널")]
     //[SerializeField] private BasePopUpUI _tutorialRetryPanel;
@@ -44,6 +50,21 @@ public class UISettingMenu : BaseUI
     private void OnTutorialRetryButtonClicked()
     {
         Debug.Log("튜토리얼 다시 보기 버튼입니다");
+        switch (uiState)
+        {
+            case UIState.Main:
+                UIManager.Instance.GetUI<UITutorialMain>().OpenUI();
+                break;
+            case UIState.CardDeck:
+                UIManager.Instance.GetUI<UITutorialDeck>().OpenUI();
+                break;
+            case UIState.Battle:
+                UIManager.Instance.GetUI<UITutorialBattle>().OpenUI();
+                break;
+            default:
+                break;
+        }
+
     }
     #endregion
 
