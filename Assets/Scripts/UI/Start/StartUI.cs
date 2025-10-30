@@ -18,7 +18,7 @@ public class StartUI : BaseUI
 
         if (secondStartGroup != null)
         {
-            secondStartGroup.Initialize(this); 
+            secondStartGroup.Initialize(this);
             secondStartGroup.gameObject.SetActive(false);
         }
         if (storyScrollController != null)
@@ -26,7 +26,7 @@ public class StartUI : BaseUI
         // 2. 버튼 리스너 연결
         if (clickToMove != null)
         {
-            clickToMove.onClick.AddListener(OnClickToMove); 
+            clickToMove.onClick.AddListener(OnClickToMove);
         }
     }
 
@@ -52,11 +52,28 @@ public class StartUI : BaseUI
     public void OnLoginSuccess()
     {
         Debug.Log("StartUI: 로그인 성공 신호 받음. 스토리 씬 시작.");
-        if(secondStartGroup != null && storyScrollController != null)
+        if (secondStartGroup != null && storyScrollController != null)
         {
-            FadeManager.Instance.SwitchGameObjects(secondStartGroup.gameObject, storyScrollController.gameObject);
+            if (GameManager.IsTutorialCompleted)
+            {
+                Debug.Log("StartUI: 튜토리얼 완료됨. 스토리 패널 건너뛰고 메인 씬으로 바로 이동.");
+                SceneLoader.Instance.StartLoadScene(SceneState.MainScene);
+            }
+            else
+            {
+                // 3b. 튜토리얼을 아직 안 깼다면:
+                Debug.Log("StartUI: 튜토리얼 미완료. 스토리 패널 시작.");
+                if (storyScrollController != null)
+                {
+                    FadeManager.Instance.SwitchGameObjects(secondStartGroup.gameObject, storyScrollController.gameObject);
+                }
+                else
+                {
+                    // 스토리 패널이 없는 비상시
+                    Debug.LogError("StoryScrollController가 연결되지 않았습니다! 메인 씬으로 바로 이동합니다.");
+                    SceneLoader.Instance.StartLoadScene(SceneState.MainScene);
+                }
+            }
         }
-        /*if (secondStartGroup != null) secondStartGroup.gameObject.SetActive(false); // 로그인 그룹 끄기
-        if (storyScrollController != null) storyScrollController.StartStory(); // 스토리 패널 켜기*/
     }
 }

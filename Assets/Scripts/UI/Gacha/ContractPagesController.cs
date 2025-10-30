@@ -20,6 +20,7 @@ public class ContractPagesController : MonoBehaviour, IEndDragHandler
 
     [Header("상세 설명 버튼")]
     [SerializeField] private Button detailsButton;
+    [SerializeField] private LaterUpdatePopup laterUpdatePopup;
 
     private int currentPageIndex = 0;
     private int totalPages;
@@ -147,6 +148,14 @@ public class ContractPagesController : MonoBehaviour, IEndDragHandler
     {
         if (pageWidth <= 0) return;
         Debug.Log($"상세 설명 버튼 클릭됨 - 현재 페이지: {currentPageIndex + 1}");
+        if (laterUpdatePopup != null)
+        {
+            laterUpdatePopup.Show("추후 업데이트 될 예정입니다.");
+        }
+        else
+        {
+            Debug.LogError("laterUpdatePopup MainScreenBuildingController에 연결되지 않았습니다!");
+        }
         if (currentPageIndex == 0) ShowLimitedCharacterDetails();
         else ShowStandardCharacterDetails();
     }
