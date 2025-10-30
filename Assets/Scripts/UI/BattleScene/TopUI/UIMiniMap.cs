@@ -16,7 +16,7 @@ public class UIMiniMap : MonoBehaviour
     //아마 HQ가 좌우대칭이 아니여서 UI가 삐져나오는 것 같은데, 일단 위치수정하기 전까지 보정치 주기
     //private float offsetPlus = 3.5f;
 
-    private Color32 playerColor = new Color32(0, 0, 255, 100);
+    private Color32 playerColor = new Color32(255, 255, 255, 100);
     private Color32 heroColor = new Color32(255, 255, 0, 255);
     private Color32 enemyColor = new Color32(255, 0, 0, 135);
     private Color32 bossColor = new Color32(180, 0, 255, 255);
