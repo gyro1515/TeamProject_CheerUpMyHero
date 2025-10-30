@@ -2826,8 +2826,7 @@ MonoBehaviour:
   contractPagesController: {fileID: 8200252930644549519}
   pullOneButton: {fileID: 6090011248385484632}
   pullTenButton: {fileID: 2248143985257426585}
-  characterInfoButton: {fileID: 0}
-  laterUpdatePopup: {fileID: 5756151767598036587}
+  characterInfoButton: {fileID: 3424457544226372500}
   limitedPityText: {fileID: 6050992935505474984}
   limitedPityBackground: {fileID: 3441799931377705843}
   standardPityText: {fileID: 3393094947901399641}
@@ -4590,8 +4589,8 @@ GameObject:
   - component: {fileID: 1067145747401008673}
   - component: {fileID: 1336137007580510916}
   - component: {fileID: 627788540840960899}
-  - component: {fileID: 5756151767598036587}
   - component: {fileID: 4482234083377089176}
+  - component: {fileID: 8269937728294484036}
   m_Layer: 5
   m_Name: laterUpdatePopup
   m_TagString: Untagged
@@ -4713,25 +4712,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 37080d9e81405a945b1105d5a405f9d9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _parentPopup: {fileID: 5756151767598036587}
---- !u!114 &5756151767598036587
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5061250486139434374}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5f98f562625fa9b46843aaa3d1f4a273, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  POPUP_UI_WARNING: "\uD574\uB2F9 UI\uB294 \uD31D\uC5C5\uC785\uB2C8\uB2E4. \uC791\uC5C5
-    \uD6C4 \uBE44\uD65C\uC131\uD654 \uD574\uC8FC\uC138\uC694."
-  openSound: {fileID: 0}
-  closeSound: {fileID: 0}
-  messageText: {fileID: 1431870568259963276}
-  okButton: {fileID: 4336200437983840341}
+  _parentPopup: {fileID: 8269937728294484036}
 --- !u!225 &4482234083377089176
 CanvasGroup:
   m_ObjectHideFlags: 0
@@ -4744,6 +4725,25 @@ CanvasGroup:
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
+--- !u!114 &8269937728294484036
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5061250486139434374}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8b1c2b58370c6d349889d66177d4424d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  POPUP_UI_WARNING: "\uD574\uB2F9 UI\uB294 \uD31D\uC5C5\uC785\uB2C8\uB2E4. \uC791\uC5C5
+    \uD6C4 \uBE44\uD65C\uC131\uD654 \uD574\uC8FC\uC138\uC694."
+  openSound: {fileID: 0}
+  closeSound: {fileID: 0}
+  messageText: {fileID: 1431870568259963276}
+  okButton: {fileID: 4336200437983840341}
+  startUIController: {fileID: 0}
 --- !u!1 &5089635918751681445
 GameObject:
   m_ObjectHideFlags: 0
@@ -6241,7 +6241,7 @@ MonoBehaviour:
   activeDotSprite: {fileID: 21300000, guid: d0db4d04dbef92e43954127e5f7bcabe, type: 3}
   inactiveDotSprite: {fileID: 21300000, guid: 457daa12c858ff9498a4a9aaf9a3d84b, type: 3}
   detailsButton: {fileID: 3424457544226372500}
-  laterUpdatePopup: {fileID: 5756151767598036587}
+  laterUpdatePopup: {fileID: 8269937728294484036}
 --- !u!1 &6251859339851169002
 GameObject:
   m_ObjectHideFlags: 0
@@ -8872,8 +8872,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\uD574\uB2F9 \uD0C0\uC77C\uC740(\uB294) 3\uD134 \uB4A4\uC5D0 \uB2E4\uC2DC
-    \uD65C\uC131\uD654 \uB429\uB2C8\uB2E4"
+  m_text: "\uCD94\uD6C4 \uC5C5\uB370\uC774\uD2B8 \uB420 \uAE30\uB2A5\uC785\uB2C8\uB2E4"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: a038d2d1b4d4e4243a3b297a8d740411, type: 2}
   m_sharedMaterial: {fileID: 3962158058987712004, guid: a038d2d1b4d4e4243a3b297a8d740411, type: 2}
