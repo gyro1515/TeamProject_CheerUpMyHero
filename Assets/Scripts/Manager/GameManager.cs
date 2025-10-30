@@ -378,7 +378,7 @@ public class GameManager : SingletonMono<GameManager>
 
             stageChallengeData_String = ConvertToJson<Dictionary<int, int>>(playerDataManager.activeChallenges),
             stageConstruction_String = ConvertToJson<TileDataSnapshot>(playerDataManager._TileDataHandler.GetSnapshot()),
-            stageDestinyId_Int = playerDataManager.currentDastiny.idNumber,
+            stageDestinyId_Int = playerDataManager.currentDestiny.idNumber,
             stageId_Int = stageId,
             stageSupplyLevel_Int = playerDataManager.SupplyLevel,
             stageTimeTaken_Float = Time.time - StartTime,
