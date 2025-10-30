@@ -45,7 +45,6 @@ public class ArtifactManager : SingletonMono<ArtifactManager>
         //AddArtifact(08010001);
         //AddArtifact(08010002);
         // ------------------------
-        InitializeEquippedArtifacts();
         artifactSO = Resources.Load<ArtifactSO>("DB/ArtifactSO");
     }
 
@@ -293,32 +292,88 @@ public class ArtifactManager : SingletonMono<ArtifactManager>
     }
 
     // 랜덤 패시브 아티팩트 생성하는 메서드 -> 스테이지 클리어 보상 용도
-    public List<PassiveArtifactData> GetRandomPassiveArtifact(int count)
+    public List<PassiveArtifactData> GetRandomPassiveArtifact(int count, int chapter)
     {
-        List<PassiveArtifactData> source = new List<PassiveArtifactData>(artifactSO.passiveArtifacts);
-        List<PassiveArtifactData> result = new List<PassiveArtifactData>();
+        // 챕터 5 이상은 챕터 5 확률표 사용
+        int adjustedChapter = Mathf.Min(chapter, 4);
 
-        int tmpIdx = 0;
-        HashSet<int> usedIdx = new HashSet<int>();
-        while (tmpIdx < count)
+        List<PassiveArtifactData> result = new List<PassiveArtifactData>();
+        List<PassiveArtifactData> source = new List<PassiveArtifactData>(artifactSO.passiveArtifacts);
+
+        // 챕터별 등급 확률표 (Common, Rare, Epic, Unique, Legendary 순)
+        Dictionary<int, float[]> chapterProbabilities = new Dictionary<int, float[]>
         {
-            int randomNum = Random.Range(0, source.Count);
-            if (usedIdx.Contains(randomNum)) continue;
-            usedIdx.Add(randomNum);
-            result.Add(source[randomNum]);
-            tmpIdx++;
-        }
-        /*for (int i = 0; i < count; i++)
+            { 0, new float[] { 89.0f, 9.5f, 1.5f, 0f, 0f } },
+            { 1, new float[] { 69.5f, 26.0f, 3.5f, 1.0f, 0f } },
+            { 2, new float[] { 49.5f, 41.5f, 7.0f, 1.5f, 0.5f } },
+            { 3, new float[] { 34.5f, 50.0f, 9.0f, 5.0f, 1.5f } },
+            { 4, new float[] { 25.0f, 52.5f, 12.5f, 7.5f, 2.5f } }
+        };
+
+        float[] probabilities = chapterProbabilities[adjustedChapter];
+
+        // count만큼 유물 뽑기
+        HashSet<PassiveArtifactData> selectedArtifacts = new HashSet<PassiveArtifactData>();
+        int attempts = 0;
+        int maxAttempts = count * 100; // 무한 루프 방지
+
+        while (selectedArtifacts.Count < count && attempts < maxAttempts)
         {
-            int randomNum = Random.Range(0, source.Count);
-            if(source[randomNum] == null)
+            attempts++;
+
+            // 1. 확률에 따라 등급 결정
+            PassiveArtifactGrade selectedGrade = DetermineGradeByProbability(probabilities);
+
+            // 2. 해당 등급의 유물들만 필터링
+            List<PassiveArtifactData> artifactsOfGrade = source
+                .Where(a => a.grade == selectedGrade)
+                .ToList();
+
+            if (artifactsOfGrade.Count == 0)
             {
-                Debug.Log("중복 발생 다시 뽑기");
+                Debug.LogWarning($"챕터 {adjustedChapter}에서 {selectedGrade} 등급의 유물이 없습니다.");
+                continue;
             }
-            result.Add(source[randomNum]);
-            source[randomNum] = null;
-        }*/
+
+            // 3. 해당 등급 내에서 랜덤 선택 (중복 방지)
+            PassiveArtifactData selectedArtifact = artifactsOfGrade[Random.Range(0, artifactsOfGrade.Count)];
+            selectedArtifacts.Add(selectedArtifact);
+        }
+
+        if (attempts >= maxAttempts)
+        {
+            Debug.LogError($"유물 선택 최대 시도 횟수 초과. 요청: {count}개, 선택: {selectedArtifacts.Count}개");
+        }
+
+        result = selectedArtifacts.ToList();
         return result;
+    }    
+
+    private PassiveArtifactGrade DetermineGradeByProbability(float[] probabilities)
+    {
+        float randomValue = Random.Range(0f, 100f);
+        float cumulativeProbability = 0f;
+
+        PassiveArtifactGrade[] grades = new PassiveArtifactGrade[]
+        {
+            PassiveArtifactGrade.Common,
+            PassiveArtifactGrade.Rare,
+            PassiveArtifactGrade.Epic,
+            PassiveArtifactGrade.Unique,
+            PassiveArtifactGrade.Legendary
+        };
+
+        for (int i = 0; i < probabilities.Length; i++)
+        {
+            cumulativeProbability += probabilities[i];
+            if (randomValue < cumulativeProbability)
+            {
+                return grades[i];
+            }
+        }
+
+        // 만약의 사태에 대비해 Common반환
+        return PassiveArtifactGrade.Common;
     }
 
     public void SortOwnedArtifacts()
