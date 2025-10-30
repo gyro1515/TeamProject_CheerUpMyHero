@@ -71,9 +71,11 @@ public class UISettingMenu : BaseUI
     #region 전투 포기 패널
     [Header("전투 포기 버튼")]
     [SerializeField] private Button _giveUpButton;
+    [SerializeField] private Button _exitButton;
 
     [Header("포기 선택 패널")]
     [SerializeField] private BasePopUpUI _giveUpPanel;
+    [SerializeField] private BasePopUpUI _exitPanel;
 
     private void OnGiveUpButtonClicked()
     {
@@ -103,6 +105,7 @@ public class UISettingMenu : BaseUI
         _fpsSettingButton.onClick.AddListener(OnFPSSettingButtonClicked);
         _tutorialRetryButton.onClick.AddListener(OnTutorialRetryButtonClicked);
         _giveUpButton.onClick.AddListener(OnGiveUpButtonClicked);
+        _exitButton.onClick.AddListener(OnExitButtonClicked);
         _resumeButton.onClick.AddListener(OnResumeButtonClicked);
 
         /*_allPanels = new List<CanvasGroup>
@@ -122,6 +125,10 @@ public class UISettingMenu : BaseUI
                 panel.blocksRaycasts = false;
             }
         }*/
+    }
+    private void OnExitButtonClicked()
+    {
+        _exitPanel.OpenUI();
     }
     private void OnDisable()
     {
