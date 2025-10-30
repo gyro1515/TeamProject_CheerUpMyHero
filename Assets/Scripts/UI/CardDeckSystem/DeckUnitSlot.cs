@@ -9,6 +9,7 @@ public class DeckUnitSlot : MonoBehaviour
     [SerializeField] private Image bg;
     [SerializeField] private Image icon;
     [SerializeField] private Sprite nullBg;
+    [SerializeField] private GameObject opaqueOverlay; 
    // [SerializeField] private Image unitIconImage;      //유닛 아이콘을 표시할 이미지
 
     private Image _buttonImage;
@@ -22,6 +23,7 @@ public class DeckUnitSlot : MonoBehaviour
 
     public void SetData(BaseUnitData unitData, int slotNumber)
     {
+        SetValidationState(true);
         if (unitData == null) // 빈 슬롯일 때
         {
            // unitIconImage.gameObject.SetActive(false); // 아이콘 숨기기
@@ -41,5 +43,12 @@ public class DeckUnitSlot : MonoBehaviour
             icon.sprite = unitData.unitIconSprite;
         }
     }
-
+    public void SetValidationState(bool isValid)
+    {
+        if (opaqueOverlay != null)
+        {
+            // 유효하지 않으면(false) -> 오버레이를 켠다(true)
+            opaqueOverlay.SetActive(!isValid);
+        }
+    }
 }

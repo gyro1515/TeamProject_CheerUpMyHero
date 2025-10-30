@@ -24,6 +24,7 @@ public class DeckPresetController : BaseUI, IBackButtonHandler
     [SerializeField] private CanvasGroup viewModeCanvasGroup; // 평상시 UI 그룹
     [SerializeField] private CanvasGroup editNameCanvasGroup; // 이름 수정 UI 그룹
     [SerializeField] private DeckNameEditPanel editNamePanel; // 이름 수정 UI 패널
+    [SerializeField] private LaterUpdatePopup laterUpdatePopup; // 이름 수정 UI 패널
 
     [Header("--- 하위 컨트롤러 ---")]
     [SerializeField] private DeckTabController deckTabController;
@@ -88,8 +89,8 @@ public class DeckPresetController : BaseUI, IBackButtonHandler
     private void OnEnable()
     {
         UIManager.PubishAddUIStackEvent(this);
-
-        if(!GameManager.IsTutorialCompleted) _tourDeck?.OpenUI();
+        ValidateDeckAndUpdateUI();
+        if (!GameManager.IsTutorialCompleted) _tourDeck?.OpenUI();
     }
 
     private void Start()
@@ -164,48 +165,84 @@ public class DeckPresetController : BaseUI, IBackButtonHandler
             unitSlots[i].SetData(currentDeckUnitDatas[i], i);
         }
         UpdateCompleteButtonState();
-        UpdateSynergyUI();
         ValidateDeckAndUpdateUI();
+        UpdateSynergyUI();
     }
     private void ValidateDeckAndUpdateUI()
     {
-        // 1. 현재 덱의 유닛 리스트 가져오기
+        // 1. 덱 데이터 및 슬롯 제한 가져오기
         List<BaseUnitData> currentDeck = PlayerDataManager.Instance.DeckPresets[_currentDeckIndex].BaseUnitDatas;
-
-        // 2. 덱에 유닛이 하나도 없으면 비활성화 (기존 로직)
-        if (currentDeck.All(data => data == null))
-        {
-            completeButton.interactable = false;
-            return;
-        }
-
-        // 3. PlayerDataManager에서 현재 최대 슬롯 수 가져오기
         int maxEpicUnits = PlayerDataManager.Instance.EpicUnitSlots;
         int maxRareUnits = PlayerDataManager.Instance.RareUnitSlots;
 
-        // 4. 현재 덱의 등급별 유닛 수 세기
-        int currentEpicCount = currentDeck.Count(data => data != null && data.rarity == Rarity.epic);
-        int currentRareCount = currentDeck.Count(data => data != null && data.rarity == Rarity.rare);
+        // 2. 현재 유효한 등급 유닛 카운터
+        int validEpicCount = 0;
+        int validRareCount = 0;
 
-        // 5. 유효성 검사
-        if (currentEpicCount > maxEpicUnits)
+        bool isDeckValid = true; // 덱이 유효한지(편성 완료 가능한지)
+        string popupMessage = ""; // 팝업에 띄울 메시지
+
+        // 3. (핵심) 모든 덱 슬롯 UI를 순회
+        for (int i = 0; i < unitSlots.Count; i++)
         {
-            // 에픽 슬롯 초과 (병영 파괴/판매됨)
-            //completeButton.interactable = false;
-            //UIManager.Instance.ShowInfoPopup($"병영이 파괴되어 에픽 유닛({currentEpicCount}/{maxEpicUnits})을 사용할 수 없습니다. 덱을 수정해주세요.");
+            if (unitSlots[i] == null) continue; // 슬롯 UI가 없으면 건너뛰기
+
+            BaseUnitData unitData = currentDeck[i]; // 해당 슬롯의 데이터
+
+            if (unitData == null)
+            {
+                // 빈 슬롯은 항상 유효
+                unitSlots[i].SetValidationState(true);
+                continue;
+            }
+
+            // 4. 등급별 유효성 검사
+            if (unitData.rarity == Rarity.epic)
+            {
+                if (validEpicCount < maxEpicUnits)
+                {
+                    // 허용 범위 내의 에픽
+                    unitSlots[i].SetValidationState(true);
+                    validEpicCount++;
+                }
+                else
+                {
+                    // 허용 범위를 초과한 에픽
+                    unitSlots[i].SetValidationState(false); // ✨ 불투명 레이어 켜기
+                    isDeckValid = false;
+                    popupMessage = $"병영 레벨이 낮아 \n에픽 유닛을 사용할 수 없습니다.\n덱을 수정해주세요.";
+                }
+            }
+            else if (unitData.rarity == Rarity.rare)
+            {
+                if (validRareCount < maxRareUnits)
+                {
+                    // 허용 범위 내의 레어
+                    unitSlots[i].SetValidationState(true);
+                    validRareCount++;
+                }
+                else
+                {
+                    // 허용 범위를 초과한 레어
+                    unitSlots[i].SetValidationState(false); // ✨ 불투명 레이어 켜기
+                    isDeckValid = false;
+                    popupMessage = $"병영 레벨이 낮아\n레어 유닛을 사용할 수 없습니다.\n덱을 수정해주세요.";
+                }
+            }
+            else // Common
+            {
+                unitSlots[i].SetValidationState(true); // 커먼은 항상 유효
+            }
         }
-        else if (currentRareCount > maxRareUnits)
+
+        // 5. 최종 버튼 상태 결정 및 팝업 띄우기
+        completeButton.interactable = isDeckValid;
+        if (!isDeckValid)
         {
-            // 레어 슬롯 초과
-            completeButton.interactable = false;
-            //UIManager.Instance.ShowInfoPopup($"병영 레벨이 낮아 레어 유닛({currentRareCount}/{maxRareUnits})을 사용할 수 없습니다. 덱을 수정해주세요.");
-        }
-        else
-        {
-            // 모든 조건 통과
-            completeButton.interactable = true;
+            laterUpdatePopup.Show(popupMessage);
         }
     }
+
     private void UpdateSynergyUI()
     {
         uiDeckSynergy?.CheckDeckUnitSynergy(PlayerDataManager.Instance.DeckPresets[_currentDeckIndex].BaseUnitDatas);
