@@ -102,7 +102,7 @@ public class UIChallengeElement : MonoBehaviour
             case EffectTarget.System:
                 return "특수 효과;";
             default:
-                return target.ToString();
+                return "미구현";
         }
     }
 
@@ -127,7 +127,7 @@ public class UIChallengeElement : MonoBehaviour
             case StatType.Timer:
                 return "영웅 타이머";
             default:
-                return type.ToString();
+                return "미구현";
         }
     }
 }
