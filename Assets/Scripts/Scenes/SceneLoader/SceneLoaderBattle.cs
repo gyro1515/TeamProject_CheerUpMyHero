@@ -33,10 +33,11 @@ public class SceneLoaderBattle : MonoBehaviour
         Instantiate(map);
         AudioManager.PlayOneShot(DataManager.AudioData.BattleStartSE);
 
-        if (!GameManager.IsTutorialCompleted)
+        // 초기화 순서상 UIPause보다 뒤에 있어야 함 따라서 UIPause Start()에서 호출로 변경
+        /*if (!GameManager.IsTutorialCompleted)
         {
             UIManager.Instance.GetUI<UITutorialBattle>();
-        }
+        }*/
     }
 
     /*private void Update()

@@ -114,6 +114,10 @@ public class UIDeckSynergyForBattleScene : MonoBehaviour
         }
         UpdateSynergyUI();
     }
+    private void OnDisable()
+    {
+        finishTutorialDeckSettingEventSub.Unsubscribe(UpdateSynergyUI);
+    }
     void UpdateSynergyUI(FinishTutorialDeckSettingEvent e)
     {
         UpdateSynergyUI();
