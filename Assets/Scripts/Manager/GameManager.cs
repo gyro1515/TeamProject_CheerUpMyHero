@@ -64,9 +64,11 @@ public class GameManager : SingletonMono<GameManager>
         // 튜토리얼 완료 여부 설정
         // TODO: 서버에서 불러오기
         isTutorialCompleted = false;
+        Application.targetFrameRate = 120;
     }
     private void Update()
     {
+#if UNITY_EDITOR
         // 테스트
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
@@ -122,6 +124,7 @@ public class GameManager : SingletonMono<GameManager>
                 enemyHQ.CurHp = enemyHQ.MaxHp * 0.5f;
             }
         }
+#endif
         if (IsBattleStarted)
         {
             PlayerDataManager.Instance.AddFoodOverTime(Time.deltaTime);
