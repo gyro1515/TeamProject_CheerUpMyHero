@@ -68,12 +68,13 @@ public class EnemyHQ : BaseHQ
     protected override void Update()
     {
         base.Update();
-        
+#if UNITY_EDITOR
         // 테스트 키
         if(Input.GetKeyDown(KeyCode.Alpha4))
         {
             WaveSystem.SpawnDefenseWave();
         }
+#endif
     }
     public override void Dead()
     {
