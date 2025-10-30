@@ -183,9 +183,13 @@ public class ArtifactManager : SingletonMono<ArtifactManager>
             OwnedArtifacts = JsonConvert.DeserializeObject<List<ArtifactData>>(ownedList, settings);
             List<ArtifactData> equippedData = JsonConvert.DeserializeObject<List<ArtifactData>>(equippedList, settings);
 
-            for (int i = 0; i < equippedData.Count; i++)
+            for (int i = 0; i < equippedData.Count && i < ArtifactSlotCount; i++)
             {
-                EquipArtifact(equippedData[i], i);
+                if (equippedData[i] != null)
+                {
+                    EquippedArtifacts[i] = equippedData[i];  // 직접 할당
+                    Debug.Log($"[ArtifactManager] Slot {i}에 유물 복원: {equippedData[i].name}");
+                }
             }
 
         }
@@ -207,6 +211,9 @@ public class ArtifactManager : SingletonMono<ArtifactManager>
             AddArtifact(08010001);
             AddArtifact(08010002);
         }
+
+        OnEquippedArtifactChanged?.Invoke();
+        OnOwnedArtifactsChanged?.Invoke();
     }
 
     private void InitializeEquippedArtifacts()      // 유물 초기화 메서드 -> 없으면 NullReference 생기더라구요
