@@ -105,7 +105,14 @@ public class UISettingMenu : BaseUI
         _fpsSettingButton.onClick.AddListener(OnFPSSettingButtonClicked);
         _tutorialRetryButton.onClick.AddListener(OnTutorialRetryButtonClicked);
         _giveUpButton.onClick.AddListener(OnGiveUpButtonClicked);
-        _exitButton.onClick.AddListener(OnExitButtonClicked);
+        if (_exitButton != null)
+        {
+            _exitButton.onClick.AddListener(OnExitButtonClicked);
+        }
+        else
+        {
+            Debug.LogWarning("_exitButton이 현재 씬에 할당(연결)되지 않았습니다.");
+        }
         _resumeButton.onClick.AddListener(OnResumeButtonClicked);
 
         /*_allPanels = new List<CanvasGroup>
@@ -128,7 +135,14 @@ public class UISettingMenu : BaseUI
     }
     private void OnExitButtonClicked()
     {
-        _exitPanel.OpenUI();
+        if (_exitPanel != null)
+        {
+            _exitPanel.OpenUI();
+        }
+        else
+        {
+            Debug.LogWarning("Exit Panel이 현재 씬에 할당(연결)되지 않았습니다.");
+        }
     }
     private void OnDisable()
     {
