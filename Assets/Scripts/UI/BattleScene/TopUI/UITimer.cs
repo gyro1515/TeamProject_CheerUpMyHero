@@ -25,7 +25,8 @@ public class UITimer : MonoBehaviour
     HeroData selectedHeroData; // 소환할 용사 데이터
     bool checkUnknownHero = false; // 용사 알 수 없음 체크용
     bool isFirstWaveSpeachDone = false; // 첫 웨이브 대사 출력 여부 체크
-
+    float tutorialTotalTime = 40f; // 튜토리얼용 총 시간
+    float tutorialFirstWaveSpeachTime = 30f; // 튜토리얼 첫 웨이브 대사 출력 시간
     private void Awake()
     {
         // HQ정보 가져와서 시간 세팅하기
@@ -63,11 +64,11 @@ public class UITimer : MonoBehaviour
             UpdateTimer();
 
             // 튜토리얼 미완료 시 10초 전에 첫 웨이브 컷씬 대사 출력
-            if (!GameManager.IsTutorialCompleted && !isFirstWaveSpeachDone && remainTime <= 10f)
+            if (!GameManager.IsTutorialCompleted && !isFirstWaveSpeachDone && remainTime <= tutorialFirstWaveSpeachTime)
             {
                 isFirstWaveSpeachDone = true;
                 //uIHeroCinematic.OpenHeroCinematic(HeroCinematicType.CutSceneForFirstWave);
-                UIManager.Instance.GetUI<UITurorialHero>();
+                UIManager.Instance.GetUI<UITutorialHero>();
             }
 
             // 타이머 3초 전에 소환 예정 대사 출력
@@ -115,7 +116,7 @@ public class UITimer : MonoBehaviour
         }
         else
         {
-            this.totalTime = 15f; // 튜토리얼에서는 15초로 고정
+            this.totalTime = tutorialTotalTime; // 튜토리얼에서는 15초로 고정
         }
 
 

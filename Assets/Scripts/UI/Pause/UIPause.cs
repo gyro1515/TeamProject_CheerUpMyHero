@@ -18,9 +18,12 @@ public class UIPause : BaseUI, IBackButtonHandler
     private CanvasGroup _settingPanelCanvasGroup;
     BasePopUpUI _settingPanelPopUpUI;
 
+    IEventSubscriber<TutorialSkipEvent> tutorialSkipEventSub;
 
     private void Awake()
     {
+        tutorialSkipEventSub = EventManager.GetSubscriber<TutorialSkipEvent>();
+        tutorialSkipEventSub.Subscribe(ApplyCurSpeed);
         _pauseButton.onClick.AddListener(OnPauseButtonClicked);
 
         _settingPanelPopUpUI = _settingPanel.GetComponent<BasePopUpUI>();
@@ -55,6 +58,10 @@ public class UIPause : BaseUI, IBackButtonHandler
         {
             UIManager.Instance.GetUI<UITutorialBattle>();
         }
+    }
+    private void OnDisable()
+    {
+        tutorialSkipEventSub.Unsubscribe(ApplyCurSpeed);
     }
     private void OnPauseButtonClicked()
     {
@@ -128,6 +135,11 @@ public class UIPause : BaseUI, IBackButtonHandler
         //Debug.Log($"[SpeedBtn] 현재 배속: {speed}");
     }
 
+    void ApplyCurSpeed(TutorialSkipEvent e)
+    {
+        Time.timeScale = (int)CurrentSpeed;
+        speedText.text = $"x{(int)CurrentSpeed}";
+    }
     public void OnBackPressed()
     {
         Debug.Log("[UIPause] 뒤로 가기 버튼 눌림");
