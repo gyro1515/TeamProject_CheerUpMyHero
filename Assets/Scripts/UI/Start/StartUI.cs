@@ -1,14 +1,18 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class StartUI : BaseUI
 {
+    private string _userId;
+    [SerializeField] private TMP_Text _idText;
     [Header("UI 그룹 참조")]
     [SerializeField] private GameObject firstStartGroup;  // "아무곳이나 클릭하세요" 그룹
     [SerializeField] private SecondStartGroup secondStartGroup;
     [SerializeField] private StoryScrollController storyScrollController;
     [Header("클릭 버튼")]
     [SerializeField] private Button clickToMove;
+    
 
     private void Start()
     {
@@ -75,5 +79,11 @@ public class StartUI : BaseUI
                 }
             }
         }
+    }
+
+    public void SetPlayerId(string userId)
+    {
+        _userId = userId;
+        _idText.text = $"Guest Id:\n{_userId}";
     }
 }

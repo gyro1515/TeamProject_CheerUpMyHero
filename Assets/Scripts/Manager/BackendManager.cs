@@ -263,6 +263,8 @@ public class BackendManager : SingletonMono<BackendManager>
             // 로그인 성공시 결과 표시
             Debug.Log($"<color=cyan>익명 로그인 성공! PlayerID: {AuthenticationService.Instance.PlayerId}</color>");
 
+            UIManager.Instance.GetUI<StartUI>().SetPlayerId(AuthenticationService.Instance.PlayerId);
+
             return true;
         }
         catch (AuthenticationException ex)
