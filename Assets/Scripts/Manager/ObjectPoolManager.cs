@@ -147,7 +147,10 @@ public enum PoolType // *******251016: 새로운 풀링 오브젝트 추가시 �
     FXMapExplosion3,
     FXHealEffect,
     #endregion
-    Allies_UnitGolem
+    Allies_UnitGolem,
+    HealAmount,
+    DealAmountPlayer,
+    DealAmountEnemy,
 }
 
 public class ObjectPoolManager : SingletonMono<ObjectPoolManager>, ISceneResettable
