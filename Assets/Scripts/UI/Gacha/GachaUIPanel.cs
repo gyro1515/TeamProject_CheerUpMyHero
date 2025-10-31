@@ -173,7 +173,7 @@ public class GachaUIPanel : BaseUI, IBackButtonHandler
                 {
                     Debug.Log("BackendManager [한정/픽업] (천장) 뽑기 호출 중...");
                     //'페이지별 확정 에픽 뽑기' 함수 요청 필요
-                    resultId = await BackendManager.OneNormalGachaAsync(); // 임시
+                    resultId = await BackendManager.OnePickUpGachaAsync(); 
                 }
                 else // currentPage == 1
                 {
@@ -191,9 +191,8 @@ public class GachaUIPanel : BaseUI, IBackButtonHandler
                 if (currentPage == 0)
                 {
                     Debug.Log("BackendManager [한정/픽업] 뽑기 호출 중...");
-                    //"한정 뽑기" 함수 만들어주면 교체
-                    // resultId = await BackendManager.OneLimitedGachaAsync();
-                    resultId = await BackendManager.OneNormalGachaAsync(); // 임시
+
+                    resultId = await BackendManager.OnePickUpGachaAsync();
                 }
                 else // currentPage == 1
                 {
@@ -282,7 +281,7 @@ public class GachaUIPanel : BaseUI, IBackButtonHandler
                 if (currentPity + 1 >= pityLimit)
                 {
                     Debug.LogWarning($"<color=yellow>[천장 발동!]</color> {currentPage + 1}페이지 (뽑기 {i + 1}/10), 확정 에픽!");
-                    if (currentPage == 0) resultId = await BackendManager.OneNormalGachaAsync();
+                    if (currentPage == 0) resultId = await BackendManager.OnePickUpGachaAsync();
                     else resultId = await BackendManager.OneNormalGachaAsync();
 
                     resultId = GetForcedEpicResult(currentPage);
@@ -290,7 +289,7 @@ public class GachaUIPanel : BaseUI, IBackButtonHandler
                 }
                 else
                 {
-                    if (currentPage == 0) resultId = await BackendManager.OneNormalGachaAsync();
+                    if (currentPage == 0) resultId = await BackendManager.OnePickUpGachaAsync();
                     else resultId = await BackendManager.OneNormalGachaAsync();
 
                     isEpicResult = IsResultEpic(resultId);
@@ -346,7 +345,7 @@ public class GachaUIPanel : BaseUI, IBackButtonHandler
 
         if (pageIndex == 0) // 1페이지 (한정/픽업)
         {
-            epicPool = new List<int> { 120003,125001,125002, 125003 };
+            epicPool = new List<int> {125001}; // 현재 픽업중인 유닛만 줌
         }
         else // 2페이지 (상시)
         {

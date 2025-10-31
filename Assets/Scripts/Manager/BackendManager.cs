@@ -263,6 +263,8 @@ public class BackendManager : SingletonMono<BackendManager>
             // 로그인 성공시 결과 표시
             Debug.Log($"<color=cyan>익명 로그인 성공! PlayerID: {AuthenticationService.Instance.PlayerId}</color>");
 
+            UIManager.Instance.GetUI<StartUI>().SetPlayerId(AuthenticationService.Instance.PlayerId);
+
             return true;
         }
         catch (AuthenticationException ex)
@@ -564,7 +566,7 @@ public class BackendManager : SingletonMono<BackendManager>
 
     public static async UniTask<PlayerSaveData> LoadDataAsync()
     {
-        var status = await CanCommunicateAsync(nameof(SaveDataAsync));
+        var status = await CanCommunicateAsync(nameof(LoadDataAsync));
         if (status != CommunicationStatus.Success)
         {
             throw new InvalidOperationException("서버와 통신할 수 없는 상태입니다.");
@@ -575,7 +577,7 @@ public class BackendManager : SingletonMono<BackendManager>
 
     public static async UniTask<int> OneNormalGachaAsync()
     {
-        var status = await CanCommunicateAsync(nameof(SaveDataAsync));
+        var status = await CanCommunicateAsync(nameof(OneNormalGachaAsync));
         if (status != CommunicationStatus.Success)
         {
             throw new InvalidOperationException("서버와 통신할 수 없는 상태입니다.");
@@ -584,9 +586,21 @@ public class BackendManager : SingletonMono<BackendManager>
         return await Instance.EnqueueRequestAsync(() => Instance.InternalOneNormalGachaAsync(), nameof(OneNormalGachaAsync));
     }
 
+    public static async UniTask<int> OnePickUpGachaAsync()
+    {
+        var status = await CanCommunicateAsync(nameof(OnePickUpGachaAsync));
+        if (status != CommunicationStatus.Success)
+        {
+            throw new InvalidOperationException("서버와 통신할 수 없는 상태입니다.");
+        }
+
+        return await Instance.EnqueueRequestAsync(() => Instance.InternalOnePickUpGachaAsync(), nameof(OnePickUpGachaAsync));
+    }
+
+
     public static async UniTask<List<int>> TenNormalGachaAsync()
     {
-        var status = await CanCommunicateAsync(nameof(SaveDataAsync));
+        var status = await CanCommunicateAsync(nameof(TenNormalGachaAsync));
         if (status != CommunicationStatus.Success)
         {
             throw new InvalidOperationException("서버와 통신할 수 없는 상태입니다.");
@@ -733,6 +747,23 @@ public class BackendManager : SingletonMono<BackendManager>
             //클라우드에서 가챠 실행
             var module = new GachaModuleBindings(CloudCodeService.Instance);
             var result = await module.DrawGachaItem();
+
+            return result;
+        }
+        catch (CloudCodeException exception)
+        {
+            Debug.LogException(exception);
+            throw;
+        }
+    }
+
+    private async UniTask<int> InternalOnePickUpGachaAsync()
+    {
+        try
+        {
+            //클라우드에서 가챠 실행
+            var module = new GachaModuleBindings(CloudCodeService.Instance);
+            var result = await module.DrawPickUPItem();
 
             return result;
         }
