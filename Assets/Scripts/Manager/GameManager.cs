@@ -326,11 +326,6 @@ public class GameManager : SingletonMono<GameManager>
             RewardPanelUI?.OpenUI(-penalties.gold, -penalties.wood, -penalties.iron, -penalties.magicStone, false);
         }
 
-        if (PlayerDataManager.Instance != null)
-        {
-            PlayerDataManager.Instance.activeChallenges.Clear();
-        }
-
         await PlayerDataManager.Instance.SaveDataToCloudAsync();
     }
     public async UniTaskVoid ClearStage()
