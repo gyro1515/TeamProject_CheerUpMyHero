@@ -59,15 +59,25 @@ public class BaseController : MonoBehaviour, IAttackable, IDamageable
 
         // 이펙트 소환
         GameObject fxGO;
+        // 데미지양GO 소환
+        GameObject damageGO;
         if (baseCharacter is Player player || baseCharacter is PlayerUnit playerUnit || baseCharacter is PlayerHQ playerHQ)
         {
             fxGO = ObjectPoolManager.Instance.Get(PoolType.FXPlayerUnitHit);
             fxGO.transform.position = baseCharacter.transform.position + Vector3.up * 0.7f;
+            damageGO = ObjectPoolManager.Instance.Get(PoolType.DealAmountEnemy);
+            DealAmountEnemy dealAmount = damageGO.GetComponent<DealAmountEnemy>();
+            dealAmount.SetAmount(Mathf.CeilToInt(damage));
+            damageGO.transform.position = baseCharacter.transform.position + Vector3.up * 1.85f;
         }
         else if (baseCharacter is EnemyUnit enemyUnit || baseCharacter is EnemyHQ enemyHQ)
         {
             fxGO = ObjectPoolManager.Instance.Get(PoolType.FXEnemyUnitHit);
             fxGO.transform.position = baseCharacter.transform.position + Vector3.up * 0.7f;
+            damageGO = ObjectPoolManager.Instance.Get(PoolType.DealAmountPlayer);
+            DealAmountPlayer dealAmount = damageGO.GetComponent<DealAmountPlayer>();
+            dealAmount.SetAmount(Mathf.CeilToInt(damage));
+            damageGO.transform.position = baseCharacter.transform.position + Vector3.up * 1.85f;
         }
     }
     public virtual void Dead()
@@ -120,6 +130,16 @@ public class BaseController : MonoBehaviour, IAttackable, IDamageable
     {
         if (baseCharacter.IsDead) return;
         baseCharacter.CurHp += amount;
+        // 힐양GO 소환: 힐은 일단 모두 같은 오브젝트 풀 사용
+        GameObject healGO;
+        healGO = ObjectPoolManager.Instance.Get(PoolType.HealAmount);
+        HealAmount healAmount = healGO.GetComponent<HealAmount>();
+        healAmount.SetAmount(Mathf.CeilToInt(amount));
+        healGO.transform.position = baseCharacter.transform.position + Vector3.up * 1.85f;
+        /*if (baseCharacter is Player player || baseCharacter is PlayerUnit playerUnit || baseCharacter is PlayerHQ playerHQ)
+        {
+            
+        }*/
     }
     public bool IsDead()
     {
