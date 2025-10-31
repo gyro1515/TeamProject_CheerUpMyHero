@@ -118,7 +118,7 @@ public class UIActiveAFSlot : MonoBehaviour
     }
     void SetSlotByType(ArtifactData data)
     {
-        afNameText.text = data.name;
+        afNameText.text = null;
         slotIcon.sprite = Resources.Load<Sprite>(data.iconSpritePath);
 
         switch (data.artifactType)
@@ -127,7 +127,7 @@ public class UIActiveAFSlot : MonoBehaviour
                 ActiveArtifactData acAfData = data as ActiveArtifactData;
                 currentLevelData = acAfData.levelData[acAfData.curLevel]; // 현재 레벨 데이터 저장
 
-                costText.text = $"* {acAfData.cost}";
+                costText.text = $"{acAfData.cost}";
                 cooldown = currentLevelData.coolTime;
                 manaCost = acAfData.cost;
 
