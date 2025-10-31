@@ -92,7 +92,7 @@ public class PlayerController : BaseController
         }
         gameObject.transform.position += player.MoveDir * player.MoveSpeed * Time.fixedDeltaTime;
         Vector3 playerPosition = playerTransform.position;
-        playerPosition.x = Mathf.Clamp(playerTransform.position.x, minX, maxX);
+        if(!IsDead()) playerPosition.x = Mathf.Clamp(playerTransform.position.x, minX, maxX);
         playerTransform.position = playerPosition;
     }
     protected override void OnDisable()

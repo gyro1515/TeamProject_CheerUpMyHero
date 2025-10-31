@@ -447,6 +447,9 @@ public class BackendManager : SingletonMono<BackendManager>
     //인터넷 연결 선제적 확인
     private static async UniTask<bool> IsNetworkAvailableAsync(bool forceCheck)
     {
+#if UNITY_WEBGL
+        return true;
+#else
         //캐시가 만료되지 않았다면, 이전 네트워크 결과 불러오기
         if (!forceCheck && Time.realtimeSinceStartup - _lastNetworkCheckTime < Constants.NETWORK_CACHE_DURATION && _isNetworkAvailableCache)
         {
@@ -491,6 +494,8 @@ public class BackendManager : SingletonMono<BackendManager>
         {
             request.Dispose(); //네트워크 관련 등 GC가 처리 못하는 것 수동 처리
         }
+#endif
+
     }
 
 
@@ -536,7 +541,7 @@ public class BackendManager : SingletonMono<BackendManager>
         return CommunicationStatus.Success;
     }
 
-    #endregion
+#endregion
 
 
     // ===================================================================

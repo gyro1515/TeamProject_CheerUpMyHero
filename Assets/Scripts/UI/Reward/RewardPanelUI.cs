@@ -68,9 +68,9 @@ public class RewardPanelUI : BaseUI
         //ironText.text = $"철괴 + {iron}";
         //magicStoneText.text = $"마력석 + {magicStone}";
         // 골드 보상/페널티
-        victoryButtonGroup.SetActive(isVictory);
-        defeatButtonGroup.SetActive(!isVictory);
-        penaltyInfoText.gameObject.SetActive(!isVictory && GameManager.IsTutorialCompleted);
+        victoryButtonGroup?.SetActive(isVictory);
+        defeatButtonGroup?.SetActive(!isVictory);
+        penaltyInfoText?.gameObject.SetActive(!isVictory && GameManager.IsTutorialCompleted);
      
         if (!isVictory && GameManager.IsTutorialCompleted)
         {
