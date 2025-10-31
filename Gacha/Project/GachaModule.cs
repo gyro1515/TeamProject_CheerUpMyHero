@@ -15,8 +15,7 @@ public class RarityInfo
 {
     public Rarity rarity { get; set; }
     public int Weight { get; set; }
-    public int MinIndex { get; set; }
-    public int MaxIndex { get; set; }
+    public List<int> IDs { get; set; } = new List<int>();
 }
 
 public class GachaModule
@@ -24,9 +23,9 @@ public class GachaModule
     //확률표 세팅
     private readonly List<RarityInfo> _rarityTable = new List<RarityInfo>
     {
-        new RarityInfo { rarity = Rarity.Epic, Weight = 25, MinIndex = 125001, MaxIndex = 125003 },
-        new RarityInfo { rarity = Rarity.Rare, Weight = 180, MinIndex = 115001, MaxIndex = 115005 },
-        new RarityInfo { rarity = Rarity.Common, Weight = 795, MinIndex = 105001, MaxIndex = 105010 }
+        new RarityInfo { rarity = Rarity.Epic, Weight = 25, IDs = new List<int>(){120001, 120002, 120003, 125001, 125002, 125003 } },
+        new RarityInfo { rarity = Rarity.Rare, Weight = 180, IDs = new List<int>(){110001, 110002, 110003, 110004, 110005, 110006, 110007, 115001, 115002, 115003, 115004, 115005 } },
+        new RarityInfo { rarity = Rarity.Common, Weight = 795, IDs = new List<int>(){105001, 105002, 105003, 105004, 105005, 105006, 105007, 105008, 105009, 105010 } }
     };
 
     [CloudCodeFunction("DrawGachaItem")]
@@ -87,8 +86,30 @@ public class GachaModule
     private int SelectItemId(RarityInfo selectedRarity)
     {
         Random rand = new Random();
-        return rand.Next(selectedRarity.MinIndex, selectedRarity.MaxIndex + 1);
+        int index = rand.Next(0, selectedRarity.IDs.Count);
+        return selectedRarity.IDs[index];
     }
 
+    [CloudCodeFunction("DrawPickUPItem")]
+    public int DrawPickUPItem()
+    {
+        //등급 결정
+        RarityInfo selectedRarity = SelectRarity();
+
+        //ID 선택
+        int selectedItemId = SelectItemId(selectedRarity);
+
+        if (selectedRarity.rarity == Rarity.Epic)
+        {
+            Random rand = new Random();
+            int num = rand.Next(0, 2);
+            if (num == 0)
+            {
+                selectedItemId = 125001;
+            }
+        }
+
+        return selectedItemId;
+    }
 
 }
