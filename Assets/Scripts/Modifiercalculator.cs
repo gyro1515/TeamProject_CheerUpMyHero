@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 
@@ -32,6 +33,40 @@ public static class Modifiercalculator
 
         return multiplier;
     }
+
+    //public static float GetSetValue(EffectTarget target, StatType type)
+    //{
+    //    StageDestinyData destiny = PlayerDataManager.Instance.currentDestiny;
+
+    //    if (destiny != null && destiny.modifiers != null)
+    //    {
+    //        foreach (var modifier in destiny.modifiers)
+    //        {
+    //            if (modifier.effectTarget == target && modifier.statType == type && modifier.valueModificationType == ValueModificationType.Set)
+    //            {
+    //                return modifier.value;
+    //            }
+    //        }
+    //    }
+
+    //    Dictionary<int, int> challenges = PlayerDataManager.Instance.activeChallenges;
+
+    //    if (challenges != null)
+    //    {
+    //        foreach (var challenge in challenges)
+    //        {
+    //            int id = challenge.Key;
+    //            int iv = challenge.Value;
+
+    //            StageChallengeData challengeData = DataManager.Instance.StageModifierData.GetData(id) as StageChallengeData;
+
+    //            if (challengeData != null && challengeData.effectTarget == target && challengeData.statType == type && challengeData.valueModificationType == ValueModificationType.Set)
+    //            {
+    //                return 
+    //            }
+    //        }
+    //    }
+    //}
 
     #region 효과별 보너스 값 계산
     private static float CalculateStatBonus(EffectTarget target, StatType type, BaseUnitData unitData = null)
@@ -239,6 +274,38 @@ public static class Modifiercalculator
             default:
                 return 0f;
         }
+    }
+
+    // 현재 덱 유닛 데이터 리스트 
+    private static List<BaseUnitData> GetcurrentDeckUnits()
+    {
+        if (PlayerDataManager.Instance == null)
+            return new List<BaseUnitData>();
+
+        int activeDeckIndex = PlayerDataManager.Instance.ActiveDeckIndex;
+        if (PlayerDataManager.Instance.DeckPresets.TryGetValue(activeDeckIndex, out DeckData deckData))
+        {
+            return deckData.BaseUnitDatas.Where(data => data != null).ToList();
+        }
+        return new List<BaseUnitData>();
+    }
+
+    // 유닛 시너지 추출용 함수
+    private static UnitSynergyType GetNationSynergy(BaseUnitData unitData)
+    {
+        if (unitData == null) return UnitSynergyType.None;
+
+        if ((unitData.synergyType & UnitSynergyType.Kingdom) != 0)
+        {
+            return UnitSynergyType.Kingdom;
+        }
+
+        if ((unitData.synergyType & UnitSynergyType.Empire) != 0)
+        {
+            return UnitSynergyType.Empire;
+        }
+
+        return UnitSynergyType.None;
     }
     #endregion
 }
