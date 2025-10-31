@@ -118,7 +118,7 @@ public class UIActiveAFSlot : MonoBehaviour
     }
     void SetSlotByType(ArtifactData data)
     {
-        afNameText.text = null;
+        afNameText.text = "";
         slotIcon.sprite = Resources.Load<Sprite>(data.iconSpritePath);
 
         switch (data.artifactType)
