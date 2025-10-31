@@ -53,15 +53,19 @@ public class UIPause : BaseUI, IBackButtonHandler
         {
             Debug.LogWarning("[UIPause] enemyHQ 또는 WaveSystem을 찾을 수 없습니다. (StartScene에서는 정상 동작입니다)");
         }
-        UIManager.PubishAddUIStackEvent(this);
         // 배틀씬에서만 배틀 튜토리얼 호출 가능하도록
         if(SceneLoader.CurrentSceneState == SceneState.BattleScene && !GameManager.IsTutorialCompleted)
         {
             UIManager.Instance.GetUI<UITutorialBattle>();
         }
     }
+    private void OnEnable()
+    {
+        UIManager.PubishAddUIStackEvent(this);
+    }
     private void OnDisable()
     {
+        UIManager.PublishRemoveUIStackEvent();
         tutorialSkipEventSub.Unsubscribe(ApplyCurSpeed);
     }
     private void OnPauseButtonClicked()
