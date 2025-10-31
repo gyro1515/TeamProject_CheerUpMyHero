@@ -127,7 +127,7 @@ public class DeckPresetController : BaseUI, IBackButtonHandler
         deckTabController.OnEditIconClicked += EnterEditMode;
         // 나머지 기능 버튼들에 이벤트 연결
         resetButton.onClick.AddListener(OnResetClicked);
-        completeButton.onClick.AddListener(OnCompleteClicked);
+        completeButton.onClick.AddListener(()=> { OnCompleteClicked().Forget(); });
         adviserButton.onClick.AddListener(GoToMainScene);
         confirmNameButton.onClick.AddListener(() => { OnConfirmNameChange().Forget(); });
         cancelNameButton.onClick.AddListener(editNamePanel.CloseUI);
@@ -346,26 +346,78 @@ public class DeckPresetController : BaseUI, IBackButtonHandler
         UpdateUnitSlotsUI();
     }
 
-    private void OnCompleteClicked()
+    private async UniTaskVoid OnCompleteClicked()
     {
+        // 1. 버튼을 즉시 비활성화하여 중복 클릭을 막습니다.
+        completeButton.interactable = false;
 
-        List<int> currentDeck = PlayerDataManager.Instance.DeckPresets[_currentDeckIndex].UnitIds;
-        bool hasEmptySlot = currentDeck.Contains(-1);
-        bool dontAskAgain = PlayerPrefs.GetInt("DontAskAgain_EmptyDeck", 0) == 1;
-
-
-        if (hasEmptySlot && !dontAskAgain)
+        try
         {
-            confirmationPopup.Open(() => { CompleteFormationDirect().Forget();});
+            List<int> currentDeck = PlayerDataManager.Instance.DeckPresets[_currentDeckIndex].UnitIds;
+            bool hasEmptySlot = currentDeck.Contains(-1);
+            bool dontAskAgain = PlayerPrefs.GetInt("DontAskAgain_EmptyDeck", 0) == 1;
+
+            if (hasEmptySlot && !dontAskAgain)
+            {
+                // 팝업이 닫힐 때까지 기다리지는 않지만, 팝업의 확인 버튼을 누르면
+                // CompleteFormationDirect가 실행됩니다.
+                // 이 경우, 팝업 로직에 따라 연타 방지 처리를 다르게 해야 할 수도 있습니다.
+                // 여기서는 팝업의 확인 버튼이 CompleteFormationDirect를 호출한다고 가정하고,
+                // 팝업이 열리면 일단 OnCompleteClicked는 종료되므로 버튼을 다시 활성화해줍니다.
+                confirmationPopup.Open(() => {
+                    // 람다 안에서도 연타 방지를 위해 버튼을 비활성화하고 async 처리를 해줍니다.
+                    HandleCompleteConfirmationAsync().Forget();
+                });
+                // 팝업이 떴을 때는 취소할 수도 있으므로 버튼을 다시 활성화해주는 것이 UX상 좋을 수 있습니다.
+                // 만약 팝업이 뜨는 동안 버튼이 비활성화 상태를 유지해야 한다면, 
+                // 팝업의 Open 메서드가 닫힐 때 콜백을 주는 형태로 수정해야 합니다.
+                // 여기서는 간단하게 다시 활성화하겠습니다.
+                completeButton.interactable = true;
+            }
+            else
+            {
+                // 2. Forget() 대신 await를 사용하여 작업이 끝날 때까지 기다립니다.
+                await CompleteFormationDirect();
+            }
         }
-        else
+        catch (Exception ex)
         {
-            CompleteFormationDirect().Forget();
+            Debug.LogException(ex);
+            // OnCompleteClicked 레벨에서 예외가 발생할 경우를 대비
+        }
+        finally
+        {
+            // 3. try 블록의 모든 작업이 끝나면(성공하든, 예외가 발생하든) 버튼을 다시 활성화합니다.
+            //    단, 씬 전환이 일어나는 경우에는 이 코드가 실행되기 전에 오브젝트가 파괴될 수 있습니다.
+            //    씬 전환이 확실하다면 이 finally 블록이 필요 없을 수도 있습니다.
+            //    하지만 저장 실패 등 씬 전환이 안되는 경우를 위해 남겨두는 것이 안전합니다.
+            if (this != null && this.gameObject.activeInHierarchy)
+            {
+                completeButton.interactable = true;
+            }
         }
     }
 
-    //버튼에 등록하는 것 중에서 맨 마지막에 실행된다. => void로 해도 않을까?
-    private async UniTaskVoid CompleteFormationDirect()
+    // 팝업의 확인 버튼에 연결될 새로운 async 메서드
+    private async UniTaskVoid HandleCompleteConfirmationAsync()
+    {
+        completeButton.interactable = false;
+        try
+        {
+            await CompleteFormationDirect();
+        }
+        finally
+        {
+            if (this != null && this.gameObject.activeInHierarchy)
+            {
+                completeButton.interactable = true;
+            }
+        }
+    }
+
+
+
+    private async UniTask CompleteFormationDirect()
     {
         Debug.Log("편성 완료. 모든 덱 정보를 저장하고 전투씬으로 이동");
 
@@ -378,6 +430,7 @@ public class DeckPresetController : BaseUI, IBackButtonHandler
         {
             Debug.LogException(ex);
             Debug.LogWarning("에러 팝업: 에러가 나서 덱을 저장하지 못했습니다.");
+            throw;
         }
 
         
