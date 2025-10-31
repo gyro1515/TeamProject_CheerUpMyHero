@@ -73,6 +73,7 @@ public enum PassiveArtifactGrade
 // 데이터 참조 태그 : 운명&도전
 public enum DestinyType
 {
+    None,
     Fortune,
     Misfortune
 }
