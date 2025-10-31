@@ -113,13 +113,19 @@ public class UITimer : MonoBehaviour
         if (GameManager.IsTutorialCompleted)
         {
             this.totalTime = timeSyncEvent.waveTime * timeSyncEvent.maxWaveCount; // 용사 타이머는 웨이브 타임 * 최대 웨이브 수
+
+            if (PlayerDataManager.Instance.currentDestiny.idNumber == 09010003)
+            {
+                totalTime = 300;
+                Debug.Log("용사 시간 300초로 설정함");
+            }
         }
         else
         {
             this.totalTime = tutorialTotalTime; // 튜토리얼에서는 15초로 고정
         }
 
-
+        
         // TODO: totalTime은 게임 환경에 따라 여기서 길이를 조절할 수 있음 ********
         Debug.Log($"용사 타이머 세팅: {totalTime}초");
         // 타이머 시작
