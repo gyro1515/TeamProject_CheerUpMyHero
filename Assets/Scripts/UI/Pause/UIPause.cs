@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class UIPause : BaseUI, IBackButtonHandler
@@ -91,8 +92,17 @@ public class UIPause : BaseUI, IBackButtonHandler
         _speedButton.onClick.AddListener(OnClickSpeed);
         _settingMenuScript.OnResumeButton += () => ApplySpeed(CurrentSpeed); // 일시정지 해제 시 현재 배속 적용
         // 저장된 배속 값 불러오기
-        CurrentSpeed = SettingDataManager.SavedSpeed;
-        ApplySpeed(CurrentSpeed);
+        //배틀씬일때만 처음 배속 적용
+        Scene currentScene = SceneManager.GetActiveScene();
+        if (currentScene.buildIndex == 2)
+        {
+            CurrentSpeed = SettingDataManager.SavedSpeed;
+            ApplySpeed(CurrentSpeed);
+        }
+        else
+        {
+            ApplySpeed(SpeedState.X1);
+        }
     }
 
     private void OnClickSpeed()
