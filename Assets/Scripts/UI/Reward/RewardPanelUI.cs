@@ -147,6 +147,12 @@ public class RewardPanelUI : BaseUI
         // 덱 재편성 화면으로 돌아가는 로직
         Time.timeScale = 1f;
         GameManager.Instance.LoadMain = LoadMain.DeckPresetController;
+
+        if (PlayerDataManager.Instance != null)
+        {
+            PlayerDataManager.Instance.activeChallenges.Clear();
+        }
+
         SceneLoader.Instance.StartLoadScene(SceneState.MainScene);
     }
     private void OnNextStageButton()
@@ -199,6 +205,12 @@ public class RewardPanelUI : BaseUI
     private void OnReturnToMainButton()
     {
         Time.timeScale = 1f;
+
+        if (PlayerDataManager.Instance != null)
+        {
+            PlayerDataManager.Instance.activeChallenges.Clear();
+        }
+
         SceneLoader.Instance.StartLoadScene(SceneState.MainScene);
     }
 

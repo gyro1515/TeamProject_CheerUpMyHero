@@ -19,6 +19,16 @@ public class UIDeckChallengePopup : BasePopUpUI
 
         _challenges = PlayerDataManager.Instance.activeChallenges;
         
+        foreach(var element in _elements)
+        {
+            if (element != null)
+            {
+                Destroy(element.gameObject);
+            }
+        }
+
+        _elements.Clear();
+
         CreateElements();
         RefreshUI();
     }
