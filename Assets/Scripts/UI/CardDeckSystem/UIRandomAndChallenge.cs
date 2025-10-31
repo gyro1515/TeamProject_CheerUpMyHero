@@ -19,12 +19,16 @@ public class UIRandomAndChallenge : MonoBehaviour
     {
         if (!GameManager.IsTutorialCompleted) return;
 
+        if (PlayerDataManager.Instance.currentDestiny == null || PlayerDataManager.Instance.currentDestiny.destinyType == DestinyType.None) return;
+
         randomPopup.OpenUI();
     }
 
     private void OnChallengeButtonClicked()
     {
         if (!GameManager.IsTutorialCompleted) return;
+
+        if (PlayerDataManager.Instance.activeChallenges.Count == 0) return;
 
         challengePopup.OpenUI();
     }
