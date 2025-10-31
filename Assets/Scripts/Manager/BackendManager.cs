@@ -8,6 +8,7 @@ using Unity.Services.CloudCode;
 using Unity.Services.CloudCode.GeneratedBindings;
 using Unity.Services.CloudSave;
 using Unity.Services.Core;
+using Unity.Services.Core.Environments;
 using Unity.Services.Economy;
 using Unity.Services.Economy.Model;
 using UnityEngine;
@@ -197,9 +198,16 @@ public class BackendManager : SingletonMono<BackendManager>
                 }
             }
 
+            var options = new InitializationOptions();
 
-                // 1. UGS 서비스 초기화
-                await UnityServices.InitializeAsync();
+#if USERTEST
+            options.SetEnvironmentName("usertest");
+#else
+            options.SetEnvironmentName("dev");
+#endif
+
+            // 1. UGS 서비스 초기화
+            await UnityServices.InitializeAsync(options);
 
             Debug.Log($"<color=cyan>UGS 초기화 성공!</color>");
 

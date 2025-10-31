@@ -108,8 +108,8 @@ public class UIActiveAFSlot : MonoBehaviour
         }
         else
         {
-            afNameText.text = "빈 슬롯";
-            slotIcon.sprite = null;
+            //afNameText.text = "빈 슬롯";
+            //slotIcon.sprite = null;
             costText.text = "";
             slotBtn.enabled = false;
             cooldownIcon.gameObject.SetActive(false); // 쿨타임 아이콘 끄기
@@ -147,7 +147,8 @@ public class UIActiveAFSlot : MonoBehaviour
                 currentLevelData = null;
                 skillEffectInstance = null;
                 costText.text = "";
-                cooldownIcon.gameObject.SetActive(false); // 패시브는 쿨타임 아이콘 필요 없음
+                cooldownIcon.gameObject.SetActive(true); // 패시브는 쿨타임 아이콘 필요 없음
+                cooldownIcon.fillAmount = 1;
                 slotBtn.enabled = false; // 패시브는 클릭 불가
                 enabled = false; // Update 필요 없음
                 break;

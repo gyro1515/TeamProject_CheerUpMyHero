@@ -16,10 +16,6 @@ public enum LoadMain
 }
 public class GameManager : SingletonMono<GameManager>
 {
-
-    [Header("테스트용 스테이지 ID")]
-    public int currentStageID = 1001;
-
     public RewardPanelUI RewardPanelUI { get; set; }
     public UIStageClearArtifactSelect UIStageClearArtifactSelect { get; set; }
 
@@ -198,13 +194,14 @@ public class GameManager : SingletonMono<GameManager>
 
         if (isVictory) // =============== 승리했을 경우 ===============
         {
+            var StageData = PlayerDataManager.Instance.SelectedStageIdx;
+
+            StageRewardData rewardData = DataManager.Instance.RewardData.GetData((StageData.mainStageIdx + 1) * 1000 + StageData.subStageIdx + 1);
             (int mainIdx, int subIdx) = PlayerDataManager.Instance.SelectedStageIdx;
             bool isTestEndStage = (mainIdx + 1 == 2 && subIdx + 1 == 9);
 
-            StageRewardData rewardData = DataManager.Instance.RewardData.GetData(currentStageID);
             if (rewardData == null)
             {
-                Debug.LogError($"ID: {currentStageID}에 해당하는 보상 데이터를 찾을 수 없습니다!");
                 return; // 보상 데이터가 없으면 함수 종료
             }
 
@@ -272,7 +269,7 @@ public class GameManager : SingletonMono<GameManager>
             finalWood = rewardData.rewardWood + Mathf.CeilToInt(totalBaseWood * (1 + (totalBonusWoodPercent + challengeBonusPercent) / 100f));
             finalIron = rewardData.rewardIron + Mathf.CeilToInt(totalBaseIron * (1 + (totalBonusIronPercent + challengeBonusPercent) / 100f));
             finalMagicStone = Mathf.CeilToInt(rewardData.rewardMagicStone * (1 + challengeBonusPercent / 100f));
-
+            
             if (Random.Range(0, 100) < totalMagicStoneChance)
             {
                 finalMagicStone += Random.Range(totalMagicStoneMin, totalMagicStoneMax + 1);
