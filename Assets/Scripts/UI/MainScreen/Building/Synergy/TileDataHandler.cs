@@ -73,58 +73,101 @@ public class TileDataHandler
     out float cooldownReduction,
     out int rareSlots,
     out int epicSlots,
+    // tileEfficiencyBonuses는 시너지 시스템에서 계산된 '입력' 값으로 가정합니다.
     Dictionary<(int, int), float> tileEfficiencyBonuses)
     {
+        // 1. 모든 'out' 변수 초기화
         bonusMaxFood = 0;
         foodGainPercent = 0f;
         cooldownReduction = 0f;
         rareSlots = 0;
         epicSlots = 0;
 
+        // --- 2. 최고 레벨 병영을 찾기 위한 임시 변수 ---
+        BuildingUpgradeData highestLevelBarracks = null;
+
+        // --- 3. '모든' 건물을 순회하며 '중첩' 효과를 계산하고, '최고 병영'을 찾습니다 ---
         for (int y = 0; y < 5; y++)
         {
             for (int x = 0; x < 5; x++)
             {
-                if (TileStatusGrid[x, y] != TileStatus.Normal) continue;
                 var building = BuildingGridData[x, y];
-                if (building == null) continue;
+                // 건물이 없거나, 반파/수리 중이면 이 타일은 무시
+                if (building == null || TileStatusGrid[x, y] != TileStatus.Normal) continue;
 
-                //이 타일의 기본 효율을 1.0 (100%)로 시작
-                float efficiencyMultiplier = 1.0f; // '고정값' 효과에 사용할 곱셈 보너스
+                // --- 3-1. 이 건물이 '병영'이라면, 최고 레벨인지 확인 ---
+                if (building.buildingType == BuildingType.Barracks)
+                {
+                    if (highestLevelBarracks == null || building.level > highestLevelBarracks.level)
+                    {
+                        highestLevelBarracks = building; // 최고 레벨 병영으로 기록
+                    }
+                }
+
+                // --- 3-2. '중첩'되는 효과들을 계산합니다 ---
+                float efficiencyMultiplier = 1.0f;
                 float additiveBonusPercent = 0f;
 
-                //만약 이 타일에 대한 지역 보너스가 있다면, 효율에 더해줌
                 if (tileEfficiencyBonuses.TryGetValue((x, y), out float bonusPercent))
                 {
-                    efficiencyMultiplier += bonusPercent / 100.0f; 
-                    additiveBonusPercent = bonusPercent; // 덧셈용으로 퍼센트 값 저장
+                    efficiencyMultiplier += bonusPercent / 100.0f;
+                    additiveBonusPercent = bonusPercent;
                 }
 
                 foreach (var effect in building.effects)
                 {
                     switch (effect.effectType)
                     {
+                        // --- 중첩되는 효과들 (+=) ---
                         case BuildingEffectType.MaximumFood:
-                            if (building.buildingType == BuildingType.Farm) bonusMaxFood += Mathf.CeilToInt(effect.effectValueMin * efficiencyMultiplier);
+                            if (building.buildingType == BuildingType.Farm)
+                                bonusMaxFood += Mathf.CeilToInt(effect.effectValueMin * efficiencyMultiplier);
                             break;
                         case BuildingEffectType.IncreaseFoodGainSpeed:
-                            if (building.buildingType == BuildingType.Farm) foodGainPercent += effect.effectValueMin + additiveBonusPercent;
+                            if (building.buildingType == BuildingType.Farm)
+                                foodGainPercent += effect.effectValueMin + additiveBonusPercent;
                             break;
                         case BuildingEffectType.UnitCoolDown:
-                            if (building.buildingType == BuildingType.Barracks) cooldownReduction += effect.effectValueMin * additiveBonusPercent;
+                            // (병영의 쿨감 효과도 중첩된다고 가정)
+                            if (building.buildingType == BuildingType.Barracks)
+                                cooldownReduction += effect.effectValueMin * additiveBonusPercent; // (이 계산식이 맞는지 확인 필요)
                             break;
 
+                        // --- 비-중첩 효과들 (여기서는 무시) ---
                         case BuildingEffectType.CanSummonRareUnits:
-                            if (building.buildingType == BuildingType.Barracks) rareSlots += (int)effect.effectValueMin;
-                            break;
                         case BuildingEffectType.CanSummonEpicUnits:
-                            if (building.buildingType == BuildingType.Barracks) epicSlots += (int)effect.effectValueMin;
+                            // 이 효과들은 루프가 끝난 후 'highestLevelBarracks'로만 계산합니다.
                             break;
                     }
                 }
             }
         }
 
+        // --- 4.'최고 레벨 병영'의 '비-중첩' 효과를 적용합니다 ---
+        if (highestLevelBarracks != null)
+        {
+            Debug.Log($"[TileDataHandler] 최고 레벨 병영(Lv.{highestLevelBarracks.level}) 발견. 슬롯 효과 적용.");
+
+            // '최고 레벨 병영'의 효과 목록만 다시 순회합니다.
+            foreach (var effect in highestLevelBarracks.effects)
+            {
+                switch (effect.effectType)
+                {
+                    //  '=' (할당)을 사용하여 덮어씁니다 (중첩X)
+                    case BuildingEffectType.CanSummonRareUnits:
+                        rareSlots = (int)effect.effectValueMin;
+                        break;
+                    case BuildingEffectType.CanSummonEpicUnits:
+                        epicSlots = (int)effect.effectValueMin;
+                        break;
+                }
+            }
+        }
+        else
+        {
+            Debug.Log("[TileDataHandler] 활성화된 병영 건물이 없어 유닛 슬롯이 0입니다.");
+            // (rareSlots와 epicSlots는 이미 0으로 초기화됨)
+        }
     }
     public void ReduceCooldownForBuildingAt(int x, int y, int minutesToReduce)
     {
