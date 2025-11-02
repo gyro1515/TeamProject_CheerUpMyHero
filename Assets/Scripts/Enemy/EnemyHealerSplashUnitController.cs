@@ -190,15 +190,12 @@ public class EnemyHealerSplashController : BaseUnitController
 
     private IEnumerator HealAnimRoutine()
     {
-        float normalizedTime = 0f;
-        while (!enemyUnit.IsAttackAnimPlaying)
-        {
-            yield return null;
-        }
+        float normalizedTime = -1f;
+        do { normalizedTime = GetNormalizedTime(attackStateHash); yield return null; } while (normalizedTime < 0f);
 
         animator.speed = enemyUnit.StartAttackTime / enemyUnit.UnitData.attackDelayTime;
 
-        while (enemyUnit.IsAttackAnimPlaying && normalizedTime < enemyUnit.StartAttackNormalizedTime)
+        while (normalizedTime < enemyUnit.StartAttackNormalizedTime)
         {
             if (HealTarget == null || HealTarget.IsDead)
             {
@@ -217,7 +214,7 @@ public class EnemyHealerSplashController : BaseUnitController
         AudioManager.PlayOneShotByCameraDistance(DataManager.AudioData.unitHealSE, HealTarget.transform);
         animator.speed = 1f;
 
-        while (enemyUnit.IsAttackAnimPlaying && normalizedTime >= 0f && normalizedTime < 1f)
+        while (normalizedTime >= 0f && normalizedTime < 1f)
         {
             normalizedTime = GetNormalizedTime(attackStateHash);
             yield return null;
@@ -229,11 +226,8 @@ public class EnemyHealerSplashController : BaseUnitController
 
     private IEnumerator AtkAnimRoutine()
     {
-        float normalizedTime = 0f;
-        while (!enemyUnit.IsAttackAnimPlaying)
-        {
-            yield return null;
-        }
+        float normalizedTime = -1f;
+        do { normalizedTime = GetNormalizedTime(attackStateHash); yield return null; } while (!enemyUnit.IsAttackAnimPlaying && normalizedTime < 0f);
 
         animator.speed = enemyUnit.StartAttackTime / enemyUnit.UnitData.attackDelayTime;
 

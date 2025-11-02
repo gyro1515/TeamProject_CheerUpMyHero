@@ -182,11 +182,12 @@ public class EnemyMeleeSplashController : BaseUnitController
 
     private IEnumerator AtkAnimRoutine()
     {
-        float normalizedTime = 0f;
-        while (!enemyUnit.IsAttackAnimPlaying)
+        float normalizedTime = -1f;
+        do
         {
+            normalizedTime = GetNormalizedTime(attackStateHash);
             yield return null;
-        }
+        } while (!enemyUnit.IsAttackAnimPlaying && normalizedTime < 0f);
 
         animator.speed = enemyUnit.StartAttackTime / enemyUnit.UnitData.attackDelayTime;
 

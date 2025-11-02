@@ -183,11 +183,15 @@ public class PlayerController : BaseController
     IEnumerator AtkAnimRoutine()
     {
         // Attack 상태 진입 대기
-        float normalizedTime = 0f;
-        while (!player.IsAttackAnimPlaying)
+        float normalizedTime = -1f;
+        do
         {
+            if (!isAttacking)
+                yield break;
+
+            normalizedTime = GetNormalizedTime(attackStateHash);
             yield return null;
-        }
+        } while (!player.IsAttackAnimPlaying && normalizedTime < 0f);
         // 현재 기준 예시:
         // 공격 애니메이션 총 길이 0.25초
         // 0.36지점까지 = 0.09초에 해당

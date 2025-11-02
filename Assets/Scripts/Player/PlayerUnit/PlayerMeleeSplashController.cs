@@ -192,11 +192,12 @@ public class PlayerMeleeSplashController : BaseUnitController
     private IEnumerator AtkAnimRoutine()
     {
         // Attack 상태에 진입할 때까지 대기
-        float normalizedTime = 0f;
-        while (!playerUnit.IsAttackAnimPlaying)
+        float normalizedTime = -1f;
+        do
         {
+            normalizedTime = GetNormalizedTime(attackStateHash);
             yield return null;
-        }
+        } while (!playerUnit.IsAttackAnimPlaying && normalizedTime < 0f);
         // 선딜 설정
         animator.speed = playerUnit.StartAttackTime / playerUnit.UnitData.attackDelayTime;
 
