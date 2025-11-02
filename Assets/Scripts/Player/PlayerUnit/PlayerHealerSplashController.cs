@@ -303,7 +303,7 @@ public class PlayerHealerSplashController : BaseUnitController
             normalizedTime = GetNormalizedTime(attackStateHash);
             yield return null;
         }
-        HealTarget.Damageable.TakeHeal(playerUnit.AtkPower * 0.5f);
+        HealTarget.Damageable.TakeHeal(playerUnit.UnitData.healAmount);
         GameObject fxHeal = ObjectPoolManager.Instance.Get(PoolType.FXHealEffect);
         //fxHeal.transform.SetParent(HealTarget.transform);
         fxHeal.transform.position = HealTarget.transform.position + new Vector3(0f, 0.7f, 0f);
