@@ -146,7 +146,7 @@ public class EnemyUnitController : BaseUnitController
         {
             normalizedTime = GetNormalizedTime(attackStateHash);
             yield return null;
-        } while (!enemyUnit.IsAttackAnimPlaying && normalizedTime < 0f);
+        } while (normalizedTime < 0f);
 
         // 현재 기준 예시:
         // 공격 애니메이션 총 길이 0.25초
@@ -154,7 +154,7 @@ public class EnemyUnitController : BaseUnitController
         // 0.09초를 딜레이 초로 늘리려면
         animator.speed = enemyUnit.StartAttackTime / enemyUnit.UnitData.attackDelayTime;
 
-        while (enemyUnit.IsAttackAnimPlaying && normalizedTime < enemyUnit.StartAttackNormalizedTime)
+        while (normalizedTime < enemyUnit.StartAttackNormalizedTime)
         {
             if(enemyUnit.TargetUnit == null || enemyUnit.TargetUnit.IsDead()) // 공격 중에 죽었다면 브레이크
             {
@@ -168,7 +168,7 @@ public class EnemyUnitController : BaseUnitController
         Attack();
         enemyUnit.TargetUnit = null;
         animator.speed = 1f;
-        while (enemyUnit.IsAttackAnimPlaying && normalizedTime >= 0f && normalizedTime < 1f)
+        while (normalizedTime >= 0f && normalizedTime < 1f)
         {
             normalizedTime = GetNormalizedTime(attackStateHash);
             yield return null;

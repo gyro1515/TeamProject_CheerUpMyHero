@@ -36,8 +36,6 @@ MonoBehaviour:
     unitBGSprite: {fileID: 0}
     unitIconSprite: {fileID: 0}
     gachaHeroSprite: {fileID: 0}
-    healAmount: 0
-    maxTargetCount: 7
     firstWaveSpeech: "\uC9C0\uAE08 \uB3C4\uCC29 \uC911\uC774\uC57C, \uD798\uB0B4\uB3C4\uB85D."
     firstWaveSpritePath: HeroSprite/Hero1_2
     firstWaveSprite: {fileID: 0}
@@ -67,8 +65,6 @@ MonoBehaviour:
     unitBGSprite: {fileID: 0}
     unitIconSprite: {fileID: 0}
     gachaHeroSprite: {fileID: 0}
-    healAmount: 0
-    maxTargetCount: 7
     firstWaveSpeech: "\uC9C0\uD718\uAD00\uB2D8, \uC9C0\uAE08 \uD569\uB958\uD558\uACE0
       \uC788\uC2B5\uB2C8\uB2E4!"
     firstWaveSpritePath: HeroSprite/Hero2_2
@@ -99,8 +95,6 @@ MonoBehaviour:
     unitBGSprite: {fileID: 0}
     unitIconSprite: {fileID: 0}
     gachaHeroSprite: {fileID: 0}
-    healAmount: 0
-    maxTargetCount: 7
     firstWaveSpeech: "\uB098 \uC5C6\uC774\uB3C4 \uC774\uACA8\uC57C \uD558\uB294 \uAC70
       \uC544\uB0D0?"
     firstWaveSpritePath: HeroSprite/Hero3_2
@@ -132,8 +126,6 @@ MonoBehaviour:
     unitBGSprite: {fileID: 0}
     unitIconSprite: {fileID: 0}
     gachaHeroSprite: {fileID: 0}
-    healAmount: 0
-    maxTargetCount: 7
     firstWaveSpeech: "\uC88C\uD45C \uD655\uC778, \uC9C0\uAE08 \uAC00\uACA0\uC2B5\uB2C8\uB2E4."
     firstWaveSpritePath: HeroSprite/Hero4_2
     firstWaveSprite: {fileID: 0}
@@ -152,7 +144,7 @@ MonoBehaviour:
     attackRange: 5
     moveSpeed: 3.6
     attackDelayTime: 1
-    attackRate: 1.9
+    attackRate: 1.4
     isRangedAttack: 1
     attackType: 1
     spawnCooldown: 0
@@ -163,8 +155,6 @@ MonoBehaviour:
     unitBGSprite: {fileID: 0}
     unitIconSprite: {fileID: 0}
     gachaHeroSprite: {fileID: 0}
-    healAmount: 123
-    maxTargetCount: 7
     firstWaveSpeech: "\uC704\uAE30\uB97C \uAE30\uD68C\uB85C \uB9CC\uB4E4 \uB54C \uC785\uB2C8\uB2E4,
       \uC9C0\uD718\uAD00."
     firstWaveSpritePath: HeroSprite/Hero5_2
@@ -177,10 +167,10 @@ MonoBehaviour:
     rarity: 0
     unitName: "\uC218\uB3C4\uC2B9"
     unitType: 2
-    poolType: 80
+    poolType: 82
     health: 1000
     hitBack: 3
-    atkPower: 125
+    atkPower: 250
     cognizanceRange: 3
     attackRange: 1
     moveSpeed: 1
@@ -196,8 +186,6 @@ MonoBehaviour:
     unitBGSprite: {fileID: 0}
     unitIconSprite: {fileID: 0}
     gachaHeroSprite: {fileID: 0}
-    healAmount: 0
-    maxTargetCount: 0
   - idNumber: 105007
     rarity: 0
     unitName: "\uACAC\uC2B5 \uC0AC\uC81C"
@@ -221,24 +209,22 @@ MonoBehaviour:
     unitBGSprite: {fileID: 0}
     unitIconSprite: {fileID: 0}
     gachaHeroSprite: {fileID: 0}
-    healAmount: 0
-    maxTargetCount: 0
   - idNumber: 110005
     rarity: 1
     unitName: "\uD669\uAD6D \uC0AC\uC81C"
     unitType: 2
     poolType: 96
-    health: 2250
+    health: 4500
     hitBack: 3
-    atkPower: 450
+    atkPower: 1800
     cognizanceRange: 3.5
     attackRange: 0
     moveSpeed: 1.2
     attackDelayTime: 1
-    attackRate: 2.3
+    attackRate: 11.5
     isRangedAttack: 0
     attackType: 0
-    spawnCooldown: 37.5
+    spawnCooldown: 373.6
     synergyType: 10
     cost: 4200
     description: "\uC124\uBA85 \uCD94\uAC00\uD574\uC57C \uD569\uB2C8\uB2E4!!"
@@ -246,8 +232,6 @@ MonoBehaviour:
     unitBGSprite: {fileID: 0}
     unitIconSprite: {fileID: 0}
     gachaHeroSprite: {fileID: 0}
-    healAmount: 0
-    maxTargetCount: 0
   - idNumber: 115002
     rarity: 1
     unitName: "\uC5D0\uB4DC\uC708\uBCA8"
@@ -255,15 +239,15 @@ MonoBehaviour:
     poolType: 99
     health: 1750
     hitBack: 4
-    atkPower: 619
+    atkPower: 2475
     cognizanceRange: 3.7
     attackRange: 0.3
     moveSpeed: 1.4
-    attackDelayTime: 1.02
-    attackRate: 2.56
+    attackDelayTime: 5.1
+    attackRate: 7.8
     isRangedAttack: 1
     attackType: 1
-    spawnCooldown: 371
+    spawnCooldown: 271
     synergyType: 72
     cost: 4050
     description: "\uC124\uBA85 \uCD94\uAC00\uD574\uC57C \uD569\uB2C8\uB2E4!!"
@@ -271,24 +255,22 @@ MonoBehaviour:
     unitBGSprite: {fileID: 0}
     unitIconSprite: {fileID: 0}
     gachaHeroSprite: {fileID: 0}
-    healAmount: 0
-    maxTargetCount: 0
   - idNumber: 125002
     rarity: 2
     unitName: "\uC720\uB9AC\uC5D8\uB77C"
     unitType: 2
     poolType: 107
-    health: 3050
+    health: 6100
     hitBack: 4
     atkPower: 750
     cognizanceRange: 3.5
     attackRange: 0.4
-    moveSpeed: 1.5
+    moveSpeed: 1
     attackDelayTime: 0.9
     attackRate: 3.3
     isRangedAttack: 1
     attackType: 1
-    spawnCooldown: 491
+    spawnCooldown: 291
     synergyType: 72
     cost: 5100
     description: "\uC124\uBA85 \uCD94\uAC00\uD574\uC57C \uD569\uB2C8\uB2E4!!"
@@ -296,8 +278,6 @@ MonoBehaviour:
     unitBGSprite: {fileID: 0}
     unitIconSprite: {fileID: 0}
     gachaHeroSprite: {fileID: 0}
-    healAmount: 0
-    maxTargetCount: 0
   allianceCommon:
   - idNumber: 100001
     rarity: 0
@@ -322,8 +302,6 @@ MonoBehaviour:
     unitBGSprite: {fileID: 0}
     unitIconSprite: {fileID: 0}
     gachaHeroSprite: {fileID: 0}
-    healAmount: 0
-    maxTargetCount: 3
   - idNumber: 100002
     rarity: 0
     unitName: "\uBC29\uD328\uBCD1"
@@ -347,8 +325,6 @@ MonoBehaviour:
     unitBGSprite: {fileID: 0}
     unitIconSprite: {fileID: 0}
     gachaHeroSprite: {fileID: 0}
-    healAmount: 0
-    maxTargetCount: 3
   - idNumber: 100003
     rarity: 0
     unitName: "\uB3C4\uB07C\uBCD1"
@@ -372,8 +348,6 @@ MonoBehaviour:
     unitBGSprite: {fileID: 0}
     unitIconSprite: {fileID: 0}
     gachaHeroSprite: {fileID: 0}
-    healAmount: 0
-    maxTargetCount: 3
   - idNumber: 100004
     rarity: 0
     unitName: "\uC0AC\uB0E5\uAFBC"
@@ -382,7 +356,7 @@ MonoBehaviour:
     health: 1000
     hitBack: 3
     atkPower: 250
-    cognizanceRange: 5.5
+    cognizanceRange: 4.5
     attackRange: 0
     moveSpeed: 1
     attackDelayTime: 0.8
@@ -397,8 +371,6 @@ MonoBehaviour:
     unitBGSprite: {fileID: 0}
     unitIconSprite: {fileID: 0}
     gachaHeroSprite: {fileID: 0}
-    healAmount: 0
-    maxTargetCount: 3
   - idNumber: 100005
     rarity: 0
     unitName: "\uAE30\uB9C8\uBCD1"
@@ -422,8 +394,6 @@ MonoBehaviour:
     unitBGSprite: {fileID: 0}
     unitIconSprite: {fileID: 0}
     gachaHeroSprite: {fileID: 0}
-    healAmount: 0
-    maxTargetCount: 3
   - idNumber: 100006
     rarity: 0
     unitName: "\uACAC\uC2B5 \uB9C8\uBC95\uC0AC"
@@ -447,8 +417,6 @@ MonoBehaviour:
     unitBGSprite: {fileID: 0}
     unitIconSprite: {fileID: 0}
     gachaHeroSprite: {fileID: 0}
-    healAmount: 0
-    maxTargetCount: 3
   - idNumber: 100007
     rarity: 0
     unitName: "\uC911\uAC11 \uBCF4\uBCD1"
@@ -472,8 +440,6 @@ MonoBehaviour:
     unitBGSprite: {fileID: 0}
     unitIconSprite: {fileID: 0}
     gachaHeroSprite: {fileID: 0}
-    healAmount: 0
-    maxTargetCount: 3
   - idNumber: 100008
     rarity: 0
     unitName: "\uAD81\uBCD1"
@@ -482,7 +448,7 @@ MonoBehaviour:
     health: 1200
     hitBack: 3
     atkPower: 875
-    cognizanceRange: 5.5
+    cognizanceRange: 4.5
     attackRange: 0
     moveSpeed: 1
     attackDelayTime: 1
@@ -497,8 +463,6 @@ MonoBehaviour:
     unitBGSprite: {fileID: 0}
     unitIconSprite: {fileID: 0}
     gachaHeroSprite: {fileID: 0}
-    healAmount: 0
-    maxTargetCount: 3
   - idNumber: 100009
     rarity: 0
     unitName: "\uC218\uB3C4\uC2B9"
@@ -506,7 +470,7 @@ MonoBehaviour:
     poolType: 80
     health: 1000
     hitBack: 3
-    atkPower: 125
+    atkPower: 250
     cognizanceRange: 3
     attackRange: 1
     moveSpeed: 1
@@ -522,8 +486,6 @@ MonoBehaviour:
     unitBGSprite: {fileID: 0}
     unitIconSprite: {fileID: 0}
     gachaHeroSprite: {fileID: 0}
-    healAmount: 11
-    maxTargetCount: 3
   - idNumber: 100010
     rarity: 0
     unitName: "\uC655\uAD6D \uAE30\uB9C8\uBCD1"
@@ -547,8 +509,6 @@ MonoBehaviour:
     unitBGSprite: {fileID: 0}
     unitIconSprite: {fileID: 0}
     gachaHeroSprite: {fileID: 0}
-    healAmount: 0
-    maxTargetCount: 3
   - idNumber: 105001
     rarity: 0
     unitName: "\uADFC\uC704\uB300"
@@ -572,8 +532,6 @@ MonoBehaviour:
     unitBGSprite: {fileID: 0}
     unitIconSprite: {fileID: 0}
     gachaHeroSprite: {fileID: 0}
-    healAmount: 0
-    maxTargetCount: 3
   - idNumber: 105002
     rarity: 0
     unitName: "\uC544\uB9B0"
@@ -581,8 +539,8 @@ MonoBehaviour:
     poolType: 83
     health: 2250
     hitBack: 1
-    atkPower: 1375
-    cognizanceRange: 6
+    atkPower: 2750
+    cognizanceRange: 4
     attackRange: 3.5
     moveSpeed: 0.9
     attackDelayTime: 1.1
@@ -597,8 +555,6 @@ MonoBehaviour:
     unitBGSprite: {fileID: 0}
     unitIconSprite: {fileID: 0}
     gachaHeroSprite: {fileID: 0}
-    healAmount: 0
-    maxTargetCount: 3
   - idNumber: 105003
     rarity: 0
     unitName: "\uB808\uC778\uC838"
@@ -607,7 +563,7 @@ MonoBehaviour:
     health: 1250
     hitBack: 5
     atkPower: 44
-    cognizanceRange: 5.4
+    cognizanceRange: 4.4
     attackRange: 0.5
     moveSpeed: 3.1
     attackDelayTime: 1.2
@@ -622,8 +578,6 @@ MonoBehaviour:
     unitBGSprite: {fileID: 0}
     unitIconSprite: {fileID: 0}
     gachaHeroSprite: {fileID: 0}
-    healAmount: 0
-    maxTargetCount: 3
   - idNumber: 105004
     rarity: 0
     unitName: "\uAC80\uD22C\uC0AC"
@@ -647,8 +601,6 @@ MonoBehaviour:
     unitBGSprite: {fileID: 0}
     unitIconSprite: {fileID: 0}
     gachaHeroSprite: {fileID: 0}
-    healAmount: 0
-    maxTargetCount: 3
   - idNumber: 105005
     rarity: 0
     unitName: "\uBC14\uBC14\uB9AC\uC548"
@@ -672,8 +624,6 @@ MonoBehaviour:
     unitBGSprite: {fileID: 0}
     unitIconSprite: {fileID: 0}
     gachaHeroSprite: {fileID: 0}
-    healAmount: 0
-    maxTargetCount: 3
   - idNumber: 105006
     rarity: 0
     unitName: "\uD669\uAD6D \uAE30\uB9C8\uBCD1"
@@ -697,8 +647,6 @@ MonoBehaviour:
     unitBGSprite: {fileID: 0}
     unitIconSprite: {fileID: 0}
     gachaHeroSprite: {fileID: 0}
-    healAmount: 0
-    maxTargetCount: 3
   - idNumber: 105007
     rarity: 0
     unitName: "\uACAC\uC2B5 \uC0AC\uC81C"
@@ -722,8 +670,6 @@ MonoBehaviour:
     unitBGSprite: {fileID: 0}
     unitIconSprite: {fileID: 0}
     gachaHeroSprite: {fileID: 0}
-    healAmount: 11
-    maxTargetCount: 3
   - idNumber: 105008
     rarity: 0
     unitName: "\uAD11\uC804\uC0AC"
@@ -747,8 +693,6 @@ MonoBehaviour:
     unitBGSprite: {fileID: 0}
     unitIconSprite: {fileID: 0}
     gachaHeroSprite: {fileID: 0}
-    healAmount: 0
-    maxTargetCount: 3
   - idNumber: 105009
     rarity: 0
     unitName: "\uB9C8\uBC95\uC0AC"
@@ -772,8 +716,6 @@ MonoBehaviour:
     unitBGSprite: {fileID: 0}
     unitIconSprite: {fileID: 0}
     gachaHeroSprite: {fileID: 0}
-    healAmount: 0
-    maxTargetCount: 3
   - idNumber: 105010
     rarity: 0
     unitName: "\uC790\uACBD\uB2E8\uC6D0"
@@ -797,8 +739,6 @@ MonoBehaviour:
     unitBGSprite: {fileID: 0}
     unitIconSprite: {fileID: 0}
     gachaHeroSprite: {fileID: 0}
-    healAmount: 0
-    maxTargetCount: 3
   allianceRare:
   - idNumber: 110001
     rarity: 1
@@ -808,7 +748,7 @@ MonoBehaviour:
     health: 2750
     hitBack: 4
     atkPower: 657
-    cognizanceRange: 5.8
+    cognizanceRange: 4.8
     attackRange: 0
     moveSpeed: 0.8
     attackDelayTime: 1.84
@@ -823,8 +763,6 @@ MonoBehaviour:
     unitBGSprite: {fileID: 0}
     unitIconSprite: {fileID: 0}
     gachaHeroSprite: {fileID: 0}
-    healAmount: 0
-    maxTargetCount: 4
   - idNumber: 110002
     rarity: 1
     unitName: "\uD669\uAD6D \uBCD1\uC0AC"
@@ -848,8 +786,6 @@ MonoBehaviour:
     unitBGSprite: {fileID: 0}
     unitIconSprite: {fileID: 0}
     gachaHeroSprite: {fileID: 0}
-    healAmount: 0
-    maxTargetCount: 4
   - idNumber: 110003
     rarity: 1
     unitName: "\uD669\uAD6D \uB9C8\uBC95\uC0AC"
@@ -873,8 +809,6 @@ MonoBehaviour:
     unitBGSprite: {fileID: 0}
     unitIconSprite: {fileID: 0}
     gachaHeroSprite: {fileID: 0}
-    healAmount: 0
-    maxTargetCount: 4
   - idNumber: 110004
     rarity: 1
     unitName: "\uD06C\uB9AC\uC2A4"
@@ -898,16 +832,14 @@ MonoBehaviour:
     unitBGSprite: {fileID: 0}
     unitIconSprite: {fileID: 0}
     gachaHeroSprite: {fileID: 0}
-    healAmount: 0
-    maxTargetCount: 4
   - idNumber: 110005
     rarity: 1
     unitName: "\uD669\uAD6D \uC0AC\uC81C"
     unitType: 2
     poolType: 96
-    health: 2250
+    health: 4500
     hitBack: 3
-    atkPower: 450
+    atkPower: 900
     cognizanceRange: 3.5
     attackRange: 0
     moveSpeed: 1.2
@@ -923,8 +855,6 @@ MonoBehaviour:
     unitBGSprite: {fileID: 0}
     unitIconSprite: {fileID: 0}
     gachaHeroSprite: {fileID: 0}
-    healAmount: 22
-    maxTargetCount: 4
   - idNumber: 110006
     rarity: 1
     unitName: "\uD669\uAD6D \uBC29\uD328\uBCD1"
@@ -937,7 +867,7 @@ MonoBehaviour:
     attackRange: 0
     moveSpeed: 1.2
     attackDelayTime: 0.64
-    attackRate: 2.41
+    attackRate: 1.41
     isRangedAttack: 0
     attackType: 0
     spawnCooldown: 32
@@ -948,8 +878,6 @@ MonoBehaviour:
     unitBGSprite: {fileID: 0}
     unitIconSprite: {fileID: 0}
     gachaHeroSprite: {fileID: 0}
-    healAmount: 0
-    maxTargetCount: 4
   - idNumber: 110007
     rarity: 1
     unitName: "\uC2E0\uC785 \uC6A9\uAE30\uC0AC"
@@ -962,7 +890,7 @@ MonoBehaviour:
     attackRange: 0
     moveSpeed: 0.7
     attackDelayTime: 0.84
-    attackRate: 2.85
+    attackRate: 1.85
     isRangedAttack: 0
     attackType: 0
     spawnCooldown: 45.2
@@ -973,8 +901,6 @@ MonoBehaviour:
     unitBGSprite: {fileID: 0}
     unitIconSprite: {fileID: 0}
     gachaHeroSprite: {fileID: 0}
-    healAmount: 0
-    maxTargetCount: 4
   - idNumber: 115001
     rarity: 1
     unitName: "\uC2DC\uD504"
@@ -998,8 +924,6 @@ MonoBehaviour:
     unitBGSprite: {fileID: 0}
     unitIconSprite: {fileID: 0}
     gachaHeroSprite: {fileID: 0}
-    healAmount: 0
-    maxTargetCount: 4
   - idNumber: 115002
     rarity: 1
     unitName: "\uC5D0\uB4DC\uC708\uBCA8"
@@ -1007,15 +931,15 @@ MonoBehaviour:
     poolType: 99
     health: 1750
     hitBack: 4
-    atkPower: 619
+    atkPower: 2475
     cognizanceRange: 3.7
     attackRange: 0.3
     moveSpeed: 1.4
     attackDelayTime: 1.02
-    attackRate: 2.56
+    attackRate: 1.56
     isRangedAttack: 1
     attackType: 1
-    spawnCooldown: 371
+    spawnCooldown: 271
     synergyType: 72
     cost: 4050
     description: "\uC124\uBA85 \uCD94\uAC00\uD574\uC57C \uD569\uB2C8\uB2E4!!"
@@ -1023,8 +947,6 @@ MonoBehaviour:
     unitBGSprite: {fileID: 0}
     unitIconSprite: {fileID: 0}
     gachaHeroSprite: {fileID: 0}
-    healAmount: 22
-    maxTargetCount: 4
   - idNumber: 115003
     rarity: 1
     unitName: "\uADFC\uC704\uB300\uC7A5"
@@ -1048,8 +970,6 @@ MonoBehaviour:
     unitBGSprite: {fileID: 0}
     unitIconSprite: {fileID: 0}
     gachaHeroSprite: {fileID: 0}
-    healAmount: 0
-    maxTargetCount: 4
   - idNumber: 115004
     rarity: 1
     unitName: "\uC5D8\uB77C\uB2C8\uC544"
@@ -1058,7 +978,7 @@ MonoBehaviour:
     health: 7220
     hitBack: 3
     atkPower: 2850
-    cognizanceRange: 5.9
+    cognizanceRange: 4.9
     attackRange: 0.5
     moveSpeed: 0.7
     attackDelayTime: 2.28
@@ -1073,8 +993,6 @@ MonoBehaviour:
     unitBGSprite: {fileID: 0}
     unitIconSprite: {fileID: 0}
     gachaHeroSprite: {fileID: 0}
-    healAmount: 0
-    maxTargetCount: 4
   - idNumber: 115005
     rarity: 1
     unitName: "\uC624\uD544\uB9AC\uC544"
@@ -1087,7 +1005,7 @@ MonoBehaviour:
     attackRange: 0.5
     moveSpeed: 1.2
     attackDelayTime: 0.8
-    attackRate: 3.29
+    attackRate: 1.29
     isRangedAttack: 1
     attackType: 1
     spawnCooldown: 369.6
@@ -1098,8 +1016,6 @@ MonoBehaviour:
     unitBGSprite: {fileID: 0}
     unitIconSprite: {fileID: 0}
     gachaHeroSprite: {fileID: 0}
-    healAmount: 0
-    maxTargetCount: 4
   allianceEpic:
   - idNumber: 120001
     rarity: 2
@@ -1108,8 +1024,8 @@ MonoBehaviour:
     poolType: 103
     health: 6250
     hitBack: 3
-    atkPower: 4500
-    cognizanceRange: 6
+    atkPower: 1500
+    cognizanceRange: 4
     attackRange: 0
     moveSpeed: 1.2
     attackDelayTime: 1
@@ -1124,16 +1040,14 @@ MonoBehaviour:
     unitBGSprite: {fileID: 0}
     unitIconSprite: {fileID: 0}
     gachaHeroSprite: {fileID: 0}
-    healAmount: 0
-    maxTargetCount: 5
   - idNumber: 120002
     rarity: 2
     unitName: "\uC6A9\uAE30\uC0AC"
     unitType: 0
     poolType: 104
-    health: 10000
+    health: 17500
     hitBack: 1
-    atkPower: 2888
+    atkPower: 5775
     cognizanceRange: 1.9
     attackRange: 0
     moveSpeed: 1.2
@@ -1149,8 +1063,6 @@ MonoBehaviour:
     unitBGSprite: {fileID: 0}
     unitIconSprite: {fileID: 0}
     gachaHeroSprite: {fileID: 0}
-    healAmount: 0
-    maxTargetCount: 5
   - idNumber: 120003
     rarity: 2
     unitName: "\uB098\uC608\uD2B8"
@@ -1160,7 +1072,7 @@ MonoBehaviour:
     hitBack: 2
     atkPower: 6500
     cognizanceRange: 4.4
-    attackRange: 4
+    attackRange: 0.5
     moveSpeed: 1.2
     attackDelayTime: 3.7
     attackRate: 2.3
@@ -1174,8 +1086,6 @@ MonoBehaviour:
     unitBGSprite: {fileID: 0}
     unitIconSprite: {fileID: 0}
     gachaHeroSprite: {fileID: 0}
-    healAmount: 0
-    maxTargetCount: 5
   - idNumber: 125001
     rarity: 2
     unitName: "\uD398\uC77C\uB77C"
@@ -1199,14 +1109,12 @@ MonoBehaviour:
     unitBGSprite: {fileID: 0}
     unitIconSprite: {fileID: 0}
     gachaHeroSprite: {fileID: 0}
-    healAmount: 0
-    maxTargetCount: 5
   - idNumber: 125002
     rarity: 2
     unitName: "\uC720\uB9AC\uC5D8\uB77C"
     unitType: 2
     poolType: 107
-    health: 3050
+    health: 6100
     hitBack: 4
     atkPower: 750
     cognizanceRange: 3.5
@@ -1216,7 +1124,7 @@ MonoBehaviour:
     attackRate: 3.3
     isRangedAttack: 1
     attackType: 1
-    spawnCooldown: 491
+    spawnCooldown: 291
     synergyType: 72
     cost: 5100
     description: "\uC124\uBA85 \uCD94\uAC00\uD574\uC57C \uD569\uB2C8\uB2E4!!"
@@ -1224,8 +1132,6 @@ MonoBehaviour:
     unitBGSprite: {fileID: 0}
     unitIconSprite: {fileID: 0}
     gachaHeroSprite: {fileID: 0}
-    healAmount: 33
-    maxTargetCount: 5
   - idNumber: 125003
     rarity: 2
     unitName: "\uBBF8\uB808\uC77C"
@@ -1237,7 +1143,7 @@ MonoBehaviour:
     cognizanceRange: 1.9
     attackRange: 2.4
     moveSpeed: 1.3
-    attackDelayTime: 1.8
+    attackDelayTime: 3.8
     attackRate: 3.6
     isRangedAttack: 1
     attackType: 2
@@ -1249,8 +1155,6 @@ MonoBehaviour:
     unitBGSprite: {fileID: 0}
     unitIconSprite: {fileID: 0}
     gachaHeroSprite: {fileID: 0}
-    healAmount: 0
-    maxTargetCount: 5
   spawnedUnit:
   - idNumber: 180001
     rarity: 0
@@ -1275,5 +1179,3 @@ MonoBehaviour:
     unitBGSprite: {fileID: 0}
     unitIconSprite: {fileID: 0}
     gachaHeroSprite: {fileID: 0}
-    healAmount: 0
-    maxTargetCount: 0

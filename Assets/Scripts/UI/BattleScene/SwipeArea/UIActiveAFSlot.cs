@@ -29,22 +29,12 @@ public class UIActiveAFSlot : MonoBehaviour
     {
         slotIcon.fillAmount = 1f;
         slotBtn.onClick.AddListener(OnUseActiveAF);
-        
     }
     private void Start()
     {
         player = GameManager.Instance.Player;
-        player.OnCurManaChanged += (curMana, maxMana) =>
-        {
-            // 마나가 부족할 때 슬롯 반투명 처리
-            if (afData == null) return;
-            if (afData.artifactType != ArtifactType.Active) return;
-            ChekMana(curMana);
-            Debug.Log($"액티브 유물 슬롯 마나 체크 {curMana}");
-        };
         //SetTimerIconActive(false);
         enabled = false;
-        
     }
     private void Update()
     {
@@ -55,18 +45,6 @@ public class UIActiveAFSlot : MonoBehaviour
         cooldownIcon.fillAmount = 1f;
         SetTimerIconActive(false);
     }
-    void ChekMana(float curMana)
-    {
-        if (curMana < manaCost)
-        {
-            slotIcon.color = new Color(100f / 255f, 100f / 255f, 100f / 255f, 1.0f);
-        }
-        else
-        {
-            slotIcon.color = Color.white;
-        }
-    }
-
     private ActiveSkillEffect CreateSkillEffectInstance(int idnumber)
     {
         switch (idnumber)

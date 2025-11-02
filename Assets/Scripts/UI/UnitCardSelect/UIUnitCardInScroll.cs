@@ -49,7 +49,7 @@ public class UIUnitCardInScroll : MonoBehaviour
         unitType.text = $"{cardData[cardNum].unitType.ToString()}";
         //rarity.text = $"{cardData[cardNum].rarity.ToString()}";
         rarityIconArea.SetIconCnt((int)cardData[cardNum].rarity);
-        costText.text = $"식량\n{cardData[cardNum].cost.ToString("F0")}";
+        costText.text = $"코스트\n{cardData[cardNum].cost.ToString("F0")}";
         healthText.text = $"체력\n{cardData[cardNum].health.ToString("F0")}";
         atkPowerText.text = $"공격력\n{cardData[cardNum].atkPower.ToString("F0")}";
         //coolTimeText.text = $"쿨타임\n{cardData[cardNum].coolTime.ToString("N1")}";

@@ -24,15 +24,14 @@ public class UISynegyToolTipPanel : BasePopUpUI
         GetComponent<Button>().onClick.AddListener(CloseParentPopup);
 
     }
-    public void OnSynergyClicked(UnitSynergyType synergyType, int curGrade, int currentCount)
+    public void OnSynergyClicked(UnitSynergyType synergyType, int currentCount)
     //public void OnSynergyClicked(UnitSynergyType synergyType, SynergyGrade currentCount)
     {
-        SynergyData synergyData = DataManager.SynergyEffectData.GetData((int)synergyType * 1000 + curGrade);
+        SynergyData synergyData = DataManager.SynergyEffectData.GetData((int)synergyType * 1000 + currentCount);
         // 아래는 테스트
         
-        synergyToolTipText.text = $"{synergyData.synergyTypeText} {colorBySynergyGrade[(SynergyGrade)curGrade]}{synergyData.synergyGradeText}({currentCount}/{synergyData.requiredUnitCount})</color> 시너지 효과";
-        synergyToolTipDescriptionText.text = synergyData.effectDescription;
-        //Debug.Log($"현재 {currentCount}마리 적용 중");
+        synergyToolTipText.text = $"{synergyData.synergyTypeText} {colorBySynergyGrade[(SynergyGrade)currentCount]}{synergyData.synergyGradeText}</color> 시너지 효과";
+        synergyToolTipDescriptionText.text = DataManager.SynergyEffectData.GetData((int)synergyType * 1000 + currentCount).effectDescription;
         if (gameObject.activeSelf) return;
         OpenUI(0.1f);
     }

@@ -61,9 +61,6 @@ public abstract class BaseUnit : BaseCharacter
     public event Action OnKnockBack;
 
     protected KnockbackHandler knockbackHandler;
-
-    // 공격 애니메이션 관련 변수
-    public bool IsAttackAnimPlaying { get; set; } = false;
     protected override void Awake()
     {
         base.Awake();

@@ -125,14 +125,14 @@ public class GolemAIController : BaseUnitController
         {
             normalizedTime = GetNormalizedTime(attackStateHash);
             yield return null;
-        } while (!summonUnit.IsAttackAnimPlaying && normalizedTime < 0f);
+        } while (normalizedTime < 0f);
         // 현재 기준 예시:
         // 공격 애니메이션 총 길이 0.25초
         // 0.36지점까지 = 0.09초에 해당
         // 0.09초를 딜레이 초로 늘리려면
         animator.speed = summonUnit.StartAttackTime / summonUnit.UnitData.attackDelayTime;
 
-        while (summonUnit.IsAttackAnimPlaying && normalizedTime < summonUnit.StartAttackNormalizedTime)
+        while (normalizedTime < summonUnit.StartAttackNormalizedTime)
         {
             if (summonUnit.TargetUnit == null || summonUnit.TargetUnit.IsDead()) // 공격 중에 죽었다면 브레이크
             {
@@ -146,7 +146,7 @@ public class GolemAIController : BaseUnitController
         Attack();
         summonUnit.TargetUnit = null; 
         animator.speed = 1f;
-        while (summonUnit.IsAttackAnimPlaying && normalizedTime >= 0f && normalizedTime < 1f)
+        while (normalizedTime >= 0f && normalizedTime < 1f)
         {
             normalizedTime = GetNormalizedTime(attackStateHash);
             yield return null;
