@@ -249,16 +249,15 @@ public class PlayerRangedSplashController : BaseUnitController
     private IEnumerator AtkAnimRoutine()
     {
         // Attack 상태에 진입할 때까지 대기
-        float normalizedTime = -1f;
-        do
+        float normalizedTime = 0f;
+        while (!playerUnit.IsAttackAnimPlaying)
         {
-            normalizedTime = GetNormalizedTime(attackStateHash);
             yield return null;
-        } while (!playerUnit.IsAttackAnimPlaying && normalizedTime < 0f && !playerUnit.IsAttackAnimPlaying);
+        }
 
         animator.speed = playerUnit.StartAttackTime / playerUnit.UnitData.attackDelayTime;
 
-        while (playerUnit.IsAttackAnimPlaying && playerUnit.IsAttackAnimPlaying && normalizedTime < playerUnit.StartAttackNormalizedTime)
+        while (playerUnit.IsAttackAnimPlaying && normalizedTime < playerUnit.StartAttackNormalizedTime)
         {
             if (playerUnit.TargetUnit == null || playerUnit.TargetUnit.IsDead())
             {

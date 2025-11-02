@@ -40,7 +40,7 @@ public class UIActiveAFSlot : MonoBehaviour
             if (afData == null) return;
             if (afData.artifactType != ArtifactType.Active) return;
             ChekMana(curMana);
-            Debug.Log($"액티브 유물 슬롯 마나 체크 {curMana}");
+            //Debug.Log($"액티브 유물 슬롯 마나 체크 {curMana}");
         };
         //SetTimerIconActive(false);
         enabled = false;

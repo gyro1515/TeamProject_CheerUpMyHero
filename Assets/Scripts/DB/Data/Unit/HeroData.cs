@@ -5,6 +5,7 @@ using UnityEngine;
 [System.Serializable]
 public class HeroData : BaseUnitData
 {
+    public string heroTitle;           // 영웅 칭호
     public string firstWaveSpeech;      // 1웨이브 시작 시 대사
     public string firstWaveSpritePath;      // 1웨이브 시작 시 대사 경로 주소
     public Sprite firstWaveSprite;      // 1웨이브 시작 시 대사  스프라이트
