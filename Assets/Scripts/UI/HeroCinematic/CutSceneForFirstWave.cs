@@ -10,6 +10,7 @@ public class CutSceneForFirstWave : BasePopUpUI
     [Header("첫 번째 웨이브 컷씬 설정")]
     [SerializeField] Image cutSceneImg;
     [SerializeField] TextMeshProUGUI cutSceneText;
+    [SerializeField] TextMeshProUGUI cutSceneNameText;
     [SerializeField] float cutSceneDuration = 4f;
     [SerializeField] RectTransform containerTransform;
     //[SerializeField] RectTransform cutSceneImgRectTransform;
@@ -85,6 +86,7 @@ public class CutSceneForFirstWave : BasePopUpUI
     {
         cutSceneImg.sprite = data.firstWaveSprite;
         cutSceneText.text = data.firstWaveSpeech;
+        cutSceneNameText.text = $"{data.heroTitle} {data.unitName}";
         heroType = data.poolType;
     }
     void StartFadeOutTimer()

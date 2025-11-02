@@ -214,12 +214,15 @@ public class PlayerHealerUnitController : BaseUnitController
     }
     private IEnumerator HealAnimRoutine()
     {
-        float normalizedTime = -1f;
-        do { normalizedTime = GetNormalizedTime(attackStateHash); yield return null; } while (normalizedTime < 0f);
+        float normalizedTime = 0f;
+        while (!playerUnit.IsAttackAnimPlaying)
+        {
+            yield return null;
+        }
 
         animator.speed = playerUnit.StartAttackTime / playerUnit.UnitData.attackDelayTime;
 
-        while (normalizedTime < playerUnit.StartAttackNormalizedTime)
+        while (playerUnit.IsAttackAnimPlaying && normalizedTime < playerUnit.StartAttackNormalizedTime)
         {
             // 공격 애니메이션 중에 타겟이 죽으면 즉시 행동 리셋
             if (HealTarget == null || HealTarget.Damageable.IsDead())
@@ -231,14 +234,14 @@ public class PlayerHealerUnitController : BaseUnitController
             normalizedTime = GetNormalizedTime(attackStateHash);
             yield return null;
         }
-        HealTarget.Damageable.TakeHeal(playerUnit.AtkPower * 0.5f);
+        HealTarget.Damageable.TakeHeal(playerUnit.UnitData.healAmount);
         GameObject fxHeal = ObjectPoolManager.Instance.Get(PoolType.FXHealEffect);
         //fxHeal.transform.SetParent(HealTarget.transform);
         fxHeal.transform.position = HealTarget.transform.position + new Vector3(0f, 0.7f, 0f);
         AudioManager.PlayOneShotByCameraDistance(DataManager.AudioData.unitHealSE, HealTarget.transform);
 
         animator.speed = 1f;
-        while (normalizedTime >= 0f && normalizedTime < 1f)
+        while (playerUnit.IsAttackAnimPlaying && normalizedTime >= 0f && normalizedTime < 1f)
         {
             normalizedTime = GetNormalizedTime(attackStateHash);
             yield return null;
@@ -250,12 +253,17 @@ public class PlayerHealerUnitController : BaseUnitController
     // 공격/힐 애니메이션 타이밍을 제어하는 코루틴
     private IEnumerator AtkAnimRoutine()
     {
-        float normalizedTime = -1f;
-        do { normalizedTime = GetNormalizedTime(attackStateHash); yield return null; } while (normalizedTime < 0f);
+        /*float normalizedTime = -1f;
+        do { normalizedTime = GetNormalizedTime(attackStateHash); yield return null; } while (!playerUnit.IsAttackAnimPlaying || normalizedTime < 0f);*/
+        float normalizedTime = 0f;
+        while(!playerUnit.IsAttackAnimPlaying)
+        {
+            yield return null;
+        }
 
         animator.speed = playerUnit.StartAttackTime / playerUnit.UnitData.attackDelayTime;
 
-        while (normalizedTime < playerUnit.StartAttackNormalizedTime)
+        while (playerUnit.IsAttackAnimPlaying && normalizedTime < playerUnit.StartAttackNormalizedTime)
         {
             // 공격 애니메이션 중에 타겟이 죽으면 즉시 행동 리셋
             if (playerUnit.TargetUnit == null || playerUnit.TargetUnit.IsDead())
@@ -270,7 +278,7 @@ public class PlayerHealerUnitController : BaseUnitController
         Attack();
         playerUnit.TargetUnit = null; // 다른 컨트롤러도 추가 필요@@@@
         animator.speed = 1f;
-        while (normalizedTime >= 0f && normalizedTime < 1f)
+        while (playerUnit.IsAttackAnimPlaying && normalizedTime >= 0f && normalizedTime < 1f)
         {
             normalizedTime = GetNormalizedTime(attackStateHash);
             yield return null;

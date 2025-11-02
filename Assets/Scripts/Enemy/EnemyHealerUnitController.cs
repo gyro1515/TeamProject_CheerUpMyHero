@@ -129,12 +129,15 @@ public class EnemyHealerUnitController : BaseUnitController
 
     private IEnumerator HealAnimRoutine()
     {
-        float normalizedTime = -1f;
-        do { normalizedTime = GetNormalizedTime(attackStateHash); yield return null; } while (normalizedTime < 0f);
+        float normalizedTime = 0f;
+        while (!enemyUnit.IsAttackAnimPlaying)
+        {
+            yield return null;
+        }
 
         animator.speed = enemyUnit.StartAttackTime / enemyUnit.UnitData.attackDelayTime;
 
-        while (normalizedTime < enemyUnit.StartAttackNormalizedTime)
+        while (enemyUnit.IsAttackAnimPlaying && normalizedTime < enemyUnit.StartAttackNormalizedTime)
         {
             if (HealTarget == null || HealTarget.IsDead)
             {
@@ -146,14 +149,14 @@ public class EnemyHealerUnitController : BaseUnitController
             yield return null;
         }
 
-        HealTarget.Damageable.TakeHeal(enemyUnit.AtkPower * 0.5f);
+        HealTarget.Damageable.TakeHeal(enemyUnit.UnitData.healAmount);
         GameObject fxHeal = ObjectPoolManager.Instance.Get(PoolType.FXHealEffect);
         //fxHeal.transform.SetParent(HealTarget.transform);
         fxHeal.transform.position = HealTarget.transform.position + new Vector3(0f, 0.7f, 0f);
         AudioManager.PlayOneShotByCameraDistance(DataManager.AudioData.unitHealSE, HealTarget.transform);
         animator.speed = 1f;
 
-        while (normalizedTime >= 0f && normalizedTime < 1f)
+        while (enemyUnit.IsAttackAnimPlaying && normalizedTime >= 0f && normalizedTime < 1f)
         {
             normalizedTime = GetNormalizedTime(attackStateHash);
             yield return null;
@@ -165,12 +168,15 @@ public class EnemyHealerUnitController : BaseUnitController
 
     private IEnumerator AtkAnimRoutine()
     {
-        float normalizedTime = -1f;
-        do { normalizedTime = GetNormalizedTime(attackStateHash); yield return null; } while (normalizedTime < 0f);
+        float normalizedTime = 0f;
+        while (!enemyUnit.IsAttackAnimPlaying)
+        {
+            yield return null;
+        }
 
         animator.speed = enemyUnit.StartAttackTime / enemyUnit.UnitData.attackDelayTime;
 
-        while (normalizedTime < enemyUnit.StartAttackNormalizedTime)
+        while (enemyUnit.IsAttackAnimPlaying && normalizedTime < enemyUnit.StartAttackNormalizedTime)
         {
             if (enemyUnit.TargetUnit == null || enemyUnit.TargetUnit.IsDead())
             {
@@ -185,7 +191,7 @@ public class EnemyHealerUnitController : BaseUnitController
         animator.speed = 1f;
         enemyUnit.TargetUnit = null;
 
-        while (normalizedTime >= 0f && normalizedTime < 1f)
+        while (enemyUnit.IsAttackAnimPlaying && normalizedTime >= 0f && normalizedTime < 1f)
         {
             normalizedTime = GetNormalizedTime(attackStateHash);
             yield return null;

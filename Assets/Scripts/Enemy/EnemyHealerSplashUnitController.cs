@@ -19,7 +19,6 @@ public class EnemyHealerSplashController : BaseUnitController
 
     // 자세한 설명은 PlayerRangedSplashController.cs 참고
     PriorityQueue<BaseCharacter, float> selectedUnitPQ = new PriorityQueue<BaseCharacter, float>(isMinHeap: true);
-    const int maxTargets = 5;
 
     protected override void Awake()
     {
@@ -110,7 +109,7 @@ public class EnemyHealerSplashController : BaseUnitController
             if (distance > enemyUnit.AttackRange) continue;
             float priority = player.transform.position.x; // x 좌표가 클수록 우선순위 높음
             // 최대 타겟 수보다 적게 선택된 경우 무조건 추가
-            if (selectedUnitPQ.Count < maxTargets)
+            if (selectedUnitPQ.Count < enemyUnit.UnitData.maxTargetCount)
             {
                 selectedUnitPQ.Enqueue(player, priority);
             }
@@ -190,12 +189,15 @@ public class EnemyHealerSplashController : BaseUnitController
 
     private IEnumerator HealAnimRoutine()
     {
-        float normalizedTime = -1f;
-        do { normalizedTime = GetNormalizedTime(attackStateHash); yield return null; } while (normalizedTime < 0f);
+        float normalizedTime = 0f;
+        while (!enemyUnit.IsAttackAnimPlaying)
+        {
+            yield return null;
+        }
 
         animator.speed = enemyUnit.StartAttackTime / enemyUnit.UnitData.attackDelayTime;
 
-        while (normalizedTime < enemyUnit.StartAttackNormalizedTime)
+        while (enemyUnit.IsAttackAnimPlaying && normalizedTime < enemyUnit.StartAttackNormalizedTime)
         {
             if (HealTarget == null || HealTarget.IsDead)
             {
@@ -207,14 +209,14 @@ public class EnemyHealerSplashController : BaseUnitController
             yield return null;
         }
 
-        HealTarget.Damageable.TakeHeal(enemyUnit.AtkPower * 0.5f);
+        HealTarget.Damageable.TakeHeal(enemyUnit.UnitData.healAmount);
         GameObject fxHeal = ObjectPoolManager.Instance.Get(PoolType.FXHealEffect);
         //fxHeal.transform.SetParent(HealTarget.transform);
         fxHeal.transform.position = HealTarget.transform.position + new Vector3(0f, 0.7f, 0f);
         AudioManager.PlayOneShotByCameraDistance(DataManager.AudioData.unitHealSE, HealTarget.transform);
         animator.speed = 1f;
 
-        while (normalizedTime >= 0f && normalizedTime < 1f)
+        while (enemyUnit.IsAttackAnimPlaying && normalizedTime >= 0f && normalizedTime < 1f)
         {
             normalizedTime = GetNormalizedTime(attackStateHash);
             yield return null;
@@ -226,12 +228,15 @@ public class EnemyHealerSplashController : BaseUnitController
 
     private IEnumerator AtkAnimRoutine()
     {
-        float normalizedTime = -1f;
-        do { normalizedTime = GetNormalizedTime(attackStateHash); yield return null; } while (normalizedTime < 0f);
+        float normalizedTime = 0f;
+        while (!enemyUnit.IsAttackAnimPlaying)
+        {
+            yield return null;
+        }
 
         animator.speed = enemyUnit.StartAttackTime / enemyUnit.UnitData.attackDelayTime;
 
-        while (normalizedTime < enemyUnit.StartAttackNormalizedTime)
+        while (enemyUnit.IsAttackAnimPlaying && normalizedTime < enemyUnit.StartAttackNormalizedTime)
         {
             if (enemyUnit.TargetUnit == null || enemyUnit.TargetUnit.IsDead())
             {
@@ -246,7 +251,7 @@ public class EnemyHealerSplashController : BaseUnitController
         animator.speed = 1f;
         enemyUnit.TargetUnit = null;
 
-        while (normalizedTime >= 0f && normalizedTime < 1f)
+        while (enemyUnit.IsAttackAnimPlaying && normalizedTime >= 0f && normalizedTime < 1f)
         {
             normalizedTime = GetNormalizedTime(attackStateHash);
             yield return null;

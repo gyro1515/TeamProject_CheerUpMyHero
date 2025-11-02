@@ -257,7 +257,7 @@ public class MainScreenBuildingController : MonoBehaviour
                 {
                     // 2. 팝업 메시지 생성
                     string targetName = (currentBuilding != null) ? currentBuilding.buildingName : "타일";
-                    string message = $"해당 {targetName}은(는) {turnsRemaining}턴 뒤에 다시 활성화 됩니다.";
+                    string message = $"해당 {targetName}은(는)\n {turnsRemaining}턴 뒤에 다시 활성화 됩니다.";
 
                     // 3. 범용 정보 팝업 띄우기
                     if (laterUpdatePopup != null)
@@ -529,7 +529,38 @@ public class MainScreenBuildingController : MonoBehaviour
         }
 
     }
+    public async void RepairBuildingWithAd(BuildingTile tile)
+    {
+        if (tile == null)
+        {
+            Debug.LogError("수리할 타일이 null입니다.");
+            return;
+        }
 
+        var dataHandler = PlayerDataManager.Instance._TileDataHandler;
+
+        dataHandler.TileStatusGrid[tile.X, tile.Y] = TileStatus.Repairing;
+
+        dataHandler.TileRepairTurnsGrid[tile.X, tile.Y] = 3;
+
+        Debug.Log($"타일 ({tile.X},{tile.Y})이(가) 광고 시청으로 즉시 수리되었습니다.");
+
+        // 3. UI 갱신
+        tile.UpdateStatusVisual(); // 타일 UI (색상, 턴 텍스트) 갱신
+
+        PlayerDataManager.Instance.UpdateAllBuildingEffects();
+        // 5. 서버에 저장
+        try
+        {
+            await PlayerDataManager.Instance.SaveDataToCloudAsync();
+        }
+        catch (Exception ex)
+        {
+            Debug.LogException(ex);
+            Debug.LogWarning("에러 팝업: 광고 수리 데이터 저장 실패.");
+        }
+        DeselectTile();
+    }
     public void InitiateDestruction(BuildingTile tile)
     {
         var buildingData = PlayerDataManager.Instance._TileDataHandler.BuildingGridData[tile.X, tile.Y];

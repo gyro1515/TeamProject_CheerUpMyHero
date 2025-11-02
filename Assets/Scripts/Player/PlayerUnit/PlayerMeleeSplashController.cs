@@ -15,7 +15,6 @@ public class PlayerMeleeSplashController : BaseUnitController
 
     // 자세한 설명은 PlayerRangedSplashController.cs 참고
     PriorityQueue<BaseCharacter, float> selectedUnitPQ = new PriorityQueue<BaseCharacter, float>(isMinHeap: false);
-    const int maxTargets = 5;
     // 시간 비교용
     Stopwatch sw = new Stopwatch();
     protected override void Awake()
@@ -99,7 +98,7 @@ public class PlayerMeleeSplashController : BaseUnitController
 
             float priority = enemy.transform.position.x; // x 좌표가 작을수록 우선순위 높음
             // 최대 타겟 수보다 적게 선택된 경우 무조건 추가
-            if (selectedUnitPQ.Count < maxTargets)
+            if (selectedUnitPQ.Count < playerUnit.UnitData.maxTargetCount)
             {
                 selectedUnitPQ.Enqueue(enemy, priority);
             }
@@ -193,18 +192,17 @@ public class PlayerMeleeSplashController : BaseUnitController
     private IEnumerator AtkAnimRoutine()
     {
         // Attack 상태에 진입할 때까지 대기
-        float normalizedTime = -1f;
-        do
+        float normalizedTime = 0f;
+        while (!playerUnit.IsAttackAnimPlaying)
         {
-            normalizedTime = GetNormalizedTime(attackStateHash);
             yield return null;
-        } while (normalizedTime < 0f);
+        }
         // 선딜 설정
         animator.speed = playerUnit.StartAttackTime / playerUnit.UnitData.attackDelayTime;
 
 
 
-        while (normalizedTime < playerUnit.StartAttackNormalizedTime)
+        while (playerUnit.IsAttackAnimPlaying && normalizedTime < playerUnit.StartAttackNormalizedTime)
         {
             if (playerUnit.TargetUnit == null || playerUnit.TargetUnit.IsDead())
             {
@@ -223,7 +221,7 @@ public class PlayerMeleeSplashController : BaseUnitController
         playerUnit.TargetUnit = null; // 다른 컨트롤러도 추가 필요@@@@
 
         animator.speed = 1f;
-        while (normalizedTime >= 0f && normalizedTime < 1f)
+        while (playerUnit.IsAttackAnimPlaying && normalizedTime >= 0f && normalizedTime < 1f)
         {
             normalizedTime = GetNormalizedTime(attackStateHash);
             yield return null;

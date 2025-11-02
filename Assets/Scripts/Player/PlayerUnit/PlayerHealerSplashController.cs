@@ -20,7 +20,6 @@ public class PlayerHealerSplashController : BaseUnitController
 
     // 자세한 설명은 PlayerRangedSplashController.cs 참고
     PriorityQueue<BaseCharacter, float> selectedUnitPQ = new PriorityQueue<BaseCharacter, float>(isMinHeap: false);
-    const int maxTargets = 5;
     protected override void Awake()
     {
         playerUnit = GetComponent<PlayerUnit>();
@@ -112,6 +111,7 @@ public class PlayerHealerSplashController : BaseUnitController
         int hitCount = 0;
         // 우선 큐 비우기
         selectedUnitPQ.Clear();
+
         // 모든 적을 순회하며 폭발 지점과의 거리를 비교
         foreach (BaseCharacter enemy in allEnemies)
         {
@@ -123,7 +123,7 @@ public class PlayerHealerSplashController : BaseUnitController
 
             float priority = enemy.transform.position.x; // x 좌표가 작을수록 우선순위 높음
             // 최대 타겟 수보다 적게 선택된 경우 무조건 추가
-            if (selectedUnitPQ.Count < maxTargets)
+            if (selectedUnitPQ.Count < playerUnit.UnitData.maxTargetCount)
             {
                 selectedUnitPQ.Enqueue(enemy, priority);
             }
@@ -286,12 +286,15 @@ public class PlayerHealerSplashController : BaseUnitController
     }
     private IEnumerator HealAnimRoutine()
     {
-        float normalizedTime = -1f;
-        do { normalizedTime = GetNormalizedTime(attackStateHash); yield return null; } while (normalizedTime < 0f);
+        float normalizedTime = 0f;
+        while (!playerUnit.IsAttackAnimPlaying)
+        {
+            yield return null;
+        }
 
         animator.speed = playerUnit.StartAttackTime / playerUnit.UnitData.attackDelayTime;
 
-        while (normalizedTime < playerUnit.StartAttackNormalizedTime)
+        while (playerUnit.IsAttackAnimPlaying && normalizedTime < playerUnit.StartAttackNormalizedTime)
         {
             // 공격 애니메이션 중에 타겟이 죽으면 즉시 행동 리셋
             if (HealTarget == null || HealTarget.Damageable.IsDead())
@@ -303,13 +306,13 @@ public class PlayerHealerSplashController : BaseUnitController
             normalizedTime = GetNormalizedTime(attackStateHash);
             yield return null;
         }
-        HealTarget.Damageable.TakeHeal(playerUnit.AtkPower * 0.5f);
+        HealTarget.Damageable.TakeHeal(playerUnit.UnitData.healAmount);
         GameObject fxHeal = ObjectPoolManager.Instance.Get(PoolType.FXHealEffect);
         //fxHeal.transform.SetParent(HealTarget.transform);
         fxHeal.transform.position = HealTarget.transform.position + new Vector3(0f, 0.7f, 0f);
         AudioManager.PlayOneShotByCameraDistance(DataManager.AudioData.unitHealSE, HealTarget.transform, 0.5f);
         animator.speed = 1f;
-        while (normalizedTime >= 0f && normalizedTime < 1f)
+        while (playerUnit.IsAttackAnimPlaying && normalizedTime >= 0f && normalizedTime < 1f)
         {
             normalizedTime = GetNormalizedTime(attackStateHash);
             yield return null;
@@ -321,12 +324,15 @@ public class PlayerHealerSplashController : BaseUnitController
     // 공격/힐 애니메이션 타이밍을 제어하는 코루틴
     private IEnumerator AtkAnimRoutine()
     {
-        float normalizedTime = -1f;
-        do { normalizedTime = GetNormalizedTime(attackStateHash); yield return null; } while (normalizedTime < 0f);
+        float normalizedTime = 0f;
+        while (!playerUnit.IsAttackAnimPlaying)
+        {
+            yield return null;
+        }
 
         animator.speed = playerUnit.StartAttackTime / playerUnit.UnitData.attackDelayTime;
 
-        while (normalizedTime < playerUnit.StartAttackNormalizedTime)
+        while (playerUnit.IsAttackAnimPlaying && normalizedTime < playerUnit.StartAttackNormalizedTime)
         {
             // 공격 애니메이션 중에 타겟이 죽으면 즉시 행동 리셋
             if (playerUnit.TargetUnit == null || playerUnit.TargetUnit.IsDead())
@@ -341,7 +347,7 @@ public class PlayerHealerSplashController : BaseUnitController
         Attack();
         playerUnit.TargetUnit = null; // 다른 컨트롤러도 추가 필요@@@@
         animator.speed = 1f;
-        while (normalizedTime >= 0f && normalizedTime < 1f)
+        while (playerUnit.IsAttackAnimPlaying && normalizedTime >= 0f && normalizedTime < 1f)
         {
             normalizedTime = GetNormalizedTime(attackStateHash);
             yield return null;

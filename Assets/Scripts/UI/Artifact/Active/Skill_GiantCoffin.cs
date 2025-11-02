@@ -2,6 +2,8 @@ using UnityEngine;
 
 public class Skill_GiantCoffin : ActiveSkillEffect
 {
+    float minX = float.MinValue;
+    float maxX = float.MaxValue;
     public override void Execute(ActiveArtifactLevelData levelData)
     {
         Debug.Log("스킬 5: 거인의 석관 발동!");
@@ -10,8 +12,15 @@ public class Skill_GiantCoffin : ActiveSkillEffect
         float health = levelData.summonHealth;
         float offset = 1f; // 기획서 고정값 (거리 1)
 
+        if(minX == float.MinValue || maxX == float.MaxValue)
+        {
+            SetMinMaxX();
+        }
         Vector3 playerPos = GameManager.Instance.Player.transform.position;
         Vector3 summonPos = playerPos + new Vector3(offset, 0, 0);
+        
+        summonPos.x = Mathf.Clamp(summonPos.x, minX, maxX);
+
 
         // 현재는 소환 수 고정, 추후 소환수가 달라진다면 아래 내용 사용
 
@@ -34,5 +43,13 @@ public class Skill_GiantCoffin : ActiveSkillEffect
             Debug.LogError($"ObjectPoolManager에서 PoolType: {levelData.summonPoolType}을 Get하지 못했습니다.");
         }
         Debug.Log($"위치 {summonPos}에 {duration}초간 {health} 체력의 수호 정령 소환!");
+    }
+    void SetMinMaxX()
+    {
+        BaseHQ playerHQ = GameManager.Instance.PlayerHQ; // 게임 매니저에서 가져와야 함
+        BaseHQ enemyHQ = GameManager.Instance.enemyHQ;
+
+        minX = playerHQ.gameObject.transform.position.x;
+        maxX = enemyHQ.gameObject.transform.position.x;
     }
 }

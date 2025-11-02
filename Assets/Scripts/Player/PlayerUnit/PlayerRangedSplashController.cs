@@ -20,7 +20,6 @@ public class PlayerRangedSplashController : BaseUnitController
     // 플레이어는 x 좌표가 작은 적 우선 선택,
     // 적은 x 좌표가 큰 플레이어 우선 선택하기 때문
     PriorityQueue<BaseCharacter, float> selectedUnitPQ = new PriorityQueue<BaseCharacter, float>(isMinHeap: false);
-    const int maxTargets = 5;
     // 시간 비교용
     //Stopwatch sw = new Stopwatch();
 
@@ -106,7 +105,7 @@ public class PlayerRangedSplashController : BaseUnitController
 
             float priority = enemy.transform.position.x; // x 좌표가 작을수록 우선순위 높음
             // 최대 타겟 수보다 적게 선택된 경우 무조건 추가
-            if (selectedUnitPQ.Count < maxTargets)
+            if (selectedUnitPQ.Count < playerUnit.UnitData.maxTargetCount)
             {
                 selectedUnitPQ.Enqueue(enemy, priority);
             }
@@ -250,16 +249,15 @@ public class PlayerRangedSplashController : BaseUnitController
     private IEnumerator AtkAnimRoutine()
     {
         // Attack 상태에 진입할 때까지 대기
-        float normalizedTime = -1f;
-        do
+        float normalizedTime = 0f;
+        while (!playerUnit.IsAttackAnimPlaying)
         {
-            normalizedTime = GetNormalizedTime(attackStateHash);
             yield return null;
-        } while (normalizedTime < 0f);
+        }
 
         animator.speed = playerUnit.StartAttackTime / playerUnit.UnitData.attackDelayTime;
 
-        while (normalizedTime < playerUnit.StartAttackNormalizedTime)
+        while (playerUnit.IsAttackAnimPlaying && normalizedTime < playerUnit.StartAttackNormalizedTime)
         {
             if (playerUnit.TargetUnit == null || playerUnit.TargetUnit.IsDead())
             {
@@ -274,7 +272,7 @@ public class PlayerRangedSplashController : BaseUnitController
         Attack();
         playerUnit.TargetUnit = null;
         animator.speed = 1f;
-        while (normalizedTime >= 0f && normalizedTime < 1f)
+        while (playerUnit.IsAttackAnimPlaying && playerUnit.IsAttackAnimPlaying && normalizedTime >= 0f && normalizedTime < 1f)
         {
             normalizedTime = GetNormalizedTime(attackStateHash);
             yield return null;
