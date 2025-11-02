@@ -166,11 +166,11 @@ public class EnemyHealerUnitController : BaseUnitController
     private IEnumerator AtkAnimRoutine()
     {
         float normalizedTime = -1f;
-        do { normalizedTime = GetNormalizedTime(attackStateHash); yield return null; } while (normalizedTime < 0f);
+        do { normalizedTime = GetNormalizedTime(attackStateHash); yield return null; } while (!enemyUnit.IsAttackAnimPlaying && normalizedTime < 0f);
 
         animator.speed = enemyUnit.StartAttackTime / enemyUnit.UnitData.attackDelayTime;
 
-        while (normalizedTime < enemyUnit.StartAttackNormalizedTime)
+        while (enemyUnit.IsAttackAnimPlaying && normalizedTime < enemyUnit.StartAttackNormalizedTime)
         {
             if (enemyUnit.TargetUnit == null || enemyUnit.TargetUnit.IsDead())
             {
@@ -185,7 +185,7 @@ public class EnemyHealerUnitController : BaseUnitController
         animator.speed = 1f;
         enemyUnit.TargetUnit = null;
 
-        while (normalizedTime >= 0f && normalizedTime < 1f)
+        while (enemyUnit.IsAttackAnimPlaying && normalizedTime >= 0f && normalizedTime < 1f)
         {
             normalizedTime = GetNormalizedTime(attackStateHash);
             yield return null;

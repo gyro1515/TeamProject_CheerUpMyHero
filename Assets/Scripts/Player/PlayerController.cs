@@ -191,7 +191,7 @@ public class PlayerController : BaseController
 
             normalizedTime = GetNormalizedTime(attackStateHash);
             yield return null;
-        } while (normalizedTime < 0f);
+        } while (!player.IsAttackAnimPlaying && normalizedTime < 0f);
         // 현재 기준 예시:
         // 공격 애니메이션 총 길이 0.25초
         // 0.36지점까지 = 0.09초에 해당
@@ -199,7 +199,7 @@ public class PlayerController : BaseController
         animator.speed = player.StartAttackTime / player.UnitData.attackDelayTime;
         float animatorSpeed = animator.speed;
 
-        while (normalizedTime < player.StartAttackNormalizedTime)
+        while (player.IsAttackAnimPlaying && normalizedTime < player.StartAttackNormalizedTime)
         {
             if (!isAttacking)
                 yield break;
@@ -217,7 +217,7 @@ public class PlayerController : BaseController
         Attack();
         animator.speed = 1f;
 
-        while (normalizedTime >= 0f && normalizedTime < 1f)
+        while (player.IsAttackAnimPlaying && normalizedTime >= 0f && normalizedTime < 1f)
         {
             if (!isAttacking)
                 yield break;

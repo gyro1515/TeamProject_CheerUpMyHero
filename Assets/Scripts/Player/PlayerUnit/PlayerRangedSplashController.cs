@@ -255,11 +255,11 @@ public class PlayerRangedSplashController : BaseUnitController
         {
             normalizedTime = GetNormalizedTime(attackStateHash);
             yield return null;
-        } while (normalizedTime < 0f);
+        } while (!playerUnit.IsAttackAnimPlaying && normalizedTime < 0f && !playerUnit.IsAttackAnimPlaying);
 
         animator.speed = playerUnit.StartAttackTime / playerUnit.UnitData.attackDelayTime;
 
-        while (normalizedTime < playerUnit.StartAttackNormalizedTime)
+        while (playerUnit.IsAttackAnimPlaying && playerUnit.IsAttackAnimPlaying && normalizedTime < playerUnit.StartAttackNormalizedTime)
         {
             if (playerUnit.TargetUnit == null || playerUnit.TargetUnit.IsDead())
             {
@@ -274,7 +274,7 @@ public class PlayerRangedSplashController : BaseUnitController
         Attack();
         playerUnit.TargetUnit = null;
         animator.speed = 1f;
-        while (normalizedTime >= 0f && normalizedTime < 1f)
+        while (playerUnit.IsAttackAnimPlaying && playerUnit.IsAttackAnimPlaying && normalizedTime >= 0f && normalizedTime < 1f)
         {
             normalizedTime = GetNormalizedTime(attackStateHash);
             yield return null;

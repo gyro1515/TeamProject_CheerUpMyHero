@@ -167,14 +167,14 @@ public class PlayerUnitController : BaseUnitController
         {
             normalizedTime = GetNormalizedTime(attackStateHash);
             yield return null;
-        } while (normalizedTime < 0f);
+        } while (!playerUnit.IsAttackAnimPlaying && normalizedTime < 0f);
         // 현재 기준 예시:
         // 공격 애니메이션 총 길이 0.25초
         // 0.36지점까지 = 0.09초에 해당
         // 0.09초를 딜레이 초로 늘리려면
         animator.speed = playerUnit.StartAttackTime / playerUnit.UnitData.attackDelayTime;
 
-        while (normalizedTime < playerUnit.StartAttackNormalizedTime)
+        while (playerUnit.IsAttackAnimPlaying && normalizedTime < playerUnit.StartAttackNormalizedTime)
         {
             if (playerUnit.TargetUnit == null || playerUnit.TargetUnit.IsDead()) // 공격 중에 죽었다면 브레이크
             {
@@ -188,7 +188,7 @@ public class PlayerUnitController : BaseUnitController
         Attack();
         playerUnit.TargetUnit = null; // 다른 컨트롤러도 추가 필요@@@@
         animator.speed = 1f;
-        while (normalizedTime >= 0f && normalizedTime < 1f)
+        while (playerUnit.IsAttackAnimPlaying && normalizedTime >= 0f && normalizedTime < 1f)
         {
             normalizedTime = GetNormalizedTime(attackStateHash);
             yield return null;

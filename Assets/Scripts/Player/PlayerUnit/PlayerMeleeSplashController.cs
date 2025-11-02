@@ -198,13 +198,13 @@ public class PlayerMeleeSplashController : BaseUnitController
         {
             normalizedTime = GetNormalizedTime(attackStateHash);
             yield return null;
-        } while (normalizedTime < 0f);
+        } while (!playerUnit.IsAttackAnimPlaying && normalizedTime < 0f);
         // 선딜 설정
         animator.speed = playerUnit.StartAttackTime / playerUnit.UnitData.attackDelayTime;
 
 
 
-        while (normalizedTime < playerUnit.StartAttackNormalizedTime)
+        while (playerUnit.IsAttackAnimPlaying && normalizedTime < playerUnit.StartAttackNormalizedTime)
         {
             if (playerUnit.TargetUnit == null || playerUnit.TargetUnit.IsDead())
             {
@@ -223,7 +223,7 @@ public class PlayerMeleeSplashController : BaseUnitController
         playerUnit.TargetUnit = null; // 다른 컨트롤러도 추가 필요@@@@
 
         animator.speed = 1f;
-        while (normalizedTime >= 0f && normalizedTime < 1f)
+        while (playerUnit.IsAttackAnimPlaying && normalizedTime >= 0f && normalizedTime < 1f)
         {
             normalizedTime = GetNormalizedTime(attackStateHash);
             yield return null;

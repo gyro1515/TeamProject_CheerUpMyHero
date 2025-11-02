@@ -183,11 +183,11 @@ public class EnemyRangedSplashController : BaseUnitController
         {
             normalizedTime = GetNormalizedTime(attackStateHash);
             yield return null;
-        } while (normalizedTime < 0f);
+        } while (!enemyUnit.IsAttackAnimPlaying && normalizedTime < 0f && !enemyUnit.IsAttackAnimPlaying);
 
         animator.speed = enemyUnit.StartAttackTime / enemyUnit.UnitData.attackDelayTime;
 
-        while (normalizedTime < enemyUnit.StartAttackNormalizedTime)
+        while (enemyUnit.IsAttackAnimPlaying && enemyUnit.IsAttackAnimPlaying && normalizedTime < enemyUnit.StartAttackNormalizedTime)
         {
             if (enemyUnit.TargetUnit == null || enemyUnit.TargetUnit.IsDead())
             {
@@ -203,7 +203,7 @@ public class EnemyRangedSplashController : BaseUnitController
         enemyUnit.TargetUnit = null;
 
         animator.speed = 1f;
-        while (normalizedTime >= 0f && normalizedTime < 1f)
+        while (enemyUnit.IsAttackAnimPlaying && enemyUnit.IsAttackAnimPlaying && normalizedTime >= 0f && normalizedTime < 1f)
         {
             normalizedTime = GetNormalizedTime(attackStateHash);
             yield return null;
