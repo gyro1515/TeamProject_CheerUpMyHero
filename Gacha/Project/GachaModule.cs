@@ -23,8 +23,8 @@ public class GachaModule
     //확률표 세팅
     private readonly List<RarityInfo> _rarityTable = new List<RarityInfo>
     {
-        new RarityInfo { rarity = Rarity.Epic, Weight = 25, IDs = new List<int>(){120003, 125001, 125002, 125003 } }, // 120001, 120002 막음
-        new RarityInfo { rarity = Rarity.Rare, Weight = 180, IDs = new List<int>(){110001, 110002, 110003, 110004, 110005, 110006, 110007, 115001, 115003, 115004, 115005 } }, //115002 막음
+        new RarityInfo { rarity = Rarity.Epic, Weight = 25, IDs = new List<int>(){120001, 120002, 120003, 125001, 125002, 125003 } },
+        new RarityInfo { rarity = Rarity.Rare, Weight = 180, IDs = new List<int>(){110001, 110002, 110003, 110004, 110005, 110006, 110007, 115001, 115002, 115003, 115004, 115005 } },
         new RarityInfo { rarity = Rarity.Common, Weight = 795, IDs = new List<int>(){105001, 105002, 105003, 105004, 105005, 105006, 105007, 105008, 105009, 105010 } }
     };
 

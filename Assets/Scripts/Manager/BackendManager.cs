@@ -200,7 +200,7 @@ public class BackendManager : SingletonMono<BackendManager>
 
             var options = new InitializationOptions();
 
-#if USERTEST && !UNITY_EDITOR
+#if USERTEST
             options.SetEnvironmentName("usertest");
 #else
             options.SetEnvironmentName("dev");

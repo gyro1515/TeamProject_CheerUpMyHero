@@ -127,7 +127,6 @@ public class GachaUIPanel : BaseUI, IBackButtonHandler
     private async UniTaskVoid OnPullOneClicked()
     {
         pullOneButton.interactable = false;
-        UIManager.Instance.ShowLoading();
         //pullTenButton.interactable = false;
         Debug.Log("--- 1회 뽑기 버튼 클릭됨 ---");
 
@@ -233,11 +232,9 @@ public class GachaUIPanel : BaseUI, IBackButtonHandler
             else
             {
                 pullOneButton.interactable = false;
-                UIManager.Instance.HideLoading();
                 //pullTenButton.interactable = false;
             }
 
-            UIManager.Instance.HideLoading();
             await PlayerDataManager.Instance.SaveDataToCloudAsync();
         }
     }
@@ -246,7 +243,6 @@ public class GachaUIPanel : BaseUI, IBackButtonHandler
     {
         //pullOneButton.interactable = false;
         pullTenButton.interactable = false;
-        UIManager.Instance.ShowLoading();
         Debug.Log("--- 10회 뽑기 버튼 클릭됨 ---");
 
         try
@@ -339,7 +335,6 @@ public class GachaUIPanel : BaseUI, IBackButtonHandler
                 pullTenButton.interactable = false;
             }
 
-            UIManager.Instance.HideLoading();
             await PlayerDataManager.Instance.SaveDataToCloudAsync();
         }
     }

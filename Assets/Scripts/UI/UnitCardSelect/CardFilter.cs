@@ -298,7 +298,7 @@ public class CardFilter : MonoBehaviour
                 filterText.text = "등급";
                 break;
             case SelectedFilter.Cost:
-                filterText.text = "식량";
+                filterText.text = "코스트";
                 break;
             case SelectedFilter.Health:
                 filterText.text = "체력";

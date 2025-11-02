@@ -77,14 +77,9 @@ public class BuildingSynergyPanel : MonoBehaviour
     {
         if (PlayerDataManager.Instance._TileDataHandler == null) return;
 
-        // --- 1. StringBuilder를 함수 맨 위에 선언 (재활용) ---
-        var sb = new StringBuilder();
-
-        // 2. '병영'을 제외한 건물들을 타입별로 그룹화
         var buildingsByType = PlayerDataManager.Instance._TileDataHandler.BuildingGridData
             .Cast<BuildingUpgradeData>()
-            .Where(b => b != null && b.effects.Count > 0
-                       && b.buildingType != BuildingType.Barracks) // 병영 제외
+            .Where(b => b != null && b.effects.Count > 0)
             .GroupBy(b => b.buildingType);
 
         foreach (var group in buildingsByType)
@@ -93,7 +88,6 @@ public class BuildingSynergyPanel : MonoBehaviour
 
             var effectsSum = new Dictionary<BuildingEffectType, float>();
             var magicStoneEffects = new List<BuildingEffect>();
-            // ------------------------------------
 
             foreach (var building in group)
             {
@@ -103,7 +97,7 @@ public class BuildingSynergyPanel : MonoBehaviour
                     {
                         magicStoneEffects.Add(effect);
                     }
-                    else
+                    else 
                     {
                         if (!effectsSum.ContainsKey(effect.effectType)) effectsSum[effect.effectType] = 0;
                         effectsSum[effect.effectType] += effect.effectValueMin;
@@ -111,7 +105,7 @@ public class BuildingSynergyPanel : MonoBehaviour
                 }
             }
 
-            sb.Clear(); // StringBuilder 내용 비우기
+            var sb = new StringBuilder();
 
             foreach (var pair in effectsSum)
             {
@@ -128,57 +122,6 @@ public class BuildingSynergyPanel : MonoBehaviour
 
             Sprite icon = buildingIcons.ContainsKey(group.Key) ? buildingIcons[group.Key] : null;
             string title = $"{group.First().buildingName} x{group.Count()}";
-            item.Initialize(icon, title, sb.ToString().TrimEnd());
-        }
-        int totalBarracksCount = PlayerDataManager.Instance._TileDataHandler.BuildingGridData
-            .Cast<BuildingUpgradeData>()
-            .Count(b => b != null && b.buildingType == BuildingType.Barracks);
-
-        if (totalBarracksCount > 0)
-        {
-            var item = GetNewItem();
-            sb.Clear(); // StringBuilder 재사용
-
-            // PlayerDataManager에 이미 계산된 최종 값을 가져옵니다.
-            int finalRareSlots = PlayerDataManager.Instance.RareUnitSlots;
-            int finalEpicSlots = PlayerDataManager.Instance.EpicUnitSlots;
-            float finalCooldownReduction = PlayerDataManager.Instance.TotalUnitCooldownReduction;
-
-            // (BuildingEffectType.None 등 임시 타입으로 문자열 포맷팅 함수 호출)
-            string cooldownString = FormatEffectString(new BuildingEffect
-            {
-                effectType = BuildingEffectType.UnitCoolDown,
-                effectValueMin = finalCooldownReduction
-            });
-            string rareString = FormatEffectString(new BuildingEffect
-            {
-                effectType = BuildingEffectType.CanSummonRareUnits,
-                effectValueMin = finalRareSlots
-            });
-            string epicString = FormatEffectString(new BuildingEffect
-            {
-                effectType = BuildingEffectType.CanSummonEpicUnits,
-                effectValueMin = finalEpicSlots
-            });
-
-            // --- 4-3. 원하는 순서대로, 그리고 빈 문자열이 아닐 때만 AppendLine ---
-            if (!string.IsNullOrEmpty(cooldownString))
-            {
-                sb.AppendLine(cooldownString);
-            }
-            if (!string.IsNullOrEmpty(rareString))
-            {
-                sb.AppendLine(rareString);
-            }
-            if (!string.IsNullOrEmpty(epicString))
-            {
-                sb.AppendLine(epicString);
-            }
-
-            // 아이콘 및 타이틀 설정
-            Sprite icon = buildingIcons.ContainsKey(BuildingType.Barracks) ? buildingIcons[BuildingType.Barracks] : null;
-            string title = $"병영 x{totalBarracksCount}"; // (총 병영 개수 표시)
-
             item.Initialize(icon, title, sb.ToString().TrimEnd());
         }
     }
@@ -328,10 +271,7 @@ public class BuildingSynergyPanel : MonoBehaviour
     {
         string effectName = GetEffectNameInKorean(effect.effectType);
         string valueString = GetEffectValueString(effect);
-        if (effect.effectValueMin == 0)
-        {
-            return string.Empty; // 또는 null
-        }
+
         switch (effect.effectType)
         {
             case BuildingEffectType.IncreaseFoodGainSpeed:
