@@ -191,6 +191,7 @@ public class GameManager : SingletonMono<GameManager>
         int finalWood = 0;
         int finalIron = 0;
         int finalMagicStone = 0;
+        int finalEXP = 0;
 
         if (isVictory) // =============== 승리했을 경우 ===============
         {
@@ -269,6 +270,7 @@ public class GameManager : SingletonMono<GameManager>
             finalWood = rewardData.rewardWood + Mathf.CeilToInt(totalBaseWood * (1 + (totalBonusWoodPercent + challengeBonusPercent) / 100f));
             finalIron = rewardData.rewardIron + Mathf.CeilToInt(totalBaseIron * (1 + (totalBonusIronPercent + challengeBonusPercent) / 100f));
             finalMagicStone = Mathf.CeilToInt(rewardData.rewardMagicStone * (1 + challengeBonusPercent / 100f));
+            finalEXP = Mathf.CeilToInt(rewardData.rewardEXP * (1 + challengeBonusPercent / 100f));
             
             if (Random.Range(0, 100) < totalMagicStoneChance)
             {
@@ -283,7 +285,7 @@ public class GameManager : SingletonMono<GameManager>
             }
             else
             {
-                RewardPanelUI?.OpenUI(finalGold, finalWood, finalIron, finalMagicStone, true);
+                RewardPanelUI?.OpenUI(finalGold, finalWood, finalIron, finalMagicStone, true, finalEXP);
             }
 
             try
@@ -295,6 +297,7 @@ public class GameManager : SingletonMono<GameManager>
                     PlayerDataManager.Instance.AddResource(ResourceType.Wood, finalWood),
                     PlayerDataManager.Instance.AddResource(ResourceType.Iron, finalIron),
                     PlayerDataManager.Instance.AddResource(ResourceType.MagicStone, finalMagicStone),
+                    PlayerDataManager.Instance.AddResource(ResourceType.EXP, finalEXP)
                 };
 
                 await UniTask.WhenAll(rewardTasks);

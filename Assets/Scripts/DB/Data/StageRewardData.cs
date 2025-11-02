@@ -6,4 +6,5 @@ public class StageRewardData : MonoData
     public int rewardWood;
     public int rewardIron;
     public int rewardMagicStone;
+    public int rewardEXP;
 }

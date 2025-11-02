@@ -6,6 +6,9 @@ using UnityEngine;
 
 public class PlayerUnit : BaseUnit
 {
+    private float _auraAtkBonusPer = 0f;
+    private bool _hasAuraBuff = false;
+
     protected override void Awake()
     {
         base.Awake();
@@ -56,7 +59,7 @@ public class PlayerUnit : BaseUnit
         // 배율에 따른 체력 공격력 세팅 -> [원래 값 * (운명, 도전 배율 + statMultiplier) -> 합연산]
         MaxHp = UnitData.health * (hpModifierBonus + statMultiplier) * (1.0f + synergyHealthBonus / 100.0f) * spawnHeroBonus;
         curHp = MaxHp;
-        AtkPower = UnitData.atkPower * (atkPowerModifierBonus + statMultiplier) * (1.0f + synergyAttackBonus / 100.0f) * spawnHeroBonus;
+        AtkPower = UnitData.atkPower * (atkPowerModifierBonus + statMultiplier + _auraAtkBonusPer) * (1.0f + synergyAttackBonus / 100.0f) * spawnHeroBonus;
         MoveSpeed = UnitData.moveSpeed * (moveSpeedModifierBonus + 1f);
 
         // 이 시너지 체크 필요
@@ -138,5 +141,25 @@ public class PlayerUnit : BaseUnit
         enabled = false;
         MoveDir = Vector3.zero;
 
+    }
+
+    public void ApplyAuraBuff(float bonusPer)
+    {
+        if (_hasAuraBuff) return;
+
+        _auraAtkBonusPer = bonusPer;
+        _hasAuraBuff = true;
+
+        SetStatMultiplier(1f);
+    }
+
+    public void RemoveAuraBuff()
+    {
+        if (!_hasAuraBuff) return;
+
+        _auraAtkBonusPer = 0f;
+        _hasAuraBuff = false;
+
+        SetStatMultiplier(1f);
     }
 }

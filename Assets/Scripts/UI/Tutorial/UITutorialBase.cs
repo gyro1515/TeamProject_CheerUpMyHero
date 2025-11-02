@@ -6,8 +6,8 @@ using UnityEngine.UI;
 public abstract class UITutorialBase : BaseUI, IBackButtonHandler
 {
     [SerializeField] private List<GameObject> tutorialSteps = new List<GameObject>();
-    [SerializeField] private Button leftBtn;
-    [SerializeField] private Button rightBtn;
+    [SerializeField] private Button backBtn;
+    [SerializeField] private Button nextBtn;
     [SerializeField] private Button skipBtn;
 
     int stepIdx = 0;
@@ -15,8 +15,8 @@ public abstract class UITutorialBase : BaseUI, IBackButtonHandler
 
     protected virtual void Awake()
     {
-        leftBtn.onClick.AddListener(OnLeftButtonClicked);
-        rightBtn.onClick.AddListener(OnRightButtonClicked);
+        backBtn.onClick.AddListener(OnLeftButtonClicked);
+        nextBtn.onClick.AddListener(OnRightButtonClicked);
         skipBtn.onClick.AddListener(OnSkipButtonClicked);
 
         maxStep = tutorialSteps.Count;

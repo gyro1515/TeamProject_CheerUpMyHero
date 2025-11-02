@@ -9,6 +9,16 @@ public class Player : BaseUnit
     [field: SerializeField] public float ArtifactPower { get; private set; }
     [field: SerializeField] public float MaxMana { get; private set; } = 15;
     [field: SerializeField] public PlayerData PlayerData { get; private set; }
+
+    [field: Header("플레이어 오라")]
+    [field: SerializeField] public float AuraRange { get; private set; }
+    [field: SerializeField] public float AuraAtkBonus { get; private set; }
+
+    private List<PlayerUnit> _unitInAura = new List<PlayerUnit>();
+
+    private float _auraCheckTimer = 0f;
+    private const float AuraCheckInterver = 0.1f;
+
     float curMana;
     int curLevel = 1;
     int curExp = 0; // 나중에는 PlayerDataManager에서 관리
@@ -82,12 +92,40 @@ public class Player : BaseUnit
     {
         base.Start();
     }
+
+    protected override void Update()
+    {
+        base.Update();
+
+        _auraCheckTimer += Time.deltaTime;
+
+        if (_auraCheckTimer >= AuraCheckInterver)
+        {
+            _auraCheckTimer = 0;
+            if (!IsDead)
+            {
+                UpdateAuraBuffs();
+            }
+        }
+    }
+
     protected override void FixedUpdate()
     {
         base.Update();
         // 테스트로 플레이어는 계속 정렬해주기
         //InitCharacter();
     }
+
+    protected override void OnDisable()
+    {
+        base.OnDisable();
+        for (int i = 0; i < _unitInAura.Count; i++)
+        {
+            _unitInAura[i]?.RemoveAuraBuff();
+        }
+        _unitInAura.Clear();
+    }
+
     public void PlayerLevelUP() //
     {
         curLevel++;
@@ -107,12 +145,15 @@ public class Player : BaseUnit
         float hpModifierBonus = Modifiercalculator.GetMultiplier(target, StatType.MaxHp, this.UnitData);
         float atkModifierBonus = Modifiercalculator.GetMultiplier(target, StatType.AtkPower, this.UnitData);
         float moveSpeedModifierBonus = Modifiercalculator.GetMultiplier(target, StatType.MoveSpeed, this.UnitData);
+        float AuraRangeModifier = Modifiercalculator.GetMultiplier(target, StatType.AuraRange, this.UnitData);
 
         MaxHp = PlayerData.health * (hpModifierBonus + statMultiplier);
         curHp = MaxHp;
         AtkPower = PlayerData.atkPower * (atkModifierBonus + statMultiplier);
         AttackRate = PlayerData.attackRate * statMultiplier; // 공격 속도는 크기와 상관없이 배율에 비례
         MoveSpeed = PlayerData.moveSpeed * (moveSpeedModifierBonus + 1f);
+        AuraRange = PlayerData.auraRange * (AuraRangeModifier + 1f);
+        AuraAtkBonus = PlayerData.auraAtkBonus;
         
         // 251022 주석처리
         /*float tmpstatMultiplier = Math.Clamp(statMultiplier, 0.8f, 1.2f); // 크기는 너무 작아지거나 커지지 않도록 제한
@@ -190,6 +231,47 @@ public class Player : BaseUnit
         {
             isPlayedSound10 = false;
         }
+    }
+
+    private void UpdateAuraBuffs()
+    {
+        if (gameObject == null) return;
+
+        Vector3 playerPos = gameObject.transform.position;
+        List<BaseCharacter> unitList = UnitManager.PlayerUnitList;
+
+        List<PlayerUnit> currentUnitsInRange = new List<PlayerUnit>();
+
+        foreach (var unit in unitList)
+        {
+            if (unit == null || unit == this || unit.IsDead) continue;
+            if (!(unit is PlayerUnit playerUnit)) continue;
+
+            float dist = Mathf.Abs(playerUnit.transform.position.x - playerPos.x);
+
+            if (dist > AuraRange) continue;
+
+            currentUnitsInRange.Add(playerUnit);
+        }
+
+        for (int i = 0; i < currentUnitsInRange.Count; i++)
+        {
+            if (!_unitInAura.Contains(currentUnitsInRange[i]))
+            {
+                currentUnitsInRange[i].ApplyAuraBuff(AuraAtkBonus);
+            }
+        }
+
+        for (int i = 0; i < _unitInAura.Count; i++)
+        {
+            if (!currentUnitsInRange.Contains(_unitInAura[i]))
+            {
+                _unitInAura[i]?.RemoveAuraBuff();
+            }
+        }
+
+        _unitInAura.Clear();
+        _unitInAura.AddRange(currentUnitsInRange);
     }
 }
 #region 플레이어 레벨 업 이벤트

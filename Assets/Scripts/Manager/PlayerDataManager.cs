@@ -30,7 +30,8 @@ public enum ResourceType
     Food,
     MagicStone,
     Bm,
-    Ticket
+    Ticket,
+    EXP
 }
 public enum TileStatus { Normal, Damaged, Repairing }
 
