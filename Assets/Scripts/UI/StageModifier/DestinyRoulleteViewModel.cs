@@ -43,24 +43,34 @@ public class DestinyRoulleteViewModel
         OnChallengeStateChanged?.Invoke(false);
         OnSpinTestChanged?.Invoke(true);
 
-        if (_stage.Item1 == OneNine.Item1 && _stage.Item2 == OneNine.Item2)
-        {
-            _fortuneProbability = 1f;
-            OnWheelVisualSet?.Invoke(1.0f, 0.0f, 0.0f);
-        }
-        else
-        {
-            // 행운 확률 계산 + 확률 적용해서 돌림판 세팅
-            _fortuneProbability = _model.GetFortuneProbability(_gameMode, _stage);
-            OnWheelVisualSet?.Invoke(_fortuneProbability, 1.0f - _fortuneProbability, _fortuneProbability * 360);
+        // 행운 확률 100% 만드는 로직 -> 나중에 필요하면 넣기
+        //if (_stage.Item1 == OneNine.Item1 && _stage.Item2 == OneNine.Item2)
+        //{
+        //    _fortuneProbability = 1f;
+        //    OnWheelVisualSet?.Invoke(1.0f, 0.0f, 0.0f);
 
-            // 랜덤 시작 각도 만들고 반영하기
-            float randomStartAngle = UnityEngine.Random.Range(0f, 360f);
-            OnWheelStartAngleSet?.Invoke(randomStartAngle);
+        //    // 랜덤 시작 각도 만들고 반영하기
+        //    float randomStartAngle1 = UnityEngine.Random.Range(0f, 360f);
+        //    OnWheelStartAngleSet?.Invoke(randomStartAngle1);
 
-            // 인트로 시작 신호 보내기
-            OnIntroStateChanged?.Invoke(true);
-        }
+        //    // 인트로 시작 신호 보내기
+        //    OnIntroStateChanged?.Invoke(true);
+
+        //    return;
+        //}
+
+
+        // 행운 확률 계산 + 확률 적용해서 돌림판 세팅
+        _fortuneProbability = _model.GetFortuneProbability(_gameMode, _stage);
+        OnWheelVisualSet?.Invoke(_fortuneProbability, 1.0f - _fortuneProbability, _fortuneProbability * 360);
+
+        // 랜덤 시작 각도 만들고 반영하기
+        float randomStartAngle = UnityEngine.Random.Range(0f, 360f);
+        OnWheelStartAngleSet?.Invoke(randomStartAngle);
+
+        // 인트로 시작 신호 보내기
+        OnIntroStateChanged?.Invoke(true);
+        
     }
 
     // 인트로 코루틴 끝 -> OnIntroFinished 호출 -> 돌림판 코루틴 호출
@@ -79,23 +89,30 @@ public class DestinyRoulleteViewModel
     {
         _isSpinning = false;
 
-        if (_stage.Item1 == OneNine.Item1 && _stage.Item2 == OneNine.Item2)
-        {
-            const int heroTimerFortuneId = 9010003;
-            _selectedDestiny = _model.GetSpecificDestiny(heroTimerFortuneId);
-        }
-        else
-        {
+        // 특정 라운드에서 운명 효과 고정하는 로직 -> 필요하면 열기
+        //if (_stage.Item1 == OneNine.Item1 && _stage.Item2 == OneNine.Item2)
+        //{
+        //    const int heroTimerFortuneId = 9010003;
+        //    _selectedDestiny = _model.GetSpecificDestiny(heroTimerFortuneId);
+        //    if (_selectedDestiny != null)
+        //    {
+        //        OnResultSet?.Invoke(_selectedDestiny);
+        //    }
+        //    else Debug.Log("운명 뽑아오는 로직 오류 있어요");
 
-            // 화살표 위치 고려하여 결과 산출 -> 행운이냐 불행이냐
-            float arrowPoint = finalAngle % 360;
-            float fortuneAngleRange = _fortuneProbability * 360;
-            DestinyType destinyType = arrowPoint <= fortuneAngleRange ? DestinyType.Fortune : DestinyType.Misfortune;
-
-            // 랜덤 운명 뽑아서 결과창 띄움
-            _selectedDestiny = _model.GetRandomDestiny(destinyType);
-        }
-
+        //    OnConfirmStateChanged?.Invoke(true);
+        //    OnChallengeStateChanged?.Invoke(true);
+        //    OnSpinTestChanged?.Invoke(true);
+        //    return;
+        //}
+        
+        // 화살표 위치 고려하여 결과 산출 -> 행운이냐 불행이냐
+        float arrowPoint = finalAngle % 360;
+        float fortuneAngleRange = _fortuneProbability * 360;
+        DestinyType destinyType = arrowPoint <= fortuneAngleRange ? DestinyType.Fortune : DestinyType.Misfortune;
+        // 랜덤 운명 뽑아서 결과창 띄움
+        _selectedDestiny = _model.GetRandomDestiny(destinyType);
+        
         if (_selectedDestiny != null)
         {
             OnResultSet?.Invoke(_selectedDestiny);
