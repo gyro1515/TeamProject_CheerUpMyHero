@@ -539,9 +539,9 @@ public class MainScreenBuildingController : MonoBehaviour
 
         var dataHandler = PlayerDataManager.Instance._TileDataHandler;
 
-        dataHandler.TileStatusGrid[tile.X, tile.Y] = TileStatus.Repairing;
+        dataHandler.TileStatusGrid[tile.X, tile.Y] = TileStatus.Normal;
 
-        dataHandler.TileRepairTurnsGrid[tile.X, tile.Y] = 3;
+        dataHandler.TileRepairTurnsGrid[tile.X, tile.Y] = 0;
 
         Debug.Log($"타일 ({tile.X},{tile.Y})이(가) 광고 시청으로 즉시 수리되었습니다.");
 
