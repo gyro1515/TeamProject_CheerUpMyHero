@@ -20,7 +20,6 @@ public class PlayerHealerSplashController : BaseUnitController
 
     // 자세한 설명은 PlayerRangedSplashController.cs 참고
     PriorityQueue<BaseCharacter, float> selectedUnitPQ = new PriorityQueue<BaseCharacter, float>(isMinHeap: false);
-    const int maxTargets = 5;
     protected override void Awake()
     {
         playerUnit = GetComponent<PlayerUnit>();
@@ -112,6 +111,7 @@ public class PlayerHealerSplashController : BaseUnitController
         int hitCount = 0;
         // 우선 큐 비우기
         selectedUnitPQ.Clear();
+
         // 모든 적을 순회하며 폭발 지점과의 거리를 비교
         foreach (BaseCharacter enemy in allEnemies)
         {
@@ -123,7 +123,7 @@ public class PlayerHealerSplashController : BaseUnitController
 
             float priority = enemy.transform.position.x; // x 좌표가 작을수록 우선순위 높음
             // 최대 타겟 수보다 적게 선택된 경우 무조건 추가
-            if (selectedUnitPQ.Count < maxTargets)
+            if (selectedUnitPQ.Count < playerUnit.UnitData.maxTargetCount)
             {
                 selectedUnitPQ.Enqueue(enemy, priority);
             }

@@ -16,7 +16,6 @@ public class EnemyRangedSplashController : BaseUnitController
     Transform targetPos = null;
     // 자세한 설명은 PlayerRangedSplashController.cs 참고
     PriorityQueue<BaseCharacter, float> selectedUnitPQ = new PriorityQueue<BaseCharacter, float>(isMinHeap: true);
-    const int maxTargets = 5;
     // 시간 비교용
     //Stopwatch sw = new Stopwatch();
     protected override void Awake()
@@ -83,7 +82,7 @@ public class EnemyRangedSplashController : BaseUnitController
             if (distance > enemyUnit.AttackRange / 2) continue;
             float priority = player.transform.position.x; // x 좌표가 클수록 우선순위 높음
             // 최대 타겟 수보다 적게 선택된 경우 무조건 추가
-            if (selectedUnitPQ.Count < maxTargets)
+            if (selectedUnitPQ.Count < enemyUnit.UnitData.maxTargetCount)
             {
                 selectedUnitPQ.Enqueue(player, priority);
             }
