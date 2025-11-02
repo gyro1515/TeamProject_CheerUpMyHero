@@ -69,9 +69,10 @@ public class GameManager : SingletonMono<GameManager>
         // 테스트
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
-            Time.timeScale += 0.5f;
-            Time.timeScale = Mathf.Clamp(Time.timeScale,0, 5f);
-
+            /*Time.timeScale += 0.5f;
+            Time.timeScale = Mathf.Clamp(Time.timeScale,0, 5f);*/
+            Time.timeScale += 1f;
+            Time.timeScale = Mathf.Clamp(Time.timeScale, 0, 50f);
             //Debug.Log("AddTimeScale");
         }
         else if (Input.GetKeyDown(KeyCode.Alpha2))

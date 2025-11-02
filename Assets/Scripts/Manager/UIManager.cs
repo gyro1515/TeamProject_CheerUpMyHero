@@ -16,7 +16,11 @@ public class UIManager : SingletonMono<UIManager>, ISceneResettable
     //private BaseUI _currentOpenedPopup = null;
     private readonly Stack<IBackButtonHandler> _uiStack = new Stack<IBackButtonHandler>();
 
-    
+    // [로딩] 로딩 상태 관리 플래그 및 UI 참조 변수
+    private const string LoadingUIName = "UI_Loading";
+    private bool _isLoading = false;
+    private GameObject _loadingUIInstance;
+    private CanvasGroup _loadingCanvasGroup;
 
     protected override void Awake()
     {
@@ -26,6 +30,9 @@ public class UIManager : SingletonMono<UIManager>, ISceneResettable
         EventManager.GetSubscriber<BackButtonPressedEvent>().Subscribe(_ => BackButtonPressed());
         EventManager.GetSubscriber<AddUIStackEvent>().Subscribe(PushUI);
         EventManager.GetSubscriber<RemoveUIStackEvent>().Subscribe(_ => PopUI());
+
+        // [로딩] 로딩 UI를 미리 생성하고 비활성화해 둡니다.
+        InitializeLoadingUI();
     }
     /*private void OnEnable()
     {
@@ -96,6 +103,14 @@ public class UIManager : SingletonMono<UIManager>, ISceneResettable
     }
     void BackButtonPressed()
     {
+        // [로딩] 로딩 중일때 뒤로가기 버튼 막기
+        if (_isLoading)
+        {
+            Debug.Log("로딩 중이므로 뒤로가기를 무시합니다.");
+            return;
+        }
+
+
         //Debug.Log($"UIManager: 뒤로 가기 버튼 눌림{_uiStack.Count}");
         // 스택에 UI가 하나라도 있다면
         if (_uiStack.Count > 0)
@@ -252,8 +267,14 @@ public class UIManager : SingletonMono<UIManager>, ISceneResettable
     {
         CleanAllUIs();
         _uiStack.Clear();
+
+        //[로딩] 로딩 중 씬이 전환될 경우를 대비해 로딩 상태도 초기화
+        if (_isLoading)
+        {
+            HideLoading();
+        }
     }
-    
+
 
     /*// UI 뿐만 아니라 전체 오브젝트 관리 시스템측면에서도 있으면 좋음
     private IEnumerator CoUnloadUnusedAssets()
@@ -261,4 +282,53 @@ public class UIManager : SingletonMono<UIManager>, ISceneResettable
         yield return Resources.UnloadUnusedAssets();
         System.GC.Collect();
     }*/
+
+
+
+    // ================================
+    // [로딩 스크린](터치, 뒤로가기 잠금)
+    // ================================
+
+    private void InitializeLoadingUI()
+    {
+        if (_loadingUIInstance != null) return;
+
+        GameObject prefab = Resources.Load<GameObject>(UIPrefabPath + LoadingUIName);
+        if (prefab == null)
+        {
+            Debug.LogError($"[UIManager] Loading UI Prefab not found: {UIPrefabPath + LoadingUIName}");
+            return;
+        }
+
+        _loadingUIInstance = Instantiate(prefab, transform);
+
+        //캔버스 그룹
+        _loadingCanvasGroup = _loadingUIInstance.GetComponent<CanvasGroup>();
+
+        _loadingUIInstance.SetActive(false); // 처음에는 비활성화
+    }
+
+    //로딩 호출
+    public void ShowLoading()
+    {
+        if (_isLoading) return;
+
+        _isLoading = true;
+        if (_loadingUIInstance != null)
+        {
+            _loadingUIInstance.SetActive(true);
+            _loadingCanvasGroup.blocksRaycasts = true; // 터치 막기
+        }
+    }
+    //로딩 종료
+    public void HideLoading()
+    {
+        _isLoading = false;
+        if (_loadingUIInstance != null)
+        {
+            _loadingUIInstance.SetActive(false);
+            _loadingCanvasGroup.blocksRaycasts = false; // 터치 허용
+        }
+    }
+
 }

@@ -48,7 +48,6 @@ public class ConstructionUpgradePanel : BasePopUpUI
         //_canvasGroup = GetComponent<CanvasGroup>();
         actionButton.onClick.AddListener(() => { OnActionButtonClick().Forget(); });
         closeButton.onClick.AddListener(() => CloseUI());
-        destroyButton.onClick.AddListener(OnDestroyButtonClicked);
     }
     public override void CloseUI()
     {
@@ -72,6 +71,9 @@ public class ConstructionUpgradePanel : BasePopUpUI
         _upgradeData = DataManager.Instance.BuildingUpgradeData.GetData(currentData.nextLevel);
 
         destroyButton.gameObject.SetActive(true);
+        destroyButton.GetComponentInChildren<TextMeshProUGUI>().text = "파괴";
+        destroyButton.onClick.RemoveAllListeners(); // 기존 리스너 모두 제거
+        destroyButton.onClick.AddListener(OnDestroyButtonClicked); // '파괴' 기능 연결
         UpdatePanelContents();
     }
 
@@ -84,6 +86,7 @@ public class ConstructionUpgradePanel : BasePopUpUI
         _constructionData = DataManager.Instance.BuildingUpgradeData.GetData(buildingBaseID);
         currentImage.sprite = tile.emptyTileSprite;
         destroyButton.gameObject.SetActive(false);
+        destroyButton.onClick.RemoveAllListeners(); // 리스너 비우기
         UpdatePanelContents();
     }
 
@@ -94,6 +97,10 @@ public class ConstructionUpgradePanel : BasePopUpUI
         _mode = PanelMode.Repair;
         _constructionData = null;
         _upgradeData = null;
+        destroyButton.gameObject.SetActive(true); // "광고 수리" 버튼 (재활용)
+        destroyButton.GetComponentInChildren<TextMeshProUGUI>().text = "광고 보고 수리";
+        destroyButton.onClick.RemoveAllListeners(); 
+        destroyButton.onClick.AddListener(OnAdRepairButtonClicked); 
         UpdatePanelContents();
     }
 
@@ -169,7 +176,7 @@ public class ConstructionUpgradePanel : BasePopUpUI
             currentImage.sprite = currentData.buildingSprite;
             currentLevelText.text = $"{FormatBuildingName(currentData)} \n (반파)";
             nextLevelText.text = "수리하시겠습니까?";
-            actionButtonText.text = "수리";
+            actionButtonText.text = "자원 수리";
 
             UpdateRepairCostText(currentData);
         }
@@ -334,6 +341,23 @@ public class ConstructionUpgradePanel : BasePopUpUI
             MainScreenBuildingController.Instance.DeselectTile();
             _targetTile = null;
         }
+    }
+    private void OnAdRepairButtonClicked()
+    {
+        if (_targetTile == null || _mode != PanelMode.Repair) return;
+
+        Debug.Log("광고 보고 즉시 수리 버튼 클릭됨");
+
+        AdManager.Instance.ShowRewardedAd(() => {
+            // --- 광고 시청 성공 시 ---
+            Debug.Log("광고 시청 성공! 즉시 수리를 실행합니다.");
+
+            // 2. 컨트롤러에게 '광고용 즉시 수리'를 요청
+            MainScreenBuildingController.Instance.RepairBuildingWithAd(_targetTile);
+
+            // 3. 패널 닫기
+            CloseUI();
+        });
     }
     // --- 헬퍼 함수 ---
     private string FormatBuildingName(BuildingUpgradeData data)

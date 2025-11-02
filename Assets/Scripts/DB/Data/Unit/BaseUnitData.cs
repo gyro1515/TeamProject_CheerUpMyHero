@@ -28,6 +28,8 @@ public class BaseUnitData : MonoData
     public Sprite unitBGSprite; // 유닛 카드 배경 스프라이트
     public Sprite unitIconSprite; // 유닛 카드 아이콘 스프라이트
     public Sprite gachaHeroSprite;// 가챠 이미지
+    public float healAmount; // 치유량 (힐러 유닛 전용)
+    public int maxTargetCount; // 최대 타겟 수 (범위 공격 유닛 전용)
 }
 public enum Rarity
 {
