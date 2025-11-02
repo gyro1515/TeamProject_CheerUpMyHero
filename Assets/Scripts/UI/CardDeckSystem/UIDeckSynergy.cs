@@ -195,7 +195,7 @@ public class UIDeckSynergy : MonoBehaviour
             iconSlot.Init(synergyIcon[type], () =>
             {
                 //synergyClickedEvent.Publish(new SynergyClickedEvent(synergyType, count));
-                uISynegyToolTipPanel.OnSynergyClicked(synergyType, count);
+                uISynegyToolTipPanel.OnSynergyClicked(synergyType, count, synergyCounts[synergyIconToTypeAndCount[type].Item1]);
                 //Debug.Log("시너지 아이콘 클릭됨");
             });
             synergyIconGOListForAuto.Add(iconSlot);
@@ -235,10 +235,10 @@ public class UIDeckSynergy : MonoBehaviour
             }
         }
         // 디버그 출력
-        foreach (var kvp in synergyCounts)
+        /*foreach (var kvp in synergyCounts)
         {
             Debug.Log($"Synergy: {kvp.Key}, Count: {kvp.Value}");
-        }
+        }*/
         // 정보를 바탕으로 UI 업데이트
         UpdateSynergyUI();
     }

@@ -50,16 +50,16 @@ public class PlayerController : BaseController
     {
         base.Start();
 
-        playerHQ = FindObjectOfType<PlayerHQ>(); // 게임 매니저에서 가져와야 함
-        enemyHQ = FindObjectOfType<EnemyHQ>(); // 게임 매니저에서 가져와야 함
+        playerHQ = GameManager.Instance.PlayerHQ; // 게임 매니저에서 가져와야 함
+        enemyHQ = GameManager.Instance.enemyHQ;
 
         if (playerHQ == null || enemyHQ == null)
         {
             Debug.Log("HQ null임");
         }
 
-        SpriteRenderer spritePlayerHQ = playerHQ.GetComponentInChildren<SpriteRenderer>();
-        SpriteRenderer spriteEnemyHQ = enemyHQ.GetComponentInChildren<SpriteRenderer>();
+        /*SpriteRenderer spritePlayerHQ = playerHQ.GetComponentInChildren<SpriteRenderer>();
+        SpriteRenderer spriteEnemyHQ = enemyHQ.GetComponentInChildren<SpriteRenderer>();*/
 
         /*minX = spritePlayerHQ.bounds.max.x;
         maxX = spriteEnemyHQ.bounds.min.x;*/
