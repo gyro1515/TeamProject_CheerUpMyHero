@@ -6,6 +6,9 @@ using UnityEngine;
 
 public class PlayerUnit : BaseUnit
 {
+    private float _beforeAuraAtkBonus;
+    private bool _hasBuff;
+
     protected override void Awake()
     {
         base.Awake();
@@ -80,6 +83,8 @@ public class PlayerUnit : BaseUnit
         hitbackHp = MaxHp / UnitData.hitBack;
         // ex: curHp / hitbackHp  => 2 -> 1 -> 0에서만 히트백이 발생하도록
         hitbackTriggerCount = UnitData.hitBack - 1;
+
+        _beforeAuraAtkBonus = AtkPower;
     }
     protected override void SetDataFromExcelData()
     {
@@ -138,5 +143,25 @@ public class PlayerUnit : BaseUnit
         enabled = false;
         MoveDir = Vector3.zero;
 
+    }
+
+    public void ApplyAuraBuff(float bonusPer)
+    {
+        if (_hasBuff) return;
+
+        _beforeAuraAtkBonus = AtkPower;
+
+        AtkPower *= 1f + bonusPer / 100f;
+
+        _hasBuff = true;
+    }
+
+    public void RemoveAuraBuff()
+    {
+        if (!_hasBuff) return;
+
+        AtkPower = _beforeAuraAtkBonus;
+
+        _hasBuff = false;
     }
 }

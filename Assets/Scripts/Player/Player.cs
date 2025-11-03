@@ -9,6 +9,16 @@ public class Player : BaseUnit
     [field: SerializeField] public float ArtifactPower { get; private set; }
     [field: SerializeField] public float MaxMana { get; private set; } = 15;
     [field: SerializeField] public PlayerData PlayerData { get; private set; }
+
+    [field: Header("플레이어 오라")]
+    [field: SerializeField] public float AuraRange { get; private set; }
+    [field: SerializeField] public float AuraAtkBonus { get; private set; }
+
+    private HashSet<PlayerUnit> _unitInAura = new HashSet<PlayerUnit>();
+
+    private float _auraCheckTimer = 0f;
+    private const float AuraCheckInterver = 0.1f;
+
     float curMana;
     int curLevel = 1;
     int curExp = 0; // 나중에는 PlayerDataManager에서 관리
@@ -40,10 +50,14 @@ public class Player : BaseUnit
             if(curExp >= PlayerData.exp)
             {
                 PlayerLevelUP();
-                int tmpExp = curExp - PlayerData.exp; // 남은 경험치
-                //onPlayerLevelUpEvent?.Publish(new PlayerLevelUpEvent()); // 레벨업 이벤트 발행
-                CurExp = tmpExp; // 계속 레벨업 가능하도록 재귀호출
+                //int tmpExp = curExp - PlayerData.exp; // 남은 경험치
+                ////onPlayerLevelUpEvent?.Publish(new PlayerLevelUpEvent()); // 레벨업 이벤트 발행
+                //CurExp = tmpExp; // 계속 레벨업 가능하도록 재귀호출
+
+                curExp = 0;
             }
+
+            PlayerDataManager.Instance.CurExp = curExp;
         }
     }
     //프로퍼티도 버추얼 오버라이드가 되네요??
@@ -77,20 +91,50 @@ public class Player : BaseUnit
         GameManager.Instance.StartBattle(); //배틀씬으로 갔을 때부터 식량 획득 증가 함수
         PlayerController = GetComponent<PlayerController>();
 
+        //TODO 
     }
     protected override void Start()
     {
         base.Start();
     }
+
+    protected override void Update()
+    {
+        base.Update();
+
+        _auraCheckTimer += Time.deltaTime;
+
+        if (_auraCheckTimer >= AuraCheckInterver)
+        {
+            _auraCheckTimer -= AuraCheckInterver;
+            if (!IsDead)
+            {
+                UpdateAuraBuffs();
+            }
+        }
+    }
+
     protected override void FixedUpdate()
     {
         base.Update();
         // 테스트로 플레이어는 계속 정렬해주기
         //InitCharacter();
     }
+
+    protected override void OnDisable()
+    {
+        base.OnDisable();
+    }
+
     public void PlayerLevelUP() //
     {
         curLevel++;
+
+        PlayerDataManager.Instance.PlayerLevel = curLevel;
+
+        PlayerData = DataManager.PlayerData.GetData(curLevel);
+        UnitData = PlayerData;
+
         SetDataFromExcelData();
         SetStatMultiplier();
     }
@@ -107,12 +151,15 @@ public class Player : BaseUnit
         float hpModifierBonus = Modifiercalculator.GetMultiplier(target, StatType.MaxHp, this.UnitData);
         float atkModifierBonus = Modifiercalculator.GetMultiplier(target, StatType.AtkPower, this.UnitData);
         float moveSpeedModifierBonus = Modifiercalculator.GetMultiplier(target, StatType.MoveSpeed, this.UnitData);
+        float AuraRangeModifier = Modifiercalculator.GetMultiplier(target, StatType.AuraRange, this.UnitData);
 
         MaxHp = PlayerData.health * (hpModifierBonus + statMultiplier);
         curHp = MaxHp;
         AtkPower = PlayerData.atkPower * (atkModifierBonus + statMultiplier);
         AttackRate = PlayerData.attackRate * statMultiplier; // 공격 속도는 크기와 상관없이 배율에 비례
         MoveSpeed = PlayerData.moveSpeed * (moveSpeedModifierBonus + 1f);
+        AuraRange = PlayerData.auraRange * (AuraRangeModifier + 1f);
+        AuraAtkBonus = PlayerData.auraAtkBonus;
         
         // 251022 주석처리
         /*float tmpstatMultiplier = Math.Clamp(statMultiplier, 0.8f, 1.2f); // 크기는 너무 작아지거나 커지지 않도록 제한
@@ -135,6 +182,9 @@ public class Player : BaseUnit
     }
     protected override void SetDataFromExcelData()
     {
+        curLevel = PlayerDataManager.Instance.PlayerLevel;
+        curExp = PlayerDataManager.Instance.CurExp;
+
         PlayerData = DataManager.PlayerData.GetData(curLevel);
         UnitData = PlayerData;
         Damageable = GetComponent<IDamageable>();
@@ -189,6 +239,31 @@ public class Player : BaseUnit
         else if (healthRatio > 10)
         {
             isPlayedSound10 = false;
+        }
+    }
+
+    private void UpdateAuraBuffs()
+    {
+        if (gameObject == null) return;
+
+        Vector3 playerPos = gameObject.transform.position;
+        List<BaseCharacter> unitList = UnitManager.PlayerUnitList;
+
+        foreach (var unit in unitList)
+        {
+            if (unit == null || unit == this || unit.IsDead) continue;
+            if (!(unit is PlayerUnit playerUnit)) continue;
+
+            float dist = Mathf.Abs(playerUnit.transform.position.x - playerPos.x);
+
+            if (dist > AuraRange)
+            {
+                playerUnit.RemoveAuraBuff();
+            }
+            else
+            {
+                playerUnit.ApplyAuraBuff(PlayerData.auraAtkBonus);
+            }
         }
     }
 }

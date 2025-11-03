@@ -1,22 +1,24 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 public abstract class UITutorialBase : BaseUI, IBackButtonHandler
 {
     [SerializeField] private List<GameObject> tutorialSteps = new List<GameObject>();
-    [SerializeField] private Button leftBtn;
-    [SerializeField] private Button rightBtn;
+    [SerializeField] private Button backBtn;
+    [SerializeField] private Button nextBtn;
     [SerializeField] private Button skipBtn;
+    [SerializeField] private TextMeshProUGUI pageIdxText;
 
     int stepIdx = 0;
     int maxStep = -1;
 
     protected virtual void Awake()
     {
-        leftBtn.onClick.AddListener(OnLeftButtonClicked);
-        rightBtn.onClick.AddListener(OnRightButtonClicked);
+        backBtn.onClick.AddListener(OnLeftButtonClicked);
+        nextBtn.onClick.AddListener(OnRightButtonClicked);
         skipBtn.onClick.AddListener(OnSkipButtonClicked);
 
         maxStep = tutorialSteps.Count;
@@ -30,6 +32,8 @@ public abstract class UITutorialBase : BaseUI, IBackButtonHandler
                 tutorialSteps[i].SetActive(false);
             }
         }
+
+        UpdatePageIdx();
     }
 
     private void OnEnable()
@@ -50,6 +54,8 @@ public abstract class UITutorialBase : BaseUI, IBackButtonHandler
 
         tutorialSteps[stepIdx--].SetActive(false);
         tutorialSteps[stepIdx].SetActive(true);
+
+        UpdatePageIdx();
     }
 
     protected virtual void OnRightButtonClicked()
@@ -64,6 +70,8 @@ public abstract class UITutorialBase : BaseUI, IBackButtonHandler
 
         tutorialSteps[stepIdx++].SetActive(false);
         tutorialSteps[stepIdx].SetActive(true);
+
+        UpdatePageIdx();
     }
 
     protected virtual void OnSkipButtonClicked()
@@ -74,6 +82,11 @@ public abstract class UITutorialBase : BaseUI, IBackButtonHandler
     public void OnBackPressed()
     {
         OnSkipButtonClicked();
+    }
+
+    private void UpdatePageIdx()
+    {
+        pageIdxText.text = $"- {stepIdx + 1} / {tutorialSteps.Count}-";
     }
 }
 

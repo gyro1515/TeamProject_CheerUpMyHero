@@ -18,6 +18,8 @@ public class RewardPanelUI : BaseUI
     [SerializeField] private TMP_Text ironText;
     [SerializeField] private GameObject magicStoneRewardGroup;
     [SerializeField] private TMP_Text magicStoneText;
+    [SerializeField] private GameObject expRewardGroup;
+    [SerializeField] private TMP_Text expText;
     [SerializeField] private TMP_Text resultText;           // 승리 실패 뜨는 텍스트. 결과창 분리되면 없애기
     [SerializeField] private TMP_Text penaltyInfoText;
 
@@ -61,7 +63,7 @@ public class RewardPanelUI : BaseUI
         });
     }
 
-    public void OpenUI(int gold, int wood, int iron, int magicStone, bool isVictory)
+    public void OpenUI(int gold, int wood, int iron, int magicStone, bool isVictory, int exp = 0)
     {
         //goldText.text = $"골드 + {gold}";
         //woodText.text = $"목재 + {wood}";
@@ -113,6 +115,13 @@ public class RewardPanelUI : BaseUI
         {
             magicStoneText.richText = true;
             magicStoneText.text = isVictory ? $"마력석 +{magicStone}" : $"마력석 <color=red>{magicStone}</color> 감소";
+        }
+
+        expRewardGroup.SetActive(exp != 0);
+        if (exp != 0)
+        {
+            expText.richText = true;
+            expText.text = isVictory ? $"경험치 +{exp}" : "";
         }
 
         base.OpenUI();

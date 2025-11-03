@@ -30,7 +30,8 @@ public enum ResourceType
     Food,
     MagicStone,
     Bm,
-    Ticket
+    Ticket,
+    EXP
 }
 public enum TileStatus { Normal, Damaged, Repairing }
 
@@ -72,6 +73,28 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
     public Dictionary<int, BaseUnitData> OwnedCardData { get; private set; } = new Dictionary<int, BaseUnitData>();
     IEventSubscriber<GridStateChangedEvent> onGridStateChangedEvent;
     IEventSubscriber<BattleEndedEvent> onBattleEndedEvent;
+
+    // 레벨 관련 프로퍼티
+    private int _playerLevel = 1;
+    public int PlayerLevel
+    {
+        get => _playerLevel;
+        set
+        {
+            if (value <= 0)
+            {
+                Debug.LogWarning($"⚠️ PlayerLevel을 {value}로 설정하려 했으나, 최소값 1로 보정합니다.");
+                _playerLevel = 1;
+            }
+            else
+            {
+                _playerLevel = value;
+            }
+        }
+    }
+
+    public int CurExp { get; set; }
+
     #region 영지 시너지 보너스
     //모든 시너지 효과를 합산하여 저장할 프로퍼티들
     public float SynergyUnitCooldownReduction { get; private set; }
@@ -539,6 +562,11 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
                 return;
             }
 
+            //if (type == ResourceType.EXP)
+            //{
+            //    CheckLevelUp();
+            //}
+
             await BackendManager.ChangeEconomy(BackendManager.EconomyEnumToId(type), amount);
         }
         else
@@ -999,7 +1027,62 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
 
     #endregion
 
+    //#region 레벨 관련
 
+    //private void CheckLevelUp()
+    //{
+    //    if (!_resources.ContainsKey(ResourceType.EXP))
+    //    {
+    //        _resources[ResourceType.EXP] = 0;
+    //        return;
+    //    }
+
+    //    // PlayerLevel 유효성 검사
+    //    if (PlayerLevel <= 0)
+    //    {
+    //        Debug.LogWarning($"레벨 {PlayerLevel}임. 레벨 불러오는 로직 오류 있어요. 일단 1로 만듦.");
+    //        PlayerLevel = 1;
+    //    }
+
+    //    int currentExp = GetResourceAmount(ResourceType.EXP);
+
+    //    PlayerData curLevelData = DataManager.PlayerData.GetData(PlayerLevel);
+
+    //    if (curLevelData == null)
+    //    {
+    //        Debug.LogError($"레벨이 {PlayerLevel}라서 레벨 데이터 null로 뜸. 뭔가 오류 있어요");
+    //        return;
+    //    }
+
+    //    int expToNextLevel = curLevelData.exp;
+    //    if (expToNextLevel <= 0) return;
+
+    //    bool hasLevelUp = false;
+    //    while (currentExp >= expToNextLevel)
+    //    {
+    //        currentExp -= expToNextLevel;
+    //        PlayerLevel++;
+    //        hasLevelUp = true;
+
+    //        curLevelData = DataManager.PlayerData.GetData(PlayerLevel);
+    //        if (curLevelData == null)
+    //        {
+    //            PlayerLevel--;
+    //            Debug.Log($"레벨 데이터 없음 -> 최고레벨 초과라서 없음 -> 최고 레벨로 돌림.");
+    //            break;
+    //        }
+
+    //        expToNextLevel = curLevelData.exp;
+    //        if (expToNextLevel <= 0) break;
+    //    }
+
+    //    if (hasLevelUp)
+    //    {
+    //        _resources[ResourceType.EXP] = currentExp;
+    //    }
+    //}
+
+    //#endregion
 }
 
 [System.Serializable]
