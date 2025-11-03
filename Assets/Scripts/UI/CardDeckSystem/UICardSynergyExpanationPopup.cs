@@ -79,7 +79,7 @@ public class UICardSynergyExpanationPopup : MonoBehaviour
     }
     void CloseUI(float fadeTime)
     {
-        if (_isFade) return;
+        //if (_isFade) return;
         _isFade = true;
         FadeManager.FadeOutUI(_canvasGroup, () => { gameObject.SetActive(false); SetFadeFalse(); }, true, fadeTime);
     }

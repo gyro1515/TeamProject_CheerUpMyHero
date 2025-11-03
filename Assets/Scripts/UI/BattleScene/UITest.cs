@@ -7,12 +7,16 @@ public class UITest : BaseUI
     [Header("조작 패널 UI")]
     [SerializeField] private GameObject _defaultLayoutPrefeb;
     [SerializeField] private GameObject _changedLayoutPrefeb;
+    [SerializeField] UIAfExpanationPopup uIAfExpanationPopup;
 
     [Header("프리펩이 생성될 위치")]
     [SerializeField] private Transform _layoutParents;
 
     private GameObject _currentLayoutInstance;
-
+    private void Awake()
+    {
+        uIAfExpanationPopup.Init();
+    }
     private void OnEnable()
     {
         //SettingDataManager.OnControlLayoutChanged += UpdateLayout;

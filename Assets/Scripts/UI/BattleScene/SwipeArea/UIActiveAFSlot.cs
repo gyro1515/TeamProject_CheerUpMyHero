@@ -15,6 +15,7 @@ public class UIActiveAFSlot : MonoBehaviour
     //[SerializeField] TextMeshProUGUI cooldownText;
     [SerializeField] TextMeshProUGUI costText;
     [SerializeField] Button slotBtn;
+    [SerializeField] UIAdvancedButton slotAdvancedBtn;
 
     ActiveArtifactLevelData currentLevelData; // 현재 레벨 데이터 저장
     ActiveSkillEffect skillEffectInstance; // 스킬 효과 객체
@@ -25,11 +26,14 @@ public class UIActiveAFSlot : MonoBehaviour
     bool isCooldown = false;
     float manaCost = -1f;
 
+    IEventPublisher<AfSlotStartHoldEvent> afSlotStartHoldEventPub;
+    IEventPublisher<AfSlotReleaseHoldEvent> afSlotReleaseHoldEventPub;
     private void Awake()
     {
-        slotIcon.fillAmount = 1f;
-        slotBtn.onClick.AddListener(OnUseActiveAF);
         
+        slotIcon.fillAmount = 1f;
+        //slotBtn.onClick.AddListener(OnUseActiveAF);
+        slotAdvancedBtn.onShortClick += OnUseActiveAF;
     }
     private void Start()
     {
@@ -127,6 +131,16 @@ public class UIActiveAFSlot : MonoBehaviour
             cooldown = data.cooldown;
             manaCost = data.cost;
             // ToDo 패시브 유물은 버튼 비활성화*/
+            afSlotStartHoldEventPub = EventManager.GetPublisher<AfSlotStartHoldEvent>();
+            afSlotReleaseHoldEventPub = EventManager.GetPublisher<AfSlotReleaseHoldEvent>();
+            slotAdvancedBtn.onHoldStart += () =>
+            {
+                afSlotStartHoldEventPub?.Publish(new AfSlotStartHoldEvent(afData));
+            };
+            slotAdvancedBtn.onHoldRelease += () =>
+            {
+                afSlotReleaseHoldEventPub?.Publish();
+            };
         }
         else
         {
@@ -134,6 +148,7 @@ public class UIActiveAFSlot : MonoBehaviour
             //slotIcon.sprite = null;
             costText.text = "";
             slotBtn.enabled = false;
+            //slotAdvancedBtn.Interactable = false;
             cooldownIcon.gameObject.SetActive(false); // 쿨타임 아이콘 끄기
             enabled = false; // Update 비활성화
         }
@@ -159,6 +174,8 @@ public class UIActiveAFSlot : MonoBehaviour
                 SetTimerIconActive(false); // 쿨타임 UI 초기화
                 enabled = true; // Update 함수 활성화 (쿨타임 감시)
                 slotBtn.enabled = true; // 버튼 활성화
+                //slotAdvancedBtn.Interactable = true;
+
                 SetTimerIconActive(false);
                 enabled = true;
 
@@ -172,6 +189,8 @@ public class UIActiveAFSlot : MonoBehaviour
                 cooldownIcon.gameObject.SetActive(true); // 패시브는 쿨타임 아이콘 필요 없음
                 cooldownIcon.fillAmount = 1;
                 slotBtn.enabled = false; // 패시브는 클릭 불가
+                //slotAdvancedBtn.Interactable = false;
+
                 enabled = false; // Update 필요 없음
                 break;
         }
@@ -185,6 +204,17 @@ public class UIActiveAFSlot : MonoBehaviour
         cooldownIcon.fillAmount = active ? 1f : 0f;
         if (afData != null) slotBtn.enabled = !active;
         else slotBtn.enabled = false;
-
+        /*if (afData != null) slotAdvancedBtn.Interactable = !active;
+        else slotAdvancedBtn.Interactable = false;*/
     }
 }
+// 슬롯 클릭 이벤트
+struct AfSlotStartHoldEvent
+{
+    public ArtifactData artifactData;
+    public AfSlotStartHoldEvent(ArtifactData data)
+    {
+        artifactData = data;
+    }
+}
+struct AfSlotReleaseHoldEvent {}
