@@ -86,7 +86,7 @@ public abstract class UITutorialBase : BaseUI, IBackButtonHandler
 
     private void UpdatePageIdx()
     {
-        pageIdxText.text = $"- {stepIdx + 1} -";
+        pageIdxText.text = $"- {stepIdx + 1} / {tutorialSteps.Count}-";
     }
 }
 

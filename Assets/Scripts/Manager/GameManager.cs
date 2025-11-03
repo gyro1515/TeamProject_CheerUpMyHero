@@ -272,7 +272,9 @@ public class GameManager : SingletonMono<GameManager>
             finalIron = rewardData.rewardIron + Mathf.CeilToInt(totalBaseIron * (1 + (totalBonusIronPercent + challengeBonusPercent) / 100f));
             finalMagicStone = Mathf.CeilToInt(rewardData.rewardMagicStone * (1 + challengeBonusPercent / 100f));
             finalEXP = Mathf.CeilToInt(rewardData.rewardEXP * (1 + challengeBonusPercent / 100f));
-            
+
+            Player.CurExp += finalEXP;
+
             if (Random.Range(0, 100) < totalMagicStoneChance)
             {
                 finalMagicStone += Random.Range(totalMagicStoneMin, totalMagicStoneMax + 1);
@@ -298,7 +300,7 @@ public class GameManager : SingletonMono<GameManager>
                     PlayerDataManager.Instance.AddResource(ResourceType.Wood, finalWood),
                     PlayerDataManager.Instance.AddResource(ResourceType.Iron, finalIron),
                     PlayerDataManager.Instance.AddResource(ResourceType.MagicStone, finalMagicStone),
-                    PlayerDataManager.Instance.AddResource(ResourceType.EXP, finalEXP)
+                    //PlayerDataManager.Instance.AddResource(ResourceType.EXP, finalEXP)
                 };
 
                 await UniTask.WhenAll(rewardTasks);

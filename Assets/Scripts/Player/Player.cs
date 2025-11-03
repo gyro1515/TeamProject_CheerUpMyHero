@@ -14,7 +14,7 @@ public class Player : BaseUnit
     [field: SerializeField] public float AuraRange { get; private set; }
     [field: SerializeField] public float AuraAtkBonus { get; private set; }
 
-    private List<PlayerUnit> _unitInAura = new List<PlayerUnit>();
+    private HashSet<PlayerUnit> _unitInAura = new HashSet<PlayerUnit>();
 
     private float _auraCheckTimer = 0f;
     private const float AuraCheckInterver = 0.1f;
@@ -50,10 +50,14 @@ public class Player : BaseUnit
             if(curExp >= PlayerData.exp)
             {
                 PlayerLevelUP();
-                int tmpExp = curExp - PlayerData.exp; // 남은 경험치
-                //onPlayerLevelUpEvent?.Publish(new PlayerLevelUpEvent()); // 레벨업 이벤트 발행
-                CurExp = tmpExp; // 계속 레벨업 가능하도록 재귀호출
+                //int tmpExp = curExp - PlayerData.exp; // 남은 경험치
+                ////onPlayerLevelUpEvent?.Publish(new PlayerLevelUpEvent()); // 레벨업 이벤트 발행
+                //CurExp = tmpExp; // 계속 레벨업 가능하도록 재귀호출
+
+                curExp = 0;
             }
+
+            PlayerDataManager.Instance.CurExp = curExp;
         }
     }
     //프로퍼티도 버추얼 오버라이드가 되네요??
@@ -87,6 +91,7 @@ public class Player : BaseUnit
         GameManager.Instance.StartBattle(); //배틀씬으로 갔을 때부터 식량 획득 증가 함수
         PlayerController = GetComponent<PlayerController>();
 
+        //TODO 
     }
     protected override void Start()
     {
@@ -101,7 +106,7 @@ public class Player : BaseUnit
 
         if (_auraCheckTimer >= AuraCheckInterver)
         {
-            _auraCheckTimer = 0;
+            _auraCheckTimer -= AuraCheckInterver;
             if (!IsDead)
             {
                 UpdateAuraBuffs();
@@ -119,16 +124,17 @@ public class Player : BaseUnit
     protected override void OnDisable()
     {
         base.OnDisable();
-        for (int i = 0; i < _unitInAura.Count; i++)
-        {
-            _unitInAura[i]?.RemoveAuraBuff();
-        }
-        _unitInAura.Clear();
     }
 
     public void PlayerLevelUP() //
     {
         curLevel++;
+
+        PlayerDataManager.Instance.PlayerLevel = curLevel;
+
+        PlayerData = DataManager.PlayerData.GetData(curLevel);
+        UnitData = PlayerData;
+
         SetDataFromExcelData();
         SetStatMultiplier();
     }
@@ -176,6 +182,9 @@ public class Player : BaseUnit
     }
     protected override void SetDataFromExcelData()
     {
+        curLevel = PlayerDataManager.Instance.PlayerLevel;
+        curExp = PlayerDataManager.Instance.CurExp;
+
         PlayerData = DataManager.PlayerData.GetData(curLevel);
         UnitData = PlayerData;
         Damageable = GetComponent<IDamageable>();
@@ -240,8 +249,6 @@ public class Player : BaseUnit
         Vector3 playerPos = gameObject.transform.position;
         List<BaseCharacter> unitList = UnitManager.PlayerUnitList;
 
-        List<PlayerUnit> currentUnitsInRange = new List<PlayerUnit>();
-
         foreach (var unit in unitList)
         {
             if (unit == null || unit == this || unit.IsDead) continue;
@@ -249,29 +256,15 @@ public class Player : BaseUnit
 
             float dist = Mathf.Abs(playerUnit.transform.position.x - playerPos.x);
 
-            if (dist > AuraRange) continue;
-
-            currentUnitsInRange.Add(playerUnit);
-        }
-
-        for (int i = 0; i < currentUnitsInRange.Count; i++)
-        {
-            if (!_unitInAura.Contains(currentUnitsInRange[i]))
+            if (dist > AuraRange)
             {
-                currentUnitsInRange[i].ApplyAuraBuff(AuraAtkBonus);
+                playerUnit.RemoveAuraBuff();
+            }
+            else
+            {
+                playerUnit.ApplyAuraBuff(PlayerData.auraAtkBonus);
             }
         }
-
-        for (int i = 0; i < _unitInAura.Count; i++)
-        {
-            if (!currentUnitsInRange.Contains(_unitInAura[i]))
-            {
-                _unitInAura[i]?.RemoveAuraBuff();
-            }
-        }
-
-        _unitInAura.Clear();
-        _unitInAura.AddRange(currentUnitsInRange);
     }
 }
 #region 플레이어 레벨 업 이벤트

@@ -58,7 +58,7 @@ public class UIPlayerStatPopup : BasePopUpUI
 
         _levelText.text = $"Lv. {currentLevel}";
 
-        int currentExp = PlayerDataManager.Instance.GetResourceAmount(ResourceType.EXP);
+        int currentExp = PlayerDataManager.Instance.CurExp;
         int expToNextLevel = playerData.exp;
 
         if (expToNextLevel > 0)
