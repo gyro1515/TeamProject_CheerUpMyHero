@@ -33,7 +33,6 @@ public class UIActiveAFSlot : MonoBehaviour
         
         slotIcon.fillAmount = 1f;
         //slotBtn.onClick.AddListener(OnUseActiveAF);
-        slotAdvancedBtn.onShortClick += OnUseActiveAF;
     }
     private void Start()
     {
@@ -133,6 +132,7 @@ public class UIActiveAFSlot : MonoBehaviour
             // ToDo 패시브 유물은 버튼 비활성화*/
             afSlotStartHoldEventPub = EventManager.GetPublisher<AfSlotStartHoldEvent>();
             afSlotReleaseHoldEventPub = EventManager.GetPublisher<AfSlotReleaseHoldEvent>();
+            slotAdvancedBtn.onShortClick += OnUseActiveAF;
             slotAdvancedBtn.onHoldStart += () =>
             {
                 afSlotStartHoldEventPub?.Publish(new AfSlotStartHoldEvent(afData));

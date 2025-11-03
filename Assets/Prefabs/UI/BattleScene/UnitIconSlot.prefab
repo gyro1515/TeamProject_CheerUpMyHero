@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 6465947690765908673}
   - component: {fileID: 5250030238924389511}
   - component: {fileID: 7767666632574462698}
+  - component: {fileID: 964183981446937024}
   m_Layer: 5
   m_Name: UnitIcon
   m_TagString: Untagged
@@ -117,6 +118,19 @@ MonoBehaviour:
     y: 0
     width: 1
     height: 1
+--- !u!114 &964183981446937024
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 380506001448224145}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cfc366f2158434c419ab416ff962be20, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  holdThreshold: 0.1
 --- !u!1 &572140544840033504
 GameObject:
   m_ObjectHideFlags: 0
@@ -310,7 +324,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 0.7830189, g: 0, b: 0, a: 0.5019608}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -380,6 +394,7 @@ MonoBehaviour:
   unitIconTimer: {fileID: 2289664846899674140}
   unitIBG: {fileID: 8662365339614501574}
   spawnUnitBtn: {fileID: 5250030238924389511}
+  spawnUnitAdvancedBtn: {fileID: 964183981446937024}
   costText: {fileID: 2183801033697620318}
   outlineGOForCanSpawnLegendary: {fileID: 7746839763366869390}
 --- !u!1 &5671462307492950069

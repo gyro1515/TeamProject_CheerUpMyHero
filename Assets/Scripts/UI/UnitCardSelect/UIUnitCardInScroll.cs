@@ -40,7 +40,21 @@ public class UIUnitCardInScroll : MonoBehaviour
         //cardData = PlayerDataManager.Instance.cardDic;
         cardData = PlayerDataManager.Instance.OwnedCardData;
     }
-
+    public void UpdateCardDataByData(BaseUnitData baseUnitData) // 도감에서 사용하기
+    {
+        cardNameText.text = $"{baseUnitData.unitName}";
+        unitType.text = $"{baseUnitData.unitType.ToString()}";
+        rarityIconArea.SetIconCnt((int)baseUnitData.rarity);
+        costText.text = $"식량\n{baseUnitData.cost.ToString("F0")}";
+        healthText.text = $"체력\n{baseUnitData.health.ToString("F0")}";
+        atkPowerText.text = $"공격력\n{baseUnitData.atkPower.ToString("F0")}";
+        coolTimeText.text = $"쿨타임\n{baseUnitData.spawnCooldown.ToString("N1")}";
+        descriptionText.text = $"{baseUnitData.description}";
+        bgImg.sprite = baseUnitData.unitBGSprite;
+        unitIconImg.sprite = baseUnitData.unitIconSprite;
+        synergyIconArea.SetUnitSynergeIcon(baseUnitData);
+        unitTypeIcon.sprite = unitTypeIconSprites[baseUnitData.unitType];
+    }
     //카드 데이터 갱신
     public void UpdateCardData(int cardNum, bool canSelect)
     {

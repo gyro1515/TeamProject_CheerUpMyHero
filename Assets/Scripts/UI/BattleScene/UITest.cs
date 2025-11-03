@@ -8,6 +8,7 @@ public class UITest : BaseUI
     [SerializeField] private GameObject _defaultLayoutPrefeb;
     [SerializeField] private GameObject _changedLayoutPrefeb;
     [SerializeField] UIAfExpanationPopup uIAfExpanationPopup;
+    [SerializeField] UIUnitexplanationPopup uIUnitexplanationPopup;
 
     [Header("프리펩이 생성될 위치")]
     [SerializeField] private Transform _layoutParents;
@@ -16,6 +17,7 @@ public class UITest : BaseUI
     private void Awake()
     {
         uIAfExpanationPopup.Init();
+        uIUnitexplanationPopup.Init();
     }
     private void OnEnable()
     {
