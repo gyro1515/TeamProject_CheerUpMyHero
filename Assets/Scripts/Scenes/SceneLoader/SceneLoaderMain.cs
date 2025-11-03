@@ -9,7 +9,8 @@ public class SceneLoaderMain : MonoBehaviour
         switch (GameManager.Instance.LoadMain)
         {
             case LoadMain.None:
-                UIManager.Instance.GetUI<MainScreenUI>();
+                UIManager.Instance.GetUI<UIMenu>();
+                UIManager.Instance.GetUI<MainScreenUI>().CloseUI();
                 UIManager.Instance.GetUI<DeckPresetController>().CloseUI();
                 UIManager.Instance.GetUI<UIDestinyRoullette>().CloseUI();
                 break;
