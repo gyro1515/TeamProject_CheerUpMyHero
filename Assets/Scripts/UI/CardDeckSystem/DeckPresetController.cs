@@ -45,11 +45,13 @@ public class DeckPresetController : BaseUI, IBackButtonHandler
     [SerializeField] private Button adviserButton; //backbtn
     [SerializeField] private Button relicButton;
     [SerializeField] private Button autoButton;
+    [SerializeField] private Button playerStatButton;
 
     [Header("외부 패널 연결")]
     [SerializeField] private ConfirmationPopup confirmationPopup;
     [SerializeField] private UIUnitCardSelect unitCardSelectPanel; //임의로 지어 놓은 것
-  
+    [SerializeField] private UIPlayerStatPopup playerStatPopup; // 플레이어 스탯 팝업
+
     [Header("유닛 슬롯 설정")]
     [SerializeField] private List<DeckUnitSlot> unitSlots;
 
@@ -133,6 +135,7 @@ public class DeckPresetController : BaseUI, IBackButtonHandler
         cancelNameButton.onClick.AddListener(editNamePanel.CloseUI);
         autoButton.onClick.AddListener(OnAutoFormClicked);
         relicButton.onClick.AddListener(OnRelicButtonClicked);
+        playerStatButton.onClick.AddListener(OnPlayerStatButtonClicked);
 
         // UI 초기 상태 설정
         editNameCanvasGroup.alpha = 0;
@@ -570,6 +573,12 @@ public class DeckPresetController : BaseUI, IBackButtonHandler
             Debug.LogError("UIManager에서 MainScreenUI를 찾을 수 없습니다!");
         }
     }
+
+    private void OnPlayerStatButtonClicked()
+    {
+        playerStatPopup.OpenUI();
+    }
+
     #endregion
     public void OnBackPressed()
     {
