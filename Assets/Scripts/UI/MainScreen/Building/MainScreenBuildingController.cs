@@ -357,7 +357,7 @@ public class MainScreenBuildingController : MonoBehaviour
             // 저장 & 반영
             PlayerDataManager.Instance._TileDataHandler.BuildingGridData[tile.X, tile.Y] = level1Data;
             tile.SetBuilding(level1Data);
-
+            tile.UpdateStatusVisual();
             onGridStateChangedEventPub.Publish();
 
             // 건설 효과음
@@ -439,6 +439,7 @@ public class MainScreenBuildingController : MonoBehaviour
             // --- 저장 & 반영 ---
             PlayerDataManager.Instance._TileDataHandler.BuildingGridData[tile.X, tile.Y] = next;
             tile.SetBuilding(next);
+            tile.UpdateStatusVisual();
 
             // 효과음 출력
             AudioManager.PlayOneShot(DataManager.AudioData.buildingSE);
@@ -586,6 +587,7 @@ public class MainScreenBuildingController : MonoBehaviour
     public async UniTask ConfirmDestruction(BuildingTile tile)
     {
         await PlayerDataManager.Instance.DestroyBuildingAt(tile.X, tile.Y);
+        tile.SetBuilding(null);
         tile.UpdateStatusVisual();
         UpdateTileUI(tile);
         PlayerDataManager.Instance.UpdateAllSynergyEffects();

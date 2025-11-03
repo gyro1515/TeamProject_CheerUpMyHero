@@ -31,6 +31,11 @@ public class BuildingTile : MonoBehaviour, IBeginDragHandler, IDragHandler, IEnd
     [SerializeField] private Sprite yeongjugwanBuildingSprite; // 영주관 건물 스프라이트 
     [SerializeField] private Sprite militaryBuildingSprite; // 군사구역 건물 스프라이트 
 
+    [Header("등급 (별) UI")]
+    [SerializeField] private GameObject starContainer1; // 별 1개짜리 컨테이너
+    [SerializeField] private GameObject starContainer2; // 별 2개짜리 컨테이너
+    [SerializeField] private GameObject starContainer3; // 별 3개짜리 컨테이너
+
     public int X { get; private set; }
     public int Y { get; private set; }
     public TileType MyTileType { get; private set; }
@@ -55,7 +60,7 @@ public class BuildingTile : MonoBehaviour, IBeginDragHandler, IDragHandler, IEnd
         {
             repairTurnText.gameObject.SetActive(false);
         }
-
+        SetRarityStars(0); // 0레벨 = 별 0개
         // 특수 타일 기본 설정 (오른쪽과 아래쪽 라인)
         if (x == 4 || y == 4)
         {
@@ -133,11 +138,7 @@ public class BuildingTile : MonoBehaviour, IBeginDragHandler, IDragHandler, IEnd
             Debug.Log($"(4,1) 외교 타일({name}) 비활성화됨 (잠김).");
         }
     }
-
-
-    /// <summary>
-    /// 타일이 클릭되었을 때 호출됩니다. 컨트롤러에게 클릭 이벤트를 전달합니다.
-    /// </summary>
+    // 타일이 클릭되었을 때 호출됩니다. 컨트롤러에게 클릭 이벤트를 전달합니다.
     private void OnTileClick()
     {
         // 컨트롤러가 없거나, 컨트롤러가 현재 드래그 중이면 클릭 무시
@@ -183,7 +184,7 @@ public class BuildingTile : MonoBehaviour, IBeginDragHandler, IDragHandler, IEnd
         if (MyTileType == TileType.Special)
         {
             _buildingData = buildingData; // 데이터는 받아올 수 있지만 (아마 null)
-            return; // ✨ 스프라이트를 덮어쓰지 않고 즉시 종료!
+            return; //스프라이트를 덮어쓰지 않고 즉시 종료!
         }
         _buildingData = buildingData; 
 
@@ -205,7 +206,11 @@ public class BuildingTile : MonoBehaviour, IBeginDragHandler, IDragHandler, IEnd
     public void UpdateStatusVisual()
     {
         if (X == 4 && Y == 1) return;
-        if (MyTileType == TileType.Special) return;
+        if (MyTileType == TileType.Special) 
+        {
+            SetRarityStars(0);
+            return;
+        }
 
         TileStatus status = PlayerDataManager.Instance._TileDataHandler.TileStatusGrid[X, Y];
         int turnsRemaining = PlayerDataManager.Instance._TileDataHandler.TileRepairTurnsGrid[X, Y];
@@ -223,6 +228,7 @@ public class BuildingTile : MonoBehaviour, IBeginDragHandler, IDragHandler, IEnd
                 float progress = 1.0f - ((float)turnsRemaining / totalTurns);
                 Color startColor = (status == TileStatus.Damaged) ? Color.red : Color.cyan;
                 tileImage.color = Color.Lerp(startColor, Color.white, progress);
+                SetRarityStars(0);
                 break;
 
             case TileStatus.Normal:
@@ -230,7 +236,14 @@ public class BuildingTile : MonoBehaviour, IBeginDragHandler, IDragHandler, IEnd
                 {
                     repairTurnText.gameObject.SetActive(false);
                 }
-                tileImage.color = Color.white;
+                if (_buildingData != null)
+                {
+                    SetRarityStars(_buildingData.level);
+                    tileImage.color = Color.white;
+                }
+
+                else
+                    SetRarityStars(0);
                 break;
         }
     }
@@ -260,6 +273,40 @@ public class BuildingTile : MonoBehaviour, IBeginDragHandler, IDragHandler, IEnd
         if (cooldownTimerText != null)
         {
             cooldownTimerText.text = remainingTime.ToString(@"mm\:ss");
+        }
+    }
+    private void SetRarityStars(int level)
+    {
+        // (안전 장치)
+        if (starContainer1 == null || starContainer2 == null || starContainer3 == null)
+        {
+            return;
+        }
+
+        // 1. 레벨에 따라 올바른 컨테이너만 켭니다.
+        if (level >= 9) // 9레벨 이상: 별 3개
+        {
+            starContainer1.SetActive(false);
+            starContainer2.SetActive(false);
+            starContainer3.SetActive(true);
+        }
+        else if (level >= 5) // 5~8레벨: 별 2개
+        {
+            starContainer1.SetActive(false);
+            starContainer2.SetActive(true);
+            starContainer3.SetActive(false);
+        }
+        else if (level >= 1) // 1~4레벨: 별 1개
+        {
+            starContainer1.SetActive(true);
+            starContainer2.SetActive(false);
+            starContainer3.SetActive(false);
+        }
+        else // 0레벨 또는 건물 없음: 별 0개
+        {
+            starContainer1.SetActive(false);
+            starContainer2.SetActive(false);
+            starContainer3.SetActive(false);
         }
     }
 }
