@@ -110,7 +110,7 @@ public class UIActiveAFSlot : MonoBehaviour
         //  7. 실제 스킬 효과 실행
         skillEffectInstance.Execute(currentLevelData);
 
-        Debug.Log($"{afData.name} 사용, 남은 마나 {player.CurMana}");
+        //Debug.Log($"{afData.name} 사용, 남은 마나 {player.CurMana}");
     }
 
     public void InitAfSlot(ArtifactData data)

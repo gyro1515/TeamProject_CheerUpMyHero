@@ -100,7 +100,7 @@ public class Player : BaseUnit
     }
     public override void SetStatMultiplier(float statMultiplier = 1f, bool isSpawnHero = false)
     {
-        if (PlayerData == null) { Debug.LogError("데이터 없음"); return; }
+        if (PlayerData == null || PlayerData.level == 0) { Debug.LogError("데이터 없음"); return; }
         // 배율에 따른 체력 공격력 세팅
 
         EffectTarget target = GetEffectTarget();

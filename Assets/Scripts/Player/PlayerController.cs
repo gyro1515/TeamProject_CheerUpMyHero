@@ -104,6 +104,11 @@ public class PlayerController : BaseController
     }
     IEnumerator ManaRecoveryRoutine()
     {
+        // 초기화 안될 수도 있어서 초기화될 때까지 대기
+        while(player.PlayerData.level == 0)
+        {
+            yield return null;
+        }
         WaitForSeconds wait = new WaitForSeconds(player.PlayerData.manaRecoveryTime);
         while (true)
         {
