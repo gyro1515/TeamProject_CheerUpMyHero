@@ -15,10 +15,15 @@ public class SynergyOutlineManager : MonoBehaviour
 
     private void Awake()
     {
+
+    }
+    private void OnEnable()
+    {
         _synergyUpdateSubscriber = EventManager.GetSubscriber<SynergyDataUpdatedEvent>();
         _synergyUpdateSubscriber.Subscribe(HandleSynergyUpdate);
-    }
 
+        UpdateOutlines(PlayerDataManager.Instance.ActiveSynergies);
+    }
     private void OnDisable()
     {
         _synergyUpdateSubscriber?.Unsubscribe(HandleSynergyUpdate);
