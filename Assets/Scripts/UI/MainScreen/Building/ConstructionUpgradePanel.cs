@@ -98,7 +98,7 @@ public class ConstructionUpgradePanel : BasePopUpUI
         _constructionData = null;
         _upgradeData = null;
         destroyButton.gameObject.SetActive(true); // "광고 수리" 버튼 (재활용)
-        destroyButton.GetComponentInChildren<TextMeshProUGUI>().text = "광고 보고 수리";
+        destroyButton.GetComponentInChildren<TextMeshProUGUI>().text = "광고 수리";
         destroyButton.onClick.RemoveAllListeners(); 
         destroyButton.onClick.AddListener(OnAdRepairButtonClicked); 
         UpdatePanelContents();
