@@ -13,6 +13,7 @@ public class UISpawnUnitSlot : MonoBehaviour
     [SerializeField] Image unitIconTimer; // 쿨타임 표시, 버튼 클릭 방지용
     [SerializeField] Image unitIBG; // 시너지 표시 백그라운드
     [SerializeField] Button spawnUnitBtn;
+    [SerializeField] UIAdvancedButton spawnUnitAdvancedBtn;
     //[SerializeField] TextMeshProUGUI text; // 추후 아이콘만 설정하면 될 듯 합니다.
     [SerializeField] TextMeshProUGUI costText;
     [SerializeField] GameObject outlineGOForCanSpawnLegendary; // 전설 등급 소환 가능시 아웃라인 효과
@@ -30,12 +31,14 @@ public class UISpawnUnitSlot : MonoBehaviour
     bool canSpawnUnit = true;
     BaseUnitData cardData;
 
+    IEventPublisher<SpawnUnitSlotStartHoldEvent> spawnUnitSlotStartHoldEventPub;
+    IEventPublisher<SpawnUnitSlotReleaseHoldEvent> spawnUnitSlotReleaseHoldEventPub;
     private void Awake()
     {
         costText.gameObject.SetActive(true); // 현재 왜 꺼져있는지 모르겠음
         costText.raycastTarget = false; // 텍스트가 버튼 클릭 막는 현상 방지
         outlineGOForCanSpawnLegendary.SetActive(false);
-        spawnUnitBtn.onClick.AddListener(OnSpawnUnit);
+        //spawnUnitBtn.onClick.AddListener(OnSpawnUnit);
     }
     private void Update()
     {
@@ -60,6 +63,17 @@ public class UISpawnUnitSlot : MonoBehaviour
         InitSpawnUnitSlot(cardData.unitName, cardData.idNumber, cardData.poolType, cardData.spawnCooldown, cardData.cost);
         // 유닛 시너지에 따른 배경 설정
         unitIBG.sprite = cardData.unitBGSprite;
+        spawnUnitSlotStartHoldEventPub = EventManager.GetPublisher<SpawnUnitSlotStartHoldEvent>();
+        spawnUnitSlotReleaseHoldEventPub= EventManager.GetPublisher<SpawnUnitSlotReleaseHoldEvent>();
+        spawnUnitAdvancedBtn.onShortClick += OnSpawnUnit;
+        spawnUnitAdvancedBtn.onHoldStart += () =>
+        {
+            spawnUnitSlotStartHoldEventPub?.Publish(new SpawnUnitSlotStartHoldEvent(this.cardData));
+        };
+        spawnUnitAdvancedBtn.onHoldRelease += () =>
+        {
+            spawnUnitSlotReleaseHoldEventPub?.Publish();
+        };
     }
     void InitSpawnUnitSlot(string unitName, int unitId, PoolType poolType, float cooldown, int foodConsumption)
     {
@@ -104,6 +118,7 @@ public class UISpawnUnitSlot : MonoBehaviour
     void OnSpawnUnit()
     {
         if (GameManager.Instance.PlayerHQ == null) return;
+        if(isCooldown) return; // 쿨타임 중이면 리턴
         if (PlayerDataManager.Instance.CurrentFood < _foodConsumption) return;
 
         if(outlineGOForCanSpawnLegendary.activeSelf) outlineGOForCanSpawnLegendary.SetActive(false);
@@ -179,5 +194,18 @@ public class UISpawnUnitSlot : MonoBehaviour
     //    // 여기서 유닛 소환, 테스트 용으로 이렇게 형변환
     //    if((int)playerUnitType != -1) GameManager.Instance.PlayerHQ.SpawnUnit(playerUnitType);
     //}
+}
+// 슬롯 클릭 이벤트
+struct SpawnUnitSlotStartHoldEvent
+{
+    public BaseUnitData unitData;
+    public SpawnUnitSlotStartHoldEvent(BaseUnitData unitData)
+    {
+        this.unitData = unitData;
+    }
+}
+struct SpawnUnitSlotReleaseHoldEvent
+{
+
 }
 
