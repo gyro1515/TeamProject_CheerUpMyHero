@@ -12,6 +12,9 @@ public class UISwipeAreaVer2 : MonoBehaviour
     [SerializeField] ScrollRect scrollRect;
     [SerializeField] GameObject swipeBgGO; // 스와이프시 클릭 방지용 배경
     [SerializeField] Button toNextArea;  // 스와이프 버튼
+    [SerializeField] Image toNextAreaImg;
+    [SerializeField] Sprite toRightSprite;
+    [SerializeField] Sprite toLeftSprite;
     [SerializeField] TextMeshProUGUI toNextAreaText;  // 스와이프 버튼 텍스트, 나중에는 이미지?
     Vector2 preSize = Vector2.zero;
     int pageCount;
@@ -63,6 +66,7 @@ public class UISwipeAreaVer2 : MonoBehaviour
         }
         toNextArea.enabled = true; // 이동 후 버튼 활성화
         toNextAreaText.text = curIdx == 0 ? "→" : "←"; // 첫 페이지면 오른쪽, 아니면 왼쪽 화살표
+        toNextAreaImg.sprite = curIdx == 0 ? toRightSprite : toLeftSprite;
         swipeBgGO.SetActive(false); // 이동 후 다른 영역 클릭 가능
     }
     void ResizePages()
