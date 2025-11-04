@@ -9,4 +9,5 @@ public class ArtifactData : MonoData
     public string description;
     public ArtifactType artifactType;
     public string iconSpritePath;
+    public string descriptionForGuide;
 }

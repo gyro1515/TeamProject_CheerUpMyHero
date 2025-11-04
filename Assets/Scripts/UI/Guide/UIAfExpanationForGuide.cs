@@ -34,7 +34,7 @@ public class UIAfExpanationForGuide : MonoBehaviour
         OpenUI(0.05f);
         descriptionName.text = startHoldEvent.artifactData.name;
         descriptionIcon.sprite = Resources.Load<Sprite>(startHoldEvent.artifactData.iconSpritePath);
-        description.text = startHoldEvent.artifactData.description;
+        description.text = startHoldEvent.artifactData.descriptionForGuide;
     }
     void CloseDescriptionPanel(AfSlotReleaseHoldEvent releaseHoldEvent)
     {

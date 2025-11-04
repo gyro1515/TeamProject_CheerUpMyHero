@@ -123,13 +123,23 @@ public class UIGuide : BaseUI
         // 예: 080200041 ~ 080200045 -> 8020004 그룹
         var groupedArtifacts = allArtifacts
             .Where(a => a != null) // null이 아닌 것만
-            .GroupBy(a => a.idNumber / 10) // 그룹 ID로 묶기
+            .GroupBy(a =>
+            {
+                // 3-1. 이 유물이 '액티브' 유물인지 확인합니다.
+                if (a is ActiveArtifactData)
+                {
+                    return a.idNumber;
+                }
+                else // 패시브 유물이라면
+                {
+                    return a.idNumber / 10;
+                }
+            }) 
             .OrderBy(g => g.Key); // ID 순서대로 정렬
 
         // --- 4.'모든 유물' 대신 '그룹'을 순회합니다. ✨ ---
         foreach (var artifactGroup in groupedArtifacts)
         {
-            // 5. 각 그룹의 첫 번째 유물(보통 Lv.1)을 '대표'로 사용합니다.
             ArtifactData representativeArtifact = artifactGroup.First();
             if (representativeArtifact == null) continue;
 
@@ -161,7 +171,7 @@ public class UIGuide : BaseUI
     private void OnArtifactIconClicked(ArtifactData artifactData)
     {
         Debug.Log($"유물 아이콘 클릭됨: {artifactData.name}");
-        afSlotStartHoldEventPub?.Publish(new AfSlotStartHoldEvent(artifactData, true));
+        afSlotStartHoldEventPub?.Publish(new AfSlotStartHoldEvent(artifactData));
     }
     private void OnBackButtonClicked()
     {
