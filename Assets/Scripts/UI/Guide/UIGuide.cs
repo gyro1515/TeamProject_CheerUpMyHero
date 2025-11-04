@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -17,7 +18,7 @@ public class UIGuide : BaseUI
     [SerializeField] private GameObject iconPrefab;
 
     [SerializeField] private UIUnitexplanationPopup uiUnitexplanationPopup;
-    [SerializeField] private UIAfExpanationPopup uiAfExpanationPopup;
+    [SerializeField] private UIAfExpanationForGuide uiAfExpanationPopup;
 
     IEventPublisher<SpawnUnitSlotStartHoldEvent> spawnUnitSlotStartHoldEventPub;
     IEventPublisher<AfSlotStartHoldEvent> afSlotStartHoldEventPub;
@@ -85,6 +86,12 @@ public class UIGuide : BaseUI
             GameObject iconGO = Instantiate(iconPrefab, iconGridContentParent);
             // 프리팹의 Image 컴포넌트에 아이콘 설정
             iconGO.GetComponent<Image>().sprite = unitData.unitIconSprite;
+            TextMeshProUGUI nameText = iconGO.GetComponentInChildren<TextMeshProUGUI>();
+            if (nameText != null)
+            {
+                nameText.text = unitData.unitName;
+                nameText.gameObject.SetActive(true); // 텍스트 켜기
+            }
 
             // 4. (핵심) 생성된 아이콘 버튼에 '3번' 기능(팝업 띄우기) 연결
             iconGO.GetComponent<Button>().onClick.AddListener(() =>
@@ -99,28 +106,49 @@ public class UIGuide : BaseUI
         ClearGrid(); // 1. 그리드 비우기
         if (iconScrollView != null) iconScrollView.SetActive(true);
 
-        // 2. ArtifactManager에서 '모든' 유물 리스트 가져오기 (ArtifactSO 참조)
         ArtifactSO artifactSO = DataManager.ArtifactData.SO;
-
-        List<ArtifactData> allArtifacts = new List<ArtifactData>();
-        allArtifacts.AddRange(artifactSO.activeArtifacts.Cast<ArtifactData>()); // Active -> Base
-        allArtifacts.AddRange(artifactSO.passiveArtifacts.Cast<ArtifactData>()); // Passive -> Base
-
-        allArtifacts = allArtifacts.OrderBy(a => a.idNumber).ToList();
-
-        // 3. 리스트를 순회하며 아이콘 생성
-        foreach (var artifactData in allArtifacts)
+        if (artifactSO == null)
         {
-            if (artifactData == null) continue;
+            Debug.LogError("DataManager에서 ArtifactSO를 불러오는 데 실패했습니다!");
+            return;
+        }
+
+        // 2. 모든 유물 리스트를 하나로 합침
+        List<ArtifactData> allArtifacts = new List<ArtifactData>();
+        allArtifacts.AddRange(artifactSO.activeArtifacts.Cast<ArtifactData>());
+        allArtifacts.AddRange(artifactSO.passiveArtifacts.Cast<ArtifactData>());
+
+        // --- ✨ 3. 유물들을 "그룹 ID"로 그룹화합니다. ✨ ---
+        // (가정: ID의 마지막 자리가 레벨(1~5)이므로, 10으로 나눈 몫이 그룹 ID입니다.)
+        // 예: 080200041 ~ 080200045 -> 8020004 그룹
+        var groupedArtifacts = allArtifacts
+            .Where(a => a != null) // null이 아닌 것만
+            .GroupBy(a => a.idNumber / 10) // 그룹 ID로 묶기
+            .OrderBy(g => g.Key); // ID 순서대로 정렬
+
+        // --- 4.'모든 유물' 대신 '그룹'을 순회합니다. ✨ ---
+        foreach (var artifactGroup in groupedArtifacts)
+        {
+            // 5. 각 그룹의 첫 번째 유물(보통 Lv.1)을 '대표'로 사용합니다.
+            ArtifactData representativeArtifact = artifactGroup.First();
+            if (representativeArtifact == null) continue;
 
             GameObject iconGO = Instantiate(iconPrefab, iconGridContentParent);
 
-            iconGO.GetComponent<Image>().sprite = Resources.Load<Sprite>(artifactData.iconSpritePath);
+            // 6. 대표 유물의 아이콘 표시
+            iconGO.GetComponent<Image>().sprite = Resources.Load<Sprite>(representativeArtifact.iconSpritePath);
 
-            // 4. (핵심) 생성된 아이콘 버튼에 '3번' 기능(팝업 띄우기) 연결
+            TextMeshProUGUI nameText = iconGO.GetComponentInChildren<TextMeshProUGUI>();
+            if (nameText != null)
+            {
+                nameText.gameObject.SetActive(false); // 이름, 레벨 숨기기
+            }
+            // ------------------------------------
+
+            // 8. (핵심) 클릭 시 '대표 유물'의 데이터를 팝업으로 보냅니다.
             iconGO.GetComponent<Button>().onClick.AddListener(() =>
             {
-                OnArtifactIconClicked(artifactData);
+                OnArtifactIconClicked(representativeArtifact);
             });
         }
     }
@@ -133,7 +161,7 @@ public class UIGuide : BaseUI
     private void OnArtifactIconClicked(ArtifactData artifactData)
     {
         Debug.Log($"유물 아이콘 클릭됨: {artifactData.name}");
-        afSlotStartHoldEventPub?.Publish(new AfSlotStartHoldEvent(artifactData));
+        afSlotStartHoldEventPub?.Publish(new AfSlotStartHoldEvent(artifactData, true));
     }
     private void OnBackButtonClicked()
     {

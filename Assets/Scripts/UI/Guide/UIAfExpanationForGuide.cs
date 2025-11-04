@@ -3,13 +3,10 @@ using UnityEngine;
 using UnityEngine.UI;
 
 [RequireComponent(typeof(CanvasGroup))]
-public class UIAfExpanationPopup : MonoBehaviour
+public class UIAfExpanationForGuide : MonoBehaviour
 {
     [SerializeField] private Image descriptionIcon;
     [SerializeField] private TextMeshProUGUI descriptionName;
-    [SerializeField] private TextMeshProUGUI descriptionGrade;
-    [SerializeField] private TextMeshProUGUI descriptionType;
-    [SerializeField] private TextMeshProUGUI descriptionValue;
     [SerializeField] private TextMeshProUGUI description;
 
     bool _isFade = false;
@@ -38,18 +35,6 @@ public class UIAfExpanationPopup : MonoBehaviour
         descriptionName.text = startHoldEvent.artifactData.name;
         descriptionIcon.sprite = Resources.Load<Sprite>(startHoldEvent.artifactData.iconSpritePath);
         description.text = startHoldEvent.artifactData.description;
-        if (startHoldEvent.artifactData is PassiveArtifactData p)
-        {
-            descriptionGrade.text = $"등급 : {p.grade}";
-            descriptionType.text = $"스탯 타입 : {p.statType}";
-            descriptionValue.text = $"효과 : + {p.value}%";
-        }
-        else if (startHoldEvent.artifactData is ActiveArtifactData a)
-        {
-            descriptionGrade.text = $"Lv. {a.levelData[a.curLevel].level}";
-            descriptionType.text = $"유형 : {a.type}";
-            descriptionValue.text = $"Cost : {a.cost}";
-        }
     }
     void CloseDescriptionPanel(AfSlotReleaseHoldEvent releaseHoldEvent)
     {

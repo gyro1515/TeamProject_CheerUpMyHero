@@ -212,9 +212,12 @@ public class UIActiveAFSlot : MonoBehaviour
 struct AfSlotStartHoldEvent
 {
     public ArtifactData artifactData;
-    public AfSlotStartHoldEvent(ArtifactData data)
+    public bool isFromEncyclopedia;
+
+    public AfSlotStartHoldEvent(ArtifactData data, bool isFromGuide = false)
     {
         artifactData = data;
+        isFromEncyclopedia = isFromGuide; 
     }
 }
 struct AfSlotReleaseHoldEvent {}
