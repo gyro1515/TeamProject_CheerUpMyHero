@@ -8,45 +8,19 @@ public abstract class BaseHQSkill : BasePoolable
     [SerializeField] protected float attackRange = 10f;
     [SerializeField] protected int maxTargetCount = 10;
     [SerializeField] protected float atkPower = 20f;
+    [SerializeField] protected float coolTime = 20f;
+    [field: SerializeField] public SpriteRenderer SkillIconRenderer { get; private set; }
+    public float CoolTime { get { return coolTime; } }
+    public float DetectRange { get { return detectRange; } }
 
-    public abstract void ActivateSkill(Vector3 start);
-
-    Vector3 tmpTarget = new Vector3(0f, -100f, 0f);
     PriorityQueue<BaseCharacter, float> selectedUnitPQ = new PriorityQueue<BaseCharacter, float>(isMinHeap: false);
 
-    protected bool FindTarget(Vector3 start, out Vector3 target)
-    {
-        target = tmpTarget;
-
-        List<BaseCharacter> enemyList = UnitManager.EnemyUnitList;
-
-        float minDist = float.MaxValue;
-
-        foreach (var unit in enemyList)
-        {
-            if (unit == null || unit.IsDead) continue;
-
-            // 거리 계산
-            Vector3 unitPos = unit.gameObject.transform.position;
-            //float dist = Mathf.Abs(unitPos.x - callerPos.x);
-            float dist =  unitPos.x - start.x;
-            if (dist < 0f) continue; // 반대 방향 공격 x
-            if (dist > detectRange) continue; // 공격 범위 초과하면 다음
-            if (dist > minDist) continue; // 최소 거리보다 멀다면 다음
-            minDist = dist;
-            target = unit.gameObject.transform.position;
-        }
-        if(target != tmpTarget)
-        {
-            return true;
-        }
-
-        return false;
-    }
-
+    public abstract void ActivateSkill(Vector3 start, Vector3 to);
+    
     protected virtual void AttackRange()
     {
         // TODO: 이펙트
+        AudioManager.PlayOneShotByCameraDistance(DataManager.AudioData.hqSkillSound, gameObject.transform);
 
         // 범위 데미지 처리
         List<BaseCharacter> allEnemies = UnitManager.EnemyUnitList;

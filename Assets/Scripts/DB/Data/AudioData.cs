@@ -44,6 +44,8 @@ public class AudioData : ScriptableObject
     public AudioClip hqDestroySE;
     public AudioClip playerWarningHpSE;
     public AudioClip unitHealSE;
+    public AudioClip useHQSkill;
+    public AudioClip hqSkillSound;
 
     [Header("유물 효과음")]
     public AudioClip AF_IceBreath;
