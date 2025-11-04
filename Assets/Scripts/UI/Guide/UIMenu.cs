@@ -22,6 +22,8 @@ public class UIMenu : BaseUI
     UIStageSelect uiStageSelect;
     GachaUIPanel gachaUIPanel;
     UIGuide UIGuide;
+    DeckPresetController deckPresetController;
+
     private void Awake()
     {
         PostBtn.onClick.AddListener(OnLateUpdateClicked);
@@ -53,8 +55,24 @@ public class UIMenu : BaseUI
     }
     private void OnBattleBtnClicked()
     {
-        FadeManager.Instance.SwitchGameObjects(this.gameObject, uiStageSelect.gameObject);
-
+        if (GameManager.IsStageAndDestinySelected)
+        {
+            // 스테이지를 '이미' 선택했다면 -> '덱 편성'으로 바로 이동
+            Debug.Log("[UIMenu] 이미 선택한 스테이지가 있으므로 덱 편성으로 이동합니다.");
+            if (deckPresetController != null)
+            {
+                FadeManager.Instance.SwitchGameObjects(this.gameObject, deckPresetController.gameObject);
+            }
+        }
+        else
+        {
+            //스테이지를 '아직' 선택 안 했다면 -> '스테이지 선택'으로 이동
+            Debug.Log("[UIMenu] 선택한 스테이지가 없으므로 스테이지 선택으로 이동합니다.");
+            if (uiStageSelect != null)
+            {
+                FadeManager.Instance.SwitchGameObjects(this.gameObject, uiStageSelect.gameObject);
+            }
+        }
     }
     private void OnGachaBtnClicked()
     {
