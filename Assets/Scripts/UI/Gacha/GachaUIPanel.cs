@@ -29,7 +29,7 @@ public class GachaUIPanel : BaseUI, IBackButtonHandler
     private IEventSubscriber<LimitedPityCountUpdatedEvent> _limitedPitySubscriber;
     private IEventSubscriber<StandardPityCountUpdatedEvent> _standardPitySubscriber;
     private MainScreenUI mainScreenUI;
-
+    private UIMenu uiMenu;
      void Awake()
     {
 
@@ -47,7 +47,8 @@ public class GachaUIPanel : BaseUI, IBackButtonHandler
     }
     private void Start()
     {
-        mainScreenUI = UIManager.Instance.GetUI<MainScreenUI>();    
+        mainScreenUI = UIManager.Instance.GetUI<MainScreenUI>();
+        uiMenu = UIManager.Instance.GetUI<UIMenu>();    
     }
     void OnEnable()
     {
@@ -385,14 +386,33 @@ public class GachaUIPanel : BaseUI, IBackButtonHandler
     }
     private void OnBackButtonClicked()
     {
-        if (mainScreenUI != null)
-        {
-            FadeManager.Instance.SwitchGameObjects(gameObject, mainScreenUI.gameObject);
+        FromUI origin = UIManager.Instance.fromUI;
 
-        }
-        else
+        if (origin == FromUI.UIMenu)
         {
-            Debug.LogError("MainScreenUIObject가 GachaUIPanel에 연결되지 않았습니다!");
+            // 2a. "UIMenu"에서 왔으면 UIMenu로 돌아갑니다.
+            Debug.Log("UIMenu로 돌아가기");
+            if (uiMenu != null)
+            {
+                FadeManager.Instance.SwitchGameObjects(gameObject, uiMenu.gameObject);
+            }
+            else
+            {
+                Debug.LogError("UIMenu 오브젝트가 UIStageSelect에 연결되지 않았습니다!");
+            }
+        }
+        else // FromUI.MainScreen (또는 기본값)
+        {
+            // 2b. "MainScreen"에서 왔으면 MainScreen으로 돌아갑니다.
+            Debug.Log("메인(덱)으로 이동");
+            if (mainScreenUI != null)
+            {
+                FadeManager.Instance.SwitchGameObjects(gameObject, mainScreenUI.gameObject);
+            }
+            else
+            {
+                Debug.LogError("UIManager에서 _mainScreenUI 찾을 수 없습니다!");
+            }
         }
     }
 

@@ -40,7 +40,14 @@ public class SceneLoader : SingletonMono<SceneLoader>
     public static bool IsChange { get; private set; } = false; // 씬 전환 시 그 후 상호작용 작동 안하도록
 
     // 현재 로드된 씬의 SceneState를 저장할 프로퍼티
-    public static SceneState CurrentSceneState { get => Instance.currentSceneState; }
+    public static SceneState CurrentSceneState { get 
+        {
+            if (Instance != null)
+                return Instance.currentSceneState;
+
+            return SceneState.None;
+        } 
+    }
     SceneState currentSceneState;
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)] // 하이어아키 창에 게임오브젝트를 만들지 않아도 자동 생성

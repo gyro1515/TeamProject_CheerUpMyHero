@@ -12,6 +12,7 @@ public class MainScreenUI : BaseUI, IBackButtonHandler
     //[SerializeField] private Button _testButton;
     [SerializeField] private Button _deckSelectButton;
     [SerializeField] private Button _notYetButton;
+    [SerializeField] private Button backButton;
 
     [Header("패널 (Canvas Group)")]
     [SerializeField] private CanvasGroup _battlePanelCanvasGroup;
@@ -24,7 +25,7 @@ public class MainScreenUI : BaseUI, IBackButtonHandler
 
     private DeckPresetController _deckPresetController;
     private UIStageSelect _uiStageSelect;
-
+    private UIMenu uiMenu;
 
     private void Awake()
     {
@@ -42,6 +43,7 @@ public class MainScreenUI : BaseUI, IBackButtonHandler
         //_testButton.onClick.AddListener(OnTestButtonClick);
         _deckSelectButton.onClick.AddListener(OnDeckSelectButtonClick);
         _notYetButton.onClick.AddListener(OnNotYetButtonClick);
+        backButton.onClick.AddListener(OnBackBtnClicked);
 
         // OnEnable()로 이동, 열릴때마다 팝업 닫아주기
         /*_battlePanel.SetActive(false);
@@ -58,16 +60,22 @@ public class MainScreenUI : BaseUI, IBackButtonHandler
     {
         _uiStageSelect = UIManager.Instance.GetUI<UIStageSelect>();
         _deckPresetController = UIManager.Instance.GetUI<DeckPresetController>();
+        uiMenu = UIManager.Instance.GetUI<UIMenu>();
     }
     private void OnEnable()
     {
         ClosePanel(_battlePanelCanvasGroup, true);
+        UIManager.PubishAddUIStackEvent(this);
         //ClosePanel(_testPanelCanvasGroup, true);
        /* if (_deckSelectPopup != null)
         {
             // _deckSelectPopup이 보통 Awake()되기 전에 OnEnable()이 호출되므로
             _deckSelectPopup.CloseUI(); 
         }*/
+    }
+    private void OnDisable()
+    {
+        UIManager.PublishRemoveUIStackEvent();
     }
     private void OnAdviserButtonClck()
     {
@@ -97,6 +105,7 @@ public class MainScreenUI : BaseUI, IBackButtonHandler
         // 스테이지 선택을 이미 했다면 덱 선택으로
         if (GameManager.IsStageAndDestinySelected)
         {
+            UIManager.Instance.fromUI = FromUI.MainScreen;
             FadeManager.Instance.SwitchGameObjects(gameObject, _deckPresetController.gameObject);
         }
         else // 스테이지 선택을 안했다면 스테이지 선택으로
@@ -105,6 +114,7 @@ public class MainScreenUI : BaseUI, IBackButtonHandler
             //  FadeManager.Instance.SwitchGameObjects(gameObject, uiSelectCard.gameObject);
             if (_uiStageSelect != null)
             {
+                UIManager.Instance.fromUI = FromUI.MainScreen;
                 FadeManager.Instance.SwitchGameObjects(gameObject, _uiStageSelect.gameObject);
                 //FadeManager.Instance.SwitchGameObjects(gameObject, _deckPresetController.gameObject);
             }
@@ -158,10 +168,15 @@ public class MainScreenUI : BaseUI, IBackButtonHandler
             FadeManager.FadeOutUI(canvasGroup);
         }
     }
+    private void OnBackBtnClicked()
+    {
+        FadeManager.Instance.SwitchGameObjects(this.gameObject, uiMenu.gameObject);
+    }
 
     public void OnBackPressed()
     {
         Debug.Log("[MainScreenUI] 뒤로 가기 버튼 눌림");
+        OnBackBtnClicked();
     }
 }
 

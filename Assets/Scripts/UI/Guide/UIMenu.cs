@@ -51,6 +51,7 @@ public class UIMenu : BaseUI
     }
     private void OnWisdomBtnClicked()
     {
+        UIManager.Instance.fromUI = FromUI.UIMenu;
         FadeManager.Instance.SwitchGameObjects(this.gameObject, mainScreenUI.gameObject);
     }
     private void OnBattleBtnClicked()
@@ -61,6 +62,7 @@ public class UIMenu : BaseUI
             Debug.Log("[UIMenu] 이미 선택한 스테이지가 있으므로 덱 편성으로 이동합니다.");
             if (deckPresetController != null)
             {
+                UIManager.Instance.fromUI = FromUI.UIMenu;
                 FadeManager.Instance.SwitchGameObjects(this.gameObject, deckPresetController.gameObject);
             }
         }
@@ -70,16 +72,19 @@ public class UIMenu : BaseUI
             Debug.Log("[UIMenu] 선택한 스테이지가 없으므로 스테이지 선택으로 이동합니다.");
             if (uiStageSelect != null)
             {
+                UIManager.Instance.fromUI = FromUI.UIMenu;
                 FadeManager.Instance.SwitchGameObjects(this.gameObject, uiStageSelect.gameObject);
             }
         }
     }
     private void OnGachaBtnClicked()
     {
+        UIManager.Instance.fromUI = FromUI.UIMenu;
         FadeManager.Instance.SwitchGameObjects(this.gameObject, gachaUIPanel.gameObject);
     }
     private void OnGuidBtnClicked()
     {
+        UIManager.Instance.fromUI = FromUI.UIMenu;
         FadeManager.Instance.SwitchGameObjects(this.gameObject, UIGuide.gameObject);
     }
     private void OnLateUpdateClicked()

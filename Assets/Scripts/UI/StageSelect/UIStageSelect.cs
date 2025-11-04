@@ -34,7 +34,7 @@ public class UIStageSelect : BaseUI, IBackButtonHandler
     //private DeckPresetController _deckPresetController;
     private MainScreenUI _mainScreenUI;
     private List<UISelecStageSlot> _allStageSlots = new List<UISelecStageSlot>();
-
+    private UIMenu uiMenu;
     
     private void Awake()
     {
@@ -50,6 +50,7 @@ public class UIStageSelect : BaseUI, IBackButtonHandler
     {
         _mainScreenUI = UIManager.Instance.GetUI<MainScreenUI>();
         _destinyUI = UIManager.Instance.GetUI<UIDestinyRoullette>();
+        uiMenu = UIManager.Instance.GetUI<UIMenu>();
 
     }
     private void OnEnable()
@@ -176,14 +177,33 @@ public class UIStageSelect : BaseUI, IBackButtonHandler
 
     void MoveToSelDeck()
     {
+        FromUI origin = UIManager.Instance.fromUI;
         Debug.Log("메인으로 이동");
-        if (_mainScreenUI != null)
+        if (origin == FromUI.UIMenu)
         {
-            FadeManager.Instance.SwitchGameObjects(gameObject, _mainScreenUI.gameObject);
+            // 2a. "UIMenu"에서 왔으면 UIMenu로 돌아갑니다.
+            Debug.Log("UIMenu로 돌아가기");
+            if (uiMenu != null)
+            {
+                FadeManager.Instance.SwitchGameObjects(gameObject, uiMenu.gameObject);
+            }
+            else
+            {
+                Debug.LogError("UIMenu 오브젝트가 UIStageSelect에 연결되지 않았습니다!");
+            }
         }
-        else
+        else // FromUI.MainScreen (또는 기본값)
         {
-            Debug.LogError("UIManager에서 _mainScreenUI 찾을 수 없습니다!");
+            // 2b. "MainScreen"에서 왔으면 MainScreen으로 돌아갑니다.
+            Debug.Log("메인(덱)으로 이동");
+            if (_mainScreenUI != null)
+            {
+                FadeManager.Instance.SwitchGameObjects(gameObject, _mainScreenUI.gameObject);
+            }
+            else
+            {
+                Debug.LogError("UIManager에서 _mainScreenUI 찾을 수 없습니다!");
+            }
         }
     }
 
