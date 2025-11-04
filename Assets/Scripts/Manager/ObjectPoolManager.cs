@@ -146,11 +146,22 @@ public enum PoolType // *******251016: 새로운 풀링 오브젝트 추가시 �
     FXMapExplosion2,
     FXMapExplosion3,
     FXHealEffect,
+    FxHQSkill1Effect,
+    FxHQSkill2Effect,
+    FxHQSkill3Effect,
+    FxHQSkill4Effect,
+    FxHQSkill5Effect,
     #endregion
     Allies_UnitGolem,
     HealAmount,
     DealAmountPlayer,
     DealAmountEnemy,
+    HQSkill1,
+    HQSkill2,
+    HQSkill3,
+    HQSkill4,
+    HQSkill5,
+
 }
 
 public class ObjectPoolManager : SingletonMono<ObjectPoolManager>, ISceneResettable
