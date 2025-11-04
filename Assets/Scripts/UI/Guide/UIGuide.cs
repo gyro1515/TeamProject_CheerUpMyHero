@@ -85,14 +85,18 @@ public class UIGuide : BaseUI
 
             GameObject iconGO = Instantiate(iconPrefab, iconGridContentParent);
             // 프리팹의 Image 컴포넌트에 아이콘 설정
-            iconGO.GetComponent<Image>().sprite = unitData.unitIconSprite;
+            iconGO.GetComponentInChildren<Image>().sprite = unitData.unitIconSprite;
             TextMeshProUGUI nameText = iconGO.GetComponentInChildren<TextMeshProUGUI>();
             if (nameText != null)
             {
                 nameText.text = unitData.unitName;
                 nameText.gameObject.SetActive(true); // 텍스트 켜기
             }
-
+            Transform frameBorder = iconGO.transform.Find("FramBorder");
+            if (frameBorder != null)
+            {
+                frameBorder.gameObject.SetActive(true); // 유닛이니까 액자 켜기
+            }
             // 4. (핵심) 생성된 아이콘 버튼에 '3번' 기능(팝업 띄우기) 연결
             iconGO.GetComponent<Button>().onClick.AddListener(() =>
             {
@@ -146,14 +150,18 @@ public class UIGuide : BaseUI
             GameObject iconGO = Instantiate(iconPrefab, iconGridContentParent);
 
             // 6. 대표 유물의 아이콘 표시
-            iconGO.GetComponent<Image>().sprite = Resources.Load<Sprite>(representativeArtifact.iconSpritePath);
+            iconGO.GetComponentInChildren<Image>().sprite = Resources.Load<Sprite>(representativeArtifact.iconSpritePath);
 
             TextMeshProUGUI nameText = iconGO.GetComponentInChildren<TextMeshProUGUI>();
             if (nameText != null)
             {
                 nameText.gameObject.SetActive(false); // 이름, 레벨 숨기기
             }
-            // ------------------------------------
+            Transform frameBorder = iconGO.transform.Find("FramBorder");
+            if (frameBorder != null)
+            {
+                frameBorder.gameObject.SetActive(false); // 유물이니까 액자 끄기
+            }
 
             // 8. (핵심) 클릭 시 '대표 유물'의 데이터를 팝업으로 보냅니다.
             iconGO.GetComponent<Button>().onClick.AddListener(() =>
