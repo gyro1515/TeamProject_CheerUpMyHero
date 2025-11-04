@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,7 +28,8 @@ public enum SelectedFilter
 
 public class CardFilter : MonoBehaviour
 {
-    private InfiniteScroll infiniteScroll;
+    // 이벤트 시스템
+    public event Action<List<int>> OnFilterUpdated;
 
     //모든 카드
     public List<int> AllCardList { get; private set; } = new();
@@ -45,11 +47,9 @@ public class CardFilter : MonoBehaviour
     //수정사항 적용한 최종 출력 카드
     public List<int> ModifiedCardList { get; private set; } = new();
 
-
     //선택 불가 카드
     public HashSet<int> greyCardSet { get; private set; } = new();
     
-
     //필터 조건
     private bool isAsending = true;
     private SelectedUnitType selectedUnitType = SelectedUnitType.None;
@@ -215,7 +215,7 @@ public class CardFilter : MonoBehaviour
             ModifiedCardList.Add(filteredUnitList[i].idNumber);
         }
 
-
+        OnFilterUpdated?.Invoke(ModifiedCardList);
     }
     #endregion 
 
@@ -273,11 +273,6 @@ public class CardFilter : MonoBehaviour
         search.onClick.RemoveListener(OnSearch);
     }
 
-    private void Start()
-    {
-        infiniteScroll = GetComponent<UIUnitCardSelect>().InfiniteScroll;
-    }
-
     void onFilterSelect()
     {
         filterList.SetActive(true);
@@ -287,7 +282,6 @@ public class CardFilter : MonoBehaviour
     {
         selectedFilter = filter;
         FilterAndSort();
-        infiniteScroll.ResetCardData(ModifiedCardList);
 
         switch (selectedFilter)
         {
@@ -319,7 +313,6 @@ public class CardFilter : MonoBehaviour
         isAsending = toggleOn;
         downArrow.SetActive(!toggleOn);
         FilterAndSort();
-        infiniteScroll.ResetCardData(ModifiedCardList);
     }
 
     void SetUnitType(SelectedUnitType unit)
@@ -345,7 +338,6 @@ public class CardFilter : MonoBehaviour
             }
         }    
         FilterAndSort();
-        infiniteScroll.ResetCardData(ModifiedCardList);
     }
 
     void OnSearch()
@@ -358,7 +350,6 @@ public class CardFilter : MonoBehaviour
     {
         searchText = text;
         FilterAndSort();
-        infiniteScroll.ResetCardData(ModifiedCardList);
     }
 
     public void ResetFilter()
@@ -370,7 +361,6 @@ public class CardFilter : MonoBehaviour
         selectedUnitType = SelectedUnitType.None;
         searchText = string.Empty;
         FilterAndSort();
-        infiniteScroll.ResetCardData(ModifiedCardList);
     }
 
     #endregion
