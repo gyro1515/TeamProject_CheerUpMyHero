@@ -42,7 +42,7 @@ public class UIGuide : BaseUI
     }
     void Start()
     {
-        //PopulateUnitGrid();
+        PopulateUnitGrid();
         UIMenu = UIManager.Instance.GetUI<UIMenu>();
 
     }

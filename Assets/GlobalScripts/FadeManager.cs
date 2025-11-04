@@ -31,6 +31,10 @@ public class FadeManager : SingletonMono<FadeManager>
     }
     public void SwitchGameObjects(GameObject from, GameObject to)
     {
+        if(isFadeOut)
+        {
+            return;
+        }
         StartCoroutine(SwitchGameObjectsRoutine(from, to));
     }
     IEnumerator SwitchGameObjectsRoutine(GameObject from, GameObject to)

@@ -52,7 +52,7 @@ public class DiplomacyPanel : BasePopUpUI
 
         if (gachaPanel != null)
         {
-
+            UIManager.Instance.fromUI = FromUI.MainScreen;
             FadeManager.Instance.SwitchGameObjects(mainScreenUI.gameObject, gachaPanel.gameObject);
             //UIManager.Instance.CloseUI<MainScreenUI>();
             //UIManager.Instance.OpenUI<GachaUIPanel>();
