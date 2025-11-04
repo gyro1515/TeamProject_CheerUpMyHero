@@ -13,6 +13,8 @@ public class Player : BaseUnit
     [field: Header("플레이어 오라")]
     [field: SerializeField] public float AuraRange { get; private set; }
     [field: SerializeField] public float AuraAtkBonus { get; private set; }
+    [Header("오라 연결")]
+    [SerializeField] private GameObject playerAura;
 
     private HashSet<PlayerUnit> _unitInAura = new HashSet<PlayerUnit>();
 
@@ -160,7 +162,8 @@ public class Player : BaseUnit
         MoveSpeed = PlayerData.moveSpeed * (moveSpeedModifierBonus + 1f);
         AuraRange = PlayerData.auraRange * (AuraRangeModifier + 1f);
         AuraAtkBonus = PlayerData.auraAtkBonus;
-        
+        playerAura.transform.localScale = Vector3.one * AuraRange;
+
         // 251022 주석처리
         /*float tmpstatMultiplier = Math.Clamp(statMultiplier, 0.8f, 1.2f); // 크기는 너무 작아지거나 커지지 않도록 제한
         // 아래는 다 tmpstatMultiplier로 세팅, 크기에 따라 인식/공격 범위도 달라지도록
