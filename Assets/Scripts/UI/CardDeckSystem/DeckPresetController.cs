@@ -376,13 +376,14 @@ public class DeckPresetController : BaseUI, IBackButtonHandler
         }
     }
 
-    public async Task OnUnitSelected(int slotIndex, int unitId)
+    //public async Task OnUnitSelected(int slotIndex, int unitId)
+    public void OnUnitSelected(int slotIndex, int unitId)
     {
         AudioManager.PlayOneShot(DataManager.AudioData.cardEquipSE, 0.8f);
         PlayerDataManager.Instance.DeckPresets[_currentDeckIndex].UnitIds[slotIndex] = unitId;
         PlayerDataManager.Instance.DeckPresets[_currentDeckIndex].BaseUnitDatas[slotIndex] = DataManager.PlayerUnitData.GetData(unitId);
         UpdateUnitSlotsUI();
-       await PlayerDataManager.Instance.SaveDataToCloudAsync();
+        //await PlayerDataManager.Instance.SaveDataToCloudAsync();
     }
 
     private void OnResetClicked()

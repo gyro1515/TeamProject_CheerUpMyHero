@@ -245,7 +245,8 @@ public class CardFilter : MonoBehaviour
         filterSelect.onClick.AddListener(onFilterSelect);
 
         changeOrder.onValueChanged.AddListener(onChangeOrder);
-
+        selectedUnitType = SelectedUnitType.None;
+        FilterAndSort();
         foreach (UnitSelectBtnInUnitCard button in unitButtonList)
         {
             button.GetComponent<Button>().onClick.AddListener(() =>

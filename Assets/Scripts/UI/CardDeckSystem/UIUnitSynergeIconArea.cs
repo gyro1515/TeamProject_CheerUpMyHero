@@ -14,17 +14,20 @@ public class UIUnitSynergeIconArea : MonoBehaviour
     private void Awake()
     {
         // 데이터 매니저에서 시너지 아이콘 스프라이트 가져오기
-        synergyIconSprites = DataManager.Instance.SynergyIconSprites;
+        if (synergyIconSprites == null) synergyIconSprites = DataManager.Instance.SynergyIconSprites;
     }
     public void SetUnitSynergeIcon(BaseUnitData data)
     {
         // 비트 플래그 기반으로 모든 시너지 확인
+        if (synergyIconSprites == null) synergyIconSprites = DataManager.Instance.SynergyIconSprites;
         unitSynergySprites.Clear();
         UnitSynergyType synergyType = data.synergyType;
         foreach (UnitSynergyType type in _allSynergyTypes)
         {
             if ((synergyType & type) != 0)
+            {
                 unitSynergySprites.Add((synergyIconSprites[(type, SynergyGrade.Gold)], type));
+            }
         }
         int idx = unitSynergySprites.Count - 1;
         for(int i = 0; i < uICardSynergyIcons.Count; i++)

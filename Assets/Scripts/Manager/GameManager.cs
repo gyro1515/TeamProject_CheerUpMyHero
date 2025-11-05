@@ -7,6 +7,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using Unity.Services.Analytics;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public enum LoadMain
 {
@@ -94,7 +95,18 @@ public class GameManager : SingletonMono<GameManager>
                 enemyHQ.CurHp = 0;
             }
         }
-
+        /*if (Input.GetMouseButtonDown(0))
+        {
+            var results = new List<RaycastResult>();
+            var pointerData = new PointerEventData(EventSystem.current)
+            {
+                position = Input.mousePosition
+            };
+            EventSystem.current.RaycastAll(pointerData, results);
+            Debug.Log($"[UIRaycastDump] hits={results.Count}");
+            foreach (var r in results)
+                Debug.Log($" - {r.gameObject.name} (rt={(r.gameObject.GetComponent<UnityEngine.UI.Graphic>()?.raycastTarget == true)})");
+        }*/
         // 플레이어 HQ 바로 죽이는 치트키 V키
         if (Input.GetKeyDown(KeyCode.V))
         {

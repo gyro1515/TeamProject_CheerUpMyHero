@@ -40,7 +40,7 @@ public class UIAdvancedButton : MonoBehaviour, IPointerDownHandler, IPointerUpHa
     // 포인터가 버튼을 누르기 시작했을 때
     public void OnPointerDown(PointerEventData eventData)
     {
-        if (isPointerDown) return; // 이미 누르고 있는 상태라면 무시
+        if (isPointerDown) { Debug.Log("Pointer Down return"); return; } // 이미 누르고 있는 상태라면 무시
 
         pressScreenPos = eventData.position;
         isPointerDown = true;

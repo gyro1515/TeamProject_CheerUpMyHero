@@ -23,6 +23,7 @@ public class UIUnitCardSelect : BasePopUpUI
 
     [Header("카드 팝업")]
     [SerializeField] private GameObject detailPopupPanel;
+    [SerializeField] private UIUnitCardDetailPanel detailPopupPanelClass;
     [SerializeField] private UIUnitCardInScroll detailCardDisplay;
     [SerializeField] private Button detailCloseButton;
 
@@ -39,7 +40,7 @@ public class UIUnitCardSelect : BasePopUpUI
         base.Awake();
         cardFilter = GetComponent<CardFilter>();
         uiCardSynergyExpanationPopup.Init();
-
+        detailPopupPanelClass.Init();
     }
 
     protected override void OnEnable()
@@ -47,7 +48,8 @@ public class UIUnitCardSelect : BasePopUpUI
         base.OnEnable();
         closeButton.onClick.AddListener(OnCloseButtonPress);
         emptySpaceButton.onClick.AddListener(OnCloseButtonPress);
-        detailCloseButton.onClick.AddListener(HideDetailPopup);
+        detailCloseButton.enabled = false;
+        //detailCloseButton.onClick.AddListener(HideDetailPopup);
         
         cardFilter.OnFilterUpdated += RefreshGrid;
         cardFilter.UpdateUsable();
@@ -55,7 +57,7 @@ public class UIUnitCardSelect : BasePopUpUI
         _synergyUpdateSubscriber = EventManager.GetSubscriber<SynergyDataUpdatedEvent>();
         UpdateSlotCountText(); // 켜질 때 텍스트 갱신
         _synergyUpdateSubscriber.Subscribe(OnBuildingRulesChanged);
-        HideDetailPopup();
+        //HideDetailPopup();
     }
 
     protected override void OnDisable()
@@ -146,7 +148,8 @@ public class UIUnitCardSelect : BasePopUpUI
     {
         if (data == null || detailPopupPanel == null) return;
 
-        detailPopupPanel.SetActive(true);
+        //detailPopupPanel.SetActive(true);
+        detailPopupPanelClass.OpenUI();
         detailCardDisplay.UpdateCardDataByData(data);
     }
 
@@ -155,16 +158,17 @@ public class UIUnitCardSelect : BasePopUpUI
         HideDetailPopup();
     }
 
-    public async Task OnCardSlotShortClick(BaseUnitData data, bool canSelect)
+    //public async Task OnCardSlotShortClick(BaseUnitData data, bool canSelect)
+    public void OnCardSlotShortClick(BaseUnitData data, bool canSelect)
     {
         if (data == null) return;
         if (!canSelect) return;
 
         int selectId = data.idNumber;
-        HideDetailPopup();
+        //HideDetailPopup();
         CloseUI();
-
-       await UIManager.Instance.GetUI<DeckPresetController>().OnUnitSelected(deckSlotNum, selectId);
+        //await UIManager.Instance.GetUI<DeckPresetController>().OnUnitSelected(deckSlotNum, selectId);
+        UIManager.Instance.GetUI<DeckPresetController>().OnUnitSelected(deckSlotNum, selectId);
     }
 
     // 몇 번째 덱인지 표시
@@ -178,7 +182,8 @@ public class UIUnitCardSelect : BasePopUpUI
     {
         if (detailPopupPanel != null)
         {
-            detailPopupPanel.SetActive(false);
+            //detailPopupPanel.SetActive(false);
+            detailPopupPanelClass.CloseUI();
         }
     }
 
