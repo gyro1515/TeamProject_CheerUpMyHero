@@ -128,9 +128,8 @@ public class TileDataHandler
                                 foodGainPercent += effect.effectValueMin + additiveBonusPercent;
                             break;
                         case BuildingEffectType.UnitCoolDown:
-                            // (병영의 쿨감 효과도 중첩된다고 가정)
                             if (building.buildingType == BuildingType.Barracks)
-                                cooldownReduction += effect.effectValueMin * additiveBonusPercent; // (이 계산식이 맞는지 확인 필요)
+                                cooldownReduction += effect.effectValueMin + additiveBonusPercent; 
                             break;
 
                         // --- 비-중첩 효과들 (여기서는 무시) ---

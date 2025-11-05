@@ -25,11 +25,14 @@ public class CameraController : MonoBehaviour
     private IEventSubscriber<StartWaveEvent> _waveStartSubscriber;
     private Vector3 _shakeOffset = Vector3.zero;
 
+    private Vector3 _cleanCameraPosition;
+
     private void Awake()
     {
         heroSpawnEventSub = EventManager.GetSubscriber<HeroSpawnEvent>();
-
         _waveStartSubscriber = EventManager.GetSubscriber<StartWaveEvent>();
+
+        _cleanCameraPosition = transform.position;
     }
     private void Start()
     {
@@ -109,27 +112,23 @@ public class CameraController : MonoBehaviour
             }
         }
 
-        Vector3 currentCamPos = transform.position;
-
-        currentCamPos -= _shakeOffset;
-
-        targetCamPos = new Vector3(currentTarget.position.x, currentCamPos.y, currentCamPos.z);
+        targetCamPos = new Vector3(currentTarget.position.x, _cleanCameraPosition.y, _cleanCameraPosition.z);
 
         //transform.position = targetCamPos; 
         Vector3 finalPosition;
         if (!_hasInitializedCamera)
         {
             // 배틀 시작 후 첫 프레임은 스냅 이동
-            finalPosition = targetCamPos;
+            _cleanCameraPosition = targetCamPos;
             _hasInitializedCamera = true;
         }
         else
         {
             // 이후에는 부드럽게 이동
-            finalPosition = Vector3.Lerp(currentCamPos, targetCamPos, Time.unscaledDeltaTime * _cameraMoveSpeed);
+            _cleanCameraPosition = Vector3.Lerp(_cleanCameraPosition, targetCamPos, Time.unscaledDeltaTime * _cameraMoveSpeed);
         }
 
-        transform.position = finalPosition + _shakeOffset;
+        transform.position = _cleanCameraPosition + _shakeOffset;
     }
     void SpawnHero(HeroSpawnEvent heroSpawnEvent)
     {
