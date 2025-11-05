@@ -68,6 +68,10 @@ public class DeckPresetController : BaseUI, IBackButtonHandler
     private UIMenu uiMenu;
     private UIArtifact _uIArtifact;
     private int _currentDeckIndex = 1;
+    public int CurrentDeckIndex
+    {
+        get { return _currentDeckIndex; }
+    }
     // 시너지별 카운트 저장용 딕셔너리
     Dictionary<UnitSynergyType, int> synergyCounts = new Dictionary<UnitSynergyType, int>();
 
