@@ -40,7 +40,7 @@ public class UIWaveWarning : BaseUI
         if (displayTimer < displayTime) return;
         displayTimer = 0f;
         CloseUI();
-        OnWarningEnd?.Invoke();
+        //OnWarningEnd?.Invoke();
     }
 
     public override void OpenUI()
