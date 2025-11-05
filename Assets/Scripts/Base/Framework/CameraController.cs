@@ -35,7 +35,7 @@ public class CameraController : MonoBehaviour
         }
 
         //TODO: 운명데이터에 비 추가해야 함
-        if(true) FXRainGO.SetActive(true);
+        if(PlayerDataManager.Instance.currentDestiny.idNumber == 09020001) FXRainGO.SetActive(true);
     }
 
     private void OnEnable()
