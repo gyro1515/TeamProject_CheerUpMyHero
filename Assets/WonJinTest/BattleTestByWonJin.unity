@@ -400,7 +400,7 @@ Transform:
   m_GameObject: {fileID: 214418709}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -25.85, y: 0, z: -10}
+  m_LocalPosition: {x: 1.7, y: 4.6, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -466,6 +466,8 @@ MonoBehaviour:
   playerGO: {fileID: 0}
   _cameraMoveSpeed: 5
   FXRainGO: {fileID: 6077168872504786365}
+  _shakeDuration: 2
+  _shakeMagnitude: 3
 --- !u!1 &235561139
 GameObject:
   m_ObjectHideFlags: 0
@@ -2192,6 +2194,67 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 9081392006896655399, guid: 6142c93da59ac3146becd053b6dc87dc, type: 3}
   m_PrefabInstance: {fileID: 124462256518203056}
   m_PrefabAsset: {fileID: 0}
+--- !u!1001 &374628494921536583
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 1975917048937946915, guid: 4a437fbdc35c0034b9be82306a59da98, type: 3}
+      propertyPath: animatedLights.Array.data[0].light
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 2203760156870234134, guid: 4a437fbdc35c0034b9be82306a59da98, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2203760156870234134, guid: 4a437fbdc35c0034b9be82306a59da98, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 11
+      objectReference: {fileID: 0}
+    - target: {fileID: 2203760156870234134, guid: 4a437fbdc35c0034b9be82306a59da98, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2203760156870234134, guid: 4a437fbdc35c0034b9be82306a59da98, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2203760156870234134, guid: 4a437fbdc35c0034b9be82306a59da98, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2203760156870234134, guid: 4a437fbdc35c0034b9be82306a59da98, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2203760156870234134, guid: 4a437fbdc35c0034b9be82306a59da98, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2203760156870234134, guid: 4a437fbdc35c0034b9be82306a59da98, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2203760156870234134, guid: 4a437fbdc35c0034b9be82306a59da98, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2203760156870234134, guid: 4a437fbdc35c0034b9be82306a59da98, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6954229263551699168, guid: 4a437fbdc35c0034b9be82306a59da98, type: 3}
+      propertyPath: m_Name
+      value: FXMapDust
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 4a437fbdc35c0034b9be82306a59da98, type: 3}
 --- !u!1001 &1055100718388851624
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2846,3 +2909,4 @@ SceneRoots:
   - {fileID: 909453100}
   - {fileID: 617031985}
   - {fileID: 2132659860}
+  - {fileID: 374628494921536583}
