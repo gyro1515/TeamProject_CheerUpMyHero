@@ -11,7 +11,7 @@ public class CameraController : MonoBehaviour
 
     [Header("카메라 흔들림 설정")]
     [SerializeField] private float _shakeDuration = 2f;
-    [SerializeField] private float _shakeMagnitude = 3f;
+    [SerializeField] private float _shakeMagnitude = 0.1f;
 
     private Transform _playerTransform;
     // 자동 추적 관련 변수
