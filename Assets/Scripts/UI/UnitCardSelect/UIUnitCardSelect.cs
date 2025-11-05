@@ -8,8 +8,6 @@ using UnityEngine.UI;
 public class UIUnitCardSelect : BasePopUpUI
 {
     [Header("UI")]
-    [SerializeField] Button selectButton;
-    [SerializeField] GameObject SeleckBlocker;
     [SerializeField] Button closeButton;
     [SerializeField] Button emptySpaceButton;
     [SerializeField] TMP_Text desckNumText;
@@ -39,7 +37,6 @@ public class UIUnitCardSelect : BasePopUpUI
     protected override void OnEnable()
     {
         base.OnEnable();
-        selectButton.onClick.AddListener(OnSelectButtonPress);
         closeButton.onClick.AddListener(OnCloseButtonPress);
         emptySpaceButton.onClick.AddListener(OnCloseButtonPress);
         detailCloseButton.onClick.AddListener(HideDetailPopup);
@@ -49,18 +46,18 @@ public class UIUnitCardSelect : BasePopUpUI
         cardFilter.FilterAndSort();
 
         HideDetailPopup();
-        ControllBlocker(false);
     }
 
     protected override void OnDisable()
     {
         base.OnDisable();
-        selectButton?.onClick.RemoveListener(OnSelectButtonPress);
         closeButton?.onClick.RemoveListener(OnCloseButtonPress);
         emptySpaceButton?.onClick.RemoveListener(OnCloseButtonPress);
 
         cardFilter.OnFilterUpdated -= RefreshGrid;
         //EventManager.Publish(new RemoveUIStackEvent());
+
+        HideDetailPopup();
     }
 
     private void RefreshGrid(List<int> cardIdList)
@@ -106,14 +103,29 @@ public class UIUnitCardSelect : BasePopUpUI
         }
     }
 
-    public void OnCardSlotClicked(BaseUnitData data, bool canSelect)
+    public void OnCardSlotHold(BaseUnitData data, bool canSelect)
     {
         if (data == null || detailPopupPanel == null) return;
 
         detailPopupPanel.SetActive(true);
         detailCardDisplay.UpdateCardDataByData(data);
-        ControllBlocker(canSelect);
-        _selectedUnitId = data.idNumber;
+    }
+
+    public void OnCardSlotHoldRelease()
+    {
+        HideDetailPopup();
+    }
+
+    public void OnCardSlotShortClick(BaseUnitData data, bool canSelect)
+    {
+        if (data == null) return;
+        if (!canSelect) return;
+
+        int selectId = data.idNumber;
+        HideDetailPopup();
+        CloseUI();
+
+        UIManager.Instance.GetUI<DeckPresetController>().OnUnitSelected(deckSlotNum, selectId);
     }
 
     // 몇 번째 덱인지 표시
@@ -129,41 +141,38 @@ public class UIUnitCardSelect : BasePopUpUI
         {
             detailPopupPanel.SetActive(false);
         }
-
-        _selectedUnitId = -1;
-        ControllBlocker(false);
     }
 
-    void OnSelectButtonPress()
-    {
-        int selectedIndex = _selectedUnitId;
+    //void OnSelectButtonPress()
+    //{
+    //    int selectedIndex = _selectedUnitId;
 
-        if (selectedIndex == -1)
-        {
-            Debug.Log("카드 선택이 정상적으로 이루어지지 않았습니다");
-        }
-        else
-        {
-            Debug.Log($"현재 선택된 카드 {selectedIndex}번");
-            HideDetailPopup();
-            CloseUI();
-            UIManager.Instance.GetUI<DeckPresetController>().OnUnitSelected(deckSlotNum, selectedIndex);
-        }
-    }
+    //    if (selectedIndex == -1)
+    //    {
+    //        Debug.Log("카드 선택이 정상적으로 이루어지지 않았습니다");
+    //    }
+    //    else
+    //    {
+    //        Debug.Log($"현재 선택된 카드 {selectedIndex}번");
+    //        HideDetailPopup();
+    //        CloseUI();
+    //        UIManager.Instance.GetUI<DeckPresetController>().OnUnitSelected(deckSlotNum, selectedIndex);
+    //    }
+    //}
 
-    public void OnDetailPopupClosed()
-    {
-        _selectedUnitId = -1;
-        ControllBlocker(false);
-    }
+    //public void OnDetailPopupClosed()
+    //{
+    //    _selectedUnitId = -1;
+    //    ControllBlocker(false);
+    //}
 
-    void ControllBlocker(bool canSelect)
-    {
-        if (canSelect)
-            SeleckBlocker.SetActive(false);
-        else
-            SeleckBlocker.SetActive(true);
-    }
+    //void ControllBlocker(bool canSelect)
+    //{
+    //    if (canSelect)
+    //        SeleckBlocker.SetActive(false);
+    //    else
+    //        SeleckBlocker.SetActive(true);
+    //}
 
     void OnCloseButtonPress()
     {
