@@ -82,16 +82,9 @@ public class UIUnitCardSelect : BasePopUpUI
         int maxEpicUnits = PlayerDataManager.Instance.EpicUnitSlots;
         int maxRareUnits = PlayerDataManager.Instance.RareUnitSlots;
 
-        DeckPresetController deckController = UIManager.Instance.GetUI<DeckPresetController>();
-        if (deckController == null)
-        {
-            Debug.LogError("DeckPresetController를 UIManager에서 찾을 수 없습니다!");
-            return;
-        }
-        int currentDeckIndex = deckController.CurrentDeckIndex; 
-
+        int currentDeckIndex = PlayerDataManager.Instance.ActiveDeckIndex;
         // 3. '올바른' 덱 인덱스로 현재 덱 데이터 가져오기
-        List<BaseUnitData> currentDeck = PlayerDataManager.Instance.DeckPresets[currentDeckIndex].BaseUnitDatas;
+        List <BaseUnitData> currentDeck = PlayerDataManager.Instance.DeckPresets[currentDeckIndex].BaseUnitDatas;
 
         int currentEpicCount = currentDeck.Count(data => data != null && data.rarity == Rarity.epic);
         int currentRareCount = currentDeck.Count(data => data != null && data.rarity == Rarity.rare);
