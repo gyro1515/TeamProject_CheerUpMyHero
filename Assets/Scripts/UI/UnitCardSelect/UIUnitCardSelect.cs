@@ -62,7 +62,7 @@ public class UIUnitCardSelect : BasePopUpUI
 
     private void RefreshGrid(List<int> cardIdList)
     {
-        Debug.Log($"[UIUnitCardSelect] RefreshGrid 호출됨. 카드 개수: {cardIdList.Count}");
+        //Debug.Log($"[UIUnitCardSelect] RefreshGrid 호출됨. 카드 개수: {cardIdList.Count}");
 
         if (uiUnitCardSlotPrefab == null || contentTransform == null)
         {
