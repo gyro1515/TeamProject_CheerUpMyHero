@@ -6,6 +6,7 @@ using Unity.Services.Analytics;
 using Unity.Services.Authentication;
 using Unity.Services.CloudCode;
 using Unity.Services.CloudCode.GeneratedBindings;
+using Unity.Services.CloudCode.GeneratedBindings.CheerUpMyHero.CloudCode;
 using Unity.Services.CloudSave;
 using Unity.Services.Core;
 using Unity.Services.Core.Environments;
@@ -575,7 +576,7 @@ public class BackendManager : SingletonMono<BackendManager>
     }
 
 
-    public static async UniTask<int> OneNormalGachaAsync()
+    public static async UniTask<GachaResult> OneNormalGachaAsync(string bannerId)
     {
         var status = await CanCommunicateAsync(nameof(OneNormalGachaAsync));
         if (status != CommunicationStatus.Success)
@@ -583,7 +584,7 @@ public class BackendManager : SingletonMono<BackendManager>
             throw new InvalidOperationException("서버와 통신할 수 없는 상태입니다.");
         }
 
-        return await Instance.EnqueueRequestAsync(() => Instance.InternalOneNormalGachaAsync(), nameof(OneNormalGachaAsync));
+        return await Instance.EnqueueRequestAsync(() => Instance.InternalOneNormalGachaAsync(bannerId), nameof(OneNormalGachaAsync));
     }
 
     public static async UniTask<int> OnePickUpGachaAsync()
@@ -740,13 +741,13 @@ public class BackendManager : SingletonMono<BackendManager>
 
     }
 
-    private async UniTask<int> InternalOneNormalGachaAsync()
+    private async UniTask<GachaResult> InternalOneNormalGachaAsync(string bannerId)
     {
         try
         {
             //클라우드에서 가챠 실행
-            var module = new GachaModuleBindings(CloudCodeService.Instance);
-            var result = await module.DrawGachaItem();
+            var module = new GachaModuleV2Bindings(CloudCodeService.Instance);
+            var result = await module.DrawGachaOne(bannerId);
 
             return result;
         }

@@ -11,12 +11,12 @@
 using System;
 using System.Reflection;
 
-[assembly: System.Reflection.AssemblyCompanyAttribute("Gacha")]
+[assembly: System.Reflection.AssemblyCompanyAttribute("GachaV2")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
 [assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+8b33d66592b78f087469e51655dd0e537cd86304")]
-[assembly: System.Reflection.AssemblyProductAttribute("Gacha")]
-[assembly: System.Reflection.AssemblyTitleAttribute("Gacha")]
+[assembly: System.Reflection.AssemblyProductAttribute("GachaV2")]
+[assembly: System.Reflection.AssemblyTitleAttribute("GachaV2")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
 
 // MSBuild WriteCodeFragment 클래스에서 생성되었습니다.
