@@ -17,8 +17,10 @@ public class Skill_GoddessBlessing : ActiveSkillEffect
         float healPercent = levelData.healPercent;
 
         yield return new WaitForSeconds(delay);
-
-        List<BaseCharacter> allies = UnitManager.PlayerUnitList;
+        GameObject fxGO = ObjectPoolManager.Instance.Get(PoolType.FXActiveAf4);
+        Vector3 fxSpawnPos = GameManager.Instance.Player.transform.position;
+        fxSpawnPos.y += 1.4f;
+        fxGO.transform.position = fxSpawnPos; List<BaseCharacter> allies = UnitManager.PlayerUnitList;
         foreach (var ally in allies.ToList())
         {
             if (ally == null || ally.IsDead) continue;

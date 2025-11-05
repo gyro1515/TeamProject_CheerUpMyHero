@@ -30,6 +30,10 @@ public class Skill_ThunderJudgment : ActiveSkillEffect
                 if (damage > 0) enemy.GetComponent<IDamageable>()?.TakeDamage(damage);
                 Debug.Log(damage);
             }
+            GameObject fxGO = ObjectPoolManager.Instance.Get(PoolType.FXActiveAf2);
+            Vector3 fxSpawnPos = GameManager.Instance.Player.transform.position;
+            fxSpawnPos.y += 1.4f;
+            fxGO.transform.position = fxSpawnPos;
             yield return new WaitForSeconds(interval);
         }
     }

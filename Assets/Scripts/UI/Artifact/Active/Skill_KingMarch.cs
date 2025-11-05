@@ -11,7 +11,8 @@ public class Skill_KingMarch : ActiveSkillEffect
         float duration = 10f; 
         float atkPercent = levelData.attackBonusPercent;
         float atkSpeedPercent = levelData.attackSpeedBonusPercent;
-
+        GameObject fxGO = ObjectPoolManager.Instance.Get(PoolType.FXActiveAf3);
+        fxGO.transform.position = GameManager.Instance.Player.transform.position;
         List<BaseCharacter> allies = UnitManager.PlayerUnitList;
         foreach (var ally in allies.ToList())
         {

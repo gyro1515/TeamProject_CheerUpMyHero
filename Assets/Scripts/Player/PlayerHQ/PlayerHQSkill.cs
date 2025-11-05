@@ -20,7 +20,7 @@ public class PlayerHQSkill : MonoBehaviour
 
     public Dictionary<PoolType, bool> IsCoolTime { get; private set; } = new Dictionary<PoolType, bool>();
     public List<BaseHQSkill> HQSkills { get { return hQSkills; } }
-    public List<HQSkillsCooldown> hQSkillsCooldowns { get; private set; } = new List<HQSkillsCooldown>();
+    public List<HQSkillsCooldown> HQSkillsCooldowns { get; private set; } = new List<HQSkillsCooldown>();
 
     private void Awake()
     {
@@ -83,8 +83,11 @@ public class PlayerHQSkill : MonoBehaviour
     }*/
     IEnumerator HQSkillRoutine()
     {
-        yield return waitFindTarget;
-
+        //yield return waitFindTarget;
+        while(HQSkillsCooldowns.Count == 0)
+        {
+            yield return null; // UI에서 쿨타임 아이콘 초기화 될 때까지 대기
+        }
         while (true)
         {
             if (FindTarget(out Vector3 target))
@@ -98,7 +101,7 @@ public class PlayerHQSkill : MonoBehaviour
                     GameObject hqSkillGO = ObjectPoolManager.Instance.Get(idxToPoolType[i]);
                     BaseHQSkill baseHQSkill = hqSkillGO.GetComponent<BaseHQSkill>();
                     IsCoolTime[idxToPoolType[i]] = true;
-                    hQSkillsCooldowns[i].ShowSkillCooldown();
+                    HQSkillsCooldowns[i].ShowSkillCooldown();
                     baseHQSkill.ActivateSkill(gameObject.transform.position, target);
                     AudioManager.PlayOneShotByCameraDistance(DataManager.AudioData.useHQSkill, gameObject.transform);
                     yield return waitForAttackDelay; // 스킬 사용 후 약간의 딜레이

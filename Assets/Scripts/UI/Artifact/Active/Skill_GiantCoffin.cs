@@ -37,6 +37,9 @@ public class Skill_GiantCoffin : ActiveSkillEffect
         if (summon != null)
         {
             summon.transform.position = summonPos;
+            GameObject fxGO = ObjectPoolManager.Instance.Get(PoolType.FXActiveAf5);
+            summonPos.y += 0.8f;
+            fxGO.transform.position = summonPos;
         }
         else
         {

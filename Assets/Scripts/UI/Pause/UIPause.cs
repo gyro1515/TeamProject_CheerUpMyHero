@@ -43,11 +43,11 @@ public class UIPause : BaseUI, IBackButtonHandler
                  GameManager.Instance.enemyHQ.WaveSystem != null)
         {
             Debug.Log("[UIPause] enemyHQ 및 WaveSystem 발견. 리스너를 등록합니다.");
-            GameManager.Instance.enemyHQ.WaveSystem.OnWarningDisplayed += () =>
+            /*GameManager.Instance.enemyHQ.WaveSystem.OnWarningDisplayed += () =>
             {
                 ApplySpeed(SpeedState.X1); // 웨이브 경고 시 배속 초기화
             };
-            GameManager.Instance.enemyHQ.WaveSystem.SetOnWarningEnd(() => ApplySpeed(CurrentSpeed));
+            GameManager.Instance.enemyHQ.WaveSystem.SetOnWarningEnd(() => ApplySpeed(CurrentSpeed));*/
         }
         else
         {
