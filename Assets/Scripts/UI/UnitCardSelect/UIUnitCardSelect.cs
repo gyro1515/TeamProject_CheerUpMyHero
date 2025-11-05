@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -39,7 +40,6 @@ public class UIUnitCardSelect : BasePopUpUI
         cardFilter = GetComponent<CardFilter>();
         uiCardSynergyExpanationPopup.Init();
 
-        _synergyUpdateSubscriber = EventManager.GetSubscriber<SynergyDataUpdatedEvent>();
     }
 
     protected override void OnEnable()
@@ -52,7 +52,7 @@ public class UIUnitCardSelect : BasePopUpUI
         cardFilter.OnFilterUpdated += RefreshGrid;
         cardFilter.UpdateUsable();
         cardFilter.FilterAndSort();
-
+        _synergyUpdateSubscriber = EventManager.GetSubscriber<SynergyDataUpdatedEvent>();
         UpdateSlotCountText(); // 켜질 때 텍스트 갱신
         _synergyUpdateSubscriber.Subscribe(OnBuildingRulesChanged);
         HideDetailPopup();
@@ -99,11 +99,11 @@ public class UIUnitCardSelect : BasePopUpUI
         // 4. 텍스트 UI 업데이트
         if (rareSlotText != null)
         {
-            rareSlotText.text = $"레어\n {currentRareCount}/{maxRareUnits}";
+            rareSlotText.text = $"레어\n{currentRareCount}/{maxRareUnits}";
         }
         if (epicSlotText != null)
         {
-            epicSlotText.text = $"에픽\n {currentEpicCount}/{maxEpicUnits}";
+            epicSlotText.text = $"에픽\n{currentEpicCount}/{maxEpicUnits}";
         }
     }
     private void RefreshGrid(List<int> cardIdList)
@@ -162,7 +162,7 @@ public class UIUnitCardSelect : BasePopUpUI
         HideDetailPopup();
     }
 
-    public void OnCardSlotShortClick(BaseUnitData data, bool canSelect)
+    public async Task OnCardSlotShortClick(BaseUnitData data, bool canSelect)
     {
         if (data == null) return;
         if (!canSelect) return;
@@ -171,7 +171,7 @@ public class UIUnitCardSelect : BasePopUpUI
         HideDetailPopup();
         CloseUI();
 
-        UIManager.Instance.GetUI<DeckPresetController>().OnUnitSelected(deckSlotNum, selectId);
+       await UIManager.Instance.GetUI<DeckPresetController>().OnUnitSelected(deckSlotNum, selectId);
     }
 
     // 몇 번째 덱인지 표시
