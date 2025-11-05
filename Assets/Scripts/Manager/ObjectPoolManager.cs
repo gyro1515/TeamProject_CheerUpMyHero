@@ -139,6 +139,7 @@ public enum PoolType // *******251016: 새로운 풀링 오브젝트 추가시 �
     #endregion
     Player,
     SynergyInfoItem,
+    Allies_UnitGolem,
     #region FX
     FXEnemyUnitHit,
     FXPlayerUnitHit,
@@ -158,7 +159,6 @@ public enum PoolType // *******251016: 새로운 풀링 오브젝트 추가시 �
     FXActiveAf5,
     FXEnemyHQDefense,
     #endregion
-    Allies_UnitGolem,
     HealAmount,
     DealAmountPlayer,
     DealAmountEnemy,
