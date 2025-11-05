@@ -16,13 +16,13 @@ public class UIHQSkills : MonoBehaviour
     private void Start()
     {
         PlayerHQSkill playerHQSkill = GameManager.Instance.PlayerHQ.GetComponent<PlayerHQSkill>();
-        playerHQSkill.hQSkillsCooldowns.Clear();
+        playerHQSkill.HQSkillsCooldowns.Clear();
         for (int i = 0; i < playerHQSkill.HQSkills.Count; i++)
         {
             GameObject iconGO = Instantiate(hqSkillIconPrefab, iconContainer);
             HQSkillsCooldown icon = iconGO.GetComponent<HQSkillsCooldown>();
             icon.InitHQSkillCooldowm(playerHQSkill.HQSkills[i], playerHQSkill, playerHQSkill.GetPoolTypeByIdx(i));
-            playerHQSkill.hQSkillsCooldowns.Add(icon);
+            playerHQSkill.HQSkillsCooldowns.Add(icon);
         }
         StartCoroutine(RebuildNextFrame(horizontalLayout.GetComponent<RectTransform>()));
     }
