@@ -43,6 +43,7 @@ public class UIMenu : BaseUI
         uiStageSelect = UIManager.Instance.GetUI<UIStageSelect>();
         gachaUIPanel = UIManager.Instance.GetUI<GachaUIPanel>();
         UIGuide = UIManager.Instance.GetUI<UIGuide>();
+        deckPresetController = UIManager.Instance.GetUI<DeckPresetController>();
     }
 
     void Update()
