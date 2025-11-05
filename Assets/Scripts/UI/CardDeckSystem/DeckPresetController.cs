@@ -65,6 +65,7 @@ public class DeckPresetController : BaseUI, IBackButtonHandler
     // --- 내부 변수 ---
     private MainScreenUI _mainScreenUI;
     private UIStageSelect _stageSelectUI;
+    private UIMenu uiMenu;
     private UIArtifact _uIArtifact;
     private int _currentDeckIndex = 1;
     // 시너지별 카운트 저장용 딕셔너리
@@ -122,6 +123,7 @@ public class DeckPresetController : BaseUI, IBackButtonHandler
         _mainScreenUI = UIManager.Instance.GetUI<MainScreenUI>();
         _stageSelectUI = UIManager.Instance.GetUI<UIStageSelect>();
         _uIArtifact = UIManager.Instance.GetUI<UIArtifact>();
+        uiMenu = UIManager.Instance.GetUI<UIMenu>();
         _uIArtifact.CloseUI();
 
         for (int i = 0; i < unitSlots.Count; i++)
@@ -606,16 +608,35 @@ public class DeckPresetController : BaseUI, IBackButtonHandler
 
     public void GoToMainScene()
     {
-        if (_mainScreenUI != null)
+        FromUI origin = UIManager.Instance.fromUI;
+
+        if (origin == FromUI.UIMenu)
         {
-            FadeManager.Instance.SwitchGameObjects(gameObject, _mainScreenUI.gameObject);
+            // 2a. "UIMenu"에서 왔으면 UIMenu로 돌아갑니다.
+            Debug.Log("UIMenu로 돌아가기");
+            if (uiMenu != null)
+            {
+                FadeManager.Instance.SwitchGameObjects(gameObject, uiMenu.gameObject);
+            }
+            else
+            {
+                Debug.LogError("UIMenu 오브젝트가 UIStageSelect에 연결되지 않았습니다!");
+            }
         }
-        else
+        else // FromUI.MainScreen (또는 기본값)
         {
-            Debug.LogError("UIManager에서 MainScreenUI를 찾을 수 없습니다!");
+            // 2b. "MainScreen"에서 왔으면 MainScreen으로 돌아갑니다.
+            Debug.Log("메인(덱)으로 이동");
+            if (_mainScreenUI != null)
+            {
+                FadeManager.Instance.SwitchGameObjects(gameObject, _mainScreenUI.gameObject);
+            }
+            else
+            {
+                Debug.LogError("UIManager에서 _mainScreenUI 찾을 수 없습니다!");
+            }
         }
     }
-
     private void OnPlayerStatButtonClicked()
     {
         playerStatPopup.OpenUI();

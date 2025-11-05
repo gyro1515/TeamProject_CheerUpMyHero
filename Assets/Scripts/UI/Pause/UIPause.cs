@@ -61,11 +61,17 @@ public class UIPause : BaseUI, IBackButtonHandler
     }
     private void OnEnable()
     {
-        UIManager.PubishAddUIStackEvent(this);
+        if (SceneLoader.CurrentSceneState == SceneState.BattleScene)
+        {
+            UIManager.PubishAddUIStackEvent(this);
+        }
     }
     private void OnDisable()
     {
-        UIManager.PublishRemoveUIStackEvent();
+        if (SceneLoader.CurrentSceneState == SceneState.BattleScene)
+        {
+            UIManager.PublishRemoveUIStackEvent();
+        }
         tutorialSkipEventSub.Unsubscribe(ApplyCurSpeed);
     }
     private void OnPauseButtonClicked()

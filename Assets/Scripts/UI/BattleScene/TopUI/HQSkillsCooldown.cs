@@ -6,27 +6,27 @@ using UnityEngine.UI;
 
 public class HQSkillsCooldown : MonoBehaviour
 {
-    [SerializeField] float skillCoolTime;
     [SerializeField] Image timerImage;
+    [SerializeField] Image skillIconImg;
 
+    float skillCoolTime;
     private float cooldownTimer;
     private bool isCooldown;
 
-    //테스트 only
-    private void Start()
+    BaseHQSkill baseHQSkill;
+    PlayerHQSkill playerHQSkill;
+    PoolType skillPoolType;
+    public void InitHQSkillCooldowm(BaseHQSkill hqSkill, PlayerHQSkill playerHQSkill, PoolType type)
     {
-        StartCoroutine(TempUseSkill());
+        baseHQSkill = hqSkill;
+        this.playerHQSkill = playerHQSkill;
+        skillPoolType = type;
+        skillIconImg.sprite = baseHQSkill.SkillIconRenderer.sprite;
+        skillIconImg.color = baseHQSkill.SkillIconRenderer.color;
+        skillCoolTime = baseHQSkill.CoolTime;
+        timerImage.fillAmount = 0;
     }
-
-    IEnumerator TempUseSkill()
-    {
-        while (true)
-        {
-            ShowSkillCooldown();
-            yield return new WaitForSeconds(skillCoolTime + 1);
-        }
-    }
-
+    
     private void Update()
     {
         if (!isCooldown) return; // 쿨타임이 아니면 리턴
@@ -34,6 +34,9 @@ public class HQSkillsCooldown : MonoBehaviour
         timerImage.fillAmount = 1 - cooldownTimer / skillCoolTime;
         if (cooldownTimer < skillCoolTime) return; // 아직 쿨타임이 다 안돌았다면 리턴
         isCooldown = false;
+
+        if (playerHQSkill != null) 
+            playerHQSkill.IsCoolTime[skillPoolType] = false; // 쿨타임 끝났으니 스킬도 사용 가능하게 변경
     }
 
 

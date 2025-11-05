@@ -70,10 +70,10 @@ public class EnemyHQ : BaseHQ
         base.Update();
 #if UNITY_EDITOR
         // 테스트 키
-        if(Input.GetKeyDown(KeyCode.Alpha4))
+        /*if(Input.GetKeyDown(KeyCode.Alpha4))
         {
             WaveSystem.SpawnDefenseWave();
-        }
+        }*/
 #endif
     }
     public override void Dead()

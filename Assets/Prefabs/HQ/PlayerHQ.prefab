@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2645648285179157458}
   - component: {fileID: 9005117637283811161}
+  - component: {fileID: 6964548071236420011}
   - component: {fileID: 4006663176957459652}
   m_Layer: 6
   m_Name: PlayerHQ
@@ -46,9 +47,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 69ffa95b43686b24aaa5135c9dfc42f5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  idNumber: 0
   <MaxHp>k__BackingField: 50
   <AtkPower>k__BackingField: 0
   <MoveSpeed>k__BackingField: 0
+  <AttackRate>k__BackingField: 0
   <HpBarPosByCharacter>k__BackingField: {x: 0, y: 5.5, z: 0}
   <HpBarSize>k__BackingField: {x: 0, y: 0}
   curHp: 0
@@ -57,6 +60,26 @@ MonoBehaviour:
   maxY: 1
   spawnInterval: 5.94
   playerUnits: 
+  statMultiplier: 1.2
+  upgradeCntByRarity: 0800000004000000ffffffff
+--- !u!114 &6964548071236420011
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2839723401308841165}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 41dc2a0cf43f7b84890f0c5f91c2bc4d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  hQSkills:
+  - {fileID: 5231519378337015479, guid: ee22cabe4a1d8734db522e118d9a6ef4, type: 3}
+  - {fileID: 6859513954504631102, guid: ef2ff5817d133d743989e3b3340b9d12, type: 3}
+  - {fileID: 246218738311715868, guid: fde9d5bde3c5b3148854bc0211e7c415, type: 3}
+  - {fileID: 3715404302794316608, guid: ba82e1488322e7643b97940db3ade6a8, type: 3}
+  - {fileID: 7834932556473759409, guid: 93c70710c00d48f4598a61366b475ec0, type: 3}
 --- !u!61 &4006663176957459652
 BoxCollider2D:
   m_ObjectHideFlags: 0

@@ -6,7 +6,11 @@ using UnityEngine.SceneManagement;
 using static InputManager;
 using static Unity.Burst.Intrinsics.X86.Avx;
 
-
+public enum FromUI
+{
+    MainScreen,
+    UIMenu
+}
 public class UIManager : SingletonMono<UIManager>, ISceneResettable
 {
     public const string UIPrefabPath = "Prefabs/UI/";
@@ -19,6 +23,7 @@ public class UIManager : SingletonMono<UIManager>, ISceneResettable
     // [로딩] 로딩 상태 관리 플래그 및 UI 참조 변수
     private const string LoadingUIName = "UI_Loading";
     private bool _isLoading = false;
+    public FromUI fromUI { get; set;}
     private GameObject _loadingUIInstance;
     private CanvasGroup _loadingCanvasGroup;
 
