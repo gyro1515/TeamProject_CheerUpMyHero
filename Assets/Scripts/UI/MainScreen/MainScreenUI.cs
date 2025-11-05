@@ -51,13 +51,14 @@ public class MainScreenUI : BaseUI, IBackButtonHandler
         _deckSelectPanel.SetActive(false);*/
         //uiSelectCard = UIManager.Instance.GetUI<UISelectCard>();
 
+        
+    }
+    private void Start()
+    {
         if (!GameManager.IsTutorialCompleted)
         {
             UIManager.Instance.GetUI<UITutorialMain>();
         }
-    }
-    private void Start()
-    {
         _uiStageSelect = UIManager.Instance.GetUI<UIStageSelect>();
         _deckPresetController = UIManager.Instance.GetUI<DeckPresetController>();
         uiMenu = UIManager.Instance.GetUI<UIMenu>();
