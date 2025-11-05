@@ -6,7 +6,8 @@ public class CameraController : MonoBehaviour
 {
     [SerializeField] GameObject playerGO;
     [Header("카메라 설정")]
-    [SerializeField] private float _cameraMoveSpeed = 5f; 
+    [SerializeField] private float _cameraMoveSpeed = 5f;
+    [SerializeField] GameObject FXRainGO;
 
     private Transform _playerTransform;
     // 자동 추적 관련 변수
@@ -32,6 +33,9 @@ public class CameraController : MonoBehaviour
         {
             Debug.LogError("플레이어를 찾을 수 없어 카메라가 동작할 수 없습니다.");
         }
+
+        //TODO: 운명데이터에 비 추가해야 함
+        if(true) FXRainGO.SetActive(true);
     }
 
     private void OnEnable()
