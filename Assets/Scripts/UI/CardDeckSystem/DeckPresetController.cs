@@ -344,7 +344,7 @@ public class DeckPresetController : BaseUI, IBackButtonHandler
     #region 버튼 클릭 이벤트 함수
     void OnUnitSlotClicked(int slotIndex)
     {
-        Debug.Log($"{_currentDeckIndex}번 덱의 {slotIndex + 1}번 슬롯 클릭됨 -> 유닛 선택창 열기");
+        //Debug.Log($"{_currentDeckIndex}번 덱의 {slotIndex + 1}번 슬롯 클릭됨 -> 유닛 선택창 열기");
         //unitCardSelectPanel.gameObject.SetActive(true);
         unitCardSelectPanel.OpenUI();
         unitCardSelectPanel.SetDeckSlotNum(slotIndex);
