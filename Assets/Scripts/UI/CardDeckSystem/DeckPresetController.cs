@@ -52,6 +52,10 @@ public class DeckPresetController : BaseUI, IBackButtonHandler
     [SerializeField] private UIUnitCardSelect unitCardSelectPanel; //임의로 지어 놓은 것
     [SerializeField] private UIPlayerStatPopup playerStatPopup; // 플레이어 스탯 팝업
 
+    [Header("카드 상세 팝업")]
+    [SerializeField] private GameObject detailUnitPopup;
+    [SerializeField] private UIUnitCardInScroll detailCardDisplay;
+
     [Header("유닛 슬롯 설정")]
     [SerializeField] private List<DeckUnitSlot> unitSlots;
 
@@ -108,6 +112,8 @@ public class DeckPresetController : BaseUI, IBackButtonHandler
         UIManager.PubishAddUIStackEvent(this);
         ValidateDeckAndUpdateUI();
         if (!GameManager.IsTutorialCompleted) _tourDeck?.OpenUI();
+
+        HideDetailUnitPopup();
     }
 
     private void Start()
@@ -121,7 +127,17 @@ public class DeckPresetController : BaseUI, IBackButtonHandler
         for (int i = 0; i < unitSlots.Count; i++)
         {
             int slotIndex = i;
-            unitSlots[i].GetComponent<Button>().onClick.AddListener(() => OnUnitSlotClicked(slotIndex));
+
+            UIAdvancedButton advButton = unitSlots[i].GetComponent<UIAdvancedButton>();
+
+            if (advButton != null)
+            {
+                advButton.onShortClick += () => OnUnitSlotClicked(slotIndex);
+
+                advButton.onHoldStart += () => OnUnitSlotHold(slotIndex);
+
+                advButton.onHoldRelease += OnUnitSlotHoldRelease;
+            }
         }
 
         deckTabController.Initialize();
@@ -326,6 +342,32 @@ public class DeckPresetController : BaseUI, IBackButtonHandler
         //unitCardSelectPanel.gameObject.SetActive(true);
         unitCardSelectPanel.OpenUI();
         unitCardSelectPanel.SetDeckSlotNum(slotIndex);
+    }
+
+    private void OnUnitSlotHold(int slotIndex)
+    {
+        BaseUnitData unitData = PlayerDataManager.Instance.DeckPresets[_currentDeckIndex].BaseUnitDatas[slotIndex];
+
+        if (unitData == null || detailUnitPopup == null || detailCardDisplay == null)
+        {
+            return;
+        }
+
+        detailUnitPopup.SetActive(true);
+        detailCardDisplay.UpdateCardDataByData(unitData);
+    }
+
+    private void OnUnitSlotHoldRelease()
+    {
+        HideDetailUnitPopup();
+    }
+
+    private void HideDetailUnitPopup()
+    {
+        if (detailUnitPopup != null)
+        {
+            detailUnitPopup.SetActive(false);
+        }
     }
 
     public void OnUnitSelected(int slotIndex, int unitId)
