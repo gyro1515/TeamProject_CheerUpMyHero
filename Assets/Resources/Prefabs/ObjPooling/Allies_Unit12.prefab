@@ -206,6 +206,7 @@ Transform:
   m_Children:
   - {fileID: 5961767085666261279}
   - {fileID: 6511110703782623838}
+  - {fileID: 7801624641750503584}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1267594787810560912
@@ -261,6 +262,8 @@ MonoBehaviour:
     unitBGSprite: {fileID: 0}
     unitIconSprite: {fileID: 0}
     gachaHeroSprite: {fileID: 0}
+    healAmount: 0
+    maxTargetCount: 0
   <UnitType>k__BackingField: 1
   <UnitRarity>k__BackingField: 0
 --- !u!114 &187243894227736016
@@ -5228,3 +5231,65 @@ Transform:
   - {fileID: 5878821537263946887}
   m_Father: {fileID: 3227833777326447581}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &4364431677801225534
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 780326423638818762}
+    m_Modifications:
+    - target: {fileID: 5824670795371433373, guid: e643c0e255437784bb38c43067009fc8, type: 3}
+      propertyPath: m_Name
+      value: CFXR4 Bouncing Glows Bubble (Yellow)
+      objectReference: {fileID: 0}
+    - target: {fileID: 5824670795371433374, guid: e643c0e255437784bb38c43067009fc8, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5824670795371433374, guid: e643c0e255437784bb38c43067009fc8, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.8
+      objectReference: {fileID: 0}
+    - target: {fileID: 5824670795371433374, guid: e643c0e255437784bb38c43067009fc8, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5824670795371433374, guid: e643c0e255437784bb38c43067009fc8, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5824670795371433374, guid: e643c0e255437784bb38c43067009fc8, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5824670795371433374, guid: e643c0e255437784bb38c43067009fc8, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5824670795371433374, guid: e643c0e255437784bb38c43067009fc8, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5824670795371433374, guid: e643c0e255437784bb38c43067009fc8, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5824670795371433374, guid: e643c0e255437784bb38c43067009fc8, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5824670795371433374, guid: e643c0e255437784bb38c43067009fc8, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: e643c0e255437784bb38c43067009fc8, type: 3}
+--- !u!4 &7801624641750503584 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 5824670795371433374, guid: e643c0e255437784bb38c43067009fc8, type: 3}
+  m_PrefabInstance: {fileID: 4364431677801225534}
+  m_PrefabAsset: {fileID: 0}
