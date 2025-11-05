@@ -153,14 +153,18 @@ public class Player : BaseUnit
         float hpModifierBonus = Modifiercalculator.GetMultiplier(target, StatType.MaxHp, this.UnitData);
         float atkModifierBonus = Modifiercalculator.GetMultiplier(target, StatType.AtkPower, this.UnitData);
         float moveSpeedModifierBonus = Modifiercalculator.GetMultiplier(target, StatType.MoveSpeed, this.UnitData);
-        float AuraRangeModifier = Modifiercalculator.GetMultiplier(target, StatType.AuraRange, this.UnitData);
 
-        MaxHp = PlayerData.health * (hpModifierBonus + statMultiplier);
+        float hpArtifactBonusPercent = ArtifactManager.Instance.GetPassiveArtifactStatBonus(target, StatType.MaxHp) / 100f;
+        float atkArtifactBonusPercent = ArtifactManager.Instance.GetPassiveArtifactStatBonus(target, StatType.AtkPower) / 100f;
+        float moveSpeedArtifactBonusPercent = ArtifactManager.Instance.GetPassiveArtifactStatBonus(target, StatType.MoveSpeed) / 100f;
+        float auraArtifactBonusPercent = ArtifactManager.Instance.GetPassiveArtifactStatBonus(target, StatType.AuraRange) / 100f;
+
+        MaxHp = PlayerData.health * (hpModifierBonus + statMultiplier + hpArtifactBonusPercent);
         curHp = MaxHp;
-        AtkPower = PlayerData.atkPower * (atkModifierBonus + statMultiplier);
+        AtkPower = PlayerData.atkPower * (atkModifierBonus + statMultiplier + hpArtifactBonusPercent);
         AttackRate = PlayerData.attackRate * statMultiplier; // 공격 속도는 크기와 상관없이 배율에 비례
-        MoveSpeed = PlayerData.moveSpeed * (moveSpeedModifierBonus + 1f);
-        AuraRange = PlayerData.auraRange * (AuraRangeModifier + 1f);
+        MoveSpeed = PlayerData.moveSpeed * (moveSpeedModifierBonus + 1f + moveSpeedArtifactBonusPercent);
+        AuraRange = PlayerData.auraRange * (1f + auraArtifactBonusPercent);
         AuraAtkBonus = PlayerData.auraAtkBonus;
         playerAura.transform.localScale = Vector3.one * AuraRange;
 
@@ -193,10 +197,7 @@ public class Player : BaseUnit
         Damageable = GetComponent<IDamageable>();
         //BaseController = UnitController;
     }
-    protected override float GetStatBonus(StatType type)
-    {
-        return ArtifactManager.Instance.GetPassiveArtifactStatBonus(EffectTarget.Player, type);
-    }
+
     void CheckHealthRatioAndPlaySound()
     {
         int healthRatio = Mathf.CeilToInt(curHp / MaxHp * 100);

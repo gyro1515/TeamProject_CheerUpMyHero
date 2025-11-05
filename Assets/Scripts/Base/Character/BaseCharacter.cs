@@ -25,12 +25,6 @@ public class BaseCharacter : MonoBehaviour
 
     protected Vector3 _moveDir;
 
-    // 아티팩트 계산용 변수 -> 아티팩트 적용 X 원래 캐릭터 스탯
-    protected Dictionary<StatType, float> _ArtifactStat = new Dictionary<StatType, float>();
-    protected float _baseMaxHP;
-    protected float _baseAtkPower;
-    protected float _baseMoveSpeed;
-
     public void SetMoveSpeed(float newSpeed)
     {
         MoveSpeed = newSpeed;
@@ -75,20 +69,12 @@ public class BaseCharacter : MonoBehaviour
         BaseController = GetComponent<BaseController>();
         Damageable = GetComponent<IDamageable>();
         AnimationData = AnimationData.Instance;
-
-        _baseMaxHP = MaxHp;
-        _baseAtkPower = AtkPower;
-        _baseMoveSpeed = MoveSpeed;
-
-        UpdateStat();
     }
     protected virtual void OnEnable()
     {
         // 다시 활성화 됐을때
         curHp = MaxHp;
         IsDead = false;
-
-        ArtifactManager.Instance.OnEquippedArtifactChanged += UpdateStat;
     }
     protected virtual void Start()
     {
@@ -105,24 +91,6 @@ public class BaseCharacter : MonoBehaviour
     }
     protected virtual void OnDisable()
     {
-        if(ArtifactManager.Instance) ArtifactManager.Instance.OnEquippedArtifactChanged -= UpdateStat;
-    }
-
-    protected virtual void UpdateStat()
-    {
-        float bonusHp = GetStatBonus(StatType.MaxHp);
-        float bonusAtk = GetStatBonus(StatType.AtkPower);
-        float bonusSpd = GetStatBonus(StatType.MoveSpeed);
-
-        MaxHp = _baseMaxHP * (1f + bonusHp / 100f);
-        AtkPower = _baseAtkPower * (1f + bonusAtk / 100f);
-        MoveSpeed = _baseMoveSpeed * (1f + bonusSpd / 100f);
-
-        curHp = MaxHp;
-    }
-
-    protected virtual float GetStatBonus(StatType type)
-    {
-        return 0f;
+        
     }
 }
