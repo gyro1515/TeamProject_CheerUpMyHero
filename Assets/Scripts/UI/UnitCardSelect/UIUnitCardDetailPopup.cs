@@ -25,16 +25,6 @@ public class UIUnitCardDetailPopup : BasePopUpUI
         _display.UpdateCardDataByData(data);
     }
 
-    public override void CloseUI()
-    {
-        if (_controller != null)
-        {
-            _controller.OnDetailPopupClosed();
-        }
-
-        base.CloseUI();
-    }
-
     public override void OnBackPressed()
     {
         CloseUI();

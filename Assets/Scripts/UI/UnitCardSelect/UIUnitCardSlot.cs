@@ -18,11 +18,15 @@ public class UIUnitCardSlot : MonoBehaviour
     private bool _canSelect;
 
     private Button _button;
+    private UIAdvancedButton _advancedButton;
 
     private void Start()
     {
-        _button = GetComponent<Button>();
-        _button.onClick.AddListener(OnClicked);
+        _advancedButton = GetComponent<UIAdvancedButton>();
+
+        _advancedButton.onShortClick += OnShortClicked;
+        _advancedButton.onHoldStart += OnHoldStarted;
+        _advancedButton.onHoldRelease += OnHoldReleased;
     }
 
     public void Initialize(BaseUnitData data, UIUnitCardSelect controller, bool canSelect)
@@ -49,11 +53,27 @@ public class UIUnitCardSlot : MonoBehaviour
             GreyBlocker.SetActive(false);
     }
 
-    private void OnClicked()
+    private void OnShortClicked()
     {
         if (_controller != null && _curUnitData != null)
         {
-            _controller.OnCardSlotClicked(_curUnitData, _canSelect);
+            _controller.OnCardSlotShortClick(_curUnitData, _canSelect);
+        }
+    }
+
+    private void OnHoldStarted()
+    {
+        if (_controller != null && _curUnitData != null)
+        {
+            _controller.OnCardSlotHold(_curUnitData, _canSelect);
+        }
+    }
+
+    private void OnHoldReleased()
+    {
+        if (_controller != null)
+        {
+            _controller.OnCardSlotHoldRelease();
         }
     }
 }
