@@ -110,7 +110,27 @@ public class UIActiveAFSlot : MonoBehaviour
         // 6. 플레이어 애니메이션 재생
         player.PlayerController.TestForUseActiveArtifact();
 
-        //  7. 실제 스킬 효과 실행
+        // 7. 유물 사운드 실행
+        switch (afData.idNumber)
+        {
+            case 08010001:
+                AudioManager.PlayOneShot(DataManager.AudioData.AF_IceBreath);
+                break;
+            case 08010002:
+                AudioManager.PlayOneShot(DataManager.AudioData.AF_ThunderGod);
+                break;
+            case 08010003:
+                AudioManager.PlayOneShot(DataManager.AudioData.AF_KingdomMarch);
+                break;
+            case 08010004:
+                AudioManager.PlayOneShot(DataManager.AudioData.AF_goddess);
+                break;
+            case 08010005:
+                AudioManager.PlayOneShot(DataManager.AudioData.AF_golem);
+                break;
+        }
+
+        //  8. 실제 스킬 효과 실행
         skillEffectInstance.Execute(currentLevelData);
 
         //Debug.Log($"{afData.name} 사용, 남은 마나 {player.CurMana}");
