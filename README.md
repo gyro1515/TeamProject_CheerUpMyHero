@@ -66,7 +66,7 @@
 ## 4.  시연 영상
 
 <a href="https://www.youtube.com/watch?v=sZYoNX6b5Hc">
-  <img src= https://imgur.com/xs8LSCc.png" alt="시연 영상" width="250px">
+  <img src= https://imgur.com/xs8LSCc.png" alt="시연 영상" width="540px">
 </a>
 <br>
 
