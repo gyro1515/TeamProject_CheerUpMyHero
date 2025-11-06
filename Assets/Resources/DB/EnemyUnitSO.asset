@@ -250,7 +250,7 @@ MonoBehaviour:
     attackRange: 1.5
     moveSpeed: 0.5
     attackDelayTime: 0.8
-    attackRate: 0.8
+    attackRate: 5
     isRangedAttack: 1
     attackType: 2
     spawnCooldown: 49
@@ -275,7 +275,7 @@ MonoBehaviour:
     attackRange: 1.5
     moveSpeed: 0.5
     attackDelayTime: 0.8
-    attackRate: 0.8
+    attackRate: 5
     isRangedAttack: 1
     attackType: 2
     spawnCooldown: 300
@@ -525,7 +525,7 @@ MonoBehaviour:
     attackRange: 1.6
     moveSpeed: 0.5
     attackDelayTime: 1.4
-    attackRate: 1.15
+    attackRate: 5
     isRangedAttack: 1
     attackType: 2
     spawnCooldown: 78
@@ -550,10 +550,10 @@ MonoBehaviour:
     attackRange: 1.6
     moveSpeed: 0.5
     attackDelayTime: 1.4
-    attackRate: 1.15
+    attackRate: 5
     isRangedAttack: 1
     attackType: 2
-    spawnCooldown: 450
+    spawnCooldown: 360
     synergyType: 256
     cost: 0
     description: "\uC124\uBA85 \uCD94\uAC00\uD574\uC57C \uD569\uB2C8\uB2E4!!"
@@ -569,17 +569,17 @@ MonoBehaviour:
     unitName: "\uBCD1\uC0AC \uC2A4\uCF08\uB808\uD1A4"
     unitType: 0
     poolType: 40
-    health: 1000
+    health: 500
     hitBack: 1
-    atkPower: 100
+    atkPower: 50
     cognizanceRange: 0.5
     attackRange: 0
-    moveSpeed: 2
+    moveSpeed: 1
     attackDelayTime: 0.8
     attackRate: 2.35
     isRangedAttack: 0
     attackType: 0
-    spawnCooldown: 4.5
+    spawnCooldown: 10.5
     synergyType: 0
     cost: 0
     description: "\uC124\uBA85 \uCD94\uAC00\uD574\uC57C \uD569\uB2C8\uB2E4!!"
@@ -594,17 +594,17 @@ MonoBehaviour:
     unitName: "\uAD81\uC218 \uC2A4\uCF08\uB808\uD1A4"
     unitType: 1
     poolType: 41
-    health: 2500
+    health: 1250
     hitBack: 3
-    atkPower: 350
+    atkPower: 88
     cognizanceRange: 2.9
     attackRange: 3.4
-    moveSpeed: 2
-    attackDelayTime: 3.4
+    moveSpeed: 1
+    attackDelayTime: 1.4
     attackRate: 4.4
     isRangedAttack: 1
     attackType: 2
-    spawnCooldown: 7.5
+    spawnCooldown: 13.5
     synergyType: 0
     cost: 0
     description: "\uC124\uBA85 \uCD94\uAC00\uD574\uC57C \uD569\uB2C8\uB2E4!!"
@@ -619,9 +619,9 @@ MonoBehaviour:
     unitName: "\uBC29\uD328\uBCD1 \uC2A4\uCF08\uB808\uD1A4"
     unitType: 0
     poolType: 42
-    health: 3500
+    health: 1750
     hitBack: 1
-    atkPower: 200
+    atkPower: 50
     cognizanceRange: 1.22
     attackRange: 0.4
     moveSpeed: 1.2
@@ -629,7 +629,7 @@ MonoBehaviour:
     attackRate: 1.65
     isRangedAttack: 1
     attackType: 1
-    spawnCooldown: 13.5
+    spawnCooldown: 19.5
     synergyType: 0
     cost: 0
     description: "\uC124\uBA85 \uCD94\uAC00\uD574\uC57C \uD569\uB2C8\uB2E4!!"
@@ -644,9 +644,9 @@ MonoBehaviour:
     unitName: "\uB3C4\uB07C\uBCD1 \uC2A4\uCF08\uB808\uD1A4"
     unitType: 1
     poolType: 43
-    health: 4500
+    health: 2250
     hitBack: 2
-    atkPower: 300
+    atkPower: 75
     cognizanceRange: 1.2
     attackRange: 0.3
     moveSpeed: 0.6
@@ -654,7 +654,7 @@ MonoBehaviour:
     attackRate: 2.45
     isRangedAttack: 1
     attackType: 1
-    spawnCooldown: 16.5
+    spawnCooldown: 22.5
     synergyType: 0
     cost: 0
     description: "\uC124\uBA85 \uCD94\uAC00\uD574\uC57C \uD569\uB2C8\uB2E4!!"
@@ -669,17 +669,17 @@ MonoBehaviour:
     unitName: "\uBD80\uB450\uC220\uC0AC \uC2A4\uCF08\uB808\uD1A4"
     unitType: 2
     poolType: 44
-    health: 1000
+    health: 500
     hitBack: 2
-    atkPower: 125
+    atkPower: 63
     cognizanceRange: 3.3
     attackRange: 0
-    moveSpeed: 2
+    moveSpeed: 1
     attackDelayTime: 1.6
     attackRate: 5
     isRangedAttack: 0
     attackType: 0
-    spawnCooldown: 19
+    spawnCooldown: 25
     synergyType: 512
     cost: 0
     description: "\uC124\uBA85 \uCD94\uAC00\uD574\uC57C \uD569\uB2C8\uB2E4!!"
@@ -687,16 +687,16 @@ MonoBehaviour:
     unitBGSprite: {fileID: 0}
     unitIconSprite: {fileID: 0}
     gachaHeroSprite: {fileID: 0}
-    healAmount: 22
+    healAmount: 31
     maxTargetCount: 0
   - idNumber: 30006
     rarity: 1
     unitName: "\uD751\uB9C8\uBC95 \uACAC\uC2B5\uC0DD \uC2A4\uCF08\uB808\uD1A4"
     unitType: 1
     poolType: 45
-    health: 1500
+    health: 750
     hitBack: 3
-    atkPower: 1000
+    atkPower: 250
     cognizanceRange: 3
     attackRange: 0.5
     moveSpeed: 0.4
@@ -704,7 +704,7 @@ MonoBehaviour:
     attackRate: 5.35
     isRangedAttack: 1
     attackType: 1
-    spawnCooldown: 21
+    spawnCooldown: 27
     synergyType: 128
     cost: 0
     description: "\uC124\uBA85 \uCD94\uAC00\uD574\uC57C \uD569\uB2C8\uB2E4!!"
@@ -719,9 +719,9 @@ MonoBehaviour:
     unitName: "\uC30D\uAC80 \uC2A4\uCF08\uB808\uD1A4"
     unitType: 1
     poolType: 46
-    health: 3500
+    health: 1750
     hitBack: 2
-    atkPower: 500
+    atkPower: 250
     cognizanceRange: 1
     attackRange: 0
     moveSpeed: 1.2
@@ -729,7 +729,7 @@ MonoBehaviour:
     attackRate: 1.85
     isRangedAttack: 0
     attackType: 0
-    spawnCooldown: 28
+    spawnCooldown: 34
     synergyType: 0
     cost: 0
     description: "\uC124\uBA85 \uCD94\uAC00\uD574\uC57C \uD569\uB2C8\uB2E4!!"
@@ -744,17 +744,17 @@ MonoBehaviour:
     unitName: "\uAE30\uC0AC \uC2A4\uCF08\uB808\uD1A4"
     unitType: 0
     poolType: 47
-    health: 5000
+    health: 2500
     hitBack: 1
-    atkPower: 1200
+    atkPower: 600
     cognizanceRange: 1.55
     attackRange: 0
-    moveSpeed: 1.8
+    moveSpeed: 0.8
     attackDelayTime: 0.5
     attackRate: 2.2
     isRangedAttack: 0
     attackType: 0
-    spawnCooldown: 37
+    spawnCooldown: 43
     synergyType: 0
     cost: 0
     description: "\uC124\uBA85 \uCD94\uAC00\uD574\uC57C \uD569\uB2C8\uB2E4!!"
@@ -769,17 +769,17 @@ MonoBehaviour:
     unitName: "\uD751\uB9C8\uBC95\uC0AC \uC2A4\uCF08\uB808\uD1A4"
     unitType: 1
     poolType: 48
-    health: 2150
+    health: 1075
     hitBack: 3
-    atkPower: 1500
+    atkPower: 375
     cognizanceRange: 2.9
     attackRange: 0.5
     moveSpeed: 1.4
-    attackDelayTime: 4.4
+    attackDelayTime: 1.4
     attackRate: 5.8
     isRangedAttack: 1
     attackType: 1
-    spawnCooldown: 59
+    spawnCooldown: 65
     synergyType: 256
     cost: 0
     description: "\uC124\uBA85 \uCD94\uAC00\uD574\uC57C \uD569\uB2C8\uB2E4!!"
@@ -794,17 +794,17 @@ MonoBehaviour:
     unitName: "\uAD11\uC804\uC0AC \uC2A4\uCF08\uB808\uD1A4(\uC77C\uBC18)"
     unitType: 1
     poolType: 49
-    health: 10000
+    health: 5000
     hitBack: 1
-    atkPower: 750
+    atkPower: 375
     cognizanceRange: 1.3
     attackRange: 1.8
     moveSpeed: 0.5
-    attackDelayTime: 1.4
-    attackRate: 1.15
+    attackDelayTime: 1.2
+    attackRate: 5
     isRangedAttack: 1
     attackType: 2
-    spawnCooldown: 83
+    spawnCooldown: 89
     synergyType: 128
     cost: 0
     description: "\uC124\uBA85 \uCD94\uAC00\uD574\uC57C \uD569\uB2C8\uB2E4!!"
@@ -821,15 +821,15 @@ MonoBehaviour:
     poolType: 50
     health: 50000
     hitBack: 1
-    atkPower: 1500
+    atkPower: 750
     cognizanceRange: 1.3
     attackRange: 1.8
     moveSpeed: 0.5
-    attackDelayTime: 1.4
-    attackRate: 1.15
+    attackDelayTime: 1.2
+    attackRate: 5
     isRangedAttack: 1
     attackType: 2
-    spawnCooldown: 0
+    spawnCooldown: 360
     synergyType: 128
     cost: 0
     description: "\uC124\uBA85 \uCD94\uAC00\uD574\uC57C \uD569\uB2C8\uB2E4!!"
@@ -844,17 +844,17 @@ MonoBehaviour:
     unitName: "\uBCD1\uC0AC \uBE14\uB799 \uC2A4\uCF08\uB808\uD1A4"
     unitType: 1
     poolType: 51
-    health: 1500
+    health: 750
     hitBack: 3
-    atkPower: 150
+    atkPower: 75
     cognizanceRange: 0.5
     attackRange: 0
-    moveSpeed: 2
+    moveSpeed: 1
     attackDelayTime: 0.8
     attackRate: 2.35
     isRangedAttack: 0
     attackType: 0
-    spawnCooldown: 4.5
+    spawnCooldown: 11.5
     synergyType: 0
     cost: 0
     description: "\uC124\uBA85 \uCD94\uAC00\uD574\uC57C \uD569\uB2C8\uB2E4!!"
@@ -869,17 +869,17 @@ MonoBehaviour:
     unitName: "\uAD81\uC218 \uBE14\uB799 \uC2A4\uCF08\uB808\uD1A4"
     unitType: 1
     poolType: 52
-    health: 3750
+    health: 1875
     hitBack: 3
-    atkPower: 525
+    atkPower: 132
     cognizanceRange: 2.9
     attackRange: 3.4
-    moveSpeed: 2
-    attackDelayTime: 3.4
+    moveSpeed: 1
+    attackDelayTime: 1.4
     attackRate: 4.4
     isRangedAttack: 1
     attackType: 2
-    spawnCooldown: 7.5
+    spawnCooldown: 15.5
     synergyType: 0
     cost: 0
     description: "\uC124\uBA85 \uCD94\uAC00\uD574\uC57C \uD569\uB2C8\uB2E4!!"
@@ -894,9 +894,9 @@ MonoBehaviour:
     unitName: "\uBC29\uD328\uBCD1 \uBE14\uB799 \uC2A4\uCF08\uB808\uD1A4"
     unitType: 0
     poolType: 53
-    health: 5250
+    health: 2625
     hitBack: 1
-    atkPower: 300
+    atkPower: 75
     cognizanceRange: 1.22
     attackRange: 0.4
     moveSpeed: 1.2
@@ -904,7 +904,7 @@ MonoBehaviour:
     attackRate: 1.65
     isRangedAttack: 1
     attackType: 1
-    spawnCooldown: 13.5
+    spawnCooldown: 21.5
     synergyType: 0
     cost: 0
     description: "\uC124\uBA85 \uCD94\uAC00\uD574\uC57C \uD569\uB2C8\uB2E4!!"
@@ -919,9 +919,9 @@ MonoBehaviour:
     unitName: "\uB3C4\uB07C\uBCD1 \uBE14\uB799 \uC2A4\uCF08\uB808\uD1A4"
     unitType: 1
     poolType: 54
-    health: 6750
+    health: 3375
     hitBack: 2
-    atkPower: 450
+    atkPower: 113
     cognizanceRange: 1.2
     attackRange: 0.3
     moveSpeed: 0.6
@@ -929,7 +929,7 @@ MonoBehaviour:
     attackRate: 2.45
     isRangedAttack: 1
     attackType: 1
-    spawnCooldown: 16.5
+    spawnCooldown: 23.5
     synergyType: 0
     cost: 0
     description: "\uC124\uBA85 \uCD94\uAC00\uD574\uC57C \uD569\uB2C8\uB2E4!!"
@@ -944,17 +944,17 @@ MonoBehaviour:
     unitName: "\uBD80\uB450\uC220\uC0AC \uBE14\uB799 \uC2A4\uCF08\uB808\uD1A4"
     unitType: 2
     poolType: 55
-    health: 1500
+    health: 750
     hitBack: 2
-    atkPower: 188
+    atkPower: 94
     cognizanceRange: 3.3
     attackRange: 0
-    moveSpeed: 2
+    moveSpeed: 1
     attackDelayTime: 1.6
     attackRate: 5
     isRangedAttack: 0
     attackType: 0
-    spawnCooldown: 19
+    spawnCooldown: 27
     synergyType: 512
     cost: 0
     description: "\uC124\uBA85 \uCD94\uAC00\uD574\uC57C \uD569\uB2C8\uB2E4!!"
@@ -962,16 +962,16 @@ MonoBehaviour:
     unitBGSprite: {fileID: 0}
     unitIconSprite: {fileID: 0}
     gachaHeroSprite: {fileID: 0}
-    healAmount: 22
+    healAmount: 47
     maxTargetCount: 0
   - idNumber: 40006
     rarity: 1
     unitName: "\uD751\uB9C8\uBC95 \uACAC\uC2B5\uC0DD \uBE14\uB799 \uC2A4\uCF08\uB808\uD1A4"
     unitType: 1
     poolType: 56
-    health: 2250
+    health: 1125
     hitBack: 3
-    atkPower: 1500
+    atkPower: 375
     cognizanceRange: 3
     attackRange: 0.5
     moveSpeed: 0.4
@@ -979,7 +979,7 @@ MonoBehaviour:
     attackRate: 5.35
     isRangedAttack: 1
     attackType: 1
-    spawnCooldown: 21
+    spawnCooldown: 29
     synergyType: 128
     cost: 0
     description: "\uC124\uBA85 \uCD94\uAC00\uD574\uC57C \uD569\uB2C8\uB2E4!!"
@@ -994,9 +994,9 @@ MonoBehaviour:
     unitName: "\uC30D\uAC80 \uBE14\uB799 \uC2A4\uCF08\uB808\uD1A4"
     unitType: 1
     poolType: 57
-    health: 5250
+    health: 2625
     hitBack: 2
-    atkPower: 750
+    atkPower: 375
     cognizanceRange: 1
     attackRange: 0
     moveSpeed: 1.2
@@ -1004,7 +1004,7 @@ MonoBehaviour:
     attackRate: 1.85
     isRangedAttack: 0
     attackType: 0
-    spawnCooldown: 28
+    spawnCooldown: 35
     synergyType: 0
     cost: 0
     description: "\uC124\uBA85 \uCD94\uAC00\uD574\uC57C \uD569\uB2C8\uB2E4!!"
@@ -1019,17 +1019,17 @@ MonoBehaviour:
     unitName: "\uAE30\uC0AC \uBE14\uB799 \uC2A4\uCF08\uB808\uD1A4"
     unitType: 0
     poolType: 58
-    health: 7500
+    health: 3750
     hitBack: 1
-    atkPower: 1800
+    atkPower: 900
     cognizanceRange: 1.55
     attackRange: 0
-    moveSpeed: 1.8
+    moveSpeed: 0.8
     attackDelayTime: 0.5
     attackRate: 2.2
     isRangedAttack: 0
     attackType: 0
-    spawnCooldown: 37
+    spawnCooldown: 45
     synergyType: 0
     cost: 0
     description: "\uC124\uBA85 \uCD94\uAC00\uD574\uC57C \uD569\uB2C8\uB2E4!!"
@@ -1044,17 +1044,17 @@ MonoBehaviour:
     unitName: "\uD751\uB9C8\uBC95\uC0AC \uBE14\uB799 \uC2A4\uCF08\uB808\uD1A4"
     unitType: 1
     poolType: 59
-    health: 3225
+    health: 1613
     hitBack: 3
-    atkPower: 2250
+    atkPower: 563
     cognizanceRange: 2.9
     attackRange: 0.5
     moveSpeed: 1.4
-    attackDelayTime: 4.4
+    attackDelayTime: 1.4
     attackRate: 5.8
     isRangedAttack: 1
     attackType: 1
-    spawnCooldown: 59
+    spawnCooldown: 67
     synergyType: 256
     cost: 0
     description: "\uC124\uBA85 \uCD94\uAC00\uD574\uC57C \uD569\uB2C8\uB2E4!!"
@@ -1069,17 +1069,17 @@ MonoBehaviour:
     unitName: "\uAD11\uC804\uC0AC \uBE14\uB799 \uC2A4\uCF08\uB808\uD1A4(\uC77C\uBC18)"
     unitType: 1
     poolType: 60
-    health: 15000
+    health: 7500
     hitBack: 1
-    atkPower: 1125
+    atkPower: 563
     cognizanceRange: 1.3
     attackRange: 1.8
     moveSpeed: 0.5
-    attackDelayTime: 1.4
-    attackRate: 1.15
+    attackDelayTime: 1.2
+    attackRate: 5
     isRangedAttack: 1
     attackType: 2
-    spawnCooldown: 83
+    spawnCooldown: 91
     synergyType: 128
     cost: 0
     description: "\uC124\uBA85 \uCD94\uAC00\uD574\uC57C \uD569\uB2C8\uB2E4!!"
@@ -1096,15 +1096,15 @@ MonoBehaviour:
     poolType: 61
     health: 75000
     hitBack: 1
-    atkPower: 2250
+    atkPower: 1125
     cognizanceRange: 1.3
     attackRange: 1.8
     moveSpeed: 0.5
-    attackDelayTime: 1.4
-    attackRate: 1.15
+    attackDelayTime: 1.2
+    attackRate: 5
     isRangedAttack: 1
     attackType: 2
-    spawnCooldown: 0
+    spawnCooldown: 360
     synergyType: 128
     cost: 0
     description: "\uC124\uBA85 \uCD94\uAC00\uD574\uC57C \uD569\uB2C8\uB2E4!!"
@@ -1120,9 +1120,9 @@ MonoBehaviour:
     unitName: "\uAE30\uC0AC \uC545\uB9C8"
     unitType: 1
     poolType: 62
-    health: 6500
+    health: 1625
     hitBack: 2
-    atkPower: 775
+    atkPower: 388
     cognizanceRange: 1
     attackRange: 0
     moveSpeed: 0.5
@@ -1130,7 +1130,7 @@ MonoBehaviour:
     attackRate: 2.05
     isRangedAttack: 0
     attackType: 0
-    spawnCooldown: 7
+    spawnCooldown: 13
     synergyType: 0
     cost: 0
     description: "\uC124\uBA85 \uCD94\uAC00\uD574\uC57C \uD569\uB2C8\uB2E4!!"
@@ -1145,17 +1145,17 @@ MonoBehaviour:
     unitName: "\uAD81\uC218 \uC545\uB9C8"
     unitType: 1
     poolType: 63
-    health: 7500
+    health: 1875
     hitBack: 3
-    atkPower: 900
+    atkPower: 225
     cognizanceRange: 2.5
     attackRange: 1
     moveSpeed: 1
     attackDelayTime: 0.8
-    attackRate: 1.85
+    attackRate: 2.85
     isRangedAttack: 1
     attackType: 2
-    spawnCooldown: 11
+    spawnCooldown: 17
     synergyType: 128
     cost: 0
     description: "\uC124\uBA85 \uCD94\uAC00\uD574\uC57C \uD569\uB2C8\uB2E4!!"
@@ -1170,9 +1170,9 @@ MonoBehaviour:
     unitName: "\uBC29\uD328\uBCD1 \uC545\uB9C8"
     unitType: 0
     poolType: 64
-    health: 8000
+    health: 2000
     hitBack: 1
-    atkPower: 1000
+    atkPower: 500
     cognizanceRange: 0.7
     attackRange: 0
     moveSpeed: 0.8
@@ -1180,7 +1180,7 @@ MonoBehaviour:
     attackRate: 2.35
     isRangedAttack: 0
     attackType: 0
-    spawnCooldown: 16
+    spawnCooldown: 23
     synergyType: 0
     cost: 0
     description: "\uC124\uBA85 \uCD94\uAC00\uD574\uC57C \uD569\uB2C8\uB2E4!!"
@@ -1195,17 +1195,17 @@ MonoBehaviour:
     unitName: "\uD751\uB9C8\uBC95 \uACAC\uC2B5\uC0DD \uC545\uB9C8"
     unitType: 1
     poolType: 65
-    health: 5250
+    health: 1313
     hitBack: 3
-    atkPower: 800
+    atkPower: 200
     cognizanceRange: 2.1
     attackRange: 1.6
-    moveSpeed: 4.5
+    moveSpeed: 0.5
     attackDelayTime: 0.9
-    attackRate: 1.4
+    attackRate: 5
     isRangedAttack: 1
     attackType: 1
-    spawnCooldown: 19
+    spawnCooldown: 26
     synergyType: 256
     cost: 0
     description: "\uC124\uBA85 \uCD94\uAC00\uD574\uC57C \uD569\uB2C8\uB2E4!!"
@@ -1220,9 +1220,9 @@ MonoBehaviour:
     unitName: "\uC911\uBB34\uC7A5 \uAE30\uC0AC \uC545\uB9C8"
     unitType: 0
     poolType: 66
-    health: 12000
+    health: 3000
     hitBack: 1
-    atkPower: 1400
+    atkPower: 350
     cognizanceRange: 1.5
     attackRange: 0
     moveSpeed: 1.2
@@ -1230,7 +1230,7 @@ MonoBehaviour:
     attackRate: 2.55
     isRangedAttack: 1
     attackType: 1
-    spawnCooldown: 23
+    spawnCooldown: 29
     synergyType: 0
     cost: 0
     description: "\uC124\uBA85 \uCD94\uAC00\uD574\uC57C \uD569\uB2C8\uB2E4!!"
@@ -1245,7 +1245,7 @@ MonoBehaviour:
     unitName: "\uB124\uD06C\uB85C\uBA58\uC11C \uC545\uB9C8"
     unitType: 2
     poolType: 67
-    health: 5000
+    health: 1250
     hitBack: 3
     atkPower: 700
     cognizanceRange: 3
@@ -1255,7 +1255,7 @@ MonoBehaviour:
     attackRate: 5
     isRangedAttack: 0
     attackType: 0
-    spawnCooldown: 27
+    spawnCooldown: 33
     synergyType: 0
     cost: 0
     description: "\uC124\uBA85 \uCD94\uAC00\uD574\uC57C \uD569\uB2C8\uB2E4!!"
@@ -1263,24 +1263,24 @@ MonoBehaviour:
     unitBGSprite: {fileID: 0}
     unitIconSprite: {fileID: 0}
     gachaHeroSprite: {fileID: 0}
-    healAmount: 33
+    healAmount: 350
     maxTargetCount: 0
   - idNumber: 50007
     rarity: 2
     unitName: "\uC30D\uAC80 \uC545\uB9C8"
     unitType: 1
     poolType: 68
-    health: 8000
+    health: 2000
     hitBack: 2
-    atkPower: 1500
+    atkPower: 375
     cognizanceRange: 1.5
     attackRange: 2
-    moveSpeed: 2.4
+    moveSpeed: 0.4
     attackDelayTime: 1.2
     attackRate: 2
     isRangedAttack: 1
     attackType: 1
-    spawnCooldown: 31
+    spawnCooldown: 37
     synergyType: 512
     cost: 0
     description: "\uC124\uBA85 \uCD94\uAC00\uD574\uC57C \uD569\uB2C8\uB2E4!!"
@@ -1295,17 +1295,17 @@ MonoBehaviour:
     unitName: "\uC30D\uB3C4\uB07C \uC545\uB9C8"
     unitType: 0
     poolType: 69
-    health: 15000
+    health: 3750
     hitBack: 1
-    atkPower: 1300
+    atkPower: 325
     cognizanceRange: 1.5
     attackRange: 2
-    moveSpeed: 2.4
+    moveSpeed: 0.4
     attackDelayTime: 1.2
     attackRate: 2
     isRangedAttack: 1
     attackType: 1
-    spawnCooldown: 37
+    spawnCooldown: 41
     synergyType: 0
     cost: 0
     description: "\uC124\uBA85 \uCD94\uAC00\uD574\uC57C \uD569\uB2C8\uB2E4!!"
@@ -1320,17 +1320,17 @@ MonoBehaviour:
     unitName: "\uD751\uB9C8\uBC95\uC0AC \uC545\uB9C8"
     unitType: 1
     poolType: 70
-    health: 6000
+    health: 1500
     hitBack: 3
-    atkPower: 1750
+    atkPower: 438
     cognizanceRange: 2.3
     attackRange: 1
-    moveSpeed: 3
+    moveSpeed: 1
     attackDelayTime: 2.5
     attackRate: 5
     isRangedAttack: 1
     attackType: 2
-    spawnCooldown: 41
+    spawnCooldown: 47
     synergyType: 256
     cost: 0
     description: "\uC124\uBA85 \uCD94\uAC00\uD574\uC57C \uD569\uB2C8\uB2E4!!"
@@ -1352,10 +1352,10 @@ MonoBehaviour:
     attackRange: 2
     moveSpeed: 1
     attackDelayTime: 2
-    attackRate: 3.1
+    attackRate: 5
     isRangedAttack: 1
     attackType: 2
-    spawnCooldown: 0
+    spawnCooldown: 360
     synergyType: 896
     cost: 0
     description: "\uC124\uBA85 \uCD94\uAC00\uD574\uC57C \uD569\uB2C8\uB2E4!!"

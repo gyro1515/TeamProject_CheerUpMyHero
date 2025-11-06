@@ -7,12 +7,14 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using Unity.Services.Analytics;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public enum LoadMain
 {
     None,
     DeckPresetController,
-    UIDestinyRoullette
+    UIDestinyRoullette,
+    TutorialInWisdom
 }
 public class GameManager : SingletonMono<GameManager>
 {
@@ -94,7 +96,18 @@ public class GameManager : SingletonMono<GameManager>
                 enemyHQ.CurHp = 0;
             }
         }
-
+        /*if (Input.GetMouseButtonDown(0))
+        {
+            var results = new List<RaycastResult>();
+            var pointerData = new PointerEventData(EventSystem.current)
+            {
+                position = Input.mousePosition
+            };
+            EventSystem.current.RaycastAll(pointerData, results);
+            Debug.Log($"[UIRaycastDump] hits={results.Count}");
+            foreach (var r in results)
+                Debug.Log($" - {r.gameObject.name} (rt={(r.gameObject.GetComponent<UnityEngine.UI.Graphic>()?.raycastTarget == true)})");
+        }*/
         // 플레이어 HQ 바로 죽이는 치트키 V키
         if (Input.GetKeyDown(KeyCode.V))
         {
@@ -356,21 +369,21 @@ public class GameManager : SingletonMono<GameManager>
             {
                 Debug.Log($"스테이지 {mainIdx + 1}-{subIdx + 1}은(는) 이미 클리어한 스테이지입니다.");
             }
-            // ===================================테스트 리미트 로직=======================================
-            const bool ENABLE_TEST_STAGE_lIMIT = true;
-            if (ENABLE_TEST_STAGE_lIMIT)
-            {
-                int curMainStage = mainIdx + 1;
-                int curSubStage = subIdx + 1;
+            //// ===================================테스트 리미트 로직=======================================
+            //const bool ENABLE_TEST_STAGE_lIMIT = true;
+            //if (ENABLE_TEST_STAGE_lIMIT)
+            //{
+            //    int curMainStage = mainIdx + 1;
+            //    int curSubStage = subIdx + 1;
 
-                if (curMainStage == 2 &&  curSubStage == 9)
-                {
-                    await PlayerDataManager.Instance.SaveDataToCloudAsync();
-                    GameManager.IsStageAndDestinySelected = false;
-                    return;
-                }
-            }
-            // =================================================================================================
+            //    if (curMainStage == 2 &&  curSubStage == 9)
+            //    {
+            //        await PlayerDataManager.Instance.SaveDataToCloudAsync();
+            //        GameManager.IsStageAndDestinySelected = false;
+            //        return;
+            //    }
+            //}
+            //// =================================================================================================
 
             int maxSubIdx = SettingDataManager.Instance.MainStageData[mainIdx].subStages.Count;
             if (++subIdx >= maxSubIdx)

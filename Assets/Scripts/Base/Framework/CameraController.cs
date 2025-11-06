@@ -6,7 +6,13 @@ public class CameraController : MonoBehaviour
 {
     [SerializeField] GameObject playerGO;
     [Header("카메라 설정")]
-    [SerializeField] private float _cameraMoveSpeed = 5f; 
+    [SerializeField] private float _cameraMoveSpeed = 5f;
+    [SerializeField] GameObject FXRainGO;
+
+    [Header("카메라 흔들림 설정")]
+    [SerializeField] private float _shakeDuration = 2f;
+    //[SerializeField] private float _shakeMagnitude = 0.1f;
+    private float _shakeMagnitude = 0.1f;
 
     private Transform _playerTransform;
     // 자동 추적 관련 변수
@@ -16,9 +22,18 @@ public class CameraController : MonoBehaviour
     private bool _hasInitializedCamera = false;
     Vector3 targetCamPos;
     IEventSubscriber<HeroSpawnEvent> heroSpawnEventSub;
+
+    private IEventSubscriber<StartWaveEvent> _waveStartSubscriber;
+    private Vector3 _shakeOffset = Vector3.zero;
+
+    private Vector3 _cleanCameraPosition;
+
     private void Awake()
     {
         heroSpawnEventSub = EventManager.GetSubscriber<HeroSpawnEvent>();
+        _waveStartSubscriber = EventManager.GetSubscriber<StartWaveEvent>();
+
+        _cleanCameraPosition = transform.position;
     }
     private void Start()
     {
@@ -32,12 +47,17 @@ public class CameraController : MonoBehaviour
         {
             Debug.LogError("플레이어를 찾을 수 없어 카메라가 동작할 수 없습니다.");
         }
+
+        //TODO: 운명데이터에 비 추가해야 함
+        if(PlayerDataManager.Instance.currentDestiny.idNumber == 09020001) FXRainGO.SetActive(true);
     }
 
     private void OnEnable()
     {
         PlayerController.OnPlayerAction += ResetIdleTimer;
         heroSpawnEventSub.Subscribe(SpawnHero);
+
+        _waveStartSubscriber.Subscribe(OnWaveStarted);
     }
     void Update()
     {
@@ -62,6 +82,8 @@ public class CameraController : MonoBehaviour
     {
         PlayerController.OnPlayerAction -= ResetIdleTimer;
         heroSpawnEventSub.Unsubscribe(SpawnHero);
+
+        _waveStartSubscriber.Unsubscribe(OnWaveStarted);
     }
     //private void FixedUpdate()
     //{
@@ -91,22 +113,23 @@ public class CameraController : MonoBehaviour
             }
         }
 
-
-        Vector3 currentCamPos = transform.position;
-        targetCamPos = new Vector3(currentTarget.position.x, currentCamPos.y, currentCamPos.z);
+        targetCamPos = new Vector3(currentTarget.position.x, _cleanCameraPosition.y, _cleanCameraPosition.z);
 
         //transform.position = targetCamPos; 
+        //Vector3 finalPosition; // 251106: 사용 안하는 거 같아서 주석 처리
         if (!_hasInitializedCamera)
         {
             // 배틀 시작 후 첫 프레임은 스냅 이동
-            transform.position = targetCamPos;
+            _cleanCameraPosition = targetCamPos;
             _hasInitializedCamera = true;
         }
         else
         {
             // 이후에는 부드럽게 이동
-            transform.position = Vector3.Lerp(currentCamPos, targetCamPos, Time.unscaledDeltaTime * _cameraMoveSpeed);
+            _cleanCameraPosition = Vector3.Lerp(_cleanCameraPosition, targetCamPos, Time.unscaledDeltaTime * _cameraMoveSpeed);
         }
+
+        transform.position = _cleanCameraPosition + _shakeOffset;
     }
     void SpawnHero(HeroSpawnEvent heroSpawnEvent)
     {
@@ -151,5 +174,30 @@ public class CameraController : MonoBehaviour
         }
 
         return frontMostUnit;
+    }
+
+    // 카메라 흔들림 로직 -> 이벤트 바인딩해서 코루틴 호출용
+    private void OnWaveStarted(StartWaveEvent e)
+    {
+        StartCoroutine(CameraShakeCoroutine(_shakeDuration, _shakeMagnitude));
+    }
+
+    // 카메라 흔들리는 코루틴
+    private IEnumerator CameraShakeCoroutine(float duration, float magnitude)
+    {
+        float elapsedTime = 0.0f;
+
+        while (elapsedTime < duration)
+        {
+            float x = Random.Range(-1f, 1f) * magnitude;
+            float y = Random.Range(-1f, 1f) * magnitude;
+
+            _shakeOffset = new Vector3(x, y, 0);
+
+            elapsedTime += Time.unscaledDeltaTime;
+            yield return null;
+        }
+
+        _shakeOffset = Vector3.zero;
     }
 }

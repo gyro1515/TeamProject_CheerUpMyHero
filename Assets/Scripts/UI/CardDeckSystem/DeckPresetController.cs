@@ -8,6 +8,8 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using Cysharp.Threading.Tasks;
+using System.Threading.Tasks;
+using Unity.VisualScripting;
 
 public class DeckPresetController : BaseUI, IBackButtonHandler
 {
@@ -68,6 +70,7 @@ public class DeckPresetController : BaseUI, IBackButtonHandler
     private UIMenu uiMenu;
     private UIArtifact _uIArtifact;
     private int _currentDeckIndex = 1;
+    
     // 시너지별 카운트 저장용 딕셔너리
     Dictionary<UnitSynergyType, int> synergyCounts = new Dictionary<UnitSynergyType, int>();
 
@@ -99,26 +102,26 @@ public class DeckPresetController : BaseUI, IBackButtonHandler
             deckBaseUnitDatas[7] = null;
         }
         uiDeckSynergy.Init();// 생성자 꼬이지 않게 여기서 먼저 초기화
-        Debug.Log(GameManager.IsTutorialCompleted);
         if (!GameManager.IsTutorialCompleted)
         {
             _tourDeck = UIManager.Instance.GetUI<UITutorialDeck>();
             _tourDeck?.CloseUI();
         }
-        _synergyUpdateSubscriber = EventManager.GetSubscriber<SynergyDataUpdatedEvent>();
-        _synergyUpdateSubscriber.Subscribe(OnDeckRulesChanged);
     }
     private void OnEnable()
     {
         UIManager.PubishAddUIStackEvent(this);
         ValidateDeckAndUpdateUI();
         if (!GameManager.IsTutorialCompleted) _tourDeck?.OpenUI();
-
+        _synergyUpdateSubscriber = EventManager.GetSubscriber<SynergyDataUpdatedEvent>();
+        _synergyUpdateSubscriber.Subscribe(OnDeckRulesChanged);
         HideDetailUnitPopup();
     }
 
     private void Start()
     {
+        //Debug.Log(GameManager.IsTutorialCompleted);
+
         _currentDeckIndex = PlayerDataManager.Instance.ActiveDeckIndex;
         _mainScreenUI = UIManager.Instance.GetUI<MainScreenUI>();
         _stageSelectUI = UIManager.Instance.GetUI<UIStageSelect>();
@@ -340,7 +343,7 @@ public class DeckPresetController : BaseUI, IBackButtonHandler
     #region 버튼 클릭 이벤트 함수
     void OnUnitSlotClicked(int slotIndex)
     {
-        Debug.Log($"{_currentDeckIndex}번 덱의 {slotIndex + 1}번 슬롯 클릭됨 -> 유닛 선택창 열기");
+        //Debug.Log($"{_currentDeckIndex}번 덱의 {slotIndex + 1}번 슬롯 클릭됨 -> 유닛 선택창 열기");
         //unitCardSelectPanel.gameObject.SetActive(true);
         unitCardSelectPanel.OpenUI();
         unitCardSelectPanel.SetDeckSlotNum(slotIndex);
@@ -372,12 +375,14 @@ public class DeckPresetController : BaseUI, IBackButtonHandler
         }
     }
 
+    //public async Task OnUnitSelected(int slotIndex, int unitId)
     public void OnUnitSelected(int slotIndex, int unitId)
     {
         AudioManager.PlayOneShot(DataManager.AudioData.cardEquipSE, 0.8f);
         PlayerDataManager.Instance.DeckPresets[_currentDeckIndex].UnitIds[slotIndex] = unitId;
         PlayerDataManager.Instance.DeckPresets[_currentDeckIndex].BaseUnitDatas[slotIndex] = DataManager.PlayerUnitData.GetData(unitId);
         UpdateUnitSlotsUI();
+        //await PlayerDataManager.Instance.SaveDataToCloudAsync();
     }
 
     private void OnResetClicked()

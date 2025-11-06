@@ -60,7 +60,7 @@ public class EnemyWaveSystem : MonoBehaviour
             OnWarningDisplayed?.Invoke();
         }
     }*/
-    
+
     IEnumerator WaveTimeRoutine()
     {
         waveIdx = 0;
@@ -72,7 +72,7 @@ public class EnemyWaveSystem : MonoBehaviour
 
             // 경고 표시 (한 번만)
             warningUI.OpenUI();
-            OnWarningDisplayed?.Invoke();
+            //OnWarningDisplayed?.Invoke();
             // timeUntilWave 동안 대기
             yield return new WaitForSeconds(timeUntilWave);
 
@@ -91,7 +91,10 @@ public class EnemyWaveSystem : MonoBehaviour
         if (WaveData.Count <= 2 ) return;
 
         AudioManager.PlayRandomOneShotByCameraDistance(DataManager.AudioData.monsterWaveSE_oak, gameObject.transform, 0.5f);
-
+        GameObject fxGO = ObjectPoolManager.Instance.Get(PoolType.FXEnemyHQDefense);
+        Vector3 fxSpawnPos = gameObject.transform.position;
+        fxSpawnPos.y += 7.25f;
+        fxGO.transform.position = fxSpawnPos;
         StartCoroutine(WaveRoutine(2));
         Debug.Log("체력 70퍼 이하라서 방어 웨이브 스폰함");
         // 모든 적에게 히트백

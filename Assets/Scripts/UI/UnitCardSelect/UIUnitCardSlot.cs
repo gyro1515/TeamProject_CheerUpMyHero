@@ -26,7 +26,7 @@ public class UIUnitCardSlot : MonoBehaviour
 
         _advancedButton.onShortClick += OnShortClicked;
         _advancedButton.onHoldStart += OnHoldStarted;
-        _advancedButton.onHoldRelease += OnHoldReleased;
+        //_advancedButton.onHoldRelease += OnHoldReleased;
     }
 
     public void Initialize(BaseUnitData data, UIUnitCardSelect controller, bool canSelect)
@@ -42,6 +42,11 @@ public class UIUnitCardSlot : MonoBehaviour
         costText.text = $"식량\n{data.cost.ToString("F0")}";
         bgImg.sprite = data.unitBGSprite;
         unitIconImg.sprite = data.unitIconSprite;
+        /*if (_advancedButton == null) _advancedButton = GetComponent<UIAdvancedButton>();
+        _advancedButton.onShortClick -= OnShortClicked;
+        _advancedButton.onHoldStart -= OnHoldStarted;
+        _advancedButton.onShortClick += OnShortClicked;
+        _advancedButton.onHoldStart += OnHoldStarted;*/
         Grey(!canSelect);
     }
     
@@ -55,6 +60,7 @@ public class UIUnitCardSlot : MonoBehaviour
 
     private void OnShortClicked()
     {
+        Debug.Log("OnShortClicked Fired!");
         if (_controller != null && _curUnitData != null)
         {
             _controller.OnCardSlotShortClick(_curUnitData, _canSelect);
@@ -63,6 +69,8 @@ public class UIUnitCardSlot : MonoBehaviour
 
     private void OnHoldStarted()
     {
+        Debug.Log("OnHoldStarted Fired!");
+
         if (_controller != null && _curUnitData != null)
         {
             _controller.OnCardSlotHold(_curUnitData, _canSelect);

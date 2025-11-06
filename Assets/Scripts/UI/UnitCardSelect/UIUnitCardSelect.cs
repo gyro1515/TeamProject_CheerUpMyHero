@@ -1,5 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -21,17 +23,24 @@ public class UIUnitCardSelect : BasePopUpUI
 
     [Header("카드 팝업")]
     [SerializeField] private GameObject detailPopupPanel;
+    [SerializeField] private UIUnitCardDetailPanel detailPopupPanelClass;
     [SerializeField] private UIUnitCardInScroll detailCardDisplay;
     [SerializeField] private Button detailCloseButton;
+
+    [Header("등급 카운트 UI")]
+    [SerializeField] private TextMeshProUGUI rareSlotText;
+    [SerializeField] private TextMeshProUGUI epicSlotText;
 
     private List<UIUnitCardSlot> _slotList = new List<UIUnitCardSlot> ();
     private int _selectedUnitId = -1;
 
+    private IEventSubscriber<SynergyDataUpdatedEvent> _synergyUpdateSubscriber;
     protected override void Awake()
     {
         base.Awake();
         cardFilter = GetComponent<CardFilter>();
         uiCardSynergyExpanationPopup.Init();
+        detailPopupPanelClass.Init();
     }
 
     protected override void OnEnable()
@@ -39,13 +48,16 @@ public class UIUnitCardSelect : BasePopUpUI
         base.OnEnable();
         closeButton.onClick.AddListener(OnCloseButtonPress);
         emptySpaceButton.onClick.AddListener(OnCloseButtonPress);
-        detailCloseButton.onClick.AddListener(HideDetailPopup);
+        detailCloseButton.enabled = false;
+        //detailCloseButton.onClick.AddListener(HideDetailPopup);
         
         cardFilter.OnFilterUpdated += RefreshGrid;
         cardFilter.UpdateUsable();
         cardFilter.FilterAndSort();
-
-        HideDetailPopup();
+        _synergyUpdateSubscriber = EventManager.GetSubscriber<SynergyDataUpdatedEvent>();
+        UpdateSlotCountText(); // 켜질 때 텍스트 갱신
+        _synergyUpdateSubscriber.Subscribe(OnBuildingRulesChanged);
+        //HideDetailPopup();
     }
 
     protected override void OnDisable()
@@ -56,13 +68,42 @@ public class UIUnitCardSelect : BasePopUpUI
 
         cardFilter.OnFilterUpdated -= RefreshGrid;
         //EventManager.Publish(new RemoveUIStackEvent());
-
+        _synergyUpdateSubscriber.Unsubscribe(OnBuildingRulesChanged);
         HideDetailPopup();
     }
+    private void OnBuildingRulesChanged(SynergyDataUpdatedEvent e)
+    {
+        // 병영 상태가 바뀌면 텍스트와 카드 목록을 모두 새로고침
+        UpdateSlotCountText();
+        cardFilter.FilterAndSort(); // 카드 목록 갱신 (비활성화 로직 포함)
+    }
 
+    private void UpdateSlotCountText()
+    {
+        // 1. PlayerDataManager에서 현재 최대 슬롯 수 가져오기
+        int maxEpicUnits = PlayerDataManager.Instance.EpicUnitSlots;
+        int maxRareUnits = PlayerDataManager.Instance.RareUnitSlots;
+
+        int currentDeckIndex = PlayerDataManager.Instance.ActiveDeckIndex;
+        // 3. '올바른' 덱 인덱스로 현재 덱 데이터 가져오기
+        List <BaseUnitData> currentDeck = PlayerDataManager.Instance.DeckPresets[currentDeckIndex].BaseUnitDatas;
+
+        int currentEpicCount = currentDeck.Count(data => data != null && data.rarity == Rarity.epic);
+        int currentRareCount = currentDeck.Count(data => data != null && data.rarity == Rarity.rare);
+
+        // 4. 텍스트 UI 업데이트
+        if (rareSlotText != null)
+        {
+            rareSlotText.text = $"레어\n{currentRareCount}/{maxRareUnits}";
+        }
+        if (epicSlotText != null)
+        {
+            epicSlotText.text = $"에픽\n{currentEpicCount}/{maxEpicUnits}";
+        }
+    }
     private void RefreshGrid(List<int> cardIdList)
     {
-        Debug.Log($"[UIUnitCardSelect] RefreshGrid 호출됨. 카드 개수: {cardIdList.Count}");
+        //Debug.Log($"[UIUnitCardSelect] RefreshGrid 호출됨. 카드 개수: {cardIdList.Count}");
 
         if (uiUnitCardSlotPrefab == null || contentTransform == null)
         {
@@ -107,7 +148,8 @@ public class UIUnitCardSelect : BasePopUpUI
     {
         if (data == null || detailPopupPanel == null) return;
 
-        detailPopupPanel.SetActive(true);
+        //detailPopupPanel.SetActive(true);
+        detailPopupPanelClass.OpenUI();
         detailCardDisplay.UpdateCardDataByData(data);
     }
 
@@ -116,15 +158,16 @@ public class UIUnitCardSelect : BasePopUpUI
         HideDetailPopup();
     }
 
+    //public async Task OnCardSlotShortClick(BaseUnitData data, bool canSelect)
     public void OnCardSlotShortClick(BaseUnitData data, bool canSelect)
     {
         if (data == null) return;
         if (!canSelect) return;
 
         int selectId = data.idNumber;
-        HideDetailPopup();
+        //HideDetailPopup();
         CloseUI();
-
+        //await UIManager.Instance.GetUI<DeckPresetController>().OnUnitSelected(deckSlotNum, selectId);
         UIManager.Instance.GetUI<DeckPresetController>().OnUnitSelected(deckSlotNum, selectId);
     }
 
@@ -139,7 +182,8 @@ public class UIUnitCardSelect : BasePopUpUI
     {
         if (detailPopupPanel != null)
         {
-            detailPopupPanel.SetActive(false);
+            //detailPopupPanel.SetActive(false);
+            detailPopupPanelClass.CloseUI();
         }
     }
 

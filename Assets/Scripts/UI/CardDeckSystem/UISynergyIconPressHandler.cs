@@ -13,6 +13,7 @@ public class UISynergyIconPressHandler : MonoBehaviour, IPointerDownHandler, IPo
     public void Init()
     {
         icon = GetComponent<Image>();
+        gameObject.AddComponent<Button>().transition = Selectable.Transition.None;
         uiSynergyIconPressedEventPub = EventManager.GetPublisher<UISynergyIconPressedEvent>();
     }
     public void SetData(Sprite sprite, UnitSynergyType type, BaseUnitData data)

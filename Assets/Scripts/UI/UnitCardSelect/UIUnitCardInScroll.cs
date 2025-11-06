@@ -30,10 +30,11 @@ public class UIUnitCardInScroll : MonoBehaviour
     [SerializeField] GameObject GreyBlocker;
 
     Dictionary<UnitType, Sprite> unitTypeIconSprites;
+
+    bool isinit = false;
     private void Awake()
     {
-        _canvasGroup = GetComponent<CanvasGroup>();
-        unitTypeIconSprites = DataManager.Instance.UnitTypeIconSprites;
+        CheckInit();
     }
     private void Start()
     {
@@ -42,6 +43,7 @@ public class UIUnitCardInScroll : MonoBehaviour
     }
     public void UpdateCardDataByData(BaseUnitData baseUnitData) // 도감에서 사용하기
     {
+        CheckInit();
         cardNameText.text = $"{baseUnitData.unitName}";
         unitType.text = $"{baseUnitData.unitType.ToString()}";
         rarityIconArea.SetIconCnt((int)baseUnitData.rarity);
@@ -58,6 +60,7 @@ public class UIUnitCardInScroll : MonoBehaviour
     //카드 데이터 갱신
     public void UpdateCardData(int cardNum, bool canSelect)
     {
+        CheckInit();
         //BaseUnitData data = cardData[cardNum];
         cardNameText.text = $"{cardData[cardNum].unitName}";
         unitType.text = $"{cardData[cardNum].unitType.ToString()}";
@@ -90,4 +93,12 @@ public class UIUnitCardInScroll : MonoBehaviour
         _canvasGroup.alpha = alpha;
     }
 
+    void CheckInit()
+    {
+        if (isinit && cardData != null) return;
+        isinit = true;
+        cardData = PlayerDataManager.Instance.OwnedCardData;
+        _canvasGroup = GetComponent<CanvasGroup>();
+        unitTypeIconSprites = DataManager.Instance.UnitTypeIconSprites;
+    }
 }

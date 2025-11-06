@@ -19,10 +19,14 @@ public class BasePopUpUI : BaseUI, IBackButtonHandler
     protected virtual void Awake()
     {
         POPUP_UI_WARNING = "팝업이 오류났다면, 해당 오브젝트를 활성화하고 시작했는지 체크해주세요.";
-        _canvasGroup = GetComponent<CanvasGroup>();
-        _canvasGroup.alpha = 0f;
-        _canvasGroup.interactable = false;
-        _canvasGroup.blocksRaycasts = false;
+        if(_canvasGroup == null)
+        {
+            _canvasGroup = GetComponent<CanvasGroup>();
+            _canvasGroup.alpha = 0f;
+            _canvasGroup.interactable = false;
+            _canvasGroup.blocksRaycasts = false;
+        }
+        
         /*onAddUIStack = EventManager.GetPublisher<AddUIStackEvent>();
         onRemoveUIStack = EventManager.GetPublisher<RemoveUIStackEvent>();*/
     }
