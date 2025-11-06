@@ -34,5 +34,15 @@ namespace Unity.Services.CloudCode.GeneratedBindings
                     {"bannerId", bannerId},
                 });
         }
+
+        public async Task<List<CheerUpMyHero.CloudCode.GachaBannerClientInfo>> GetGachaBanners()
+        {
+            return await k_Service.CallModuleEndpointAsync<List<CheerUpMyHero.CloudCode.GachaBannerClientInfo>>(
+                "GachaV2",
+                "GetGachaBanners",
+                new Dictionary<string, object>()
+                {
+                });
+        }
     }
 }

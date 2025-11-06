@@ -1,10 +1,12 @@
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
 using Unity.Services.CloudCode.Apis;
 using Unity.Services.CloudCode.Core;
@@ -31,11 +33,9 @@ namespace CheerUpMyHero.CloudCode
     public class ResultUnit
     {
         // JsonProperty를 사용하면 클라이언트가 받는 JSON 키 이름을 커스터마이징할 수 있습니다.
-        [JsonProperty("unit_id")]
         public int UnitId { get; set; }
 
-        [JsonProperty("rarity")]
-        [JsonConverter(typeof(StringEnumConverter))] // Enum을 "Epic" 같은 문자열로 변환
+        // Enum을 "Epic" 같은 문자열로 변환
         public Rarity Rarity { get; set; }
 
     }
@@ -43,25 +43,19 @@ namespace CheerUpMyHero.CloudCode
     // --- 클라이언트에 반환할 데이터 구조 ---
     public class GachaResult
     {
-        [JsonProperty("result_unit")]
         public List<ResultUnit> ResultUnit { get; set; } = new();
 
-        [JsonProperty("current_pity_count")]
         public int CurrentPityCount { get; set; }
 
-        [JsonProperty("user_currency")]
         public int UserCurrency { get; set; }
     }
 
     public class GachaBannerConfig
     {
-        [JsonProperty("pityThreshold")]
         public int PityThreshold { get; set; }
 
-        [JsonProperty("guaranteedItemId")]
         public int GuaranteedItemId { get; set; }
 
-        [JsonProperty("rarityTable")]
         public List<RarityInfo> RarityTable { get; set; } = new();
 
         public string BannerId { get; set; } = string.Empty;
@@ -73,6 +67,17 @@ namespace CheerUpMyHero.CloudCode
         public Dictionary<string, int> PityCounters { get; set; } = new Dictionary<string, int>();
     }
 
+    //클라이언트에게 전달할 배너 정보를 담을 DTO 클래스를 명확하게 정의
+    public class GachaBannerClientInfo
+    {
+        public string BannerId { get; set; } = string.Empty;
+        public int PityThreshold { get; set; }
+
+        // 여기에 클라이언트가 UI를 그리는 데 필요한 추가 정보를 포함시킬 수 있습니다.
+        // 예: [JsonProperty("displayName")] public string DisplayName { get; set; }
+        // 예: [JsonProperty("costSingle")] public int CostSingle { get; set; }
+    }
+
     // --- 메인 모듈 ---
     public class GachaModuleV2
     {
@@ -80,7 +85,7 @@ namespace CheerUpMyHero.CloudCode
         private const string GACHA_PURCHASE_ID_SINGLE = "ONE_GACHA";        //Economy - virtual purchase 
         private const string GACHA_PURCHASE_ID_TEN = "TEN_GACHA";           //Economy - virtual purchase 
         private const string TICKET_ID = "TICKET";                          //Economy - currency
-        private const string PITY_COUNT_KEY_PREFIX = "pityCount_";            //Cloud Save
+        private const string PITY_COUNT_KEY_PREFIX = "PITYCOUNT_";          //Cloud Save
         private const string GACHA_TABLE_CONFIG_KEY = "GACHA_BANNERS";      //Remote Config
 
         // ★★★ 중요: Random 인스턴스는 static으로 선언하여 시드 값 문제를 방지해야 합니다.
@@ -90,6 +95,20 @@ namespace CheerUpMyHero.CloudCode
         private static Dictionary<string, GachaBannerConfig> s_gachaConfig = new();
         private static readonly object s_configLock = new object(); // 동시성 문제를 방지하기 위한 lock 객체
 
+        private readonly ILogger<GachaModuleV2> _logger;
+        public GachaModuleV2(ILogger<GachaModuleV2> logger)
+        {
+            _logger = logger;
+        }
+
+        // 서버 깨우기
+        [CloudCodeFunction("WakeUpServer")]
+        public void WakeUpServer()
+        {
+            //그냥 비어두긴 좀 그러니까
+            int i = 1;
+            i++;
+        }
 
         // --- 1회 뽑기 함수 ---
         [CloudCodeFunction("DrawGachaOne")]
@@ -106,6 +125,34 @@ namespace CheerUpMyHero.CloudCode
             return await PerformGachaDraw(context, gameApiClient, bannerId, 10);
         }
 
+        // 가챠 정보 불러오기
+        [CloudCodeFunction("GetGachaBanners")]
+        public async Task<List<GachaBannerClientInfo>> GetGachaBanners(IExecutionContext context, IGameApiClient gameApiClient)
+        {
+ 
+            // 1. 서버의 GACHA_CONFIG를 불러옵니다. (기존 로직 재사용)
+            await InitializeGachaConfigAsync(context, gameApiClient);
+
+            JsonSerializerSettings settings = new JsonSerializerSettings
+            {
+                TypeNameHandling = TypeNameHandling.Auto
+            };
+
+            string json = JsonConvert.SerializeObject(s_gachaConfig, Formatting.Indented, settings);
+
+            // 클라이언트에 필요한 정보만 담은 GachaBannerClientInfo 객체를 생성하여 반환
+            var clientBanners = s_gachaConfig.Select(kvp => new GachaBannerClientInfo
+            {
+                BannerId = kvp.Key,
+                PityThreshold = kvp.Value.PityThreshold,
+                // 만약 Remote Config에 displayName, cost 등이 있다면 여기서 매핑합니다.
+                // DisplayName = kvp.Value.DisplayName, 
+                // CostSingle = kvp.Value.CostSingle
+            }).ToList();
+
+            return clientBanners;
+        }
+
         // --- 실제 가챠 로직을 수행하는 공통 함수 ---
         private async Task<GachaResult> PerformGachaDraw(IExecutionContext context, IGameApiClient gameApiClient, string bannerId, int drawCount)
         {
@@ -113,6 +160,7 @@ namespace CheerUpMyHero.CloudCode
             // PlayerId가 없으면 가챠를 진행할 수 없으므로, 명확한 오류를 발생시키고 함수를 중단합니다.
             if (string.IsNullOrEmpty(context.PlayerId))
             {
+                _logger.LogError("Player ID is not available in the current context. This function must be called by a player.");
                 throw new InvalidOperationException("Player ID is not available in the current context. This function must be called by a player.");
             }
             // 이 검사를 통과하면, 컴파일러는 이 아래부터 context.PlayerId가 절대 null이 아님을 인지합니다.
@@ -125,6 +173,7 @@ namespace CheerUpMyHero.CloudCode
             // 2. 요청된 bannerId에 해당하는 설정을 가져오기
             if (!s_gachaConfig.TryGetValue(bannerId, out var bannerConfig))
             {
+                _logger.LogError($"Invalid bannerId: {bannerId}");
                 throw new Exception($"Invalid bannerId: {bannerId}");
             }
 
@@ -135,8 +184,16 @@ namespace CheerUpMyHero.CloudCode
             // 2. 재화 차감 (Economy Virtual Purchase)
             string purchaseId = drawCount == 1 ? GACHA_PURCHASE_ID_SINGLE : GACHA_PURCHASE_ID_TEN;
             var purchaseRequest = new PlayerPurchaseVirtualRequest(purchaseId);
-            await gameApiClient.EconomyPurchases.MakeVirtualPurchaseAsync(context, context.AccessToken, context.ProjectId, context.PlayerId, purchaseRequest);
-
+            try
+            {
+                await gameApiClient.EconomyPurchases.MakeVirtualPurchaseAsync(context, context.AccessToken, context.ProjectId, context.PlayerId, purchaseRequest);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"{ex} => Virtual Purchase failed. Cancel Gacha Logic.");
+                throw; 
+            }
+            
             List<ResultUnit> rewardedUnits = new();
             int pityCountForLoop = currentPityCount;
 
@@ -153,7 +210,26 @@ namespace CheerUpMyHero.CloudCode
                     // 천장 도달!
                     selectedItemId = bannerConfig.GuaranteedItemId;
 
-                    // 천장 아이템의 등급을 찾아야 IsHighestTierItem 로직이 올바르게 동작합니다.
+                    // 딱히 정해진 확정 지정 유닛이 없다면(GuaranteedItemId = -1), Epic 아무거나 지급
+                    if (bannerConfig.GuaranteedItemId == -1)
+                    {
+                        // 1. 현재 배너의 RarityTable에서 Epic 등급에 대한 정보를 찾습니다.
+                        var epicRarityInfo = bannerConfig.RarityTable
+                            .FirstOrDefault(r => r.RarityType == Rarity.Epic);
+
+                        // 2. Epic 등급 정보가 없거나, Epic 등급에 속한 유닛 ID가 하나도 없다면 설정 오류이므로 예외를 발생시킵니다.
+                        if (epicRarityInfo == null || !epicRarityInfo.IDs.Any())
+                        {
+                            throw new InvalidOperationException(
+                                $"Pity triggered for banner '{bannerId}', but no Epic items are defined in the rarity table. Check Remote Config.");
+                        }
+
+                        // 3. Epic 등급의 ID 리스트에서 무작위로 하나의 아이템을 선택합니다.
+                        int randomIndex = s_rand.Next(0, epicRarityInfo.IDs.Count);
+                        selectedItemId = epicRarityInfo.IDs[randomIndex];
+                    }
+
+                    // 천장 아이템의 등급을 찾아야 로직이 올바르게 동작.. 그냥 Epic이라고 딸깍하면 좋은데..
                     selectedRarity = bannerConfig.RarityTable.First(r => r.IDs.Contains(selectedItemId));
                 }
                 else
@@ -184,16 +260,25 @@ namespace CheerUpMyHero.CloudCode
                     finalUserCurrency = Convert.ToInt32(ticketBalance.Balance);
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                _logger.LogError($"{ex} => Invaild currency will be transfered.");
                 // 재화 정보 조회를 실패하더라도 가챠의 핵심 결과는 전달되어야 하므로,
                 // 에러를 던지지 않고 기본값(0)을 사용하거나 -1 같은 특정 값으로 표기할 수 있습니다.
                 finalUserCurrency = -1; // 조회 실패를 의미
             }
 
 
-            // 5. 최종 천장 카운트를 Cloud Save에 저장
-            await gameApiClient.CloudSaveData.SetItemAsync(context, context.AccessToken, context.ProjectId, context.PlayerId, new SetItemBody(pityKey, pityCountForLoop));
+            // 5. 최종 천장 카운트를 Cloud Save에 저장   
+            try 
+            {
+                await gameApiClient.CloudSaveData.SetItemAsync(context, context.AccessToken, context.ProjectId, context.PlayerId, new SetItemBody(pityKey, pityCountForLoop));
+            } 
+            catch (Exception ex)
+            {
+                _logger.LogError($"{ex} => failed saving pity info.");
+                finalUserCurrency = -1;
+            }
 
             // 6. 결과 반환
             return new GachaResult
@@ -205,11 +290,11 @@ namespace CheerUpMyHero.CloudCode
         }
 
 
-        // ★ 변경점: Remote Config에서 확률표를 불러와 캐싱하는 초기화 함수
+        //Remote Config에서 확률표를 불러와 캐싱하는 초기화 함수
         private async Task InitializeGachaConfigAsync(IExecutionContext context, IGameApiClient gameApiClient)
         {
             // 이미 테이블이 초기화되었다면 아무것도 하지 않고 즉시 반환 (캐싱)
-            if (s_gachaConfig != null)
+            if (s_gachaConfig != null && s_gachaConfig.Count > 0)
             {
                 return;
             }
@@ -218,7 +303,7 @@ namespace CheerUpMyHero.CloudCode
             lock (s_configLock)
             {
                 // lock 내부에서 한 번 더 확인 (Double-checked locking)
-                if (s_gachaConfig != null)
+                if (s_gachaConfig != null && s_gachaConfig.Count > 0)
                 {
                     return;
                 }
@@ -226,6 +311,7 @@ namespace CheerUpMyHero.CloudCode
 
             try
             {
+
                 // Remote Config에서 설정값 가져오기
                 var response = await gameApiClient.RemoteConfigSettings.AssignSettingsGetAsync(context, context.AccessToken, context.ProjectId, context.EnvironmentId, key: new List<string> { GACHA_TABLE_CONFIG_KEY });
 
@@ -237,19 +323,16 @@ namespace CheerUpMyHero.CloudCode
                 }
 
 
-
-
                 lock (s_configLock)
                 {
                     s_gachaConfig = ConvertToGachaBannerConfigs(config);
                 }
-
                 
             }
             catch (Exception ex)
             {
                 // 초기화 실패 시 로깅하고 예외를 다시 던져서 가챠 실행을 중단시킴
-                // logger.LogError(ex, "Failed to initialize gacha table from Remote Config.");
+                _logger.LogError($"{ex}, Failed to initialize gacha table from Remote Config.");
                 throw new Exception("Gacha system is currently unavailable. Failed to load configuration.", ex);
             }
         }
@@ -302,6 +385,7 @@ namespace CheerUpMyHero.CloudCode
             }
             catch (ApiException e) when (((int)e.Response.StatusCode) == 404)
             {
+                _logger.LogWarning("Failed to load data from cloud. Pity count wil be zero");
                 return 0; // 데이터가 없는 정상적인 경우
             }
             return 0; // 예외 발생 시 안전하게 0으로 처리
@@ -311,40 +395,40 @@ namespace CheerUpMyHero.CloudCode
         {
             var gachaBanners = new Dictionary<string, GachaBannerConfig>();
 
-            // remoteConfigData 자체에 "gachaBanners" 키가 있는지 확인하는 것이 더 안전할 수 있습니다.
-            // 여기서는 기존 로직을 유지하겠습니다.
-            if (remoteConfigData.TryGetValue("gachaBanners", out var bannersObject) && bannersObject is Dictionary<string, object> bannersDict)
+            // 1. 타입을 JObject로 체크합니다.
+            if (remoteConfigData.TryGetValue(GACHA_TABLE_CONFIG_KEY, out var gachaDataObj) && gachaDataObj is JObject gachaDataJObject)
             {
-                foreach (var entry in bannersDict)
+                // 2. JObject에서 "gachaBanners" 키로 값을 가져옵니다. JObject의 값도 JObject일 수 있습니다.
+                if (gachaDataJObject.TryGetValue("gachaBanners", out var bannersToken) && bannersToken is JObject bannersJObject)
                 {
-                    try
+                    // 3. 최종적으로 얻은 JObject를 Dictionary<string, GachaBannerConfig>로 변환합니다.
+                    // 이 한 줄이 bannersJObject를 순회하며 GachaBannerConfig로 변환하는 모든 로직을 대체합니다.
+                    gachaBanners = bannersJObject.ToObject<Dictionary<string, GachaBannerConfig>>();
+
+                    if (gachaBanners != null)
                     {
-                        // 1. entry.Value를 다시 JSON 문자열로 변환
-                        string jsonString = JsonConvert.SerializeObject(entry.Value);
-
-                        // 2. Deserialize 실행. 결과는 null일 수 있으므로 nullable 타입 변수(GachaBannerConfig?)에 받습니다.
-                        GachaBannerConfig? bannerConfig = JsonConvert.DeserializeObject<GachaBannerConfig>(jsonString);
-
-                        // --- 추가된 부분 ---
-                        // 3. 결과가 null인지 확인합니다.
-                        if (bannerConfig == null)
+                        // BannerId를 설정해주는 후처리 로직 (필요한 경우)
+                        foreach (var entry in gachaBanners)
                         {
-                            // Deserialization 실패. 로그를 남기고 이 배너는 건너뛰거나, 전체를 실패 처리할 수 있습니다.
-                            // 여기서는 로그를 남기고 건너뛰는 방식을 선택합니다.
-                            Console.WriteLine($"Failed to deserialize banner config for key '{entry.Key}'. The JSON data might be invalid or null.");
-                            continue; // 다음 배너로 넘어감
+                            entry.Value.BannerId = entry.Key;
                         }
-
-                        // 이 if 문을 통과하면, 컴파일러는 bannerConfig가 더 이상 null이 아님을 인지합니다.
-                        bannerConfig.BannerId = entry.Key; // BannerId 설정 추가
-                        gachaBanners.Add(entry.Key, bannerConfig);
                     }
-                    catch (Exception ex)
+
+                    else
                     {
-                        Console.WriteLine($"Error converting banner config for key '{entry.Key}': {ex.Message}");
+                        throw new Exception("[ConvertToGachaBannerConfigs] Cannot Convert remoteConfigData");
                     }
                 }
+                else
+                {
+                    _logger.LogError("case 2: \"GACHA_BANNERS\" exists, but no \"gachaBanners\" key or its value is not a JObject");
+                }
             }
+            else
+            {
+                _logger.LogError("case 1: no \"GACHA_BANNERS\" key found or its value is not a JObject");
+            }
+
 
             return gachaBanners;
         }
