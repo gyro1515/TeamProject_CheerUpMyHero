@@ -46,6 +46,7 @@ public class UIMenu : BaseUI
         gachaUIPanel = UIManager.Instance.GetUI<GachaUIPanel>();
         UIGuide = UIManager.Instance.GetUI<UIGuide>();
         deckPresetController = UIManager.Instance.GetUI<DeckPresetController>();
+        UIGuide.CloseUI();
     }
 
     void Update()

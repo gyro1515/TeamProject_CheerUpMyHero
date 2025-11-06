@@ -5,7 +5,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UIGuide : BaseUI
+public class UIGuide : BaseUI ,IBackButtonHandler
 {
     [Header("버튼")]
     [SerializeField] private Button unitListButton;     
@@ -46,7 +46,14 @@ public class UIGuide : BaseUI
         UIMenu = UIManager.Instance.GetUI<UIMenu>();
 
     }
-
+    private void OnEnable()
+    {
+        UIManager.PubishAddUIStackEvent(this);
+    }
+    private void OnDisable()
+    {
+        UIManager.PublishRemoveUIStackEvent();
+    }
     // Update is called once per frame
     void Update()
     {
@@ -184,5 +191,10 @@ public class UIGuide : BaseUI
     private void OnBackButtonClicked()
     {
         FadeManager.Instance.SwitchGameObjects(this.gameObject, UIMenu.gameObject);
+    }
+
+    public void OnBackPressed()
+    {
+        OnBackButtonClicked();
     }
 }
