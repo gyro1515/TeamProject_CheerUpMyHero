@@ -11,7 +11,7 @@ using System.Collections.Generic;
 // key(부모노드) ≥ key(자식노드)
 // 최소 힙 (Min Heap)
 // 부모 노드의 키 값이 자식 노드보다 작거나 같은 완전이진트리
-// key(부모노드) ≥ key(자식노드) 
+// key(부모노드) ≤ key(자식노드) 
 public class PriorityQueue<TElement, TPriority> where TPriority : IComparable<TPriority>
 {
     // (아이템, 우선순위) 튜플을 리스트에 저장하여 힙 구현
@@ -20,12 +20,13 @@ public class PriorityQueue<TElement, TPriority> where TPriority : IComparable<TP
 
     // 큐에 저장된 아이템의 수
     public int Count => _heap.Count;
+    public List<(TElement Element, TPriority Priority)> List => _heap;
 
     // 우선순위 큐 생성자
     // isMinHeap = true면 최소 힙(낮은 값 우선), false면 최대 힙(높은 값 우선)
     public PriorityQueue(bool isMinHeap = true)
     {
-        _heap = new List<(TElement, TPriority)>();
+        _heap = new List<(TElement, TPriority)>(16);
         _isMinHeap = isMinHeap;
     }
 
@@ -83,7 +84,7 @@ public class PriorityQueue<TElement, TPriority> where TPriority : IComparable<TP
     // 인덱스 추가는 맨 마지막에 하므로, 부모와 비교하여 위치를 찾아감
     private void SiftUp(int index)
     {
-        while (index > 0)
+        /*while (index > 0)
         {
             int parentIndex = (index - 1) / 2;
             if (ShouldSwap(_heap[index].Priority, _heap[parentIndex].Priority))
@@ -95,13 +96,36 @@ public class PriorityQueue<TElement, TPriority> where TPriority : IComparable<TP
             {
                 break;
             }
+        }*/
+        // 1. 추가할 아이템을 저장
+        var item = _heap[index];
+
+        while (index > 0)
+        {
+            int parentIndex = (index - 1) / 2;
+            var parent = _heap[parentIndex];
+
+            // 2. 부모와 비교
+            if (ShouldSwap(item.Priority, parent.Priority))
+            {
+                // 3. 부모를 아래로 내림
+                _heap[index] = parent;
+                index = parentIndex;
+            }
+            else
+            {
+                break;
+            }
         }
+
+        // 4. 찾은 위치에 아이템 삽입
+        _heap[index] = item;
     }
     // 현재 인덱스의 아이템을 아래로 내려 힙 속성을 만족하도록 함
     // 인덱스 제거는 루트에서 하므로, 자식과 비교하여 위치를 찾아감
     private void SiftDown(int index)
     {
-        while (true)
+        /*while (true)
         {
             int leftChildIndex = 2 * index + 1;
             int rightChildIndex = 2 * index + 2;
@@ -128,7 +152,43 @@ public class PriorityQueue<TElement, TPriority> where TPriority : IComparable<TP
             // 자식과 위치 교환
             Swap(index, bestChildIndex);
             index = bestChildIndex; // 아래로 계속 탐색
+        }*/
+        // 1. 루트로 가져온 아이템 저장
+        var item = _heap[index];
+        int count = Count;
+
+        while (true)
+        {
+            int leftChildIndex = 2 * index + 1;
+
+            // 왼쪽 자식이 없으면(리프 노드) 종료
+            if (leftChildIndex >= count)
+                break;
+
+            int rightChildIndex = 2 * index + 2;
+            int bestChildIndex = leftChildIndex; // 'best'는 힙 타입에 따라 달라짐
+
+            // 2. 오른쪽 자식이 있고, 왼쪽보다 우선순위가 높으면 best 변경
+            if (rightChildIndex < count && ShouldSwap(_heap[rightChildIndex].Priority, _heap[leftChildIndex].Priority))
+            {
+                bestChildIndex = rightChildIndex;
+            }
+
+            // 3. 'best' 자식과 비교
+            if (ShouldSwap(_heap[bestChildIndex].Priority, item.Priority))
+            {
+                // 4. 자식을 위로 올림
+                _heap[index] = _heap[bestChildIndex];
+                index = bestChildIndex; // 아래로 계속 탐색
+            }
+            else
+            {
+                break;
+            }
         }
+
+        // 5. 찾은 위치에 아이템 삽입
+        _heap[index] = item;
     }
 
     // 힙의 타입(Min/Max)에 따라 두 아이템을 교환해야 하는지 결정

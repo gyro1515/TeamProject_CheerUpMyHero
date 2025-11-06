@@ -52,11 +52,12 @@ public class PlayerHQ : BaseHQ
         // 아래는 테스트 코드
         /*GameObject hero = ObjectPoolManager.Instance.Get(PoolType.Hero_Unit1);
         hero.transform.position = GetRandomSpawnPos();*/
-        /*for (int i = 0; i < 20; i++)
+        GameObject hero;
+        for (int i = 0; i < 1; i++)
         {
-            hero = ObjectPoolManager.Instance.Get(PoolType.Allies_Unit1);
+            hero = ObjectPoolManager.Instance.Get(PoolType.Allies_Unit10);
             hero.transform.position = GetRandomSpawnPos();
-        }*/
+        }
     }
     protected override void OnDisable()
     {

@@ -58,12 +58,13 @@ public class EnemyHQ : BaseHQ
         SetSpawnEnemyActive(true);
         // 아래는 테스트 코드
         /*GameObject hero = ObjectPoolManager.Instance.Get(PoolType.EnemyUnit10);
-        hero.transform.position = GetRandomSpawnPos();
-        for (int i = 0; i < 30; i++)
+        hero.transform.position = GetRandomSpawnPos();*/
+        GameObject hero;
+        for (int i = 0; i < 200; i++)
         {
-            hero = ObjectPoolManager.Instance.Get(PoolType.EnemyUnit1);
+            hero = ObjectPoolManager.Instance.Get(PoolType.EnemyUnit9);
             hero.transform.position = GetRandomSpawnPos();
-        }*/
+        }
     }
     protected override void Update()
     {
