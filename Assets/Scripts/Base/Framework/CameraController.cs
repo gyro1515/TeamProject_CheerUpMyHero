@@ -11,7 +11,8 @@ public class CameraController : MonoBehaviour
 
     [Header("카메라 흔들림 설정")]
     [SerializeField] private float _shakeDuration = 2f;
-    [SerializeField] private float _shakeMagnitude = 0.1f;
+    //[SerializeField] private float _shakeMagnitude = 0.1f;
+    private float _shakeMagnitude = 0.1f;
 
     private Transform _playerTransform;
     // 자동 추적 관련 변수
@@ -115,7 +116,7 @@ public class CameraController : MonoBehaviour
         targetCamPos = new Vector3(currentTarget.position.x, _cleanCameraPosition.y, _cleanCameraPosition.z);
 
         //transform.position = targetCamPos; 
-        Vector3 finalPosition;
+        //Vector3 finalPosition; // 251106: 사용 안하는 거 같아서 주석 처리
         if (!_hasInitializedCamera)
         {
             // 배틀 시작 후 첫 프레임은 스냅 이동
