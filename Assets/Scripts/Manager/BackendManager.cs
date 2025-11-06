@@ -1,11 +1,14 @@
 using Cysharp.Threading.Tasks;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using Unity.Services.Analytics;
 using Unity.Services.Authentication;
 using Unity.Services.CloudCode;
 using Unity.Services.CloudCode.GeneratedBindings;
+using Unity.Services.CloudCode.GeneratedBindings.CheerUpMyHero.CloudCode;
 using Unity.Services.CloudSave;
 using Unity.Services.Core;
 using Unity.Services.Core.Environments;
@@ -13,6 +16,7 @@ using Unity.Services.Economy;
 using Unity.Services.Economy.Model;
 using UnityEngine;
 using UnityEngine.Networking;
+using static UnityEngine.Rendering.DebugUI;
 
 public enum CommunicationStatus
 {
@@ -564,7 +568,7 @@ public class BackendManager : SingletonMono<BackendManager>
         await Instance.EnqueueRequestAsync(() => Instance.InternalSaveDataAsync(data), nameof(SaveDataAsync));
     }
 
-    public static async UniTask<PlayerSaveData> LoadDataAsync()
+    public static async UniTask<AllCloudData> LoadDataAsync()
     {
         var status = await CanCommunicateAsync(nameof(LoadDataAsync));
         if (status != CommunicationStatus.Success)
@@ -574,8 +578,7 @@ public class BackendManager : SingletonMono<BackendManager>
         return await Instance.EnqueueRequestAsync(() => Instance.InternalLoadDataAsync(), nameof(LoadDataAsync));
     }
 
-
-    public static async UniTask<int> OneNormalGachaAsync()
+    public static async UniTask<GachaResult> OneNormalGachaAsync()
     {
         var status = await CanCommunicateAsync(nameof(OneNormalGachaAsync));
         if (status != CommunicationStatus.Success)
@@ -586,19 +589,19 @@ public class BackendManager : SingletonMono<BackendManager>
         return await Instance.EnqueueRequestAsync(() => Instance.InternalOneNormalGachaAsync(), nameof(OneNormalGachaAsync));
     }
 
-    public static async UniTask<int> OnePickUpGachaAsync()
+    public static async UniTask<GachaResult> OnePickupGachaAsync()
     {
-        var status = await CanCommunicateAsync(nameof(OnePickUpGachaAsync));
+        var status = await CanCommunicateAsync(nameof(OnePickupGachaAsync));
         if (status != CommunicationStatus.Success)
         {
             throw new InvalidOperationException("서버와 통신할 수 없는 상태입니다.");
         }
 
-        return await Instance.EnqueueRequestAsync(() => Instance.InternalOnePickUpGachaAsync(), nameof(OnePickUpGachaAsync));
+        return await Instance.EnqueueRequestAsync(() => Instance.InternalOnePickupGachaAsync(), nameof(OnePickupGachaAsync));
     }
 
 
-    public static async UniTask<List<int>> TenNormalGachaAsync()
+    public static async UniTask<GachaResult> TenNormalGachaAsync()
     {
         var status = await CanCommunicateAsync(nameof(TenNormalGachaAsync));
         if (status != CommunicationStatus.Success)
@@ -607,6 +610,17 @@ public class BackendManager : SingletonMono<BackendManager>
         }
 
         return await Instance.EnqueueRequestAsync(() => Instance.InternalTenNormalGachaAsync(), nameof(TenNormalGachaAsync));
+    }
+
+    public static async UniTask<GachaResult> TenPickupGachaAsync()
+    {
+        var status = await CanCommunicateAsync(nameof(TenPickupGachaAsync));
+        if (status != CommunicationStatus.Success)
+        {
+            throw new InvalidOperationException("서버와 통신할 수 없는 상태입니다.");
+        }
+
+        return await Instance.EnqueueRequestAsync(() => Instance.InternalTenPickupGachaAsync(), nameof(TenPickupGachaAsync));
     }
 
 
@@ -718,19 +732,60 @@ public class BackendManager : SingletonMono<BackendManager>
         }
     }
 
-    private async UniTask<PlayerSaveData> InternalLoadDataAsync()
+    private async UniTask<AllCloudData> InternalLoadDataAsync()
     {
-        PlayerSaveData result = null;
+        AllCloudData cloudData = new();
+
+        string normalPityKey = null;
+        string pickiupPityKey = null;
         
         try
         {
-            var playerData = await CloudSaveService.Instance.Data.Player.LoadAsync(new HashSet<string> { Constants.PLAYER_DATA_KEY });
-            if (playerData.TryGetValue(Constants.PLAYER_DATA_KEY, out var keyName))
+            //서버에서 "동적 키"값 가져와서 클라우드에서 다시 플레이어에서 다시 데이터 가져옴
+            //그러나 아직 배너 아이디를 상수값으로 사용하고 있기 때문에, 완벽하지 않음 => 완벽하게 하려면 RemoteConfig로 배너 이름을 가지고 있고, 그걸 처음에 불러와야 함
+            //일단은 가챠 배너(노말, 픽업 두가지) 자체가 한동안 달라지지 않는 것을 가정하고 구현. 배너 내부 데이터는 현재 RemoteConfig로 바로 수정 가능
+            List<GachaBannerClientInfo> bannerInfoList = await InternalLoadGachaPityAsync();
+
+            var bannerDictionary = bannerInfoList.ToDictionary(b => b.BannerId);
+
+            if (bannerDictionary.TryGetValue(Constants.NORMAL_GACHA_KEY, out var normalBannerInfo))
             {
-                result = keyName.Value.GetAs<PlayerSaveData>();
+                // '상시 모집' 배너 처리 로직
+                normalPityKey = Constants.PITY_COUNT_KEY_PREFIX + normalBannerInfo.BannerId;
+                cloudData.NormalPityThreshold = normalBannerInfo.PityThreshold;
             }
 
-            return result;
+            if (bannerDictionary.TryGetValue(Constants.PICKUP_GACHA_KEY, out var pickupBannerInfo))
+            {
+                // '픽업 모집' 배너 처리 로직
+                pickiupPityKey = Constants.PITY_COUNT_KEY_PREFIX + pickupBannerInfo.BannerId;
+                cloudData.PickupPityThreshold = pickupBannerInfo.PityThreshold; 
+
+            }
+
+            var playerData = await CloudSaveService.Instance.Data.Player.LoadAsync(new HashSet<string> { Constants.PLAYER_DATA_KEY, normalPityKey, pickiupPityKey });
+
+            if (playerData.TryGetValue(Constants.PLAYER_DATA_KEY, out var savedata))
+            {
+                cloudData.PlayerSaveData = savedata.Value.GetAs<PlayerSaveData>();  
+            }
+
+            if (playerData.TryGetValue(normalPityKey, out var normalPityAmount))
+            {
+                cloudData.NormalPity = normalPityAmount.Value.GetAs<int>();
+            }
+            else
+                cloudData.NormalPity = 0;
+            Debug.Log(Constants.PITY_COUNT_KEY_PREFIX + normalPityKey);
+
+            if (playerData.TryGetValue(pickiupPityKey, out var pickupPityAmount))
+            {
+                cloudData.PickupPity = pickupPityAmount.Value.GetAs<int>();
+            }
+            else
+                cloudData.NormalPity = 0;
+
+            return cloudData;
         }
         catch (Exception ex)
         {
@@ -740,13 +795,13 @@ public class BackendManager : SingletonMono<BackendManager>
 
     }
 
-    private async UniTask<int> InternalOneNormalGachaAsync()
+    private async UniTask<List<GachaBannerClientInfo>> InternalLoadGachaPityAsync()
     {
         try
         {
-            //클라우드에서 가챠 실행
-            var module = new GachaModuleBindings(CloudCodeService.Instance);
-            var result = await module.DrawGachaItem();
+            //클라우드에서 가챠 배너 가져오기
+            var module = new GachaModuleV2Bindings(CloudCodeService.Instance);
+            var result = await module.GetGachaBanners();
 
             return result;
         }
@@ -757,13 +812,13 @@ public class BackendManager : SingletonMono<BackendManager>
         }
     }
 
-    private async UniTask<int> InternalOnePickUpGachaAsync()
+    private async UniTask<GachaResult> InternalOneNormalGachaAsync()
     {
         try
         {
             //클라우드에서 가챠 실행
-            var module = new GachaModuleBindings(CloudCodeService.Instance);
-            var result = await module.DrawPickUPItem();
+            var module = new GachaModuleV2Bindings(CloudCodeService.Instance);
+            var result = await module.DrawGachaOne(Constants.NORMAL_GACHA_KEY);
 
             return result;
         }
@@ -774,13 +829,47 @@ public class BackendManager : SingletonMono<BackendManager>
         }
     }
 
-    private async UniTask<List<int>> InternalTenNormalGachaAsync()
+    private async UniTask<GachaResult> InternalOnePickupGachaAsync()
     {
         try
         {
             //클라우드에서 가챠 실행
-            var module = new GachaModuleBindings(CloudCodeService.Instance);
-            var result = await module.DrawGachaItemTen();
+            var module = new GachaModuleV2Bindings(CloudCodeService.Instance);
+            var result = await module.DrawGachaOne(Constants.PICKUP_GACHA_KEY);
+
+            return result;
+        }
+        catch (CloudCodeException exception)
+        {
+            Debug.LogException(exception);
+            throw;
+        }
+    }
+
+    private async UniTask<GachaResult> InternalTenNormalGachaAsync()
+    {
+        try
+        {
+            //클라우드에서 가챠 실행
+            var module = new GachaModuleV2Bindings(CloudCodeService.Instance);
+            var result = await module.DrawGachaTen(Constants.NORMAL_GACHA_KEY);
+
+            return result;
+        }
+        catch (CloudCodeException exception)
+        {
+            Debug.LogException(exception);
+            throw;
+        }
+    }
+
+    private async UniTask<GachaResult> InternalTenPickupGachaAsync()
+    {
+        try
+        {
+            //클라우드에서 가챠 실행
+            var module = new GachaModuleV2Bindings(CloudCodeService.Instance);
+            var result = await module.DrawGachaTen(Constants.PICKUP_GACHA_KEY);
 
             return result;
         }
@@ -891,5 +980,19 @@ public class StageResultEvent : Unity.Services.Analytics.Event
     public float stageTimeTaken_Float { set { SetParameter(Constants.STAGE_TIME_TAKEN, value); } }
     public string stageUsedArtifat_String { set { SetParameter(Constants.STAGE_USED_ARTIFACT, value); } }
     public string stageUsedUnit_String { set { SetParameter(Constants.STAGE_USED_UNIT, value); } }
+}
+
+
+//클라우드 세이브에 있는 모든 데이터 모음
+public class AllCloudData
+{
+    public PlayerSaveData PlayerSaveData;
+
+    public int NormalPity;
+    public int NormalPityThreshold;
+
+    public int PickupPity;
+    public int PickupPityThreshold;
+
 }
 
