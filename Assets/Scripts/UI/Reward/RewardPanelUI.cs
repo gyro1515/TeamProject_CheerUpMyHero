@@ -219,7 +219,10 @@ public class RewardPanelUI : BaseUI
         {
             PlayerDataManager.Instance.activeChallenges.Clear();
         }
-
+        if(!GameManager.IsTutorialCompleted && GameManager.Instance != null)
+        {
+            GameManager.Instance.LoadMain = LoadMain.TutorialInWisdom;
+        }
         SceneLoader.Instance.StartLoadScene(SceneState.MainScene);
     }
 

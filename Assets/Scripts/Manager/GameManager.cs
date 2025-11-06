@@ -13,7 +13,8 @@ public enum LoadMain
 {
     None,
     DeckPresetController,
-    UIDestinyRoullette
+    UIDestinyRoullette,
+    TutorialInWisdom
 }
 public class GameManager : SingletonMono<GameManager>
 {

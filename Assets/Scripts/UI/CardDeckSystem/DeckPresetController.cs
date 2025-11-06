@@ -102,8 +102,11 @@ public class DeckPresetController : BaseUI, IBackButtonHandler
             deckBaseUnitDatas[7] = null;
         }
         uiDeckSynergy.Init();// 생성자 꼬이지 않게 여기서 먼저 초기화
-        
-
+        if (!GameManager.IsTutorialCompleted)
+        {
+            _tourDeck = UIManager.Instance.GetUI<UITutorialDeck>();
+            _tourDeck?.CloseUI();
+        }
     }
     private void OnEnable()
     {
@@ -118,11 +121,7 @@ public class DeckPresetController : BaseUI, IBackButtonHandler
     private void Start()
     {
         //Debug.Log(GameManager.IsTutorialCompleted);
-        if (!GameManager.IsTutorialCompleted)
-        {
-            _tourDeck = UIManager.Instance.GetUI<UITutorialDeck>();
-            _tourDeck?.CloseUI();
-        }
+
         _currentDeckIndex = PlayerDataManager.Instance.ActiveDeckIndex;
         _mainScreenUI = UIManager.Instance.GetUI<MainScreenUI>();
         _stageSelectUI = UIManager.Instance.GetUI<UIStageSelect>();
