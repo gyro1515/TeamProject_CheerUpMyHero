@@ -13,6 +13,16 @@ namespace Unity.Services.CloudCode.GeneratedBindings
             k_Service = service;
         }
 
+        public async Task WakeUpServer()
+        {
+            await k_Service.CallModuleEndpointAsync(
+                "GachaV2",
+                "WakeUpServer",
+                new Dictionary<string, object>()
+                {
+                });
+        }
+
         public async Task<CheerUpMyHero.CloudCode.GachaResult> DrawGachaOne(string bannerId)
         {
             return await k_Service.CallModuleEndpointAsync<CheerUpMyHero.CloudCode.GachaResult>(

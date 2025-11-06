@@ -1,5 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Services.CloudCode;
+using Unity.Services.CloudCode.GeneratedBindings;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -80,7 +82,12 @@ public class UIMenu : BaseUI
     }
     private void OnGachaBtnClicked()
     {
+        //가챠 들어가면 자고 있는 서버 깨우기. 순서 상관없어서 백엔드매니저 없이 바로 호출
+        var module = new GachaModuleV2Bindings(CloudCodeService.Instance);
+        _ = module.WakeUpServer(); // 대기 안하고 바로 넘어가기
+
         UIManager.Instance.fromUI = FromUI.UIMenu;
+
         FadeManager.Instance.SwitchGameObjects(this.gameObject, gachaUIPanel.gameObject);
     }
     private void OnGuidBtnClicked()
