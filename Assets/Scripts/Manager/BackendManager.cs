@@ -209,7 +209,6 @@ public class BackendManager : SingletonMono<BackendManager>
 #else
             options.SetEnvironmentName("dev");
 #endif
-
             // 1. UGS 서비스 초기화
             await UnityServices.InitializeAsync(options);
 
@@ -248,12 +247,14 @@ public class BackendManager : SingletonMono<BackendManager>
             await PlayerDataManager.Instance.InitializeResourcesAsync();
             await PlayerDataManager.Instance.LoadDataFromCloundAsync();
             isInitializationCompeleted = true;
+            UIManager.Instance.HideLoading();
         }
         catch (Exception e)
         {
             Debug.LogError($"<color=red>BackendManager 초기화 실패: {e.Message}</color>");
             Debug.LogException(e);
             _initializationTcs.TrySetResult(false);
+            UIManager.Instance.OpenUI<ErrorPopUP>();
         }
     }
 
