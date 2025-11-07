@@ -22,6 +22,8 @@ public class UITest : BaseUI
     private void OnEnable()
     {
         //SettingDataManager.OnControlLayoutChanged += UpdateLayout;
+        uIUnitexplanationPopup.SetUnitexplanationPopup(true);
+        uIAfExpanationPopup.SetUIAfExpanationPopup(true);
     }
 
     private void Start()
@@ -32,6 +34,9 @@ public class UITest : BaseUI
     private void OnDisable()
     {
         //SettingDataManager.OnControlLayoutChanged -= UpdateLayout;
+        uIUnitexplanationPopup.SetUnitexplanationPopup(false);
+        uIAfExpanationPopup.SetUIAfExpanationPopup(false);
+
     }
 
     private void UpdateLayout()

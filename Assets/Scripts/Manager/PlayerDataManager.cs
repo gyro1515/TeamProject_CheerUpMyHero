@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
+using Unity.Services.CloudCode.GeneratedBindings.CheerUpMyHero.CloudCode;
 using Unity.VisualScripting;
 using UnityEngine;
 using static UnityEngine.UI.CanvasScaler;
@@ -117,8 +118,8 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
     public int LimitedGachaPityCount { get; private set; } = 0;   // 1페이지 (한정/이벤트) 뽑기 횟수
     public int StandardGachaPityCount { get; private set; } = 0;  // 2페이지 (상시) 뽑기 횟수
 
-    public const int LIMITED_GACHA_PITY_LIMIT = 150;
-    public const int STANDARD_GACHA_PITY_LIMIT = 150;
+    public static int LimitedGachaPityLimit { get; private set; }
+    public static int StandardGachaPityLimit { get; private set; }
 
     private IEventPublisher<LimitedPityCountUpdatedEvent> _limitedPityPublisher;
     private IEventPublisher<StandardPityCountUpdatedEvent> _standardPityPublisher;
@@ -575,6 +576,37 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
         }
     }
 
+    //서버랑 직접 통신하지 않는, 로컬 버전. 서버쪽에서 알아서 재화를 바꾼 것을 반영하는데 사용
+    public void ChangeResourceOnlyLocal(ResourceType type, int amount)
+    {
+        Debug.Log($"<color=yellow>[PlayerData AddResource]</color> '{type}' 자원 {amount} 변경 요청 받음.");
+
+        if (_resources.ContainsKey(type))
+        {
+            int previousAmount = _resources[type];
+            _resources[type] = amount;
+            int currentAmount = _resources[type];
+
+            Debug.Log($"[PlayerData AddResource] '{type}' 값 변경: {previousAmount} -> {currentAmount}");
+
+            if (type == ResourceType.Food)
+            {
+                CurrentFood = _resources[type];
+            }
+
+            OnResourceChangedEvent?.Invoke(type, _resources[type]);
+
+            //if (type == ResourceType.EXP)
+            //{
+            //    CheckLevelUp();
+            //}
+        }
+        else
+        {
+            Debug.LogWarning($"ResourceManager: 존재하지 않는 자원 타입입니다. ({type})");
+        }
+    }
+
     public async UniTask<(int gold, int wood, int iron, int magicStone)> ApplyDefeatPenalties()
     {
         var resourcePenalties = await ApplyResourcePenalty();
@@ -808,35 +840,49 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
 
     //가챠시스템
     #region
-    public void UpdateLimitedPityCount(bool isEpicResult)
+    //public void UpdateLimitedPityCount(bool isEpicResult)
+    //{
+    //    if (isEpicResult)
+    //    {
+    //        LimitedGachaPityCount = 0; // 에픽 획득 시 초기화
+    //        Debug.Log("<color=yellow>[천장-한정]</color> 에픽 획득! 카운터 초기화.");
+    //    }
+    //    else
+    //    {
+    //        LimitedGachaPityCount++; // 에픽 아니면 증가
+    //                                 // 천장 도달 시 초기화는 가챠 로직(GachaUIPanel)에서 처리 후 0으로 리셋 요청
+    //        Debug.Log($"<color=yellow>[천장-한정]</color> 카운터 증가: {LimitedGachaPityCount}");
+    //    }
+
+    //    _limitedPityPublisher?.Publish(new LimitedPityCountUpdatedEvent { NewCount = LimitedGachaPityCount });
+    //}
+
+    public void UpdateLimitedPityCount(int currentPity)
     {
-        if (isEpicResult)
-        {
-            LimitedGachaPityCount = 0; // 에픽 획득 시 초기화
-            Debug.Log("<color=yellow>[천장-한정]</color> 에픽 획득! 카운터 초기화.");
-        }
-        else
-        {
-            LimitedGachaPityCount++; // 에픽 아니면 증가
-                                     // 천장 도달 시 초기화는 가챠 로직(GachaUIPanel)에서 처리 후 0으로 리셋 요청
-            Debug.Log($"<color=yellow>[천장-한정]</color> 카운터 증가: {LimitedGachaPityCount}");
-        }
+        LimitedGachaPityCount = currentPity;
 
         _limitedPityPublisher?.Publish(new LimitedPityCountUpdatedEvent { NewCount = LimitedGachaPityCount });
     }
 
-    public void UpdateStandardPityCount(bool isEpicResult)
+    //public void UpdateStandardPityCount(bool isEpicResult)
+    //{
+    //    if (isEpicResult)
+    //    {
+    //        StandardGachaPityCount = 0;
+    //        Debug.Log("<color=yellow>[천장-상시]</color> 에픽 획득! 카운터 초기화.");
+    //    }
+    //    else
+    //    {
+    //        StandardGachaPityCount++;
+    //        Debug.Log($"<color=yellow>[천장-상시]</color> 카운터 증가: {StandardGachaPityCount}");
+    //    }
+
+    //    _standardPityPublisher?.Publish(new StandardPityCountUpdatedEvent { NewCount = StandardGachaPityCount });
+    //}
+
+    public void UpdateStandardPityCount(int currentPity)
     {
-        if (isEpicResult)
-        {
-            StandardGachaPityCount = 0;
-            Debug.Log("<color=yellow>[천장-상시]</color> 에픽 획득! 카운터 초기화.");
-        }
-        else
-        {
-            StandardGachaPityCount++;
-            Debug.Log($"<color=yellow>[천장-상시]</color> 카운터 증가: {StandardGachaPityCount}");
-        }
+        StandardGachaPityCount = currentPity;
 
         _standardPityPublisher?.Publish(new StandardPityCountUpdatedEvent { NewCount = StandardGachaPityCount });
     }
@@ -933,12 +979,15 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
             OwnedCardData = this.OwnedCardData.Keys.ToList<int>(),
             OwnedArtifacts = ArtifactManager.Instance.SaveArtifactData(ArtifactManager.Instance.OwnedArtifacts),
             EquippedArtifacts = ArtifactManager.Instance.SaveArtifactData(ArtifactManager.Instance.EquippedArtifacts),
+            PlayerLevel = this.PlayerLevel,
+            PlayerExp = this.CurExp,
 
             // TileDataHandler의 상태를 직렬화 가능한 형태로 변환
             TileGridData = _TileDataHandler.GetSnapshot(),
 
-            LimitedGachaPityCount = this.LimitedGachaPityCount,
-            StandardGachaPityCount = this.StandardGachaPityCount
+            //서버에서 알아서 저장
+            //LimitedGachaPityCount = this.LimitedGachaPityCount,
+            //StandardGachaPityCount = this.StandardGachaPityCount
         };
 
         Dictionary<string, object> cloudData = new();
@@ -958,10 +1007,18 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
     {
         try
         {
-            PlayerSaveData loadedData = await BackendManager.LoadDataAsync();
+            //비동기를 변수에 넣고 기다리지 않고 일단 진행
+            var allCloudData = await BackendManager.LoadDataAsync();
+
+            //가챠 천장 데이터는 서버에서 가져오기 때문에 무조건 있음
+            StandardGachaPityLimit = allCloudData.NormalPityThreshold;
+            LimitedGachaPityLimit = allCloudData.PickupPityThreshold;
+
+            //await가 붙은 부분에서 기다림
+            PlayerSaveData loadedPlayerData = allCloudData.PlayerSaveData;
 
             //처음 실행하면 초기 데이터 세팅
-            if (loadedData == null)
+            if (loadedPlayerData == null)
             {
                 //일단 가챠 유닛 제외 전부 넣어둠
                 List<int> initalUnitIds = new List<int>();
@@ -978,17 +1035,26 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
             //튜토리얼 끝날때 까지 저장 x => 저장된다면, 튜토리얼이 끝난 것 => 저장된 데이터가 있다면, 튜토리얼이 끝난 것
             GameManager.IsTutorialCompleted = true; 
 
-            SettingDataManager.Instance.LoadClearData(loadedData.UnlockData);
-            UpdateClearedStagesFromServer(loadedData.UnlockData);
-            ConvertIntToDeck(loadedData.DeckPresets);
-            LoadDeckName(loadedData.DeckNames);
-            this.ActiveDeckIndex = loadedData.ActiveDeckIndex;
-            CardGenerate(loadedData.OwnedCardData);
-            _TileDataHandler.RestoreFromSnapshot(loadedData.TileGridData);
-            ArtifactManager.Instance.LoadArtifactData(loadedData.OwnedArtifacts, loadedData.EquippedArtifacts);
+            SettingDataManager.Instance.LoadClearData(loadedPlayerData.UnlockData);
+            UpdateClearedStagesFromServer(loadedPlayerData.UnlockData);
+            ConvertIntToDeck(loadedPlayerData.DeckPresets);
+            LoadDeckName(loadedPlayerData.DeckNames);
+            this.ActiveDeckIndex = loadedPlayerData.ActiveDeckIndex;
+            CardGenerate(loadedPlayerData.OwnedCardData);
+            _TileDataHandler.RestoreFromSnapshot(loadedPlayerData.TileGridData);
+            ArtifactManager.Instance.LoadArtifactData(loadedPlayerData.OwnedArtifacts, loadedPlayerData.EquippedArtifacts);
+            this.PlayerLevel = loadedPlayerData.PlayerLevel;
+            this.CurExp = loadedPlayerData.PlayerExp;
 
-            this.LimitedGachaPityCount = loadedData.LimitedGachaPityCount;
-            this.StandardGachaPityCount = loadedData.StandardGachaPityCount;
+            //구 가챠 데이터 불러오기
+            //this.LimitedGachaPityCount = loadedData.LimitedGachaPityCount;
+            //this.StandardGachaPityCount = loadedData.StandardGachaPityCount;
+
+            //신 가챠 데이터 불러오기
+            StandardGachaPityCount = allCloudData.NormalPity;
+            
+            LimitedGachaPityCount = allCloudData.PickupPity;
+            
 
         }
 
@@ -1110,11 +1176,16 @@ public class PlayerSaveData
     //6. 장착한 유물
     public string EquippedArtifacts;
 
-    //7. 가챠 천장
-    public int LimitedGachaPityCount;
-    public int StandardGachaPityCount;
+    //7. 가챠 천장: 따로 분리
+    //public int LimitedGachaPityCount;
+    //public int StandardGachaPityCount;
 
+    //7. 플레이어 레벨, 경험치
+    public int PlayerLevel;
+    public int PlayerExp;
 }
+
+
 
 
 

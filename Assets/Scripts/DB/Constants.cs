@@ -21,6 +21,9 @@ public static class Constants
 
     //세이브 데이터 Key값
     public static string PLAYER_DATA_KEY = "PLAYER_DATA";
+    public static string PITY_COUNT_KEY_PREFIX = "PITYCOUNT_";
+    public static string NORMAL_GACHA_KEY = "NORMAL_BANNER";
+    public static string PICKUP_GACHA_KEY = "PICKUP_BANNER";
 
     //통계 전송 이벤트 파라미터 Key값
     public const string IS_HERO_ARRIVE = "isHeroArriveStage";

@@ -20,14 +20,26 @@ public class UIUnitexplanationPopup : MonoBehaviour
         _canvasGroup.interactable = false;
         _canvasGroup.blocksRaycasts = false;
         spawnUnitSlotStartHoldEventSub = EventManager.GetSubscriber<SpawnUnitSlotStartHoldEvent>();
-        spawnUnitSlotStartHoldEventSub?.Subscribe(OpenDescriptionPanel);
         spawnUnitSlotReleaseHoldEventSub = EventManager.GetSubscriber<SpawnUnitSlotReleaseHoldEvent>();
-        spawnUnitSlotReleaseHoldEventSub?.Subscribe(CloseDescriptionPanel);
     }
-    private void OnDestroy()
+    /*private void OnDestroy()
     {
         spawnUnitSlotStartHoldEventSub?.Unsubscribe(OpenDescriptionPanel);
         spawnUnitSlotReleaseHoldEventSub?.Unsubscribe(CloseDescriptionPanel);
+    }*/
+    public void SetUnitexplanationPopup(bool active)
+    {
+        if(active)
+        {
+            spawnUnitSlotStartHoldEventSub?.Subscribe(OpenDescriptionPanel);
+            spawnUnitSlotReleaseHoldEventSub?.Subscribe(CloseDescriptionPanel);
+
+        }
+        else
+        {
+            spawnUnitSlotStartHoldEventSub?.Unsubscribe(OpenDescriptionPanel);
+            spawnUnitSlotReleaseHoldEventSub?.Unsubscribe(CloseDescriptionPanel);
+        }
     }
     void OpenDescriptionPanel(SpawnUnitSlotStartHoldEvent startHoldEvent)
     {
