@@ -129,6 +129,8 @@ public enum PoolType // *******251016: 새로운 풀링 오브젝트 추가시 �
     Allies_Unit36,
     Allies_Unit37,
     Allies_Unit38,
+    Allies_Unit39,
+    Allies_Unit40,
     #endregion
     #region 영웅 유닛 리스트, 영웅 유닛은 여기에 추가할 것
     Hero_Unit1,
