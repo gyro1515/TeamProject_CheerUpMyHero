@@ -979,6 +979,8 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
             OwnedCardData = this.OwnedCardData.Keys.ToList<int>(),
             OwnedArtifacts = ArtifactManager.Instance.SaveArtifactData(ArtifactManager.Instance.OwnedArtifacts),
             EquippedArtifacts = ArtifactManager.Instance.SaveArtifactData(ArtifactManager.Instance.EquippedArtifacts),
+            PlayerLevel = this.PlayerLevel,
+            PlayerExp = this.CurExp,
 
             // TileDataHandler의 상태를 직렬화 가능한 형태로 변환
             TileGridData = _TileDataHandler.GetSnapshot(),
@@ -1009,10 +1011,10 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
             var allCloudData = await BackendManager.LoadDataAsync();
 
             //await가 붙은 부분에서 기다림
-            PlayerSaveData loadedData = allCloudData.PlayerSaveData;
+            PlayerSaveData loadedPlayerData = allCloudData.PlayerSaveData;
 
             //처음 실행하면 초기 데이터 세팅
-            if (loadedData == null)
+            if (loadedPlayerData == null)
             {
                 //일단 가챠 유닛 제외 전부 넣어둠
                 List<int> initalUnitIds = new List<int>();
@@ -1029,14 +1031,16 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
             //튜토리얼 끝날때 까지 저장 x => 저장된다면, 튜토리얼이 끝난 것 => 저장된 데이터가 있다면, 튜토리얼이 끝난 것
             GameManager.IsTutorialCompleted = true; 
 
-            SettingDataManager.Instance.LoadClearData(loadedData.UnlockData);
-            UpdateClearedStagesFromServer(loadedData.UnlockData);
-            ConvertIntToDeck(loadedData.DeckPresets);
-            LoadDeckName(loadedData.DeckNames);
-            this.ActiveDeckIndex = loadedData.ActiveDeckIndex;
-            CardGenerate(loadedData.OwnedCardData);
-            _TileDataHandler.RestoreFromSnapshot(loadedData.TileGridData);
-            ArtifactManager.Instance.LoadArtifactData(loadedData.OwnedArtifacts, loadedData.EquippedArtifacts);
+            SettingDataManager.Instance.LoadClearData(loadedPlayerData.UnlockData);
+            UpdateClearedStagesFromServer(loadedPlayerData.UnlockData);
+            ConvertIntToDeck(loadedPlayerData.DeckPresets);
+            LoadDeckName(loadedPlayerData.DeckNames);
+            this.ActiveDeckIndex = loadedPlayerData.ActiveDeckIndex;
+            CardGenerate(loadedPlayerData.OwnedCardData);
+            _TileDataHandler.RestoreFromSnapshot(loadedPlayerData.TileGridData);
+            ArtifactManager.Instance.LoadArtifactData(loadedPlayerData.OwnedArtifacts, loadedPlayerData.EquippedArtifacts);
+            this.PlayerLevel = loadedPlayerData.PlayerLevel;
+            this.CurExp = loadedPlayerData.PlayerExp;
 
             //구 가챠 데이터 불러오기
             //this.LimitedGachaPityCount = loadedData.LimitedGachaPityCount;
@@ -1171,6 +1175,10 @@ public class PlayerSaveData
     //7. 가챠 천장: 따로 분리
     //public int LimitedGachaPityCount;
     //public int StandardGachaPityCount;
+
+    //7. 플레이어 레벨, 경험치
+    public int PlayerLevel;
+    public int PlayerExp;
 }
 
 

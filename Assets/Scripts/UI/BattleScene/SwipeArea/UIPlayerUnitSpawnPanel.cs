@@ -45,9 +45,9 @@ public class UIPlayerUnitSpawnPanel : BaseUI
             deckBaseUnitDatas[1] = DataManager.PlayerUnitData.GetData(100002);
             deckBaseUnitDatas[2] = DataManager.PlayerUnitData.GetData(100003);
             deckBaseUnitDatas[3] = DataManager.PlayerUnitData.GetData(100004);
-            deckBaseUnitDatas[4] = null;
-            deckBaseUnitDatas[5] = null;
-            deckBaseUnitDatas[6] = null;
+            deckBaseUnitDatas[4] = DataManager.PlayerUnitData.GetData(125004);
+            deckBaseUnitDatas[5] = DataManager.PlayerUnitData.GetData(125005);
+            deckBaseUnitDatas[6] = DataManager.PlayerUnitData.GetData(125006);
             deckBaseUnitDatas[7] = null;
             // 시너지 갱신: 원래는 카드 덱UI에서 처리하지만, 튜토리얼 덱 시너지는 여기서 강제 세팅
             CheckDeckUnitSynergy(deckBaseUnitDatas);
