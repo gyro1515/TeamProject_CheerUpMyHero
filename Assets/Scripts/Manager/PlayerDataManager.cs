@@ -1010,6 +1010,10 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
             //비동기를 변수에 넣고 기다리지 않고 일단 진행
             var allCloudData = await BackendManager.LoadDataAsync();
 
+            //가챠 천장 데이터는 서버에서 가져오기 때문에 무조건 있음
+            StandardGachaPityLimit = allCloudData.NormalPityThreshold;
+            LimitedGachaPityLimit = allCloudData.PickupPityThreshold;
+
             //await가 붙은 부분에서 기다림
             PlayerSaveData loadedPlayerData = allCloudData.PlayerSaveData;
 
@@ -1048,9 +1052,9 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
 
             //신 가챠 데이터 불러오기
             StandardGachaPityCount = allCloudData.NormalPity;
-            StandardGachaPityLimit = allCloudData.NormalPityThreshold;
+            
             LimitedGachaPityCount = allCloudData.PickupPity;
-            LimitedGachaPityLimit = allCloudData.PickupPityThreshold;
+            
 
         }
 

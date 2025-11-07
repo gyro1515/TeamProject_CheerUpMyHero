@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("GachaV2")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+768d3cc30bda12f066d806f167f5c62d161c5970")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+287935f85ab084a2f0d95d51cdc0f814ff8c4aaf")]
 [assembly: System.Reflection.AssemblyProductAttribute("GachaV2")]
 [assembly: System.Reflection.AssemblyTitleAttribute("GachaV2")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

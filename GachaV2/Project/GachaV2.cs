@@ -228,15 +228,29 @@ namespace CheerUpMyHero.CloudCode
                         int randomIndex = s_rand.Next(0, epicRarityInfo.IDs.Count);
                         selectedItemId = epicRarityInfo.IDs[randomIndex];
                     }
+                    else
+                    {
+                        selectedItemId = bannerConfig.GuaranteedItemId;
+                    }
 
                     // 천장 아이템의 등급을 찾아야 로직이 올바르게 동작.. 그냥 Epic이라고 딸깍하면 좋은데..
                     selectedRarity = bannerConfig.RarityTable.First(r => r.IDs.Contains(selectedItemId));
                 }
-                else
+                else // 일반적인 상황
                 {
-                    // 일반 확률 뽑기
                     selectedRarity = SelectRarity(bannerConfig.RarityTable);
-                    selectedItemId = SelectItemId(selectedRarity);
+
+                    //픽업 뽑기면서 에픽일때는, 50% 확률로 픽업 유닛 지급
+                    if (selectedRarity.RarityType == Rarity.Epic) 
+                    {
+                        int index = s_rand.Next(0, 2);
+                        selectedItemId = index == 0 ? bannerConfig.GuaranteedItemId : SelectItemId(selectedRarity);
+                    }
+                    else
+                    {
+                        selectedItemId = SelectItemId(selectedRarity);
+                    }
+
                 }
 
                 rewardedUnits.Add(new ResultUnit { UnitId = selectedItemId, Rarity = selectedRarity.RarityType });
@@ -244,8 +258,19 @@ namespace CheerUpMyHero.CloudCode
                 // 천장 도달 또는 중간에 Epic 등급 획득 시 카운트 초기화
                 if (pityCountForLoop >= bannerConfig.PityThreshold || selectedRarity.RarityType == Rarity.Epic)
                 {
-                    pityCountForLoop = 0;
+                    //노말 가챠: 아무거나 나오면 천장 초기화
+                    if (bannerConfig.GuaranteedItemId == -1) 
+                    {
+                        pityCountForLoop = 0;
+                    }
+                    else //픽업 가챠
+                    {
+                        //픽업캐일때만 천장 초기화
+                        if (selectedItemId == bannerConfig.GuaranteedItemId)
+                            pityCountForLoop = 0;
+                    }
                 }
+                    
             }
 
             // 4. 최종 티켓 잔액 조회
