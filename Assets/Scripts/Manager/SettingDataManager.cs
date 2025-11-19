@@ -14,6 +14,21 @@ public class SettingDataManager : SingletonMono<SettingDataManager>
     SpeedState _savedSpeed = SpeedState.X1;
     public static SpeedState SavedSpeed { get => Instance._savedSpeed; set => Instance._savedSpeed = value; }
 
+    #region 웨이브 워닝 중에 속도 변경 여부
+    bool isSpeedChangedInWaring = false;
+    public static bool IsSpeedChangedInWaring { 
+        get 
+        {
+            if (!Instance) return false;
+            return Instance.isSpeedChangedInWaring;
+        }
+        set
+        {
+            if (!Instance) return;
+            Instance.isSpeedChangedInWaring = value;
+        } }
+    #endregion
+
     protected override void Awake()
     {
         base.Awake();

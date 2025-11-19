@@ -51,7 +51,7 @@ public class EnemyWaveSystem : MonoBehaviour
         // 웨이브 코루틴
         StartCoroutine(WaveTimeRoutine());
     }
-    /*private void Update()
+    private void Update()
     {
         // 워닝 테스트
         if (Input.GetKeyDown(KeyCode.Alpha3))
@@ -59,7 +59,7 @@ public class EnemyWaveSystem : MonoBehaviour
             warningUI.OpenUI();
             OnWarningDisplayed?.Invoke();
         }
-    }*/
+    }
 
     IEnumerator WaveTimeRoutine()
     {
@@ -72,7 +72,7 @@ public class EnemyWaveSystem : MonoBehaviour
 
             // 경고 표시 (한 번만)
             warningUI.OpenUI();
-            //OnWarningDisplayed?.Invoke();
+            OnWarningDisplayed?.Invoke();
             // timeUntilWave 동안 대기
             yield return new WaitForSeconds(timeUntilWave);
 
