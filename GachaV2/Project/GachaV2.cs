@@ -205,9 +205,9 @@ namespace CheerUpMyHero.CloudCode
                 RarityInfo selectedRarity;
                 int selectedItemId;
 
-                if (pityCountForLoop >= bannerConfig.PityThreshold)
+                if (pityCountForLoop >= bannerConfig.PityThreshold)// 천장 도달!
                 {
-                    // 천장 도달!
+                    
                     selectedItemId = bannerConfig.GuaranteedItemId;
 
                     // 딱히 정해진 확정 지정 유닛이 없다면(GuaranteedItemId = -1), Epic 아무거나 지급
@@ -241,15 +241,18 @@ namespace CheerUpMyHero.CloudCode
                     selectedRarity = SelectRarity(bannerConfig.RarityTable);
 
                     //픽업 뽑기면서 에픽일때는, 50% 확률로 픽업 유닛 지급
-                    if (selectedRarity.RarityType == Rarity.Epic) 
+                    if (selectedRarity.RarityType == Rarity.Epic && bannerConfig.GuaranteedItemId != -1) 
                     {
                         int index = s_rand.Next(0, 2);
-                        selectedItemId = index == 0 ? bannerConfig.GuaranteedItemId : SelectItemId(selectedRarity);
+                        selectedItemId = index == 0 ? bannerConfig.GuaranteedItemId: SelectItemId(selectedRarity);
                     }
                     else
                     {
                         selectedItemId = SelectItemId(selectedRarity);
                     }
+
+                    // 테스트할때 키는 로그
+                    //_logger.LogInformation($"[GachaResult]: {selectedItemId}");
 
                 }
 
