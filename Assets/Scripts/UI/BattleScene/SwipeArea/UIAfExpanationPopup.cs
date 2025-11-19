@@ -23,14 +23,25 @@ public class UIAfExpanationPopup : MonoBehaviour
         _canvasGroup.interactable = false;
         _canvasGroup.blocksRaycasts = false;
         afSlotStartHoldEventSub = EventManager.GetSubscriber<AfSlotStartHoldEvent>();
-        afSlotStartHoldEventSub?.Subscribe(OpenDescriptionPanel);
         afSlotReleaseHoldEventSub = EventManager.GetSubscriber<AfSlotReleaseHoldEvent>();
-        afSlotReleaseHoldEventSub?.Subscribe(CloseDescriptionPanel);
     }
-    private void OnDestroy()
+    /*private void OnDestroy()
     {
         afSlotStartHoldEventSub?.Unsubscribe(OpenDescriptionPanel);
         afSlotReleaseHoldEventSub?.Unsubscribe(CloseDescriptionPanel);
+    }*/
+    public void SetUIAfExpanationPopup(bool active)
+    {
+        if (active)
+        {
+            afSlotStartHoldEventSub?.Subscribe(OpenDescriptionPanel);
+            afSlotReleaseHoldEventSub?.Subscribe(CloseDescriptionPanel);
+        }
+        else
+        {
+            afSlotStartHoldEventSub?.Unsubscribe(OpenDescriptionPanel);
+            afSlotReleaseHoldEventSub?.Unsubscribe(CloseDescriptionPanel);
+        }
     }
     void OpenDescriptionPanel(AfSlotStartHoldEvent startHoldEvent)
     {

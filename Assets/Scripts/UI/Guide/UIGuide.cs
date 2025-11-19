@@ -49,9 +49,13 @@ public class UIGuide : BaseUI ,IBackButtonHandler
     private void OnEnable()
     {
         UIManager.PubishAddUIStackEvent(this);
+        uiUnitexplanationPopup.SetUnitexplanationPopup(true);
+        uiAfExpanationPopup.SetUIAfExpanationForGuide(true);
     }
     private void OnDisable()
     {
+        uiUnitexplanationPopup.SetUnitexplanationPopup(false);
+        uiAfExpanationPopup.SetUIAfExpanationForGuide(false);
         UIManager.PublishRemoveUIStackEvent();
     }
     // Update is called once per frame
