@@ -95,9 +95,14 @@ public class UISettingMenu : BaseUI
         //OnResumeButton?.Invoke();
     }
     #endregion
-
+    #region 게임 설정 패널
+    [Header("게임 설정 패널")]
+    [SerializeField] private Button _gamesettingButton;
+    [SerializeField] private UIGameSettingPanel _gamesettingPanel;
+    #endregion
     private List<CanvasGroup> _allPanels;
     // 이 스크립트에 캔버스 그룹이 없어서, 인스펙터창에서 직접 연결해줘야 함
+    [Header("기타")]
     [SerializeField] CanvasGroup _canvasGroup;
     private void Awake()
     {
@@ -114,6 +119,16 @@ public class UISettingMenu : BaseUI
             Debug.LogWarning("_exitButton이 현재 씬에 할당(연결)되지 않았습니다.");
         }
         _resumeButton.onClick.AddListener(OnResumeButtonClicked);
+        if(_gamesettingButton)
+        {
+            _gamesettingButton.onClick.AddListener(() =>
+            {
+                if (_gamesettingPanel != null)
+                    _gamesettingPanel.OpenUI();
+                else
+                    Debug.LogWarning("게임 설정 패널이 현재 씬에 할당(연결)되지 않았습니다.");
+            });
+        }
 
         /*_allPanels = new List<CanvasGroup>
         {

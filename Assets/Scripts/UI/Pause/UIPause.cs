@@ -38,16 +38,25 @@ public class UIPause : BaseUI, IBackButtonHandler
     }
     private void Start()
     {
+        // 웨이브 시스템의 경고 표시 이벤트에 리스너 등록
+        // 전투 씬에서만 동작(HQ존재)
         if (GameManager.Instance != null &&
                  GameManager.Instance.enemyHQ != null &&
                  GameManager.Instance.enemyHQ.WaveSystem != null)
         {
             Debug.Log("[UIPause] enemyHQ 및 WaveSystem 발견. 리스너를 등록합니다.");
-            /*GameManager.Instance.enemyHQ.WaveSystem.OnWarningDisplayed += () =>
+            GameManager.Instance.enemyHQ.WaveSystem.OnWarningDisplayed += () =>
             {
-                ApplySpeed(SpeedState.X1); // 웨이브 경고 시 배속 초기화
+                // 세팅에 따라 웨이브 경고 시 배속 설정 적용
+                if (SettingDataManager.IsSpeedChangedInWaring)
+                    ApplySpeed(SpeedState.X1); // 웨이브 경고 시 배속 초기화
             };
-            GameManager.Instance.enemyHQ.WaveSystem.SetOnWarningEnd(() => ApplySpeed(CurrentSpeed));*/
+            GameManager.Instance.enemyHQ.WaveSystem.SetOnWarningEnd(() =>
+            {
+                // 세팅에 따라 웨이브 경고 시 배속 설정 적용
+                if (SettingDataManager.IsSpeedChangedInWaring)
+                    ApplySpeed(CurrentSpeed);
+            });
         }
         else
         {

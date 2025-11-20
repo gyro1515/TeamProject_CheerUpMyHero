@@ -131,8 +131,8 @@ public class UIManager : SingletonMono<UIManager>, ISceneResettable
             // 에디터에서는 플레이 모드를 종료
             //EditorApplication.isPlaying = false;
 #else
-        // 실제 빌드된 환경에서는 애플리케이션 종료
-        Application.Quit();
+            // 실제 빌드된 환경에서는 애플리케이션 종료
+            //Application.Quit();
 #endif
         }
     }

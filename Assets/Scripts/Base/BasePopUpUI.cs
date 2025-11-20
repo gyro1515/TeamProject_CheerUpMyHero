@@ -16,6 +16,8 @@ public class BasePopUpUI : BaseUI, IBackButtonHandler
     protected bool _isFade = false;
     /*IEventPublisher<AddUIStackEvent> onAddUIStack;
     IEventPublisher<RemoveUIStackEvent> onRemoveUIStack;*/
+    // 페이드 지속 시간 (상속받는 클래스에서 재정의 가능)
+    protected virtual float fadeDuration => 0.3f;
     protected virtual void Awake()
     {
         POPUP_UI_WARNING = "팝업이 오류났다면, 해당 오브젝트를 활성화하고 시작했는지 체크해주세요.";
@@ -46,7 +48,7 @@ public class BasePopUpUI : BaseUI, IBackButtonHandler
         base.OpenUI();
         if(openSound) AudioManager.PlayOneShot(openSound, 0.3f);
         _isFade = true;
-        FadeManager.FadeInUI(_canvasGroup, SetFadeFalse);
+        FadeManager.FadeInUI(_canvasGroup, SetFadeFalse, true, fadeDuration);
     }
     // 다른 효과 후에 페이드 인을 하고 싶을 때 사용하는 오픈 함수
     public void OpenUI(TweenCallback afterFade)
@@ -56,14 +58,14 @@ public class BasePopUpUI : BaseUI, IBackButtonHandler
         if(openSound) AudioManager.PlayOneShot(openSound, 0.3f);
         _isFade = true;
         afterFade += SetFadeFalse;
-        FadeManager.FadeInUI(_canvasGroup, afterFade);
+        FadeManager.FadeInUI(_canvasGroup, afterFade, true, fadeDuration);
     }
     public override void CloseUI()
     {
         if (_isFade) return;
         if(closeSound) AudioManager.PlayOneShot(closeSound, 0.3f);
         _isFade = true;
-        FadeManager.FadeOutUI(_canvasGroup, () => { base.CloseUI(); SetFadeFalse(); });
+        FadeManager.FadeOutUI(_canvasGroup, () => { base.CloseUI(); SetFadeFalse(); }, true, fadeDuration);
     }
     public virtual void OnBackPressed()
     {
