@@ -745,6 +745,8 @@ public class MainScreenBuildingController : MonoBehaviour
     //광고 들어오면 그때 비동기화
     public void ConfirmAdAndMove(BuildingTile source, BuildingTile destination)
     {
+
+        //비동기처리를 AdManager로 위임(사유: 이거 건드리기 무서움..)
         AdManager.Instance.ShowRewardedAd(() =>
         {
             var dataHandler = PlayerDataManager.Instance._TileDataHandler;

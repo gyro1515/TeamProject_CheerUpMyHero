@@ -237,7 +237,10 @@ public class BackendManager : SingletonMono<BackendManager>
 
             //4. 재화, 데이터 관련 세팅
             await StartEconomyAndClound();
-            
+
+            //5. 광고 세팅
+            await AdManager.InitializeAsync();
+
 
             _initializationTcs.TrySetResult(true);
 
@@ -651,6 +654,16 @@ public class BackendManager : SingletonMono<BackendManager>
         await Instance.EnqueueRequestAsync(() => Instance.InternalChangeEnconmyAsync(id, amount), nameof(ChangeEconomy));
     }
 
+    public static async UniTask WatchAdAndGetReward()
+    {
+        var status = await CanCommunicateAsync(nameof(WatchAdAndGetReward));
+        if (status != CommunicationStatus.Success)
+        {
+            throw new InvalidOperationException("서버와 통신할 수 없는 상태입니다.");
+        }
+
+        await AdManager.ShowRewardedAdAsync();
+    }
 
     //서버 ID : 자원 enum 매칭 
     public static string EconomyEnumToId(ResourceType resource)

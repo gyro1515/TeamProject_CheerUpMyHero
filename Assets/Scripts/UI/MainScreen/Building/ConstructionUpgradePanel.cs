@@ -348,7 +348,9 @@ public class ConstructionUpgradePanel : BasePopUpUI
 
         Debug.Log("광고 보고 즉시 수리 버튼 클릭됨");
 
-        AdManager.Instance.ShowRewardedAd(() => {
+        //비동기처리를 AdManager로 위임(사유: 이거 건드리기 무서움..)
+        AdManager.Instance.ShowRewardedAd(() =>
+        {
             // --- 광고 시청 성공 시 ---
             Debug.Log("광고 시청 성공! 즉시 수리를 실행합니다.");
 

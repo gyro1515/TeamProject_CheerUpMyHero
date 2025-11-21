@@ -1,3 +1,5 @@
+using Cysharp.Threading.Tasks;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -38,7 +40,7 @@ public class UIStageClearArtifactSelect : BaseUI
     {
         _canvasGroup = GetComponent<CanvasGroup>();
 
-        _rerollButton.onClick.AddListener(OnRerollButtonClicked);
+        _rerollButton.onClick.AddListener(() => { OnRerollButtonClicked().Forget(); });
         _selectButton.onClick.AddListener(OnSelectButtonClicked);
     }
 
@@ -128,14 +130,27 @@ public class UIStageClearArtifactSelect : BaseUI
         }
     }
 
-    private void OnRerollButtonClicked()
+    private async UniTaskVoid OnRerollButtonClicked()
     {
-        selectedArtifact = null;
-        Debug.Log("광고 관련 로직 넣어야 함");
-        RandomCreate(_type);
+        _rerollButton.interactable = false;
 
-        isRerolled = true;
-        //_rerollButton.interactable = false;
+        try
+        {
+            selectedArtifact = null;
+            await BackendManager.WatchAdAndGetReward();
+            RandomCreate(_type);
+
+            isRerolled = true;
+        }
+        catch (Exception ex) 
+        {
+            Debug.LogException(ex);
+        }
+        finally
+        {
+            _rerollButton.interactable = true;
+        }
+
     }
 
     private void OnSelectButtonClicked()
