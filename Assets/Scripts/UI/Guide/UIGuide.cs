@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +11,7 @@ public class UIGuide : BaseUI ,IBackButtonHandler
     [Header("버튼")]
     [SerializeField] private Button unitListButton;     
     [SerializeField] private Button artifactListButton; 
+    [SerializeField] private Button synergyListButton; 
     [SerializeField] private Button BackButton;
 
     [Header("아이콘 그리드")]
@@ -19,21 +21,30 @@ public class UIGuide : BaseUI ,IBackButtonHandler
 
     [SerializeField] private UIUnitexplanationPopup uiUnitexplanationPopup;
     [SerializeField] private UIAfExpanationForGuide uiAfExpanationPopup;
+    [SerializeField] private UISynergyExplanationForGuide uiSynergyExpanationPopup;
 
     IEventPublisher<SpawnUnitSlotStartHoldEvent> spawnUnitSlotStartHoldEventPub;
     IEventPublisher<AfSlotStartHoldEvent> afSlotStartHoldEventPub;
+    IEventPublisher<UISynergyExplanationEvent> uiSynergyExplanationEventPub;
+
+    // 시너지 관련
+    UnitSynergyType[] synergyTypes = (UnitSynergyType[])Enum.GetValues(typeof(UnitSynergyType));
+
 
     UIMenu UIMenu;
     private void Awake()
     {
         uiUnitexplanationPopup.Init();
         uiAfExpanationPopup.Init();
+        uiSynergyExpanationPopup.Init();
 
         spawnUnitSlotStartHoldEventPub = EventManager.GetPublisher<SpawnUnitSlotStartHoldEvent>();
         afSlotStartHoldEventPub = EventManager.GetPublisher<AfSlotStartHoldEvent>();
+        uiSynergyExplanationEventPub = EventManager.GetPublisher<UISynergyExplanationEvent>();
 
         unitListButton?.onClick.AddListener(PopulateUnitGrid);
         artifactListButton?.onClick.AddListener(PopulateArtifactGrid);
+        synergyListButton?.onClick.AddListener(PopulateSynergyGrid);
         BackButton?.onClick.AddListener(OnBackButtonClicked);
         //var baseUnitData = DataManager.PlayerUnitData.GetData(115004);
         //var atifactData = DataManager.ArtifactData.GetData(08010005);
@@ -51,11 +62,13 @@ public class UIGuide : BaseUI ,IBackButtonHandler
         UIManager.PubishAddUIStackEvent(this);
         uiUnitexplanationPopup.SetUnitexplanationPopup(true);
         uiAfExpanationPopup.SetUIAfExpanationForGuide(true);
+        uiSynergyExpanationPopup.SetEvent(true);
     }
     private void OnDisable()
     {
         uiUnitexplanationPopup.SetUnitexplanationPopup(false);
         uiAfExpanationPopup.SetUIAfExpanationForGuide(false);
+        uiSynergyExpanationPopup.SetEvent(false);
         UIManager.PublishRemoveUIStackEvent();
     }
     // Update is called once per frame
@@ -181,6 +194,38 @@ public class UIGuide : BaseUI ,IBackButtonHandler
             });
         }
     }
+    public void PopulateSynergyGrid()
+    {
+        ClearGrid(); // 1. 그리드 비우기
+        if (iconScrollView != null) iconScrollView.SetActive(true);
+        
+        foreach (var synergyType in synergyTypes)
+        {
+            if (synergyType == UnitSynergyType.None) continue;
+
+            GameObject iconGO = Instantiate(iconPrefab, iconGridContentParent);
+
+            // 6. 대표 유물의 아이콘 표시
+            iconGO.GetComponentInChildren<Image>().sprite = DataManager.Instance.SynergyIconSprites[(synergyType, SynergyGrade.Gold)];
+
+            TextMeshProUGUI nameText = iconGO.GetComponentInChildren<TextMeshProUGUI>();
+            if (nameText != null)
+            {
+                nameText.gameObject.SetActive(false); // 이름, 레벨 숨기기
+            }
+            Transform frameBorder = iconGO.transform.Find("FramBorder");
+            if (frameBorder != null)
+            {
+                frameBorder.gameObject.SetActive(false); // 유물이니까 액자 끄기
+            }
+
+            // 8. (핵심) 클릭 시 '대표 유물'의 데이터를 팝업으로 보냅니다.
+            iconGO.GetComponent<Button>().onClick.AddListener(() =>
+            {
+                OnSynergyIconClicked(synergyType);
+            });
+        }
+    }
     private void OnUnitIconClicked(BaseUnitData unitData)
     {
         Debug.Log($"유닛 아이콘 클릭됨: {unitData.unitName}");
@@ -192,6 +237,12 @@ public class UIGuide : BaseUI ,IBackButtonHandler
         Debug.Log($"유물 아이콘 클릭됨: {artifactData.name}");
         afSlotStartHoldEventPub?.Publish(new AfSlotStartHoldEvent(artifactData));
     }
+    private void OnSynergyIconClicked(UnitSynergyType synergyType)
+    {
+        Debug.Log($"시너지 아이콘 클릭됨: {synergyType.ToString()}");
+        uiSynergyExplanationEventPub?.Publish(new UISynergyExplanationEvent(true, synergyType));
+    }
+
     private void OnBackButtonClicked()
     {
         FadeManager.Instance.SwitchGameObjects(this.gameObject, UIMenu.gameObject);
