@@ -19,19 +19,25 @@ public class UISynergyExplanationForGuide : BasePopUpUI
     };
     protected override float fadeDuration => 0.05f;
     IEventSubscriber<UISynergyExplanationEvent> uiSynergyExplanationEventSub;
+    IEventSubscriber<UISynergyIconPressedEvent> uiSynergyIconPressedEventSub;
+
     public void Init()
     {
         uiSynergyExplanationEventSub = EventManager.GetSubscriber<UISynergyExplanationEvent>();
+        uiSynergyIconPressedEventSub = EventManager.GetSubscriber<UISynergyIconPressedEvent>();
+
     }
     public void SetEvent(bool isActive)
     {
         if (isActive)
         {
             uiSynergyExplanationEventSub?.Subscribe(SetSynergyExplanationPopup);
+            uiSynergyIconPressedEventSub?.Subscribe(SetSynergyExplanationPopup);
         }
         else
         {
             uiSynergyExplanationEventSub?.Unsubscribe(SetSynergyExplanationPopup);
+            uiSynergyIconPressedEventSub?.Unsubscribe(SetSynergyExplanationPopup);
         }
     }
     void SetSynergyExplanationPopup(UISynergyExplanationEvent uISynergyExplanationEvent)
@@ -39,6 +45,18 @@ public class UISynergyExplanationForGuide : BasePopUpUI
         if (uISynergyExplanationEvent.isActive)
         {
             SetData(uISynergyExplanationEvent.synergyType);
+            OpenUI();
+        }
+        else
+        {
+            CloseUI();
+        }
+    }
+    void SetSynergyExplanationPopup(UISynergyIconPressedEvent uiSynergyIconPressedEvent)
+    {
+        if (uiSynergyIconPressedEvent.isPressed)
+        {
+            SetData(uiSynergyIconPressedEvent.synergyType);
             OpenUI();
         }
         else
