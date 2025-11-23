@@ -5,7 +5,7 @@ using Unity.Services.CloudCode.GeneratedBindings;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UIMenu : BaseUI
+public class UIMenu : BaseUI, IBackButtonHandler
 {
     [SerializeField] private LoginConfirmPopup laterUpdatePopup;
     [Header("탑버튼")]
@@ -19,6 +19,8 @@ public class UIMenu : BaseUI
     [SerializeField] private Button AlliesBtn;
     [SerializeField] private Button BattleBtn;
     [SerializeField] private Button WisdomBtn;
+    [Header("설정 팝업")]
+    [SerializeField] private BasePopUpUI _settingPanelPopUpUI;
 
     MainScreenUI mainScreenUI;
     UIStageSelect uiStageSelect;
@@ -38,6 +40,14 @@ public class UIMenu : BaseUI
         BattleBtn.onClick.AddListener(OnBattleBtnClicked);
         WisdomBtn.onClick.AddListener(OnWisdomBtnClicked);
 
+    }
+    private void OnEnable()
+    {
+        UIManager.PubishAddUIStackEvent(this);
+    }
+    private void OnDisable()
+    {
+        UIManager.PublishRemoveUIStackEvent();
     }
     void Start()
     {
@@ -99,5 +109,10 @@ public class UIMenu : BaseUI
     private void OnLateUpdateClicked()
     {
         laterUpdatePopup.Show();
+    }
+
+    public void OnBackPressed()
+    {
+        _settingPanelPopUpUI.OpenUI();
     }
 }
