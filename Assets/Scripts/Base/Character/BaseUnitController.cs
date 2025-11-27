@@ -57,7 +57,7 @@ public abstract class BaseUnitController : BaseController
     public override void SetDead()
     {
         base.SetDead();
-        //251127_TODO: 영웅 유닛 사망시 스폰 쿨타임 75% 반환하기
+        //251127: 영웅 유닛 사망시 스폰 쿨타임 75% 반환하기
         if((baseUnit.UnitData.synergyType & UnitSynergyType.Hero) == UnitSynergyType.Hero)
         {
             heroUnitDeadEventPub.Publish(new HeroUnitDeadEvent(baseUnit.UnitData.poolType));

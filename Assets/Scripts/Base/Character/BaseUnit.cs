@@ -93,6 +93,24 @@ public abstract class BaseUnit : BaseCharacter
         //SetStatMultiplier(1f); // 몬스터 비활성화시 초기화
         TargetUnit = null;
     }
+    public void SetBuffStat(IntegratedBuffType buffType, float value)
+    {
+        // TODO: 버프 타입에 따라 스탯 
+    }
+    public void SetMoveSpeed(float newSpeed)
+    {
+        MoveSpeed = newSpeed;
+    }
+
+    public void SetAttackPower(float newAtkPower)
+    {
+        AtkPower = newAtkPower;
+    }
+
+    public void SetAttackRate(float newAttackRate)
+    {
+        AttackRate = newAttackRate;
+    }
     protected abstract void SetDataFromExcelData();
    
     protected virtual void SetHitBackActive(bool active)
