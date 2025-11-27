@@ -9,6 +9,7 @@ public abstract class BaseUnitController : BaseController
     protected KnockbackHandler knockbackHandler;
 
     bool isPlayer;
+    IEventPublisher<HeroUnitDeadEvent> heroUnitDeadEventPub;
 
     protected override void Awake()
     {
@@ -22,7 +23,9 @@ public abstract class BaseUnitController : BaseController
         if (baseUnit is PlayerUnit || baseUnit is Player)
         {
             isPlayer = true;
-        }    
+        }
+        heroUnitDeadEventPub = EventManager.GetPublisher<HeroUnitDeadEvent>();
+
     }
 
     protected override void OnEnable()
@@ -50,6 +53,15 @@ public abstract class BaseUnitController : BaseController
     {
         if (baseUnit.IsInvincible) return; // 무적이라면 리턴
         base.TakeDamage(damage);
+    }
+    public override void SetDead()
+    {
+        base.SetDead();
+        //251127_TODO: 영웅 유닛 사망시 스폰 쿨타임 75% 반환하기
+        if((baseUnit.UnitData.synergyType & UnitSynergyType.Hero) == UnitSynergyType.Hero)
+        {
+            heroUnitDeadEventPub.Publish(new HeroUnitDeadEvent(baseUnit.UnitData.poolType));
+        }
     }
     protected abstract void HitBackActive(bool active);
 
@@ -86,5 +98,14 @@ public abstract class BaseUnitController : BaseController
                 AudioManager.PlayOneShotByCameraDistance(DataManager.AudioData.synergy_poisonSE, gameObject.transform);
             }
         }
+    }
+}
+// 영웅 유닛 사망 이벤트
+public struct HeroUnitDeadEvent
+{
+    public PoolType poolType;
+    public HeroUnitDeadEvent(PoolType poolType)
+    {
+        this.poolType = poolType;
     }
 }

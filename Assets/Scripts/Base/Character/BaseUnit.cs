@@ -12,8 +12,8 @@ public abstract class BaseUnit : BaseCharacter
     //[field: SerializeField] public float AttackRate { get; protected set; }
     [field: SerializeField] public float AttackRange { get; protected set; }
     [field: SerializeField] public float CognizanceRange { get; protected set; } // 인식 범위
-    [field: SerializeField] public int FoodConsumption { get; protected set; }
-    [field: SerializeField] public float AttackDelayTime { get; protected set; } = 1f; // 선딜
+    //[field: SerializeField] public int FoodConsumption { get; protected set; }
+    //[field: SerializeField] public float AttackDelayTime { get; protected set; } = 1f; // 선딜
     [field: SerializeField] public float StartAttackTime { get; private set; } = 0.09f; // 애니메이션 기준 공격 시작 시간
     [field: SerializeField] public float StartAttackNormalizedTime { get; private set; } = 0.36f; // 애니메이션 기준 정규화된 공격 시작 시간
     [field: SerializeField] protected int HitBackCount { get; set; } = 3; // 최대 몇 번 히트백될 수 되는지

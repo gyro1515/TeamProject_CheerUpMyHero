@@ -31,8 +31,13 @@ public class UISpawnUnitSlot : MonoBehaviour
     bool canSpawnUnit = true;
     BaseUnitData cardData;
 
+    // 버튼 이벤트 관련 발행자
     IEventPublisher<SpawnUnitSlotStartHoldEvent> spawnUnitSlotStartHoldEventPub;
     IEventPublisher<SpawnUnitSlotReleaseHoldEvent> spawnUnitSlotReleaseHoldEventPub;
+
+    // 영웅 유닛 죽었을 때 쿨타임 반환용
+    IEventSubscriber<HeroUnitDeadEvent> heroUnitDeadEventSub;
+
     private void Awake()
     {
         costText.gameObject.SetActive(true); // 현재 왜 꺼져있는지 모르겠음
@@ -49,8 +54,12 @@ public class UISpawnUnitSlot : MonoBehaviour
         _cooldownTimer += Time.deltaTime;
         unitIconTimer.fillAmount = 1 - _cooldownTimer / _cooldown;
         if (_cooldownTimer < _cooldown) return; // 아직 쿨타임이 다 안돌았다면 리턴
-        unitIconTimer.fillAmount = 1f;
         SetTimerIconActive(false);
+    }
+    private void OnDestroy()
+    {
+        // 구독 해제
+        heroUnitDeadEventSub?.Unsubscribe(this.OnHeroDeadEvent);
     }
     public void InitSpawnUnitSlot(BaseUnitData cardData)
     {
@@ -74,6 +83,9 @@ public class UISpawnUnitSlot : MonoBehaviour
         {
             spawnUnitSlotReleaseHoldEventPub?.Publish();
         };
+        // 영웅 유닛 사망시 쿨타임 75% 반환 구독
+        heroUnitDeadEventSub = EventManager.GetSubscriber<HeroUnitDeadEvent>();
+        heroUnitDeadEventSub?.Subscribe(this.OnHeroDeadEvent);
     }
     void InitSpawnUnitSlot(string unitName, int unitId, PoolType poolType, float cooldown, int foodConsumption)
     {
@@ -114,7 +126,26 @@ public class UISpawnUnitSlot : MonoBehaviour
         CheckCanSpawnUnitByCost(); 
         enabled = true;
     }
-
+    void OnHeroDeadEvent(HeroUnitDeadEvent eventData)
+    {
+        if (eventData.poolType != playerUnitType) return;
+        if ((cardData.synergyType & UnitSynergyType.Hero) == 0) return;
+        if (!isCooldown) return; // 쿨타임이 아니면 리턴
+        // 쿨타임 75% 반환
+        Debug.Log("영웅 유닛 죽음, 쿨타임 75% 반환");
+        float remainingCooldown = _cooldown - _cooldownTimer;
+        float reductionAmount = remainingCooldown * 0.75f;
+        _cooldownTimer += reductionAmount;
+        // 그럴리가 없겠지만 쿨타임이 다 돌았으면 쿨타임 해제
+        if (_cooldownTimer >= _cooldown)
+        {
+            SetTimerIconActive(false);
+        }
+        else // 아니라면 타이머 아이콘 갱신
+        {
+            unitIconTimer.fillAmount = 1 - _cooldownTimer / _cooldown;
+        }
+    }
     void OnSpawnUnit()
     {
         if (GameManager.Instance.PlayerHQ == null) return;
