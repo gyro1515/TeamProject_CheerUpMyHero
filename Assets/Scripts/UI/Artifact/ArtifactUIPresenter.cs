@@ -5,34 +5,37 @@ using UnityEngine;
 
 public class ArtifactUIPresenter
 {
-    #region 아티팩트 UI 요소 
-    private readonly ArtifactManager _model;
+    #region 의존성
+    private readonly PlayerDataManager _data;
+    private readonly ArtifactService _service;
     private readonly UIArtifact _mainView;
     private readonly UIArtifactInventoryPanel _inventoryPanelView;
     private readonly UIArtifactEquipPanel _equipPanelView;
     private readonly UIArtifactStatPanel _statPanelView;
     #endregion
 
-    #region 생성자 + 구독 해제 메서드
+    #region 생성자 + 구독
     public void InitialDisplay()    // 유물 선택 창 켜졌을 때 활성화해주는 함수
     {
         HandleEquippedArtifactChanged();
     }
 
-    public ArtifactUIPresenter(ArtifactManager model,
+    public ArtifactUIPresenter(PlayerDataManager data,
+                               ArtifactService service,    
                                UIArtifact mainView,
                                UIArtifactInventoryPanel inventoryPanelView,
                                UIArtifactEquipPanel equipPanelView,
                                UIArtifactStatPanel statPanelView)
     {
-        _model = model;
+        _data = data;
+        _service = service;
         _mainView = mainView;
         _inventoryPanelView = inventoryPanelView;
         _equipPanelView = equipPanelView;
         _statPanelView = statPanelView;
 
-        _model.OnEquippedArtifactChanged += HandleEquippedArtifactChanged;
-        _model.OnOwnedArtifactsChanged += HandleOwnedArtifactsChanged;
+        _data.OnArtifactEquippedChanged += HandleEquippedArtifactChanged;
+        _data.OnArtifactOwnedChanged += HandleOwnedArtifactsChanged;
 
         _mainView.OnRequestAutoEquip += HandleAutoEquipRequest;
         _mainView.OnRequestUnEquipAll += HandleUnEquipAllRequest;
@@ -48,8 +51,8 @@ public class ArtifactUIPresenter
 
     public void Dispose()
     {
-        _model.OnEquippedArtifactChanged -= HandleEquippedArtifactChanged;
-        _model.OnOwnedArtifactsChanged -= HandleOwnedArtifactsChanged;
+        _data.OnArtifactEquippedChanged -= HandleEquippedArtifactChanged;
+        _data.OnArtifactOwnedChanged -= HandleOwnedArtifactsChanged;
 
         _mainView.OnRequestAutoEquip -= HandleAutoEquipRequest;
         _mainView.OnRequestUnEquipAll -= HandleUnEquipAllRequest;
@@ -72,7 +75,7 @@ public class ArtifactUIPresenter
     #region Handle 메서드 : 유물 데이터 변경
     public void HandleEquippedArtifactChanged()
     {
-        if (_model == null || _model.EquippedArtifacts == null) return;
+        if (_data == null || _data.EquippedArtifacts == null) return;
 
         // 각 스탯 종류별 뷰모델 만들어서 뷰모델로 이루어진 뷰모델 덩어리 만듬
         StatPanelViewModel statVM = new StatPanelViewModel
@@ -95,9 +98,9 @@ public class ArtifactUIPresenter
 
         for (int i = 0; i < slots.Count; i++)
         {
-            if (1 < _model.EquippedArtifacts.Count)
+            if (1 < _data.EquippedArtifacts.Count)
             {
-                ArtifactData artifact = _model.EquippedArtifacts[i];
+                ArtifactData artifact = _data.EquippedArtifacts[i];
                 EquipSlotViewModel vm = CreateEquipSlotViewModel(artifact);
                 slots[i].RefreshArtifactEquipSlotDisplay(vm);
             }
@@ -106,7 +109,7 @@ public class ArtifactUIPresenter
 
     private void HandleOwnedArtifactsChanged()
     {
-        List<ArtifactData> sortedList = _model.OwnedArtifacts;
+        List<ArtifactData> sortedList = _data.OwnedArtifacts;
 
         List<InventorySlotViewModel> viewModels = sortedList.Select(artifact =>
                                                   CreateInventorySlotViewModel(artifact)).ToList();
@@ -116,17 +119,17 @@ public class ArtifactUIPresenter
 
     private void HandleEquipRequest(ArtifactData artifact, int slotIndex)
     {
-        _model.EquipArtifact(artifact, slotIndex);
+        _service.EquipArtifact(artifact, slotIndex);
         _inventoryPanelView.CloseUI();
     }
 
     private void HandleUnEquipRequest(ArtifactData artifact)
     {
-        for (int i = 0; i < _model.EquippedArtifacts.Count; i++)
+        for (int i = 0; i < _data.EquippedArtifacts.Count; i++)
         {
-            if (_model.EquippedArtifacts[i] == artifact)
+            if (_data.EquippedArtifacts[i] == artifact)
             {
-                _model.UnEquipArtifact(i);
+                _service.UnEquipArtifact(i);
                 _inventoryPanelView.CloseUI();
                 break;
             }
@@ -145,26 +148,26 @@ public class ArtifactUIPresenter
 
     private void HandleAutoEquipRequest(ArtifactType type)
     {
-        _model.AutoEquipArtifacts(type);
+        _service.AutoEquipArtifacts(type);
     }
 
     private void HandleUnEquipAllRequest()
     {
-        _model.UnEquipAllArtifacts();
+        _service.UnEquipAllArtifacts();
     }
     #endregion
 
     #region Handle 메서드 : UIArtifactInventoryPanel 관련
     private void HandleInventoryOpenRequest(int slotIndex)
     {
-        List<ArtifactData> ownedList = _model.OwnedArtifacts;
+        List<ArtifactData> ownedList = _data.OwnedArtifacts;
 
-        if (slotIndex < 0 || slotIndex >= _model.EquippedArtifacts.Count)
+        if (slotIndex < 0 || slotIndex >= _data.EquippedArtifacts.Count)
         {
-            Debug.LogError($"Invalid slot index: {slotIndex}. List count: {_model.EquippedArtifacts.Count}");
+            Debug.LogError($"Invalid slot index: {slotIndex}. List count: {_data.EquippedArtifacts.Count}");
             return;
         }
-        ArtifactData equippedInCurrentSlot = _model.EquippedArtifacts[slotIndex];
+        ArtifactData equippedInCurrentSlot = _data.EquippedArtifacts[slotIndex];
 
         List<InventorySlotViewModel> viewModels = ownedList.Select(artifact => 
                                                   CreateInventorySlotViewModel(artifact, equippedInCurrentSlot)).ToList();
@@ -186,7 +189,7 @@ public class ArtifactUIPresenter
 
     private void HandleSortRequest()
     {
-        _model.SortOwnedArtifacts();
+        _service.SortOwnedArtifacts();
     }
     #endregion
 
@@ -254,7 +257,7 @@ public class ArtifactUIPresenter
             ArtifactData = artifact,
             Icon = Resources.Load<Sprite>(artifact.iconSpritePath),
 
-            IsEquipped = _model.EquippedArtifacts.Contains(artifact)
+            IsEquipped = _data.EquippedArtifacts.Contains(artifact)
         };
 
         if (artifact is PassiveArtifactData p)
@@ -271,15 +274,16 @@ public class ArtifactUIPresenter
             vm.ValueOrCostText = $"Cost : {a.cost}";
             vm.BorderColor = GetGradeColor(PassiveArtifactGrade.Legendary);
         }
+
         return vm;
     }
 
     private StatBarViewModel CreateStatBarViewModel(EffectTarget target, StatType type)
     {
-        List<PassiveArtifactData> artifacts = _model.EquippedArtifacts.OfType<PassiveArtifactData>()
-                                                    .Where(p => p.effectTarget == target && p.statType == type)
-                                                    .OrderByDescending(p => p.grade)
-                                                    .ToList();
+        List<PassiveArtifactData> artifacts = _data.EquippedArtifacts.OfType<PassiveArtifactData>()
+                                                   .Where(p => p.effectTarget == target && p.statType == type)
+                                                   .OrderByDescending(p => p.grade)
+                                                   .ToList();
 
         StatBarViewModel barVm = new StatBarViewModel
         {

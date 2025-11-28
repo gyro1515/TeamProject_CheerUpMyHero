@@ -900,6 +900,75 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
     public StageDestinyData currentDestiny { get; set; } = new StageDestinyData();
     public Dictionary<int, int> activeChallenges { get; private set; } = new Dictionary<int, int>();
 
+    // 유물 관련
+    #region Artifact
+    private const int ArtifactSlotCount = 8;
+
+    public List<ArtifactData> OwnedArtifacts { get; private set; } = new List<ArtifactData>();
+    public List<ArtifactData> EquippedArtifacts { get; private set; } = new List<ArtifactData>();
+
+    public event Action OnArtifactEquippedChanged;
+    public event Action OnArtifactOwnedChanged;
+
+    private void InitializeArtifactSlots()
+    {
+        EquippedArtifacts = new List<ArtifactData>(new ArtifactData[ArtifactSlotCount]);
+    }
+
+    public void AddOwnedArtifact(ArtifactData artifact)
+    {
+        if (artifact == null) return;
+        OwnedArtifacts.Add(artifact);
+        OnArtifactOwnedChanged?.Invoke();
+    }
+
+    public void SetEquippedArtifact(int slotIndex, ArtifactData artifact)
+    {
+        if (slotIndex < 0 || slotIndex >= ArtifactSlotCount) return;
+        EquippedArtifacts[slotIndex] = artifact;
+        OnArtifactEquippedChanged?.Invoke();
+    }
+
+    public void ClearEquippedSlot(int slotIndex)
+    {
+        if (slotIndex < 0 || slotIndex >= ArtifactSlotCount) return;
+        EquippedArtifacts[slotIndex] = null;
+        OnArtifactEquippedChanged?.Invoke();
+    }
+
+    public void ClearAllEquippedSlots()
+    {
+        for (int i = 0; i < ArtifactSlotCount; i++)
+        {
+            EquippedArtifacts[i] = null;
+        }
+        OnArtifactEquippedChanged?.Invoke();
+    }
+
+    public ArtifactData GetEquippedArtifact(int slotIndex)
+    {
+        if (slotIndex < 0 || slotIndex >= ArtifactSlotCount) return null;
+        return EquippedArtifacts[slotIndex];
+    }
+
+    public void SetOwnedArtifacts(List<ArtifactData> artifacts)
+    {
+        OwnedArtifacts = artifacts ?? new List<ArtifactData>();
+        OnArtifactOwnedChanged?.Invoke();
+    }
+
+    public void SetEquippedArtifacts(List<ArtifactData> artifacts)
+    {
+        InitializeArtifactSlots();
+        if (artifacts == null) return;
+
+        for (int i = 0; i < artifacts.Count && i < ArtifactSlotCount; i++)
+        {
+            EquippedArtifacts[i] = artifacts[i];
+        }
+        OnArtifactEquippedChanged?.Invoke();
+    }
+    #endregion
 
     #region 저장 관련
     private Dictionary<int, List<int>> ConvertDeckToInt()
