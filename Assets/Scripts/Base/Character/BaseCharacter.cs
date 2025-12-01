@@ -25,20 +25,7 @@ public class BaseCharacter : MonoBehaviour
 
     protected Vector3 _moveDir;
 
-    public void SetMoveSpeed(float newSpeed)
-    {
-        MoveSpeed = newSpeed;
-    }
-
-    public void SetAttackPower(float newAtkPower)
-    {
-        AtkPower = newAtkPower;
-    }
-
-    public void SetAttackRate(float newAttackRate) 
-    {
-        AttackRate = newAttackRate;
-    }
+    
     public virtual Vector3 MoveDir
     {
         get { return _moveDir; }

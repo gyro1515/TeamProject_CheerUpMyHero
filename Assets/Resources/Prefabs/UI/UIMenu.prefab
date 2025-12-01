@@ -14874,10 +14874,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8049667676151431373}
+  - component: {fileID: 6879591097932816165}
   - component: {fileID: 3368389693468489922}
   - component: {fileID: 3962790722413621776}
   - component: {fileID: 5309452440107734914}
-  - component: {fileID: 6879591097932816165}
   - component: {fileID: 8225291673987267602}
   - component: {fileID: 5222136524696734114}
   - component: {fileID: 5672045407843025108}
@@ -14908,6 +14908,29 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
+--- !u!114 &6879591097932816165
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7007157038317150062}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c6bbcbe06ab05e439eca9a81951f6c1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  laterUpdatePopup: {fileID: 5146371299109994978}
+  PostBtn: {fileID: 571597030896170313}
+  NoticeBtn: {fileID: 7657143223226626857}
+  GuideBtn: {fileID: 1212759407614679973}
+  EnforceBtn: {fileID: 8767498729479649292}
+  StoreBtn: {fileID: 6274670994295125362}
+  GachaBtn: {fileID: 7319674301840164872}
+  AlliesBtn: {fileID: 6810287532629999437}
+  BattleBtn: {fileID: 4920594238389388706}
+  WisdomBtn: {fileID: 8196226544647754155}
+  _settingPanelPopUpUI: {fileID: 3305290754058830063}
 --- !u!223 &3368389693468489922
 Canvas:
   m_ObjectHideFlags: 0
@@ -14971,28 +14994,6 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
---- !u!114 &6879591097932816165
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7007157038317150062}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9c6bbcbe06ab05e439eca9a81951f6c1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  laterUpdatePopup: {fileID: 5146371299109994978}
-  PostBtn: {fileID: 571597030896170313}
-  NoticeBtn: {fileID: 7657143223226626857}
-  GuideBtn: {fileID: 1212759407614679973}
-  EnforceBtn: {fileID: 8767498729479649292}
-  StoreBtn: {fileID: 6274670994295125362}
-  GachaBtn: {fileID: 7319674301840164872}
-  AlliesBtn: {fileID: 6810287532629999437}
-  BattleBtn: {fileID: 4920594238389388706}
-  WisdomBtn: {fileID: 8196226544647754155}
 --- !u!222 &8225291673987267602
 CanvasRenderer:
   m_ObjectHideFlags: 0

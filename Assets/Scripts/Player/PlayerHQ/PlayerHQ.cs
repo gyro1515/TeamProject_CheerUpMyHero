@@ -86,30 +86,32 @@ public class PlayerHQ : BaseHQ
         playerUnitGO.transform.position = GetRandomSpawnPos();
 
         Rarity unitRarity = uunitRarityType[poolType];
-
-        if (unitRarity == Rarity.epic) return; //251016기준: epic 등급은 강화 없음
-
-        unitSpawnCnt[poolType]++;
-        // 4번 소환할 때마다 강화
-        // 251015 변경 -> 커먼 유닛은 8번, 레어는 4번
-        int tmpUpgradeCntByRarity = upgradeCntByRarity[(int)unitRarity];
         bool isLegendary = false;
-
-        // [수정됨] 카운트가 0보다 크고, 강화 주기(N)의 배수일 때 강화
-        if (unitSpawnCnt[poolType] > 0 && unitSpawnCnt[poolType] % tmpUpgradeCntByRarity == 0)
+        BaseUnit playerUnit = playerUnitGO.GetComponent<BaseUnit>();
+        // 251016기준: epic 등급은 강화 없음
+        // 251127기준: 영웅 시너지 유닛도 강화 없음
+        if (unitRarity != Rarity.epic && (playerUnit.UnitData.synergyType & UnitSynergyType.Hero) == 0)
         {
-            //unitSpawnCnt[poolType] = 0;
-            isLegendary = true;
-        }
+            unitSpawnCnt[poolType]++;
+            // 4번 소환할 때마다 강화
+            // 251015 변경 -> 커먼 유닛은 8번, 레어는 4번
+            int tmpUpgradeCntByRarity = upgradeCntByRarity[(int)unitRarity];
 
-        else if (unitSpawnCnt[poolType] % tmpUpgradeCntByRarity == tmpUpgradeCntByRarity - 1)
-        {
-            // 유닛 슬롯에 전설 유닛 소환 가능 알리기
-            uiSlot.SetOutLineForSpawnLegendaryUnit();
-            //Debug.Log("다음 소환시 전설 유닛 소환");
-        }
-        playerUnitGO.GetComponent<BaseUnit>().SetStatMultiplier(isLegendary ? statMultiplier : 1f, isSpawnHero);
+            // [수정됨] 카운트가 0보다 크고, 강화 주기(N)의 배수일 때 강화
+            if (unitSpawnCnt[poolType] > 0 && unitSpawnCnt[poolType] % tmpUpgradeCntByRarity == 0)
+            {
+                //unitSpawnCnt[poolType] = 0;
+                isLegendary = true;
+            }
 
+            else if (unitSpawnCnt[poolType] % tmpUpgradeCntByRarity == tmpUpgradeCntByRarity - 1)
+            {
+                // 유닛 슬롯에 전설 유닛 소환 가능 알리기
+                uiSlot.SetOutLineForSpawnLegendaryUnit();
+                //Debug.Log("다음 소환시 전설 유닛 소환");
+            }
+        }
+        playerUnit.SetStatMultiplier(isLegendary ? statMultiplier : 1f, isSpawnHero);
     }
     void SetUnitDataFromCardDatd()
     {

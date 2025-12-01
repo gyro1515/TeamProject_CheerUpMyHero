@@ -198,7 +198,7 @@ public class Player : BaseUnit
     void CheckHealthRatioAndPlaySound()
     {
         int healthRatio = Mathf.CeilToInt(curHp / MaxHp * 100);
-        Debug.Log($"현재 체력 비율{healthRatio}");
+        //Debug.Log($"현재 체력 비율{healthRatio}");
         // 1. 체력이 10% 이하이고, 아직 10% 사운드를 재생한 적이 없다면
         if (healthRatio <= 10 && !isPlayedSound10)
         {

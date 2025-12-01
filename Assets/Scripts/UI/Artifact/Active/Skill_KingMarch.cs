@@ -14,7 +14,7 @@ public class Skill_KingMarch : ActiveSkillEffect
         GameObject fxGO = ObjectPoolManager.Instance.Get(PoolType.FXActiveAf3);
         fxGO.transform.position = GameManager.Instance.Player.transform.position;
         List<BaseCharacter> allies = UnitManager.PlayerUnitList;
-        foreach (var ally in allies.ToList())
+        foreach (var ally in allies)
         {
             if (ally == null || ally.IsDead) continue;
             var buffController = ally.GetComponent<BuffController>();

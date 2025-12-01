@@ -96,7 +96,7 @@ public class BaseController : MonoBehaviour, IAttackable, IDamageable
         gameObject.SetActive(false);
         Destroy(gameObject);*/
     }
-    public void SetDead()
+    public virtual void SetDead()
     {
         // 이 오브젝트에 BasePoolable스크립트가 붙어 있다면 오브젝트 풀링, 아니면 그냥 삭제
         if (poolable)
@@ -147,3 +147,4 @@ public class BaseController : MonoBehaviour, IAttackable, IDamageable
     }
 
 }
+
