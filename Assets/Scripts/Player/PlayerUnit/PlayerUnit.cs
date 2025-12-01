@@ -52,18 +52,15 @@ public class PlayerUnit : BaseUnit
         float atkPowerModifierBonus = Modifiercalculator.GetMultiplier(target, StatType.AtkPower, this.UnitData);
         float moveSpeedModifierBonus = Modifiercalculator.GetMultiplier(target, StatType.MoveSpeed, this.UnitData);
 
-        // 아티팩트 스탯 보너스 관련 로직 -> cognizeRange 2 이상이면 Ranged, 아니면 Melee 반환함
-        EffectTarget artifactTarget = (UnitData != null && UnitData.cognizanceRange >= 2f) ? EffectTarget.RangedUnit : EffectTarget.MeleeUnit;
-        float hpArtifactBonusPercent = ArtifactManager.Instance.GetPassiveArtifactStatBonus(artifactTarget, StatType.MaxHp) / 100f;
-        float atkArtifactBonusPercent = ArtifactManager.Instance.GetPassiveArtifactStatBonus(artifactTarget, StatType.AtkPower) / 100f;
+        PlayerUnitArtifactBonus artifactBonus = _artifactStatCalculateor.GetUnitArtifactBonus(UnitData);
 
         // 영웅 소환시, 소환될 유닛은 스탯 2배
         float spawnHeroBonus = isSpawnHero && UnitData.unitClass == UnitClass.Normal ? 2f : 1f;
 
         // 배율에 따른 체력 공격력 세팅 -> [원래 값 * (운명, 도전 배율 + statMultiplier) -> 합연산]
-        MaxHp = UnitData.health * (hpModifierBonus + statMultiplier + hpArtifactBonusPercent) * (1.0f + synergyHealthBonus / 100.0f) * spawnHeroBonus;
+        MaxHp = UnitData.health * (hpModifierBonus + statMultiplier + artifactBonus.HpBonusPercent) * (1.0f + synergyHealthBonus / 100.0f) * spawnHeroBonus;
         curHp = MaxHp;
-        AtkPower = UnitData.atkPower * (atkPowerModifierBonus + statMultiplier + atkArtifactBonusPercent) * (1.0f + synergyAttackBonus / 100.0f) * spawnHeroBonus;
+        AtkPower = UnitData.atkPower * (atkPowerModifierBonus + statMultiplier + artifactBonus.AtkBonusPercent) * (1.0f + synergyAttackBonus / 100.0f) * spawnHeroBonus;
         MoveSpeed = UnitData.moveSpeed * (moveSpeedModifierBonus + 1f);
 
         // 이 시너지 체크 필요

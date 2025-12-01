@@ -41,6 +41,23 @@ public class ArtifactService
         _data.AddOwnedArtifact(artifact);
         return true;
     }
+
+    // 특정 유물 id로 찾아서 여러 개 삭제하는 메서드
+    public int RemoveArtifactsByIdNumber(int idNumber, int count)
+    {
+        int removedCount = 0;
+
+        for (int i = _data.OwnedArtifacts.Count - 1; i >= 0 && removedCount < count; i--)
+        {
+            if (_data.OwnedArtifacts[i].idNumber == idNumber)
+            {
+                _data.RemoveOwnedArtifact(_data.OwnedArtifacts[i]);
+                removedCount++;
+            }
+        }
+
+        return removedCount;
+    }
     #endregion
 
     #region 장착 유물 관련 메서드 (장착, 해제)

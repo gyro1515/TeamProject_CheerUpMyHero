@@ -8,7 +8,7 @@ public class Skill_GoddessBlessing : ActiveSkillEffect
     public override void Execute(ActiveArtifactLevelData levelData)
     {
         Debug.Log("스킬 4: 여신의 축복 발동! (3초 후)");
-        ArtifactManager.Instance.StartCoroutine(Co_GoddessBlessing(levelData));
+        PlayerDataManager.Instance.StartCoroutine(Co_GoddessBlessing(levelData));
     }
 
     private IEnumerator Co_GoddessBlessing(ActiveArtifactLevelData levelData)

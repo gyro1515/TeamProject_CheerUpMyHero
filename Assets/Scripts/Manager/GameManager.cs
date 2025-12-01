@@ -445,7 +445,7 @@ public class GameManager : SingletonMono<GameManager>
             stageId_Int = stageId,
             stageSupplyLevel_Int = playerDataManager.SupplyLevel,
             stageTimeTaken_Float = Time.time - StartTime,
-            stageUsedArtifat_String = ArtifactManager.Instance.SaveArtifactData(ArtifactManager.Instance.EquippedArtifacts), //기존 로직 재사용
+            stageUsedArtifat_String = playerDataManager.SaveArtifactData(playerDataManager.EquippedArtifacts), //기존 로직 재사용
             stageUsedUnit_String = ConvertToJson<Dictionary<PoolType, int>>(this.PlayerHQ.UnitSpawnCnt), //일단 풀타입으로 내보내고, 나중에 통계 정리할때 유닛 붙이기로 어짜피 내가 해야하니..
         };
 
@@ -469,7 +469,7 @@ public class GameManager : SingletonMono<GameManager>
             $"8. 스테이지 ID: {stageId} \n" +
             $"9. 보급 레벨: {playerDataManager.SupplyLevel}\n" +
             $"10.클리어 시간: {Time.time - StartTime} \n" + //이건 전송되는 통계하고 차이 있을듯
-            $"11.장착 유물: {ArtifactManager.Instance.SaveArtifactData(ArtifactManager.Instance.EquippedArtifacts)}\n" +
+            $"11.장착 유물: {playerDataManager.SaveArtifactData(playerDataManager.EquippedArtifacts)}\n" +
             $"11. 사용한 유닛:{ConvertToJson<Dictionary<PoolType, int>>(this.PlayerHQ.UnitSpawnCnt)}");
 #endif
     }

@@ -24,6 +24,9 @@ public class UIStageClearArtifactSelect : BaseUI
     private const int ActiveArtifactRandomCreateCount = 2;
     private const int PassiveArtifactRandomCreateCount = 3;
 
+    private ArtifactRewardGenerator _rewardGenerator;
+    private ArtifactService _service;
+
     private CanvasGroup _canvasGroup;
 
     private List<UIRandomArtifactSlot> _slots = new List<UIRandomArtifactSlot>();
@@ -39,6 +42,9 @@ public class UIStageClearArtifactSelect : BaseUI
     private void Awake()
     {
         _canvasGroup = GetComponent<CanvasGroup>();
+
+        _rewardGenerator = new ArtifactRewardGenerator();
+        _service = new ArtifactService(PlayerDataManager.Instance);
 
         _rerollButton.onClick.AddListener(() => { OnRerollButtonClicked().Forget(); });
         _selectButton.onClick.AddListener(OnSelectButtonClicked);
@@ -78,12 +84,12 @@ public class UIStageClearArtifactSelect : BaseUI
 
         if (type == ArtifactType.Active)
         {
-            List<ActiveArtifactData> randomAAf = ArtifactManager.Instance.GetRandomActiveArtifact(ActiveArtifactRandomCreateCount);
+            List<ActiveArtifactData> randomAAf = _rewardGenerator.GetRandomActiveArtifacts(ActiveArtifactRandomCreateCount);
             data = randomAAf.Cast<ArtifactData>().ToList();
         }
         else
         {
-            List<PassiveArtifactData> randomPAf = ArtifactManager.Instance.GetRandomPassiveArtifact(PassiveArtifactRandomCreateCount, currentChapter);
+            List<PassiveArtifactData> randomPAf = _rewardGenerator.GetRandomPassiveArtifacts(PassiveArtifactRandomCreateCount, currentChapter);
             data = randomPAf.Cast<ArtifactData>().ToList();
         }
         UpdateSlot(data);
@@ -157,7 +163,7 @@ public class UIStageClearArtifactSelect : BaseUI
     {
         if (selectedArtifact != null)
         {
-            ArtifactManager.Instance.AddArtifact(selectedArtifact.idNumber);
+            _service.AddArtifact(selectedArtifact.idNumber);
 
             //9번 스테이지 깨고 첫번째 유물 선택에서만 나옴, 두번째는 안나옴
             if (is9StageAndFirst)

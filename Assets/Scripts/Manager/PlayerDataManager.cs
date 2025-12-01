@@ -922,6 +922,20 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
         OnArtifactOwnedChanged?.Invoke();
     }
 
+    public bool RemoveOwnedArtifact(ArtifactData artifact)
+    {
+        if (artifact == null) return false;
+
+        bool removed = OwnedArtifacts.Remove(artifact);
+
+        if (removed)
+        {
+            OnArtifactOwnedChanged?.Invoke();
+        }
+
+        return removed;
+    }
+
     public void SetEquippedArtifact(int slotIndex, ArtifactData artifact)
     {
         if (slotIndex < 0 || slotIndex >= ArtifactSlotCount) return;
@@ -968,6 +982,13 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
         }
         OnArtifactEquippedChanged?.Invoke();
     }
+
+    // ------ 액티브 유물 관련 데이터인데 어떤 경우로 사용되는 지 애매해서 살려둬용
+    // 소유 액티브 유물 데이터
+    public List<ActiveAfData> OwnedActiveAfData { get; private set; } = new List<ActiveAfData>();
+    // 장착 액티브 유물 데이터
+    public List<ActiveAfData> EquippedActiveAfData { get; private set; } = new List<ActiveAfData>();
+    // ------------------------------------------------------------------------------
     #endregion
 
     #region 저장 관련
@@ -1046,8 +1067,8 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
             DeckNames = SaveDeckName(),
             ActiveDeckIndex = this.ActiveDeckIndex,
             OwnedCardData = this.OwnedCardData.Keys.ToList<int>(),
-            OwnedArtifacts = ArtifactManager.Instance.SaveArtifactData(ArtifactManager.Instance.OwnedArtifacts),
-            EquippedArtifacts = ArtifactManager.Instance.SaveArtifactData(ArtifactManager.Instance.EquippedArtifacts),
+            OwnedArtifacts = SaveArtifactData(this.OwnedArtifacts),
+            EquippedArtifacts = SaveArtifactData(this.EquippedArtifacts),
             PlayerLevel = this.PlayerLevel,
             PlayerExp = this.CurExp,
 
@@ -1111,7 +1132,7 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
             this.ActiveDeckIndex = loadedPlayerData.ActiveDeckIndex;
             CardGenerate(loadedPlayerData.OwnedCardData);
             _TileDataHandler.RestoreFromSnapshot(loadedPlayerData.TileGridData);
-            ArtifactManager.Instance.LoadArtifactData(loadedPlayerData.OwnedArtifacts, loadedPlayerData.EquippedArtifacts);
+            LoadArtifactData(loadedPlayerData.OwnedArtifacts, loadedPlayerData.EquippedArtifacts);
             this.PlayerLevel = loadedPlayerData.PlayerLevel;
             this.CurExp = loadedPlayerData.PlayerExp;
 
@@ -1159,7 +1180,59 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
         }
     }
 
+    //Newtonsoft.Json 사용해서 패시브, 액티브까지 알아서 구분
+    public string SaveArtifactData(List<ArtifactData> data)
+    {
+        JsonSerializerSettings settings = new JsonSerializerSettings
+        {
+            TypeNameHandling = TypeNameHandling.Auto
+        };
 
+        string json = JsonConvert.SerializeObject(data, Formatting.Indented, settings);
+
+        return json;
+    }
+
+
+    public void LoadArtifactData(string ownedList, string equippedList)
+    {
+        bool hasSaveData = false;
+
+        if (ownedList != null && equippedList != null)
+        {
+            hasSaveData = true;
+        }
+
+        if (hasSaveData)
+        {
+            InitializeArtifactSlots();
+            JsonSerializerSettings settings = new JsonSerializerSettings
+            {
+                TypeNameHandling = TypeNameHandling.Auto
+            };
+
+
+            OwnedArtifacts = JsonConvert.DeserializeObject<List<ArtifactData>>(ownedList, settings);
+            List<ArtifactData> equippedData = JsonConvert.DeserializeObject<List<ArtifactData>>(equippedList, settings);
+
+            for (int i = 0; i < equippedData.Count && i < ArtifactSlotCount; i++)
+            {
+                if (equippedData[i] != null)
+                {
+                    EquippedArtifacts[i] = equippedData[i];  // 직접 할당
+                    Debug.Log($"[ArtifactManager] Slot {i}에 유물 복원: {equippedData[i].name}");
+                }
+            }
+
+        }
+        else    // 아예 게임 처음이면 초기화 메서드 
+        {
+            InitializeArtifactSlots();
+        }
+
+        OnArtifactEquippedChanged?.Invoke();
+        OnArtifactOwnedChanged?.Invoke();
+    }
     #endregion
 
     //#region 레벨 관련

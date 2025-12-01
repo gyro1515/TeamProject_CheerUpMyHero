@@ -154,17 +154,14 @@ public class Player : BaseUnit
         float atkModifierBonus = Modifiercalculator.GetMultiplier(target, StatType.AtkPower, this.UnitData);
         float moveSpeedModifierBonus = Modifiercalculator.GetMultiplier(target, StatType.MoveSpeed, this.UnitData);
 
-        float hpArtifactBonusPercent = ArtifactManager.Instance.GetPassiveArtifactStatBonus(target, StatType.MaxHp) / 100f;
-        float atkArtifactBonusPercent = ArtifactManager.Instance.GetPassiveArtifactStatBonus(target, StatType.AtkPower) / 100f;
-        float moveSpeedArtifactBonusPercent = ArtifactManager.Instance.GetPassiveArtifactStatBonus(target, StatType.MoveSpeed) / 100f;
-        float auraArtifactBonusPercent = ArtifactManager.Instance.GetPassiveArtifactStatBonus(target, StatType.AuraRange) / 100f;
+        PlayerArtifactBonus artifactBonus = _artifactStatCalculateor.GetPlayerArtifactBonus();  // 구조체 만들어서 한 번에 보너스 정보 받아옴
 
-        MaxHp = PlayerData.health * (hpModifierBonus + statMultiplier + hpArtifactBonusPercent);
+        MaxHp = PlayerData.health * (hpModifierBonus + statMultiplier + artifactBonus.HpBonusPercent);
         curHp = MaxHp;
-        AtkPower = PlayerData.atkPower * (atkModifierBonus + statMultiplier + hpArtifactBonusPercent);
+        AtkPower = PlayerData.atkPower * (atkModifierBonus + statMultiplier + artifactBonus.AtkBonusPercent);
         AttackRate = PlayerData.attackRate * statMultiplier; // 공격 속도는 크기와 상관없이 배율에 비례
-        MoveSpeed = PlayerData.moveSpeed * (moveSpeedModifierBonus + 1f + moveSpeedArtifactBonusPercent);
-        AuraRange = PlayerData.auraRange * (1f + auraArtifactBonusPercent);
+        MoveSpeed = PlayerData.moveSpeed * (moveSpeedModifierBonus + 1f + artifactBonus.MoveSpeedBonusPercent);
+        AuraRange = PlayerData.auraRange * (1f + artifactBonus.AuraRangeBonusPercent);
         AuraAtkBonus = PlayerData.auraAtkBonus;
         playerAura.transform.localScale = Vector3.one * AuraRange;
 
