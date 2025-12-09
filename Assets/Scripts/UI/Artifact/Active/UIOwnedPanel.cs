@@ -55,7 +55,7 @@ public class UIOwnedPanel : MonoBehaviour
     }
     private void Start()
     {
-        activeAfDatas = ArtifactManager.Instance.OwnedActiveAfData;
+        activeAfDatas = PlayerDataManager.Instance.OwnedActiveAfData;
         SetAfDataForTest(); // 테스트로 스프라이트 세팅
         ReSetSlotData();
         isInit = true;

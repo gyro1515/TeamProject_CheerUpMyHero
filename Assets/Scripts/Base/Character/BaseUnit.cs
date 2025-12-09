@@ -72,6 +72,8 @@ public abstract class BaseUnit : BaseCharacter
 
     protected KnockbackHandler knockbackHandler;
 
+    protected ArtifactStatCalculator _artifactStatCalculateor;      // 유물 스탯 계산용 일반 C# 클래스
+
     // 공격 애니메이션 관련 변수
     public bool IsAttackAnimPlaying { get; set; } = false;
     protected override void Awake()
@@ -87,6 +89,8 @@ public abstract class BaseUnit : BaseCharacter
         knockbackHandler.OnHitBackActive += SetHitBackActive; // 무적 여부 바인드
 
         gameObject.name = gameObject.name.Replace("(Clone)", ""); // 프리팹 이름으로 바꾸기
+
+        _artifactStatCalculateor = new ArtifactStatCalculator(PlayerDataManager.Instance);
 
         SetDataFromExcelData();
         SetStatMultiplier(1f);

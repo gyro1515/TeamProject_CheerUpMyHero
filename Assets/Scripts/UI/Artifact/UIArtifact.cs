@@ -19,6 +19,7 @@ public class UIArtifact : BaseUI, IBackButtonHandler
     private CanvasGroup _canvasGroup;
 
     private ArtifactUIPresenter _presenter;
+    private ArtifactService _service;
 
     private bool _isInitialized = false;
     #endregion
@@ -29,9 +30,12 @@ public class UIArtifact : BaseUI, IBackButtonHandler
     #endregion
     
     #region 생명주기
-    private void Awake()
+    private void Start()
     {
-        _presenter = new ArtifactUIPresenter(ArtifactManager.Instance,
+        _service = new ArtifactService(PlayerDataManager.Instance);
+
+        _presenter = new ArtifactUIPresenter(PlayerDataManager.Instance,
+                                             _service,
                                              this,
                                              _inventoryPanel,
                                              _equipPanel,
@@ -61,6 +65,7 @@ public class UIArtifact : BaseUI, IBackButtonHandler
         if (_activeOutline != null) _activeOutline.enabled = false;
         
     }
+
     private void OnEnable()
     {
         UIManager.PubishAddUIStackEvent(this);
@@ -74,10 +79,7 @@ public class UIArtifact : BaseUI, IBackButtonHandler
             RefreshUI();
         }
     }
-    private void Start()
-    {
-        
-    }
+
     private void OnDisable()
     {
         UIManager.PublishRemoveUIStackEvent();

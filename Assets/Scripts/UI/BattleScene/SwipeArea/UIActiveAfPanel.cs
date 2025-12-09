@@ -11,7 +11,7 @@ public class UIActiveAfPanel : MonoBehaviour
     private void Awake()
     {
         // 플레이어 데이터에 따라 슬롯 초기화
-        equippedActiveAfData = ArtifactManager.Instance.EquippedArtifacts;
+        equippedActiveAfData = PlayerDataManager.Instance.EquippedArtifacts;
         if (!GameManager.IsTutorialCompleted)
         {
             Debug.Log("튜토리얼 유물 세팅");

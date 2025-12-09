@@ -8,7 +8,7 @@ public class Skill_ThunderJudgment : ActiveSkillEffect
     public override void Execute(ActiveArtifactLevelData levelData)
     {
         Debug.Log("스킬 2: 천동설의 심판 발동!");
-        ArtifactManager.Instance.StartCoroutine(Co_ThunderJudgment(levelData));
+        PlayerDataManager.Instance.StartCoroutine(Co_ThunderJudgment(levelData));
     }
 
     private IEnumerator Co_ThunderJudgment(ActiveArtifactLevelData levelData)
