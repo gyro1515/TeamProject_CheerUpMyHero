@@ -185,7 +185,7 @@ public class BuffController : MonoBehaviour
             // 타이머가 아직 안 됐고 && 현재 색상이 유효하다면 -> 대기
             if (colorChangeTimer < colorChangeTime && isCurrentColorValid) return;
 
-            colorChangeTimer = 0f;
+            colorChangeTimer = colorChangeTimer - colorChangeTime; // 초과분 보정
 
             int searchIdx = colorChangeIndex;
             for (int i = 0; i < buffSourceCount; i++)
@@ -229,6 +229,30 @@ public class BuffController : MonoBehaviour
         activeBuffs[(int)buffSource].BuffStats[(int)buffType].PercentValue = percentValue;
         // '차이'만큼 능력치 적용
         _baseUnit?.SetBuffStat(buffType, diff);
+    }
+    public void ApplyBuffColor(BuffSource buffSource, Color newColor, float duration)
+    {
+        buffColors[(int)buffSource].IsActive = true;
+        buffColors[(int)buffSource].Duration = duration;
+        buffColors[(int)buffSource].changedColor = newColor;
+    }
+    void ChangeColor(Color newColor)
+    {
+        if (_spriteRenderer == null) return;
+        foreach (var sp in _spriteRenderer)
+        {
+            if (sp.gameObject.layer != colorTargetlayer) continue;
+
+            sp.color = newColor;
+        }
+    }
+    void ToOriginColor()
+    {
+        if (_spriteRenderer == null) return;
+        for (int i = 0; i < _spriteRenderer.Length; i++)
+        {
+            _spriteRenderer[i].color = _colors[i];
+        }
     }
     #endregion
 
@@ -299,24 +323,7 @@ public class BuffController : MonoBehaviour
         }
         _Co_ChangeColor = StartCoroutine(Co_ChangeColor(newColor, duration));
     }
-    void ChangeColor(Color newColor)
-    {
-        if (_spriteRenderer == null) return;
-        foreach (var sp in _spriteRenderer)
-        {
-            if (sp.gameObject.layer != colorTargetlayer) continue;
-
-            sp.color = newColor;
-        }
-    }
-    void ToOriginColor()
-    {
-        if (_spriteRenderer == null) return;
-        for (int i = 0; i < _spriteRenderer.Length; i++)
-        {
-            _spriteRenderer[i].color = _colors[i];
-        }
-    }
+    
 
     private IEnumerator Co_ChangeColor(Color newColor, float duration)
     {

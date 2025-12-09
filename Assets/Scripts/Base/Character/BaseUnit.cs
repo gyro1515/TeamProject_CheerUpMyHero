@@ -18,7 +18,17 @@ public abstract class BaseUnit : BaseCharacter
     [field: SerializeField] public float StartAttackNormalizedTime { get; private set; } = 0.36f; // 애니메이션 기준 정규화된 공격 시작 시간
     [field: SerializeField] protected int HitBackCount { get; set; } = 3; // 최대 몇 번 히트백될 수 되는지
     [field: SerializeField] public float SpawnCooldown { get; set; } = 5f;
-    [field: SerializeField] public virtual BaseUnitData UnitData { get; protected set; } 
+    [field: SerializeField] public virtual BaseUnitData UnitData { get; protected set; }
+    // 최종 스탯 계산용 프로퍼티
+    public float FinAttackPower { get { return AtkPower * attackPowerMultiplier + attackPowerAdd; }}
+    public float FinAttackRate { get { return AttackRate * attackRateMultiplier; }}
+    public float FinMoveSpeed { get { return MoveSpeed * moveSpeedMultiplier; }}
+    // 퍼센트
+    float attackPowerMultiplier = 1f; //
+    float attackRateMultiplier = 1f;  //
+    float moveSpeedMultiplier = 1f;   // 
+    // 상수
+    int attackPowerAdd = 0;
 
     public BaseUnitController UnitController { get; protected set; }
 
@@ -93,9 +103,21 @@ public abstract class BaseUnit : BaseCharacter
         //SetStatMultiplier(1f); // 몬스터 비활성화시 초기화
         TargetUnit = null;
     }
-    public void SetBuffStat(IntegratedBuffType buffType, float value)
+    public void SetBuffStat(IntegratedBuffType buffType, float percentValue)
     {
-        // TODO: 버프 타입에 따라 스탯 
+        // 버프 타입에 따라 스탯
+        switch (buffType)
+        {
+            case IntegratedBuffType.AtkackPower:
+                attackPowerMultiplier += percentValue;
+                break;
+            case IntegratedBuffType.AttackRate:
+                attackRateMultiplier += percentValue;
+                break;
+            case IntegratedBuffType.MoveSpeed:
+                moveSpeedMultiplier += percentValue;
+                break;
+        }
     }
     public void SetMoveSpeed(float newSpeed)
     {
