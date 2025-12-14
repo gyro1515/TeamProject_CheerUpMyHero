@@ -17,6 +17,7 @@ using Unity.Services.Economy.Model;
 using UnityEngine;
 using UnityEngine.Networking;
 using static UnityEngine.Rendering.DebugUI;
+using static UnityEngine.Rendering.DebugUI.MessageBox;
 
 public enum CommunicationStatus
 {
@@ -162,18 +163,33 @@ public class BackendManager : SingletonMono<BackendManager>
             {
                 Debug.LogWarning($"인터넷 연결에 실패했습니다.");
 
+                var style = PopupStyle.RetryOrQuit;
+
                 // UIManager를 통해 재시도 팝업을 띄우고 사용자 응답을 기다립니다.
-                bool userWantsToRetry = await UIManager.Instance.GetUI<NoticeNetworkError>().ShowAndWaitForResponse("인터넷 연결을 확인해주세요.\n다시 시도하시겠습니까?", true);
+                bool userWantsToRetry = await UIManager.Instance.GetUI<SystemPopup>().ShowMessageAsync("네트워크 오류", "연결이 불안정합니다.\n다시 시도하시겠습니까?", style);
 
                 if (userWantsToRetry)
                 {
                     Debug.Log("사용자가 재시도를 선택했습니다. 네트워크 상태를 다시 확인합니다.");
                     await UniTask.Delay(500); // 잠시 후 재시도
                 }
+                else
+                {
+                    // 4. [중요] 취소/종료 선택 시 루프 탈출 및 종료 처리
+                    Debug.Log("사용자가 재시도를 취소했습니다.");
+
+                    // 앱 종료 또는 타이틀로 이동하는 처리
+                    Instance.HandleUserCancel();
+
+                    // 더 이상 진행하지 않도록 return (혹은 상황에 따라 break)
+                    return;
+                }
             }
 
             await PlayerDataManager.Instance.InitializeResourcesAsync();
             await PlayerDataManager.Instance.LoadDataFromCloundAsync();
+
+            UIManager.Instance.HideLoading();
         }
         catch(Exception ex)
         {
@@ -192,13 +208,21 @@ public class BackendManager : SingletonMono<BackendManager>
             {
                 Debug.LogWarning($"인터넷 연결에 실패했습니다.");
 
-                // UIManager를 통해 재시도 팝업을 띄우고 사용자 응답을 기다립니다.
-                bool userWantsToRetry = await UIManager.Instance.GetUI<NoticeNetworkError>().ShowAndWaitForResponse("인터넷 연결을 확인해주세요.\n다시 시도하시겠습니까?", true);
+                var style = PopupStyle.RetryOrQuit;
 
-                if (userWantsToRetry)
+                // UIManager를 통해 팝업을 띄우고 사용자 선택을 기다림
+                bool shouldRetry = await UIManager.Instance.GetUI<SystemPopup>().ShowMessageAsync("네트워크 오류", "연결이 불안정합니다.\n다시 시도하시겠습니까?", style);
+
+                if (shouldRetry)
                 {
                     Debug.Log("사용자가 재시도를 선택했습니다. 네트워크 상태를 다시 확인합니다.");
                     await UniTask.Delay(500); // 잠시 후 재시도
+                }
+                else
+                {
+                    //종료
+                    HandleUserCancel();
+                    throw new OperationCanceledException("사용자 취소");
                 }
             }
 
@@ -257,6 +281,9 @@ public class BackendManager : SingletonMono<BackendManager>
             Debug.LogError($"<color=red>BackendManager 초기화 실패: {e.Message}</color>");
             Debug.LogException(e);
             _initializationTcs.TrySetResult(false);
+
+            if (e.IsOperationCanceledException())
+                return;
             UIManager.Instance.OpenUI<ErrorPopUP>();
         }
     }
@@ -403,21 +430,40 @@ public class BackendManager : SingletonMono<BackendManager>
                 await InternalLoadEconomyData(); // 최신 재화 정보(WriteLock 포함) 갱신
                 continue; // 팝업 없이 즉시 재시도
             }
+
             // UGS의 일반적인 네트워크 오류
             catch (RequestFailedException ex)
             {
                 Debug.LogError($"[{apiName}] 네트워크 오류: {ex.Message}");
+
+                var style = PopupStyle.RetryOrCancel;
+
                 // UIManager를 통해 팝업을 띄우고 사용자 선택을 기다림
-                bool shouldRetry = await UIManager.Instance.GetUI<NoticeNetworkError>().ShowAndWaitForResponse("서버 통신 실패, 네트워크 연결이 불안정합니다.\n다시 시도하시겠습니까?");
+                bool shouldRetry = await UIManager.Instance.GetUI<SystemPopup>().ShowMessageAsync("네트워크 오류", "연결이 불안정합니다.\n다시 시도하시겠습니까?", style);
 
                 if (shouldRetry)
                 {
                     continue; // while 루프의 처음으로 돌아가 재시도
                 }
-                // 사용자가 '취소'를 선택하면 새로운 예외를 발생시켜 외부로 알림
-                throw new OperationCanceledException("사용자가 작업을 취소했습니다.");
+                else
+                {
+                    // [중요] 사용자가 '취소/종료'를 눌렀을 때의 행동을 여기서 처리
+                    HandleUserCancel();
+                    throw new OperationCanceledException("사용자 취소");
+                }
             }
-            
+            // 잔액 부족 예외 처리
+            catch (Exception ex) when (ex.Message == "NOT_ENOUGH_FUNDS")
+            {
+                // 여기서 공용 알림 팝업 띄우기
+                await UIManager.Instance.GetUI<SystemPopup>()
+                    .ShowMessageAsync("알림", "재화가 부족하여 \n진행할 수 없습니다.", PopupStyle.ConfirmOnly);
+
+                // 중요: 루프를 빠져나가야 함. 
+                // 팝업을 띄웠으니 '처리됨'으로 간주하고 그냥 throw해서 호출자에게는 실패 사실만 알림
+                throw;
+            }
+
             catch (Exception e)
             {
                 // 재시도 대상이 아닌 다른 모든 예외는 그대로 다시 throw
@@ -525,8 +571,10 @@ public class BackendManager : SingletonMono<BackendManager>
         {
             Debug.LogWarning($"인터넷 연결에 실패했습니다.");
 
+            var style = PopupStyle.RetryOrCancel;
+
             // UIManager를 통해 재시도 팝업을 띄우고 사용자 응답을 기다립니다.
-            bool userWantsToRetry = await UIManager.Instance.GetUI<NoticeNetworkError>().ShowAndWaitForResponse("인터넷 연결을 확인해주세요.\n다시 시도하시겠습니까?");
+            bool userWantsToRetry = await UIManager.Instance.GetUI<SystemPopup>().ShowMessageAsync("네트워크 오류", "연결이 불안정합니다.\n다시 시도하시겠습니까?", style);
 
             if (userWantsToRetry)
             {
@@ -535,6 +583,7 @@ public class BackendManager : SingletonMono<BackendManager>
             }
             else
             {
+                Instance.HandleUserCancel();
                 Debug.Log("사용자가 재시도를 취소했습니다.");
                 return CommunicationStatus.Failure_UserCancelled; // 사용자가 취소했음을 반환
             }
@@ -642,7 +691,8 @@ public class BackendManager : SingletonMono<BackendManager>
         return await Instance.EnqueueRequestAsync(() => Instance.InternalLoadEconomyData(), nameof(LoadEconomyData));
     }
 
-    //나중에 서버로 이사가야 함
+    //사실은, 보안 우려가 있음. 클라이언트에서 숫자를 서버를 보내는 건 좋지 않다고 함
+    //근데 가챠로직에서 빡세게 구현 했으니까 나머진 그냥 이대로...
     public static async UniTask ChangeEconomy(string id, int amount)
     {
         var status = await CanCommunicateAsync(nameof(ChangeEconomy));
@@ -651,7 +701,7 @@ public class BackendManager : SingletonMono<BackendManager>
             throw new InvalidOperationException("서버와 통신할 수 없는 상태입니다.");
         }
 
-        await Instance.EnqueueRequestAsync(() => Instance.InternalChangeEnconmyAsync(id, amount), nameof(ChangeEconomy));
+        await Instance.EnqueueRequestAsync(() => Instance.InternalChangeEconomyAsync(id, amount), nameof(ChangeEconomy));
     }
 
     public static async UniTask WatchAdAndGetReward()
@@ -927,53 +977,62 @@ public class BackendManager : SingletonMono<BackendManager>
 
 
 
-    private async UniTask InternalChangeEnconmyAsync(string id, int amount)
+    private async UniTask InternalChangeEconomyAsync(string id, int amount)
     {
-        
-        string currentWriteLock = string.Empty;
-
-        if (writeLocks.ContainsKey(id))
+        try
         {
-            currentWriteLock = writeLocks[id];
+            var module = new EconomyModuleBindings(CloudCodeService.Instance);
+            int newBalance = await module.ChangeEconomyResource(id, amount);
+
+            Debug.Log($"[BackendManager] Economy changed via Cloud Code. ID: {id}, Amount: {amount}, New Balance: {newBalance}");
+        }
+        catch (CloudCodeException ex)
+        {
+            Debug.Log($"Code: {ex.ErrorCode}, Inner: {ex.InnerException?.GetType()}");
+
+            //잔액 부족 혹은 초과 코드. 초과는 클라이언트 상에서 처리하고, 부족만 처리
+            //왜냐하면, 서버상 잔액이 부족한 상황은 클라이언트 변조일 가능성이 높아서..
+            if (ex.Message.Contains("(422)"))
+            {
+                Debug.LogError("잔액 부족!: 서버 데이터와 동기화를 시도합니다.");
+
+                Debug.LogWarning($"[BackendManager] 잔액 부족 감지 (422). 서버 데이터와 동기화를 시도합니다. ID: {id}");
+
+                // 1. [동기화] 서버의 최신 잔액 정보(WriteLock 포함)를 강제로 다시 가져옵니다.
+                //    이 메서드는 이미 Dictionary<ResourceType, int>를 반환하도록 구현되어 있습니다.
+                var freshResources = await InternalLoadEconomyData();
+
+                // 2. [반영] 가져온 최신 데이터를 인게임 매니저(PlayerDataManager)에 밀어 넣습니다.
+                PlayerDataManager.Instance.SyncAllResources(freshResources);
+
+                // 3. [중단] 동기화는 완료했지만, 이번 '구매 요청' 자체는 실패한 것입니다.
+                //    ExecuteWithRetryAsync 루프가 끝나고, 외부 호출자(UI 등)가 실패를 알 수 있도록
+                //    명확한 메시지를 담아 예외를 다시 던집니다.
+                throw new Exception("NOT_ENOUGH_FUNDS");
+            }
+
+            Debug.LogError($"[BackendManager] Cloud Code Error: {ex.Message}");
+            throw; // ExecuteWithRetryAsync에서 처리하도록 throw
+        }
+    }
+
+    private void HandleUserCancel()
+    {
+        // 스타트 씬이면, 앱 종료. 처음 킨 상태에선 씬 정보가 등록되지 않아서, None도 넣어야 함
+        if (SceneLoader.CurrentSceneState == SceneState.StartScene || SceneLoader.CurrentSceneState == SceneState.None)
+        {
+#if UNITY_EDITOR
+            UnityEditor.EditorApplication.isPlaying = false;
+#else
+        Application.Quit();
+#endif
         }
         else
         {
-            Debug.LogWarning("재화가 동기화되지 않았습니다");
-            //그냥 넘어가게 하면, 알아서 오류를 뱉을 것. EconomyException을 새로 정의 못해서 이렇게 함.
+            // 게임 중이라면 타이틀 화면으로
+            SceneLoader.Instance.StartLoadScene(SceneState.StartScene);
         }
-
-        if (amount == 0)
-        {
-            Debug.LogWarning("0만큼 변할 수 없습니다.");
-            return;
-        }
-
-
-
-        try
-        {
-            if (amount > 0)
-            {
-                var incrementOptions = new IncrementBalanceOptions { WriteLock = currentWriteLock };
-                PlayerBalance incrementResult = await EconomyService.Instance.PlayerBalances.IncrementBalanceAsync(id, amount, incrementOptions);
-                writeLocks[id] = incrementResult.WriteLock;
-            }
-            else
-            {
-                var decrementOptions = new DecrementBalanceOptions { WriteLock = currentWriteLock };
-                PlayerBalance decrementResult = await EconomyService.Instance.PlayerBalances.DecrementBalanceAsync(id, -amount, decrementOptions);
-                writeLocks[id] = decrementResult.WriteLock;
-            }
-        }
-
-        catch (Exception e)
-        {
-            Debug.LogException(e);
-            throw;
-        }
-        
     }
-
 }
 
 public class StageResultEvent : Unity.Services.Analytics.Event
