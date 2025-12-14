@@ -403,6 +403,8 @@ public class BackendManager : SingletonMono<BackendManager>
                 await InternalLoadEconomyData(); // 최신 재화 정보(WriteLock 포함) 갱신
                 continue; // 팝업 없이 즉시 재시도
             }
+
+
             // UGS의 일반적인 네트워크 오류
             catch (RequestFailedException ex)
             {
@@ -642,7 +644,8 @@ public class BackendManager : SingletonMono<BackendManager>
         return await Instance.EnqueueRequestAsync(() => Instance.InternalLoadEconomyData(), nameof(LoadEconomyData));
     }
 
-    //나중에 서버로 이사가야 함
+    //사실은, 보안 우려가 있음. 클라이언트에서 숫자를 서버를 보내는 건 좋지 않다고 함
+    //근데 가챠로직에서 빡세게 구현 했으니까 나머진 그냥 이대로...
     public static async UniTask ChangeEconomy(string id, int amount)
     {
         var status = await CanCommunicateAsync(nameof(ChangeEconomy));
@@ -651,7 +654,7 @@ public class BackendManager : SingletonMono<BackendManager>
             throw new InvalidOperationException("서버와 통신할 수 없는 상태입니다.");
         }
 
-        await Instance.EnqueueRequestAsync(() => Instance.InternalChangeEnconmyAsync(id, amount), nameof(ChangeEconomy));
+        await Instance.EnqueueRequestAsync(() => Instance.InternalChangeEconomyAsync(id, amount), nameof(ChangeEconomy));
     }
 
     public static async UniTask WatchAdAndGetReward()
@@ -927,51 +930,31 @@ public class BackendManager : SingletonMono<BackendManager>
 
 
 
-    private async UniTask InternalChangeEnconmyAsync(string id, int amount)
+    private async UniTask InternalChangeEconomyAsync(string id, int amount)
     {
-        
-        string currentWriteLock = string.Empty;
-
-        if (writeLocks.ContainsKey(id))
-        {
-            currentWriteLock = writeLocks[id];
-        }
-        else
-        {
-            Debug.LogWarning("재화가 동기화되지 않았습니다");
-            //그냥 넘어가게 하면, 알아서 오류를 뱉을 것. EconomyException을 새로 정의 못해서 이렇게 함.
-        }
-
-        if (amount == 0)
-        {
-            Debug.LogWarning("0만큼 변할 수 없습니다.");
-            return;
-        }
-
-
-
         try
         {
-            if (amount > 0)
-            {
-                var incrementOptions = new IncrementBalanceOptions { WriteLock = currentWriteLock };
-                PlayerBalance incrementResult = await EconomyService.Instance.PlayerBalances.IncrementBalanceAsync(id, amount, incrementOptions);
-                writeLocks[id] = incrementResult.WriteLock;
-            }
-            else
-            {
-                var decrementOptions = new DecrementBalanceOptions { WriteLock = currentWriteLock };
-                PlayerBalance decrementResult = await EconomyService.Instance.PlayerBalances.DecrementBalanceAsync(id, -amount, decrementOptions);
-                writeLocks[id] = decrementResult.WriteLock;
-            }
-        }
+            var module = new EconomyModuleBindings(CloudCodeService.Instance);
+            int newBalance = await module.ChangeEconomyResource(id, amount);
 
-        catch (Exception e)
-        {
-            Debug.LogException(e);
-            throw;
+            Debug.Log($"[BackendManager] Economy changed via Cloud Code. ID: {id}, Amount: {amount}, New Balance: {newBalance}");
         }
-        
+        catch (CloudCodeException ex)
+        {
+            //잔액 부족 혹은 초과 코드. 초과는 클라이언트 상에서 처리하고, 부족만 처리
+            //왜냐하면, 서버상 잔액이 부족한 상황은 클라이언트 변조일 가능성이 높아서..
+            if (ex.ErrorCode == 422)
+            {
+                Debug.LogError("잔액 부족!: 서버 데이터와 동기화를 시도합니다.");
+
+                //동기화 로직(작성 예정)
+
+                return;
+            }
+
+            Debug.LogError($"[BackendManager] Cloud Code Error: {ex.Message}");
+            throw; // ExecuteWithRetryAsync에서 처리하도록 throw
+        }
     }
 
 }
