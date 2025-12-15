@@ -8,6 +8,7 @@ using System.Runtime.Serialization;
 using System.Text;
 using Unity.Services.CloudCode.GeneratedBindings.CheerUpMyHero.CloudCode;
 using Unity.VisualScripting;
+using UnityEditor.Tilemaps;
 using UnityEngine;
 using static UnityEngine.UI.CanvasScaler;
 using Random = UnityEngine.Random;
@@ -72,6 +73,9 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
     private Dictionary<int, BaseUnitData> AllCardData = new Dictionary<int, BaseUnitData>();
     //해금된 유닛 데이터
     public Dictionary<int, BaseUnitData> OwnedCardData { get; private set; } = new Dictionary<int, BaseUnitData>();
+    // (해금된 유닛 id, 보유한 개수) 데이터
+    public event Action<int, int> OnUnitCountChanged;
+
     IEventSubscriber<GridStateChangedEvent> onGridStateChangedEvent;
     IEventSubscriber<BattleEndedEvent> onBattleEndedEvent;
 
@@ -456,7 +460,15 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
         //1. 이 중에서 id int list 기반으로 해금된 카드 딕셔너리 만들기
         foreach (int id in unlockedCardIDLists)
         {
-            OwnedCardData[id] = AllCardData[id];
+            if (AllCardData.TryGetValue(id, out BaseUnitData data))
+            {
+                data.ownedCount = 1;
+                OwnedCardData[id] = data;
+            }
+            else
+            {
+                Debug.LogError($"[PlayerDataManager-CardGenerate] {id} 유닛 없음");
+            }
         }
 
     }
@@ -468,12 +480,25 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
             Debug.LogWarning($"유닛 해금 실패, ID:{id} 에 해당하는 유닛이 존재하지 않거나 세팅되지 않았습니다.");
             return;
         }
-        if (OwnedCardData.ContainsKey(id))
+        
+        if (OwnedCardData.ContainsKey(id))     // 특정 유닛 카드 중복 획득하는 경우
         {
-            Debug.Log("중복 획득. 유닛 강화시스템 언젠가 추가 예정...");
-            return;
+            OwnedCardData[id].ownedCount++;
+            CardCountChanged(id, OwnedCardData[id].ownedCount);
         }
-        OwnedCardData[id] = AllCardData[id];
+        else    // 특정 카드 유닛 새로 획득하는 경우
+        {
+            BaseUnitData unit = AllCardData[id];
+            unit.ownedCount = 1;
+            OwnedCardData[id] = unit;
+
+            CardCountChanged(id, OwnedCardData[id].ownedCount);
+        }
+    }
+
+    public void CardCountChanged(int id, int newCount)
+    {
+        OnUnitCountChanged?.Invoke(id, newCount);
     }
     #endregion
 
@@ -1067,6 +1092,7 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
             DeckNames = SaveDeckName(),
             ActiveDeckIndex = this.ActiveDeckIndex,
             OwnedCardData = this.OwnedCardData.Keys.ToList<int>(),
+            CardCounts = this.OwnedCardData.ToDictionary(pair => pair.Key, pair => pair.Value.ownedCount),
             OwnedArtifacts = SaveArtifactData(this.OwnedArtifacts),
             EquippedArtifacts = SaveArtifactData(this.EquippedArtifacts),
             PlayerLevel = this.PlayerLevel,
@@ -1130,7 +1156,27 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
             ConvertIntToDeck(loadedPlayerData.DeckPresets);
             LoadDeckName(loadedPlayerData.DeckNames);
             this.ActiveDeckIndex = loadedPlayerData.ActiveDeckIndex;
+
             CardGenerate(loadedPlayerData.OwnedCardData);
+            
+            if (loadedPlayerData.CardCounts != null && loadedPlayerData.CardCounts.Count > 0)
+            {
+                foreach (var pair in loadedPlayerData.CardCounts)
+                {
+                    if (OwnedCardData.TryGetValue(pair.Key, out var card))
+                    {
+                        card.ownedCount = pair.Value;
+                    }
+                }
+            }
+            else
+            {
+                foreach (var card in OwnedCardData.Values)
+                {
+                    card.ownedCount = 1;
+                }
+            }
+
             _TileDataHandler.RestoreFromSnapshot(loadedPlayerData.TileGridData);
             LoadArtifactData(loadedPlayerData.OwnedArtifacts, loadedPlayerData.EquippedArtifacts);
             this.PlayerLevel = loadedPlayerData.PlayerLevel;
@@ -1310,6 +1356,8 @@ public class PlayerSaveData
 
     //4. 보유한 유닛
     public List<int> OwnedCardData;
+    // 4-1. 보유한 유닛 카드마다의 개수
+    public Dictionary<int, int> CardCounts;
 
     //5. 보유한 유물
     //유물들은 Newtonsoft.Json를 사용해 패시브, 액티브로 알아서 전환

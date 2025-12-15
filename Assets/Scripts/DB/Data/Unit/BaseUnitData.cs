@@ -31,6 +31,8 @@ public class BaseUnitData : MonoData
     public float healAmount; // 치유량 (힐러 유닛 전용)
     public int maxTargetCount; // 최대 타겟 수 (범위 공격 유닛 전용)
 
+    public int ownedCount = 0;  // 유닛 카드 보유 개수
+    public int curLevel = 0;    // 현재 레벨
 }
 public enum Rarity
 {
