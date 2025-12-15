@@ -549,6 +549,26 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
   
     }
 
+    // [신규] 동기화 전용 메서드 (데이터를 외부에서 주입받음)
+    public void SyncAllResources(Dictionary<ResourceType, int> newResources)
+    {
+        if (newResources == null) return;
+
+        foreach (var kvp in newResources)
+        {
+            ResourceType type = kvp.Key;
+            int newValue = kvp.Value;
+
+            // 1. 데이터 갱신
+            _resources[type] = newValue;
+
+            // 2. UI 갱신 알림 (구독된 UI가 있다면 즉시 숫자가 바뀜)
+            OnResourceChangedEvent?.Invoke(type, _resources[type]);
+        }
+
+        Debug.Log("[PlayerDataManager] 모든 자원이 서버 데이터와 동기화되었습니다.");
+    }
+
     // 특정 자원의 현재 수량을 반환하는 메서드
     public int GetResourceAmount(ResourceType type)
     {
