@@ -45,7 +45,7 @@ public class PlayerHealerSplashController : BaseUnitController
         base.FixedUpdate();
         if (playerUnit.MoveDir != Vector3.zero)
         {
-            transform.position += playerUnit.MoveDir * playerUnit.MoveSpeed * Time.fixedDeltaTime;
+            transform.position += playerUnit.MoveDir * playerUnit.FinMoveSpeed * Time.fixedDeltaTime;
         }
     }
 
@@ -179,7 +179,7 @@ public class PlayerHealerSplashController : BaseUnitController
         while (selectedUnitPQ.Count > 0)
         {
             BaseCharacter target = selectedUnitPQ.Dequeue().Element;
-            target.Damageable.TakeDamage(playerUnit.AtkPower);
+            target.Damageable.TakeDamage(playerUnit.FinAttackPower);
         }
 
 
@@ -251,7 +251,7 @@ public class PlayerHealerSplashController : BaseUnitController
     /// 타겟이 사거리 안에 있을 때 공격(또는 힐) 애니메이션을 시작시키는 코루틴
     private IEnumerator AttackRoutine()
     {
-        WaitForSeconds wait = new WaitForSeconds(playerUnit.AttackRate);
+        WaitForSeconds wait = new WaitForSeconds(playerUnit.FinAttackRate);
         while (true)
         {
             if (playerUnit.TargetUnit != null)

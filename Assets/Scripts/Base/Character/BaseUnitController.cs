@@ -10,6 +10,7 @@ public abstract class BaseUnitController : BaseController
 
     bool isPlayer;
     IEventPublisher<HeroUnitDeadEvent> heroUnitDeadEventPub;
+    protected float attackTimer = 0f;
 
     protected override void Awake()
     {
@@ -40,7 +41,11 @@ public abstract class BaseUnitController : BaseController
             Animator.Play(baseCharacter.AnimationData.BasicParameterHash, 0, 0f);
         }
     }
-
+    protected override void Update()
+    {
+        base.Update();
+    }
+    
     public override void Attack()
     {
         base.Attack();

@@ -39,14 +39,14 @@ public class GolemAIController : BaseUnitController
     {
         base.FixedUpdate();
 
-        gameObject.transform.position += summonUnit.MoveDir * summonUnit.MoveSpeed * Time.fixedDeltaTime;
+        gameObject.transform.position += summonUnit.MoveDir * summonUnit.FinMoveSpeed * Time.fixedDeltaTime;
 
     }
     public override void Attack()
     {
         base.Attack();
 
-        summonUnit.TargetUnit?.TakeDamage(summonUnit.AtkPower);
+        summonUnit.TargetUnit?.TakeDamage(summonUnit.FinAttackPower);
         //Debug.Log("아군 유닛: 공격!");
     }
     public override void Dead()
@@ -90,7 +90,7 @@ public class GolemAIController : BaseUnitController
     IEnumerator AttackRoutine()
     {
         // 0.2초마다 타겟 갱신
-        WaitForSeconds wait = new WaitForSeconds(summonUnit.AttackRate);
+        WaitForSeconds wait = new WaitForSeconds(summonUnit.FinAttackRate);
         while (true)
         {
             if (summonUnit.TargetUnit != null)

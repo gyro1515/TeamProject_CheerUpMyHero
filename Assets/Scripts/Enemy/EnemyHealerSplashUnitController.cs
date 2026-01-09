@@ -39,7 +39,7 @@ public class EnemyHealerSplashController : BaseUnitController
         base.FixedUpdate();
         if (enemyUnit.MoveDir != Vector3.zero)
         {
-            transform.position += enemyUnit.MoveDir * enemyUnit.MoveSpeed * Time.fixedDeltaTime;
+            transform.position += enemyUnit.MoveDir * enemyUnit.FinMoveSpeed * Time.fixedDeltaTime;
         }
     }
 
@@ -124,7 +124,7 @@ public class EnemyHealerSplashController : BaseUnitController
         while (selectedUnitPQ.Count > 0)
         {
             BaseCharacter target = selectedUnitPQ.Dequeue().Element;
-            target.Damageable.TakeDamage(enemyUnit.AtkPower);
+            target.Damageable.TakeDamage(enemyUnit.FinAttackPower);
         }
         if (hitCount > 0)
         {
@@ -156,7 +156,7 @@ public class EnemyHealerSplashController : BaseUnitController
 
     private IEnumerator AttackRoutine()
     {
-        WaitForSeconds wait = new WaitForSeconds(enemyUnit.AttackRate);
+        WaitForSeconds wait = new WaitForSeconds(enemyUnit.FinAttackRate);
         while (true)
         {
             if (enemyUnit.TargetUnit != null)

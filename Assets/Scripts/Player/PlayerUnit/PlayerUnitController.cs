@@ -25,7 +25,7 @@ public class PlayerUnitController : BaseUnitController
 
         ResetPlayerUnitController();
         findTargetRoutine = StartCoroutine(TargetingRoutine());
-        attackRoutine = StartCoroutine(AttackRoutine());
+        //attackRoutine = StartCoroutine(AttackRoutine());
     }
     protected override void Start()
     {
@@ -35,67 +35,60 @@ public class PlayerUnitController : BaseUnitController
     protected override void FixedUpdate()
     {
         base.FixedUpdate();
-        gameObject.transform.position += playerUnit.MoveDir * playerUnit.MoveSpeed * Time.fixedDeltaTime;
+        gameObject.transform.position += playerUnit.MoveDir * playerUnit.FinMoveSpeed * Time.fixedDeltaTime;
+    }
+    protected override void Update()
+    {
+        base.Update();
+        AttackUpdate();
     }
     protected override void OnDisable()
     {
         base.OnDisable();
 
         if (findTargetRoutine != null) StopCoroutine(findTargetRoutine);
-        if (attackRoutine != null) StopCoroutine(attackRoutine);
+        //if (attackRoutine != null) StopCoroutine(attackRoutine);
         if (atkAnimRoutine != null) StopCoroutine(atkAnimRoutine);
+    }
+    protected virtual void AttackUpdate()
+    {
+        // 공격 쿨타임 관리
+        attackTimer += Time.deltaTime;
+
+        // 공격 가능 상태 체크
+        // 공격 가능 시간이 안됐거나, 타겟이 없거나, 이미 죽었거나, 현재 공격 중이라면 리턴
+        if (attackTimer < playerUnit.FinAttackRate || 
+            playerUnit.TargetUnit == null ||
+            playerUnit.TargetUnit.IsDead() || 
+            isAttacking == true) return;
+
+        attackTimer = 0f;
+        // 애니메이션이 없다면 바로 공격
+        if (animator == null)
+        {
+            Attack(); // 바로 공격
+            return;
+        }
+        // 적 인식했다면 공격 시작
+        animator?.SetTrigger(playerUnit.AnimationData.AttackParameterHash);
+        // 적 인식 루틴 정지(움직임 중지)
+        if (findTargetRoutine != null) StopCoroutine(findTargetRoutine);
+        // 어택 애니메이션 루틴 시작
+        isAttacking = true;
+        atkAnimRoutine = StartCoroutine(AtkAnimRoutine());
+
     }
     public override void Attack()
     {
         base.Attack();
-
-        //if (playerUnit.CognizanceRange < 2f)
-        //{
-        //    AudioManager.PlayRandomOneShot(DataManager.AudioData.meleeUnitAttackSE);
-        //}
-        //else 
-        //{
-        //    if ((playerUnit.UnitData.synergyType & UnitSynergyType.Archer) != 0)
-        //        AudioManager.PlayOneShot(DataManager.AudioData.archerUnitAttackSE);
-        //    else if ((playerUnit.UnitData.synergyType & UnitSynergyType.Mage) != 0)
-        //        AudioManager.PlayOneShot(DataManager.AudioData.magicUnitAttackSE);
-        //    else
-        //        AudioManager.PlayOneShot(DataManager.AudioData.archerUnitAttackSE);
-        //}
-
-        //switch (playerUnit.UnitData.synergyType)
-        //{
-        //    case UnitSynergyType.None:
-        //        break;
-        //    case UnitSynergyType.Kingdom:
-        //        break;
-        //    case UnitSynergyType.Empire:
-        //        break;
-        //    case UnitSynergyType.Cleric:
-        //        break;
-        //    case UnitSynergyType.Berserker:
-        //        break;
-        //    case UnitSynergyType.Hero:
-        //        break;
-        //    case UnitSynergyType.Frost:
-        //        AudioManager.PlayOneShot(DataManager.AudioData.synergy_iceSE);
-        //        break;
-        //    case UnitSynergyType.Burn:
-        //        AudioManager.PlayOneShot(DataManager.AudioData.synergy_fireSE);
-        //        break;
-        //    case UnitSynergyType.Poison:
-        //        AudioManager.PlayOneShot(DataManager.AudioData.synergy_poisonSE);
-        //        break;
-        //}
-
-        playerUnit.TargetUnit?.TakeDamage(playerUnit.AtkPower);
+        playerUnit.TargetUnit?.TakeDamage(playerUnit.FinAttackPower);
         //Debug.Log("아군 유닛: 공격!");
     }
     public override void Dead()
     {
         base.Dead();
         if (findTargetRoutine != null) StopCoroutine(findTargetRoutine);
-        if (attackRoutine != null) StopCoroutine(attackRoutine);
+        //if (attackRoutine != null) StopCoroutine(attackRoutine);
     }
     protected override void HitBackActive(bool active)
     {
@@ -103,7 +96,7 @@ public class PlayerUnitController : BaseUnitController
         {
             // 실행 중인 모든 코루틴 중지
             if (findTargetRoutine != null) StopCoroutine(findTargetRoutine);
-            if (attackRoutine != null) StopCoroutine(attackRoutine);
+            //if (attackRoutine != null) StopCoroutine(attackRoutine);
             if (atkAnimRoutine != null) StopCoroutine(atkAnimRoutine);
             ResetPlayerUnitController();
         }
@@ -111,7 +104,7 @@ public class PlayerUnitController : BaseUnitController
         {
             // 기존처럼 찾기 실행
             findTargetRoutine = StartCoroutine(TargetingRoutine());
-            attackRoutine = StartCoroutine(AttackRoutine());
+            //attackRoutine = StartCoroutine(AttackRoutine());
         }
     }
     IEnumerator TargetingRoutine()
@@ -122,23 +115,23 @@ public class PlayerUnitController : BaseUnitController
         while (true)
         {
             playerUnit.TargetUnit = UnitManager.Instance.FindClosestTarget(playerUnit, true);
-            playerUnit.MoveDir = playerUnit.TargetUnit != null ? Vector3.zero : Vector3.right;
+            playerUnit.MoveDir = (playerUnit.TargetUnit != null && playerUnit.TargetUnit.IsDead() == false) ? Vector3.zero : Vector3.right;
             if (animator) animator.SetFloat(
                 playerUnit.AnimationData.SpeedParameterHash, 
                 Mathf.Abs((float)playerUnit.MoveDir.x));
             yield return wait;
         }
     }
-    IEnumerator AttackRoutine()
+    
+    // 버프 컨트롤러 리팩토링으로 코루틴 사용 못함
+    /*IEnumerator AttackRoutine()
     {
-        // 0.2초마다 타겟 갱신
-        WaitForSeconds wait = new WaitForSeconds(playerUnit.AttackRate);
+        WaitForSeconds wait = new WaitForSeconds(playerUnit.FinAttackRate);
         while (true)
         {
             if (playerUnit.TargetUnit != null)
             {
                 if (isAttacking) { yield return null; continue; }
-
                 // 현재 스트라이프, 애니메이션 없는 캐릭터도 있으므로
                 if (animator == null)
                 {
@@ -158,7 +151,7 @@ public class PlayerUnitController : BaseUnitController
             else yield return null;
 
         }
-    }
+    }*/
     IEnumerator AtkAnimRoutine()
     {
         // Attack 상태 진입 대기

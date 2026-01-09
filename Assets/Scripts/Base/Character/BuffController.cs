@@ -1,7 +1,5 @@
-using JetBrains.Annotations;
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 
 #region 251128: 리팩토링 -> 완성 시 다른 코드 삭제, 참조 수정 예정
@@ -9,6 +7,7 @@ using UnityEngine;
 // 버프/디버프 사용하는 것들 
 public enum BuffSource
 {
+    None,
     // 액티브 아티팩트 스킬들
     Skill_KingMarch,       // 왕국의 진군가
     Skill_IceSpiritBreath, // 얼음 정령의 숨결
@@ -16,54 +15,21 @@ public enum BuffSource
 }
 public enum IntegratedBuffType
 {
-    AtkackPower,   // 공격력
+    AttackPower,   // 공격력
     AttackRate,    // 공격 속도
     MoveSpeed,     // 이동 속도
-    //ChangeColor    // 색상 변경 -> 별도 처리 예정
 }
-[System.Serializable]
-public class BuffStat
+public enum BuffColorType
 {
-    public IntegratedBuffType Type { get; private set; } // 디버그용
-    public float PercentValue { get; set; }
-
-    public BuffStat(IntegratedBuffType type)
-    {
-        Type = type;
-        PercentValue = 0f;
-    }
+    None, // 기본, white
+    Red,
+    Blue,
+    Green,
+    Yellow, // red + green
+    Magenta, // red + blue
+    Cyan    // blue + green
 }
-[System.Serializable]
-public abstract class BuffTimer
-{
-    public BuffSource Source { get; private set; }  // 디버깅용 (어떤 스킬인지)
-    public bool IsActive { get; set; }      // 켜져 있는가?
-    public float Duration { get; set; }     // 남은 시간
-    public BuffTimer(BuffSource source)
-    {
-        Source = source;
-        IsActive = false;
-        Duration = -1f;
-    }
-}
-[System.Serializable]
-public class ActiveBuff : BuffTimer
-{
-    // 리스트는 클래스 생성 시 미리 할당 (재사용 예정)
-    public List<BuffStat> BuffStats = new List<BuffStat>();
-
-    // 초기화 편의 함수
-    public ActiveBuff(BuffSource source) : base(source) { }
-}
-[System.Serializable]
-public class BuffColor : BuffTimer
-{
-    public Color changedColor { get; set; }
-    public BuffColor(BuffSource source) : base(source)
-    {
-        changedColor = Color.white;
-    }
-}
+// TODO: 상태이상 관련 enum 및 클래스 추가 예정
 #endregion
 
 public enum BuffType
@@ -79,27 +45,30 @@ public enum DebuffType
 public class BuffController : MonoBehaviour
 {
     #region 251128: 리팩토링 -> 완성 시 다른 코드 삭제, 참조 수정 예정
-    bool isReFactoringDone = false; // 리팩토링 완료 플래그 -> 완성 시 삭제
-
+    bool isReFactoringDone = true; // 리팩토링 완료 플래그 -> 완성 시 삭제
+    private const int MAX_BUFFS = 100;
     // 활성화된 버프 수
     List<ActiveBuff> activeBuffs = new List<ActiveBuff>();
+    Dictionary<BuffSource, ActiveBuff> activeBuffDict = new Dictionary<BuffSource, ActiveBuff>();
+    Stack<ActiveBuff> activeBuffStack = new Stack<ActiveBuff>();
     List<BuffColor> buffColors = new List<BuffColor>();
+    Dictionary<BuffColorType, BuffColor> buffColorDict = new Dictionary<BuffColorType, BuffColor>();
+    Stack<BuffColor> buffColorStack = new Stack<BuffColor>();
     float colorChangeTime = 0.2f;
     float colorChangeTimer = 0f;
-    int colorChangeIndex = -1;
-    int buffSourceCount = 0;
-    int buffStatCount = 0;
+    int colorCycleIndex = 0;
+    Color appliedColor = Color.clear;
     #endregion
 
     private BaseUnit _baseUnit;       // 스탯을 변경할 대상
     private SpriteRenderer[] _spriteRenderer; // 색상을 변경할 대상
     List<Color> _colors = new List<Color>();
     int colorTargetlayer;
-    Coroutine _Co_ChangeColor;
+    /*Coroutine _Co_ChangeColor;
     Coroutine _Co_ApplySlowDebuff;
     Coroutine _Co_ApplyAttackCooldownDebuff;
     Coroutine _Co_ApplyAttackBuff;
-    Coroutine _Co_ApplyAttackSpeedBuff;
+    Coroutine _Co_ApplyAttackSpeedBuff;*/
     private void Awake()
     {
         colorTargetlayer = LayerMask.NameToLayer("Animation");
@@ -110,19 +79,6 @@ public class BuffController : MonoBehaviour
         foreach (var sp in _spriteRenderer)
         {
             _colors.Add(sp.color);
-        }
-        buffSourceCount = System.Enum.GetValues(typeof(BuffSource)).Length;
-        buffStatCount = System.Enum.GetValues(typeof(IntegratedBuffType)).Length;
-        for(int i = 0; i < buffSourceCount; i++)
-        {
-
-            ActiveBuff newBuff = new ActiveBuff((BuffSource)i);
-            for(int j = 0; j < buffStatCount; j++)
-            {
-                newBuff.BuffStats.Add(new BuffStat((IntegratedBuffType)j));
-            }
-            activeBuffs.Add(newBuff);
-            buffColors.Add(new BuffColor((BuffSource)i));
         }
     }
     #region 251128: 리팩토링 -> 완성 시 다른 코드 삭제, 참조 수정 예정
@@ -137,108 +93,174 @@ public class BuffController : MonoBehaviour
     }
     void UpdateActiveBuffs()
     {
-        // 버프 관련
-        for (int i = 0; i < buffSourceCount; i++)
+        if (activeBuffs.Count == 0) return;
+
+        // 버프 관련 업데이트 및 삭제 처리
+        int idx = 0;
+        while (idx < activeBuffs.Count)
         {
-            if (!activeBuffs[i].IsActive) continue;
-            activeBuffs[i].Duration -= Time.deltaTime;
-            if (activeBuffs[i].Duration > 0f) continue;
-            // 버프 종료 시
-            activeBuffs[i].IsActive = false;
-            // 능력치 원상복구 처리
-            for (int j = 0; j < buffStatCount; j++)
+            // 버프 타이머 업데이트
+            activeBuffs[idx].UpdateBuffTimer(Time.deltaTime);
+
+            // 활성화된 버프면 다음으로
+            if (activeBuffs[idx].IsActive)
             {
-                // 값이 0이면 패스
-                if (activeBuffs[i].BuffStats[j].PercentValue == 0f) continue;
-                // 능력치 원상복구, 기존 값의 마이너스 값으로 설정
-                _baseUnit.SetBuffStat((IntegratedBuffType)j, -activeBuffs[i].BuffStats[j].PercentValue);
-                activeBuffs[i].BuffStats[j].PercentValue = 0f; // *필수, 값 초기화 -> ApplyBuff에서 값 비교하기 때문
+                idx++;
+                continue;
             }
+            // 비활성화된 버프 스왑 백 후 삭제, 재사용을 위해 스택에 보관
+            activeBuffDict.Remove(activeBuffs[idx].Source);
+            int lastIdx = activeBuffs.Count - 1;
+            activeBuffStack.Push(activeBuffs[idx]);
+            if(idx < lastIdx)
+            {
+                activeBuffs[idx] = activeBuffs[lastIdx];
+            }
+            // 리스트 맨뒤 삭제
+            activeBuffs.RemoveAt(lastIdx);
         }
     }
     private void UpdateBuffColors()
     {
-        int buffColorActiveCnt = 0;
-        int buffColorActiveIdx = -1;
-        // 버프 색관련
-        for (int i = 0; i < buffSourceCount; i++)
+        if (buffColors.Count == 0) return;
+
+        // 전체 버프 색상 업데이트 및 삭제 처리
+        int idx = 0;
+        // 적용된 색상 유효 체크용
+        bool isCurrentColorValid = true;
+        while (idx < buffColors.Count)
         {
-            if (!buffColors[i].IsActive) continue;
-            buffColors[i].Duration -= Time.deltaTime;
-            if (buffColors[i].Duration > 0f)
+            buffColors[idx].UpdateBuffTimer(Time.deltaTime);
+
+            if (buffColors[idx].IsActive)
             {
-                buffColorActiveCnt++;
-                buffColorActiveIdx = i;
+                idx++;
                 continue;
             }
-            buffColors[i].IsActive = false;
-        }
+            // 만약 현재 적용된 색상이라면 적용된 색상 초기화
+            if (appliedColor == buffColors[idx].changedColor)
+            {
+                // 현재 적용된 색상이 비활성화 됐다면 현재 색상 유효하지 않음으로 변경
+                isCurrentColorValid = false;
+            }
 
+            // 비활성화된 버프 스왑 백 후 삭제, 재사용을 위해 스택에 보관
+            buffColorDict.Remove(buffColors[idx].Type);
+            int lastIdx = buffColors.Count - 1;
+            buffColorStack.Push(buffColors[idx]);
+            if (idx < lastIdx)
+            {
+                buffColors[idx] = buffColors[lastIdx];
+            }
+            // 리스트 맨뒤 삭제
+            buffColors.RemoveAt(lastIdx);
+            
+        }
         // 색관련 버프가 있다면 순차별 색상 변경
-        if (buffColorActiveCnt > 1)
+        if (buffColors.Count > 1)
         {
             colorChangeTimer += Time.deltaTime;
-
-            // 현재 적용된 색상 버프가 비활성 상태면 즉시 변경해야 함
-            bool isCurrentColorValid = (colorChangeIndex != -1) && buffColors[colorChangeIndex].IsActive;
 
             // 타이머가 아직 안 됐고 && 현재 색상이 유효하다면 -> 대기
             if (colorChangeTimer < colorChangeTime && isCurrentColorValid) return;
 
-            colorChangeTimer = colorChangeTimer - colorChangeTime; // 초과분 보정
+            // 타이머가 됐거나, 현재 색상이 유효하지 않다면 색상 변경
+            colorChangeTimer -= colorChangeTime; // 초과분 보정
 
-            int searchIdx = colorChangeIndex;
-            for (int i = 0; i < buffSourceCount; i++)
+            // 다음 인덱스로 이동 (나머지 연산으로 순환)
+            colorCycleIndex = (colorCycleIndex + 1) % buffColors.Count;
+
+            // 해당 인덱스의 색상 적용
+            Color targetColor = buffColors[colorCycleIndex].changedColor;
+
+            // 만약 방금 적용된 색과 같다면(리스트 변경 등으로 인해) 다음 걸로 한 번 더 이동
+            if (appliedColor == targetColor)
             {
-                // (현재 + 1) % 전체개수 -> 다음 인덱스 (끝이면 0으로)
-                searchIdx = (searchIdx + 1) % buffSourceCount;
-
-                if (!buffColors[searchIdx].IsActive) continue;
-
-                colorChangeIndex = searchIdx; // 인덱스 갱신
-                ChangeColor(buffColors[searchIdx].changedColor); // 색상 적용
-                break; // 찾았으니 탈출
+                colorCycleIndex = (colorCycleIndex + 1) % buffColors.Count;
+                targetColor = buffColors[colorCycleIndex].changedColor;
             }
-            
+            ChangeColor(targetColor);
         }
         // 하나라면 바로 적용
-        else if (buffColorActiveCnt == 1)
+        else if (buffColors.Count == 1)
         {
-            if (colorChangeIndex == buffColorActiveIdx) return;
+            if (appliedColor == buffColors[0].changedColor) return;
             colorChangeTimer = 0f;
-            colorChangeIndex = buffColorActiveIdx;
-            ChangeColor(buffColors[buffColorActiveIdx].changedColor);
+            ChangeColor(buffColors[0].changedColor);
         }
         // 없다면 기존 색상으로
         else
         {
-            if (colorChangeIndex == -1) return;
-            colorChangeIndex = -1;
+            if (appliedColor == Color.clear) return;
             ToOriginColor();
         }
     }
-    public void ApplyBuff(BuffSource buffSource, IntegratedBuffType buffType, float duration, float percentValue)
+    public void ApplyBuff(BuffSource buffSource, List<BuffEffect> buffEffects, float duration)
     {
-        activeBuffs[(int)buffSource].IsActive = true;
-        activeBuffs[(int)buffSource].Duration = duration;
-
-        float diff = percentValue - activeBuffs[(int)buffSource].BuffStats[(int)buffType].PercentValue;
-        // 능력치 변동이 없다면 패스
-        if (diff == 0) return;
-        // 데이터 저장
-        activeBuffs[(int)buffSource].BuffStats[(int)buffType].PercentValue = percentValue;
-        // '차이'만큼 능력치 적용
-        _baseUnit?.SetBuffStat(buffType, diff);
+        if (activeBuffDict.TryGetValue(buffSource, out ActiveBuff existingBuff))
+        {
+            // 이미 존재하는 버프가 있으면 지속시간 갱신
+            existingBuff.RefreshActiveBuff(duration);
+        }
+        else
+        {
+            // 새로운 버프 생성
+            ActiveBuff newBuff;
+            // 재사용 가능한 버프가 있으면 사용 -> 풀링, 힙 재사용해 GC 최소화
+            if (activeBuffStack.Count > 0)
+            {
+                newBuff = activeBuffStack.Pop();
+            }
+            else
+            {
+                newBuff = new ActiveBuff();
+            }
+            newBuff.ApplyActiveBuff(_baseUnit, buffSource, buffEffects, duration);
+            activeBuffs.Add(newBuff);
+            activeBuffDict[buffSource] = newBuff;
+        }
     }
-    public void ApplyBuffColor(BuffSource buffSource, Color newColor, float duration)
+    private Color GetColorByType(BuffColorType type)
     {
-        buffColors[(int)buffSource].IsActive = true;
-        buffColors[(int)buffSource].Duration = duration;
-        buffColors[(int)buffSource].changedColor = newColor;
+        switch (type)
+        {
+            case BuffColorType.Red: return Color.red;
+            case BuffColorType.Blue: return Color.blue;
+            case BuffColorType.Green: return Color.green;
+            case BuffColorType.Yellow: return Color.yellow;
+            case BuffColorType.Magenta: return Color.magenta;
+            case BuffColorType.Cyan: return Color.cyan;
+            default: return Color.white;
+        }
+    }
+    public void ApplyBuffColor(BuffColorType buffColorType, float duration)
+    {
+        // 이미 존재하는 버프가 있으면 지속시간 갱신
+        if (buffColorDict.TryGetValue(buffColorType, out BuffColor buffColor))
+        {
+            buffColor.RefreshActiveBuff(duration);
+            return;
+        }
+        // 없다면 새로운 버프 생성
+        Color newColor = GetColorByType(buffColorType);
+        BuffColor newBuffColor;
+        // 재사용 가능한 버프가 있으면 사용 -> 풀링, 힙 재사용해 GC 최소화
+        if (buffColorStack.Count > 0)
+        {
+            newBuffColor = buffColorStack.Pop();
+        }
+        else
+        {
+            newBuffColor = new BuffColor();
+        }
+        newBuffColor.ApplyBuffColor(buffColorType, newColor, duration);
+        buffColors.Add(newBuffColor);
+        buffColorDict[buffColorType] = newBuffColor;
     }
     void ChangeColor(Color newColor)
     {
         if (_spriteRenderer == null) return;
+        appliedColor = newColor;
         foreach (var sp in _spriteRenderer)
         {
             if (sp.gameObject.layer != colorTargetlayer) continue;
@@ -253,6 +275,7 @@ public class BuffController : MonoBehaviour
         {
             _spriteRenderer[i].color = _colors[i];
         }
+        appliedColor = Color.clear;
     }
     #endregion
 
@@ -260,33 +283,33 @@ public class BuffController : MonoBehaviour
     {
         #region 251128: 리팩토링 -> 완성 시 다른 코드 삭제, 참조 수정 예정
         // 버프 초기화
-        // 능력치는 기본 스탯으로 알아서 설정됨
-        for (int i = 0; i < buffSourceCount; i++)
+        for (int i = 0; i < activeBuffs.Count; i++)
         {
-            activeBuffs[i].IsActive = false;
-            /*for (int j = 0; j < buffStatCount; j++)
-            {
-                activeBuffs[i].BuffStats[j].Value = -1f; // 필요 없겠지만 안전하게 초기화
-            }*/
-            buffColors[i].IsActive = false;
+            activeBuffs[i].Reset();
+            // 재사용 위해 스택에 보관
+            activeBuffStack.Push(activeBuffs[i]);
         }
+        activeBuffs.Clear();
+        activeBuffDict.Clear();
         // 색상 복구
-        for (int i = 0; i < _colors.Count; i++)
+        ToOriginColor();
+        foreach (var buffColor in buffColors)
         {
-            if (_spriteRenderer[i].gameObject.layer != colorTargetlayer) continue;
-
-            _spriteRenderer[i].color = _colors[i];
+            buffColor.Reset();
+            buffColorStack.Push(buffColor);
         }
+        buffColorDict.Clear();
+        buffColors.Clear();
         #endregion
 
-        if (_Co_ChangeColor != null) StopCoroutine(_Co_ChangeColor);
+        /*if (_Co_ChangeColor != null) StopCoroutine(_Co_ChangeColor);
         if(_Co_ApplySlowDebuff != null) StopCoroutine(_Co_ApplySlowDebuff);
         if(_Co_ApplyAttackCooldownDebuff != null) StopCoroutine(_Co_ApplyAttackCooldownDebuff);
         if(_Co_ApplyAttackBuff != null) StopCoroutine(_Co_ApplyAttackBuff);
-        if(_Co_ApplyAttackSpeedBuff != null) StopCoroutine(_Co_ApplyAttackSpeedBuff);
+        if(_Co_ApplyAttackSpeedBuff != null) StopCoroutine(_Co_ApplyAttackSpeedBuff);*/
     }
 
-    public void ApplyBuff(BuffType type, float duration, float value)
+   /* public void ApplyBuff(BuffType type, float duration, float value)
     {
         if (_baseUnit == null) return;
         switch (type)
@@ -376,5 +399,5 @@ public class BuffController : MonoBehaviour
         _baseUnit.SetAttackRate(originalRate * (1f - atkSpeedPercent / 100f));
         yield return new WaitForSeconds(duration);
         _baseUnit.SetAttackRate(originalRate);
-    }
+    }*/
 }

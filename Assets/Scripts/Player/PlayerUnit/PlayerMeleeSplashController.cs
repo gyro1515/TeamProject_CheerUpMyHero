@@ -9,7 +9,7 @@ public class PlayerMeleeSplashController : BaseUnitController
     private PlayerUnit playerUnit;
 
     private Coroutine findTargetRoutine;
-    private Coroutine attackRoutine;
+    //private Coroutine attackRoutine;
     private Coroutine atkAnimRoutine;
     private bool isAttacking = false;
 
@@ -28,7 +28,7 @@ public class PlayerMeleeSplashController : BaseUnitController
         base.OnEnable();
         ResetPlayerUnitController();
         findTargetRoutine = StartCoroutine(TargetingRoutine());
-        attackRoutine = StartCoroutine(AttackRoutine());
+        //attackRoutine = StartCoroutine(AttackRoutine());
     }
 
     protected override void Start()
@@ -41,15 +41,48 @@ public class PlayerMeleeSplashController : BaseUnitController
         base.FixedUpdate();
         if (playerUnit.MoveDir != Vector3.zero)
         {
-            transform.position += playerUnit.MoveDir * playerUnit.MoveSpeed * Time.fixedDeltaTime;
+            transform.position += playerUnit.MoveDir * playerUnit.FinMoveSpeed * Time.fixedDeltaTime;
         }
+    }
+    protected override void Update()
+    {
+        base.Update();
+        AttackUpdate();
     }
     protected override void OnDisable()
     {
         base.OnDisable();
         if (findTargetRoutine != null) StopCoroutine(findTargetRoutine);
-        if (attackRoutine != null) StopCoroutine(attackRoutine);
+        //if (attackRoutine != null) StopCoroutine(attackRoutine);
         if (atkAnimRoutine != null) StopCoroutine(atkAnimRoutine);
+    }
+    protected virtual void AttackUpdate()
+    {
+        // 공격 쿨타임 관리
+        attackTimer += Time.deltaTime;
+
+        // 공격 가능 상태 체크
+        // 공격 가능 시간이 안됐거나, 타겟이 없거나, 이미 죽었거나, 현재 공격 중이라면 리턴
+        if (attackTimer < playerUnit.FinAttackRate ||
+            playerUnit.TargetUnit == null ||
+            playerUnit.TargetUnit.IsDead() ||
+            isAttacking == true) return;
+
+        attackTimer = 0f;
+        // 애니메이션이 없다면 바로 공격
+        if (animator == null)
+        {
+            Attack(); // 바로 공격
+            return;
+        }
+        // 적 인식했다면 공격 시작
+        animator?.SetTrigger(playerUnit.AnimationData.AttackParameterHash);
+        // 적 인식 루틴 정지(움직임 중지)
+        if (findTargetRoutine != null) StopCoroutine(findTargetRoutine);
+        // 어택 애니메이션 루틴 시작
+        isAttacking = true;
+        atkAnimRoutine = StartCoroutine(AtkAnimRoutine());
+
     }
     public override void Attack()
     {
@@ -115,7 +148,7 @@ public class PlayerMeleeSplashController : BaseUnitController
         while (selectedUnitPQ.Count > 0)
         {
             BaseCharacter target = selectedUnitPQ.Dequeue().Element;
-            target.Damageable.TakeDamage(playerUnit.AtkPower);
+            target.Damageable.TakeDamage(playerUnit.FinAttackPower);
         }
         if (hitCount > 0)
         {
@@ -126,7 +159,7 @@ public class PlayerMeleeSplashController : BaseUnitController
     {
         base.Dead();
         if (findTargetRoutine != null) StopCoroutine(findTargetRoutine);
-        if (attackRoutine != null) StopCoroutine(attackRoutine);
+        //if (attackRoutine != null) StopCoroutine(attackRoutine);
         if (atkAnimRoutine != null) StopCoroutine(atkAnimRoutine);
     }
     protected override void HitBackActive(bool active)
@@ -134,14 +167,14 @@ public class PlayerMeleeSplashController : BaseUnitController
         if (active)
         {
             if (findTargetRoutine != null) StopCoroutine(findTargetRoutine);
-            if (attackRoutine != null) StopCoroutine(attackRoutine);
+            //if (attackRoutine != null) StopCoroutine(attackRoutine);
             if (atkAnimRoutine != null) StopCoroutine(atkAnimRoutine);
             ResetPlayerUnitController();
         }
         else
         {
             findTargetRoutine = StartCoroutine(TargetingRoutine());
-            attackRoutine = StartCoroutine(AttackRoutine());
+            //attackRoutine = StartCoroutine(AttackRoutine());
         }
     }
 
@@ -159,9 +192,9 @@ public class PlayerMeleeSplashController : BaseUnitController
         }
     }
 
-    private IEnumerator AttackRoutine()
+    /*private IEnumerator AttackRoutine()
     {
-        WaitForSeconds wait = new WaitForSeconds(playerUnit.AttackRate);
+        WaitForSeconds wait = new WaitForSeconds(playerUnit.FinAttackRate);
         while (true)
         {
             if (playerUnit.TargetUnit != null)
@@ -186,7 +219,7 @@ public class PlayerMeleeSplashController : BaseUnitController
                 yield return null;
             }
         }
-    }
+    }*/
 
     // 공격 애니메이션을 제어하는 코루틴
     private IEnumerator AtkAnimRoutine()

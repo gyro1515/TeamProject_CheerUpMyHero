@@ -11,9 +11,17 @@ public class BaseCharacter : MonoBehaviour
 
     [field: Header("기본 캐릭터 세팅")]
     [field: SerializeField] public float MaxHp {  get; protected set; }
-    [field: SerializeField] public float AtkPower {  get; protected set; }
+    /*[field: SerializeField] public float AtkPower {  get; protected set; }
     [field: SerializeField] public float MoveSpeed {  get; protected set; }
-    [field: SerializeField] public float AttackRate { get; protected set; }
+    [field: SerializeField] public float AttackRate { get; protected set; }*/
+    // 위를 아래로 변경
+    [SerializeField] protected float AtkPower;
+    [SerializeField] protected float MoveSpeed;
+    [SerializeField] protected float AttackRate;
+    // 최종 스탯 계산용 프로퍼티
+    [field: SerializeField] public float FinAttackPower { get; protected set; }
+    [field: SerializeField] public float FinAttackRate { get; protected set; }
+    [field: SerializeField] public float FinMoveSpeed { get; protected set; }
     [field: SerializeField] public Vector3 HpBarPosByCharacter { get; private set; } // 보정용
     [field: SerializeField] public Vector2 HpBarSize { get; private set; } // 체력바 사이즈용
     public BaseController BaseController { get; protected set; }

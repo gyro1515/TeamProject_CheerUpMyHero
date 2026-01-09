@@ -35,7 +35,7 @@ public class EnemyHealerUnitController : BaseUnitController
         base.FixedUpdate();
         if (enemyUnit.MoveDir != Vector3.zero)
         {
-            transform.position += enemyUnit.MoveDir * enemyUnit.MoveSpeed * Time.fixedDeltaTime;
+            transform.position += enemyUnit.MoveDir * enemyUnit.FinMoveSpeed * Time.fixedDeltaTime;
         }
     }
 
@@ -68,7 +68,7 @@ public class EnemyHealerUnitController : BaseUnitController
     public override void Attack()
     {
         base.Attack();
-        enemyUnit.TargetUnit?.TakeDamage(enemyUnit.AtkPower);
+        enemyUnit.TargetUnit?.TakeDamage(enemyUnit.FinAttackPower);
     }
 
     #region Coroutines
@@ -95,7 +95,7 @@ public class EnemyHealerUnitController : BaseUnitController
 
     private IEnumerator AttackRoutine()
     {
-        WaitForSeconds wait = new WaitForSeconds(enemyUnit.AttackRate);
+        WaitForSeconds wait = new WaitForSeconds(enemyUnit.FinAttackRate);
         while (true)
         {
             // 공격 가능한 타겟(플레이어 유닛)이 있을 때만 행동

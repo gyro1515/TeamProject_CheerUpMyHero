@@ -37,7 +37,7 @@ public class EnemyRangedSplashController : BaseUnitController
         base.FixedUpdate();
         if (enemyUnit.MoveDir != Vector3.zero)
         {
-            transform.position += enemyUnit.MoveDir * enemyUnit.MoveSpeed * Time.fixedDeltaTime;
+            transform.position += enemyUnit.MoveDir * enemyUnit.FinMoveSpeed * Time.fixedDeltaTime;
         }
     }
 
@@ -97,7 +97,7 @@ public class EnemyRangedSplashController : BaseUnitController
         while (selectedUnitPQ.Count > 0)
         {
             BaseCharacter target = selectedUnitPQ.Dequeue().Element;
-            target.Damageable.TakeDamage(enemyUnit.AtkPower);
+            target.Damageable.TakeDamage(enemyUnit.FinAttackPower);
         }
         if (hitCount > 0)
         {
@@ -147,7 +147,7 @@ public class EnemyRangedSplashController : BaseUnitController
     }
     private IEnumerator AttackRoutine()
     {
-        WaitForSeconds wait = new WaitForSeconds(enemyUnit.AttackRate);
+        WaitForSeconds wait = new WaitForSeconds(enemyUnit.FinAttackRate);
         while (true)
         {
             // 타겟이 있고, 사거리 안에 있을 때만 공격 시도

@@ -51,7 +51,7 @@ public class EnemyUnitController : BaseUnitController
     protected override void FixedUpdate()
     {
         base.FixedUpdate();
-        gameObject.transform.position += enemyUnit.MoveDir * enemyUnit.MoveSpeed * Time.fixedDeltaTime;
+        gameObject.transform.position += enemyUnit.MoveDir * enemyUnit.FinMoveSpeed * Time.fixedDeltaTime;
     }
     protected override void OnDisable()
     {
@@ -63,7 +63,7 @@ public class EnemyUnitController : BaseUnitController
     public override void Attack()
     {
         base.Attack();
-        enemyUnit.TargetUnit?.TakeDamage(enemyUnit.AtkPower);
+        enemyUnit.TargetUnit?.TakeDamage(enemyUnit.FinAttackPower);
         //Debug.Log($"적 유닛 {gameObject.name}: 공격!");
     }
     public override void Dead()
@@ -110,7 +110,7 @@ public class EnemyUnitController : BaseUnitController
     IEnumerator AttackRoutine()
     {
         // 공격 간격 계산
-        WaitForSeconds wait = new WaitForSeconds(enemyUnit.AttackRate);
+        WaitForSeconds wait = new WaitForSeconds(enemyUnit.FinAttackRate);
         while (true)
         {
             if (enemyUnit.TargetUnit != null)
