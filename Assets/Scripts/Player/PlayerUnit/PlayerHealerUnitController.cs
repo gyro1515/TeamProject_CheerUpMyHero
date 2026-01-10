@@ -184,7 +184,7 @@ public class PlayerHealerUnitController : BaseUnitController
             playerUnit.TargetUnit = UnitManager.Instance.FindClosestTarget(playerUnit, true, out targetPos);
 
             // 원거리 유닛의 이동/정지 로직
-            playerUnit.MoveDir = playerUnit.TargetUnit != null ? Vector3.zero : Vector3.right;
+            playerUnit.MoveDir = (playerUnit.TargetUnit != null && playerUnit.TargetUnit.IsDead() == false) ? Vector3.zero : Vector3.right;
             if (animator) animator.SetFloat(
                 playerUnit.AnimationData.SpeedParameterHash,
                 Mathf.Abs((float)playerUnit.MoveDir.x));
