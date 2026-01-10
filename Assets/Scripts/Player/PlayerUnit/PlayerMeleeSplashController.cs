@@ -187,7 +187,7 @@ public class PlayerMeleeSplashController : BaseUnitController
         while (true)
         {
             playerUnit.TargetUnit = UnitManager.Instance.FindClosestTarget(playerUnit, true);
-            playerUnit.MoveDir = playerUnit.TargetUnit != null ? Vector3.zero : Vector3.right;
+            playerUnit.MoveDir = (playerUnit.TargetUnit != null && playerUnit.TargetUnit.IsDead() == false) ? Vector3.zero : Vector3.right;
             animator.SetFloat(playerUnit.AnimationData.SpeedParameterHash, Mathf.Abs(playerUnit.MoveDir.x));
             yield return wait;
         }

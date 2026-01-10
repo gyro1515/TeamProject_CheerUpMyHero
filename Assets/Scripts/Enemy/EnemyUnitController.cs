@@ -135,7 +135,7 @@ public class EnemyUnitController : BaseUnitController
         {
             //Debug.Log("타겟 갱신");
             enemyUnit.TargetUnit = UnitManager.Instance.FindClosestTarget(enemyUnit, false);
-            enemyUnit.MoveDir = enemyUnit.TargetUnit != null ? Vector3.zero : Vector3.left;
+            enemyUnit.MoveDir = (enemyUnit.TargetUnit != null && enemyUnit.TargetUnit.IsDead() == false) ? Vector3.zero : Vector3.left;
             if(animator) animator.SetFloat(
                 enemyUnit.AnimationData.SpeedParameterHash, Mathf.Abs((float)enemyUnit.MoveDir.x));
             yield return wait;

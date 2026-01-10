@@ -171,14 +171,14 @@ public class EnemyRangedSplashController : BaseUnitController
         {
             enemyUnit.TargetUnit = UnitManager.Instance.FindClosestTarget(enemyUnit, false, out targetPos);
 
-            enemyUnit.MoveDir = enemyUnit.TargetUnit != null ? Vector3.zero : Vector3.left;
+            enemyUnit.MoveDir = (enemyUnit.TargetUnit != null && enemyUnit.TargetUnit.IsDead() == false) ? Vector3.zero : Vector3.left;
             if (animator) animator.SetFloat(
                 enemyUnit.AnimationData.SpeedParameterHash,
                 Mathf.Abs((float)enemyUnit.MoveDir.x));
             yield return wait;
         }
     }
-    private IEnumerator AttackRoutine()
+    /*private IEnumerator AttackRoutine()
     {
         WaitForSeconds wait = new WaitForSeconds(enemyUnit.FinAttackRate);
         while (true)
@@ -206,7 +206,7 @@ public class EnemyRangedSplashController : BaseUnitController
             }
             else yield return null;
         }
-    }
+    }*/
 
     private IEnumerator AtkAnimRoutine()
     {

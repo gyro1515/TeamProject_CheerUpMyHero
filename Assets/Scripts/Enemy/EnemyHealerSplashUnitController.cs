@@ -197,7 +197,7 @@ public class EnemyHealerSplashController : BaseUnitController
             enemyUnit.TargetUnit = UnitManager.Instance.FindClosestTarget(enemyUnit, false, out targetPos);
 
             // 이동 방향: 타겟이 없으면 왼쪽으로 전진
-            enemyUnit.MoveDir = enemyUnit.TargetUnit != null ? Vector3.zero : Vector3.left;
+            enemyUnit.MoveDir = (enemyUnit.TargetUnit != null && enemyUnit.TargetUnit.IsDead() == false) ? Vector3.zero : Vector3.left;
 
             if (animator) animator.SetFloat(
                 enemyUnit.AnimationData.SpeedParameterHash,

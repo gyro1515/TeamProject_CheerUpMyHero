@@ -114,7 +114,7 @@ public class GolemAIController : BaseUnitController
         while (true)
         {
             summonUnit.TargetUnit = UnitManager.Instance.FindClosestTarget(summonUnit, true);
-            summonUnit.MoveDir = summonUnit.TargetUnit != null ? Vector3.zero : Vector3.right;
+            summonUnit.MoveDir = (summonUnit.TargetUnit != null && summonUnit.TargetUnit.IsDead() == false) ? Vector3.zero : Vector3.right;
             if (animator) animator.SetFloat(
                 summonUnit.AnimationData.SpeedParameterHash,
                 Mathf.Abs((float)summonUnit.MoveDir.x));

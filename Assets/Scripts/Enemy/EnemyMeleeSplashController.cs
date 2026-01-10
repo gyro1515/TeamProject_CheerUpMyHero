@@ -178,7 +178,7 @@ public class EnemyMeleeSplashController : BaseUnitController
         {
             enemyUnit.TargetUnit = UnitManager.Instance.FindClosestTarget(enemyUnit, false);
 
-            enemyUnit.MoveDir = enemyUnit.TargetUnit != null ? Vector3.zero : Vector3.left;
+            enemyUnit.MoveDir = (enemyUnit.TargetUnit != null && enemyUnit.TargetUnit.IsDead() == false) ? Vector3.zero : Vector3.left;
 
             animator.SetFloat(enemyUnit.AnimationData.SpeedParameterHash, Mathf.Abs(enemyUnit.MoveDir.x));
             yield return wait;
