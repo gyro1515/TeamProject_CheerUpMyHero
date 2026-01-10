@@ -29,6 +29,7 @@ public class PlayerMeleeSplashController : BaseUnitController
         ResetPlayerUnitController();
         findTargetRoutine = StartCoroutine(TargetingRoutine());
         //attackRoutine = StartCoroutine(AttackRoutine());
+        attackTimer = playerUnit.FinAttackRate;
     }
 
     protected override void Start()

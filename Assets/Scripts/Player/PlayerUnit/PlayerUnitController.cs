@@ -26,6 +26,7 @@ public class PlayerUnitController : BaseUnitController
         ResetPlayerUnitController();
         findTargetRoutine = StartCoroutine(TargetingRoutine());
         //attackRoutine = StartCoroutine(AttackRoutine());
+        attackTimer = playerUnit.FinAttackRate;
     }
     protected override void Start()
     {
