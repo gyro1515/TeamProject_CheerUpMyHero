@@ -15,7 +15,7 @@ public class Skill_ThunderJudgment : ActiveSkillEffect
     {
         int hitCount = 5; // 기획서 고정값
         float interval = 1f; // 기획서 고정값
-        float damage = (GameManager.Instance.Player.AtkPower) * levelData.damageBonusPercent / 100f;
+        float damage = (GameManager.Instance.Player.FinAttackPower) * levelData.damageBonusPercent / 100f;
 
         for (int i = 0; i < hitCount; i++)
         {

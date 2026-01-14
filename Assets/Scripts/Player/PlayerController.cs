@@ -90,7 +90,7 @@ public class PlayerController : BaseController
         {
             OnPlayerAction?.Invoke();
         }
-        gameObject.transform.position += player.MoveDir * player.MoveSpeed * Time.fixedDeltaTime;
+        gameObject.transform.position += player.MoveDir * player.FinMoveSpeed * Time.fixedDeltaTime;
         Vector3 playerPosition = playerTransform.position;
         if(!IsDead()) playerPosition.x = Mathf.Clamp(playerTransform.position.x, minX, maxX);
         playerTransform.position = playerPosition;
@@ -119,7 +119,7 @@ public class PlayerController : BaseController
     public override void Attack()
     {
         base.Attack();
-        player.TargetUnit?.TakeDamage(player.AtkPower);
+        player.TargetUnit?.TakeDamage(player.FinAttackPower);
     }
     void PlayerMoveAnimation(Vector3 newMoveDir)
     {
@@ -158,7 +158,7 @@ public class PlayerController : BaseController
     IEnumerator AttackRoutine()
     {
         // 0.2초마다 타겟 갱신
-        WaitForSeconds wait = new WaitForSeconds(player.AttackRate);
+        WaitForSeconds wait = new WaitForSeconds(player.FinAttackRate);
         while (true)
         {
             if (player.TargetUnit != null && player.MoveDir == Vector3.zero)

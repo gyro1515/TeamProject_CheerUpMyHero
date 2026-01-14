@@ -41,7 +41,7 @@ public class PlayerUnit : BaseUnit
             Debug.LogWarning($"왜 파괴됐을까?"); 
             return; // 비활성화/파괴된 상태라면 리턴
         } 
-
+        // 영지 시너지
         float synergyHealthBonus = PlayerDataManager.Instance.SynergyAllUnitHealthBonus;
         float synergyAttackBonus = PlayerDataManager.Instance.SynergyAllUnitAttackBonus;
         float synergyAttackCooldownReduction = PlayerDataManager.Instance.SynergyUnitAttackCooldownReduction;
@@ -86,6 +86,9 @@ public class PlayerUnit : BaseUnit
         hitbackTriggerCount = UnitData.hitBack - 1;
 
         _beforeAuraAtkBonus = AtkPower;
+
+        // 최종 스탯계산
+        InitFinStats();
     }
     protected override void SetDataFromExcelData()
     {

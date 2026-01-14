@@ -14,6 +14,7 @@ using Unity.Services.Core;
 using Unity.Services.Core.Environments;
 using Unity.Services.Economy;
 using Unity.Services.Economy.Model;
+using Unity.Services.RemoteConfig;
 using UnityEngine;
 using UnityEngine.Networking;
 using static UnityEngine.Rendering.DebugUI;
@@ -134,6 +135,9 @@ public class BackendManager : SingletonMono<BackendManager>
     private bool _isProcessingQueue = false;
     // 여러 스레드에서 동시에 큐에 접근하는 것을 방지하기 위한 잠금 객체 (안전장치)
     private readonly object _queueLock = new object();
+
+    //우편함 마지막 갱신 시간
+    public static float LastPostFetched { get; private set; } = -999f;
 
     #endregion
 
@@ -621,6 +625,16 @@ public class BackendManager : SingletonMono<BackendManager>
         await Instance.EnqueueRequestAsync(() => Instance.InternalSaveDataAsync(data), nameof(SaveDataAsync));
     }
 
+    public static async UniTask<T> LoadSimpleDataAsync<T>(string key)
+    {
+        var status = await CanCommunicateAsync(nameof(LoadSimpleDataAsync));
+        if (status != CommunicationStatus.Success)
+        {
+            throw new InvalidOperationException("서버와 통신할 수 없는 상태입니다.");
+        }
+        return await Instance.EnqueueRequestAsync(() => Instance.InternalLoadSimpleDataAsync<T>(key), nameof(LoadSimpleDataAsync));
+    }
+
     public static async UniTask<AllCloudData> LoadDataAsync()
     {
         var status = await CanCommunicateAsync(nameof(LoadDataAsync));
@@ -693,15 +707,26 @@ public class BackendManager : SingletonMono<BackendManager>
 
     //사실은, 보안 우려가 있음. 클라이언트에서 숫자를 서버를 보내는 건 좋지 않다고 함
     //근데 가챠로직에서 빡세게 구현 했으니까 나머진 그냥 이대로...
-    public static async UniTask ChangeEconomy(string id, int amount)
+    public static async UniTask ChangeEconomyAsync(string id, int amount)
     {
-        var status = await CanCommunicateAsync(nameof(ChangeEconomy));
+        var status = await CanCommunicateAsync(nameof(ChangeEconomyAsync));
         if (status != CommunicationStatus.Success)
         {
             throw new InvalidOperationException("서버와 통신할 수 없는 상태입니다.");
         }
 
-        await Instance.EnqueueRequestAsync(() => Instance.InternalChangeEconomyAsync(id, amount), nameof(ChangeEconomy));
+        await Instance.EnqueueRequestAsync(() => Instance.InternalChangeEconomyAsync(id, amount), nameof(ChangeEconomyAsync));
+    }
+
+    public static async UniTask<List<PublicMailData>> CheckMailAsync()
+    {
+        var status = await CanCommunicateAsync(nameof(CheckMailAsync));
+        if (status != CommunicationStatus.Success)
+        {
+            throw new InvalidOperationException("서버와 통신할 수 없는 상태입니다.");
+        }
+
+        return await Instance.EnqueueRequestAsync(() => Instance.InternalCheckMailAsync(), nameof(CheckMailAsync));
     }
 
     public static async UniTask WatchAdAndGetReward()
@@ -794,6 +819,29 @@ public class BackendManager : SingletonMono<BackendManager>
             Debug.LogException(ex);
             throw;
         }
+    }
+
+    private async UniTask<T> InternalLoadSimpleDataAsync<T>(string key)
+    {
+        try
+        {
+            var data = await CloudSaveService.Instance.Data.Player.LoadAsync(new HashSet<string> { key });
+            if (data.TryGetValue(key, out var result))
+            {
+                return result.Value.GetAs<T>();
+            }
+            else
+            {
+                Debug.LogWarning($"[CloudSave] Key '{key}'에 해당하는 데이터가 없습니다. 기본값을 반환합니다.");
+                return default(T);
+            }
+        }
+        catch(Exception ex)
+        {
+            Debug.LogException(ex);
+            throw;
+        }
+
     }
 
     private async UniTask<AllCloudData> InternalLoadDataAsync()
@@ -994,7 +1042,6 @@ public class BackendManager : SingletonMono<BackendManager>
             //왜냐하면, 서버상 잔액이 부족한 상황은 클라이언트 변조일 가능성이 높아서..
             if (ex.Message.Contains("(422)"))
             {
-                Debug.LogError("잔액 부족!: 서버 데이터와 동기화를 시도합니다.");
 
                 Debug.LogWarning($"[BackendManager] 잔액 부족 감지 (422). 서버 데이터와 동기화를 시도합니다. ID: {id}");
 
@@ -1016,6 +1063,38 @@ public class BackendManager : SingletonMono<BackendManager>
         }
     }
 
+    private async UniTask<List<PublicMailData>> InternalCheckMailAsync()
+    {
+        try 
+        {
+            await RemoteConfigService.Instance.FetchConfigsAsync(new userAttributes(), new appAttributes());
+
+            if (RemoteConfigService.Instance.appConfig.HasKey(Constants.RC_PUBLICMAIL_KEY))
+            {
+                string jsonString = RemoteConfigService.Instance.appConfig.GetJson(Constants.RC_PUBLICMAIL_KEY);
+
+                // 4. 파싱 (문자열 -> 리스트 객체)
+                var mailList = JsonConvert.DeserializeObject<List<PublicMailData>>(jsonString);
+                Debug.Log($"[BackendManager] 메일 로드 성공: {mailList.Count}개");
+
+                LastPostFetched = Time.realtimeSinceStartup;
+
+                return mailList;
+            }
+            else
+            {
+                Debug.LogWarning($"[BackendManager] Remote Config에 '{Constants.RC_PUBLICMAIL_KEY}' 키가 없습니다.");
+                return new List<PublicMailData>(); // 빈 리스트 반환
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError($"[BackendManager] 메일 로드 중 오류 발생: {ex.Message}");
+            return null;
+        }
+
+    }
+
     private void HandleUserCancel()
     {
         // 스타트 씬이면, 앱 종료. 처음 킨 상태에선 씬 정보가 등록되지 않아서, None도 넣어야 함
@@ -1033,6 +1112,9 @@ public class BackendManager : SingletonMono<BackendManager>
             SceneLoader.Instance.StartLoadScene(SceneState.StartScene);
         }
     }
+
+
+    
 }
 
 public class StageResultEvent : Unity.Services.Analytics.Event
@@ -1069,3 +1151,6 @@ public class AllCloudData
 
 }
 
+// Remote Config 필터링용 구조체 (비어있어도 선언 필요)
+public struct userAttributes { }
+public struct appAttributes { }

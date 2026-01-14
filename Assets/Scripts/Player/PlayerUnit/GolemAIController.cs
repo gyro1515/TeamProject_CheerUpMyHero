@@ -5,7 +5,7 @@ public class GolemAIController : BaseUnitController
 {
    protected BaseUnit summonUnit;
     Coroutine findTargetRoutine;
-    Coroutine attackRoutine;
+    //Coroutine attackRoutine;
     Coroutine atkAnimRoutine;
     bool isAttacking = false;
     protected override void Awake()
@@ -25,35 +25,69 @@ public class GolemAIController : BaseUnitController
 
         ResetSummonUnitController();
         findTargetRoutine = StartCoroutine(TargetingRoutine());
-        attackRoutine = StartCoroutine(AttackRoutine());
+        //attackRoutine = StartCoroutine(AttackRoutine());
+        attackTimer = summonUnit.FinAttackRate;
     }
     protected override void OnDisable()
     {
         base.OnDisable();
 
         if (findTargetRoutine != null) StopCoroutine(findTargetRoutine);
-        if (attackRoutine != null) StopCoroutine(attackRoutine);
+        //if (attackRoutine != null) StopCoroutine(attackRoutine);
         if (atkAnimRoutine != null) StopCoroutine(atkAnimRoutine);
     }
     protected override void FixedUpdate()
     {
         base.FixedUpdate();
 
-        gameObject.transform.position += summonUnit.MoveDir * summonUnit.MoveSpeed * Time.fixedDeltaTime;
+        gameObject.transform.position += summonUnit.MoveDir * summonUnit.FinMoveSpeed * Time.fixedDeltaTime;
+
+    }
+    protected override void Update()
+    {
+        base.Update();
+        AttackUpdate();
+    }
+    protected virtual void AttackUpdate()
+    {
+        // 공격 쿨타임 관리
+        attackTimer += Time.deltaTime;
+
+        // 공격 가능 상태 체크
+        // 공격 가능 시간이 안됐거나, 타겟이 없거나, 이미 죽었거나, 현재 공격 중이라면 리턴
+        if (attackTimer < summonUnit.FinAttackRate ||
+            summonUnit.TargetUnit == null ||
+            summonUnit.TargetUnit.IsDead() ||
+            isAttacking == true) return;
+
+        attackTimer = 0f;
+        // 애니메이션이 없다면 바로 공격
+        if (animator == null)
+        {
+            Attack(); // 바로 공격
+            return;
+        }
+        // 적 인식했다면 공격 시작
+        animator?.SetTrigger(summonUnit.AnimationData.AttackParameterHash);
+        // 적 인식 루틴 정지(움직임 중지)
+        if (findTargetRoutine != null) StopCoroutine(findTargetRoutine);
+        // 어택 애니메이션 루틴 시작
+        isAttacking = true;
+        atkAnimRoutine = StartCoroutine(AtkAnimRoutine());
 
     }
     public override void Attack()
     {
         base.Attack();
 
-        summonUnit.TargetUnit?.TakeDamage(summonUnit.AtkPower);
+        summonUnit.TargetUnit?.TakeDamage(summonUnit.FinAttackPower);
         //Debug.Log("아군 유닛: 공격!");
     }
     public override void Dead()
     {
         base.Dead();
         if (findTargetRoutine != null) StopCoroutine(findTargetRoutine);
-        if (attackRoutine != null) StopCoroutine(attackRoutine);
+        //if (attackRoutine != null) StopCoroutine(attackRoutine);
     }
     protected override void HitBackActive(bool active)
     {
@@ -61,7 +95,7 @@ public class GolemAIController : BaseUnitController
         {
             // 실행 중인 모든 코루틴 중지
             if (findTargetRoutine != null) StopCoroutine(findTargetRoutine);
-            if (attackRoutine != null) StopCoroutine(attackRoutine);
+            //if (attackRoutine != null) StopCoroutine(attackRoutine);
             if (atkAnimRoutine != null) StopCoroutine(atkAnimRoutine);
             ResetSummonUnitController();
         }
@@ -69,7 +103,7 @@ public class GolemAIController : BaseUnitController
         {
             // 기존처럼 찾기 실행
             findTargetRoutine = StartCoroutine(TargetingRoutine());
-            attackRoutine = StartCoroutine(AttackRoutine());
+            //attackRoutine = StartCoroutine(AttackRoutine());
         }
     }
     IEnumerator TargetingRoutine()
@@ -80,17 +114,17 @@ public class GolemAIController : BaseUnitController
         while (true)
         {
             summonUnit.TargetUnit = UnitManager.Instance.FindClosestTarget(summonUnit, true);
-            summonUnit.MoveDir = summonUnit.TargetUnit != null ? Vector3.zero : Vector3.right;
+            summonUnit.MoveDir = (summonUnit.TargetUnit != null && summonUnit.TargetUnit.IsDead() == false) ? Vector3.zero : Vector3.right;
             if (animator) animator.SetFloat(
                 summonUnit.AnimationData.SpeedParameterHash,
                 Mathf.Abs((float)summonUnit.MoveDir.x));
             yield return wait;
         }
     }
-    IEnumerator AttackRoutine()
+    /*IEnumerator AttackRoutine()
     {
         // 0.2초마다 타겟 갱신
-        WaitForSeconds wait = new WaitForSeconds(summonUnit.AttackRate);
+        WaitForSeconds wait = new WaitForSeconds(summonUnit.FinAttackRate);
         while (true)
         {
             if (summonUnit.TargetUnit != null)
@@ -116,7 +150,7 @@ public class GolemAIController : BaseUnitController
             else yield return null;
 
         }
-    }
+    }*/
     IEnumerator AtkAnimRoutine()
     {
         // Attack 상태 진입 대기

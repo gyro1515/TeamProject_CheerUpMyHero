@@ -10,7 +10,7 @@ public class EnemyRangedSplashController : BaseUnitController
     private EnemyUnit enemyUnit;
 
     private Coroutine findTargetRoutine;
-    private Coroutine attackRoutine;
+    //private Coroutine attackRoutine;
     private Coroutine atkAnimRoutine;
     private bool isAttacking = false;
     Transform targetPos = null;
@@ -29,7 +29,8 @@ public class EnemyRangedSplashController : BaseUnitController
         base.OnEnable();
         ResetEnemyUnitController();
         findTargetRoutine = StartCoroutine(TargetingRoutine());
-        attackRoutine = StartCoroutine(AttackRoutine());
+        //attackRoutine = StartCoroutine(AttackRoutine());
+        attackTimer = enemyUnit.FinAttackRate;
     }
 
     protected override void FixedUpdate()
@@ -37,10 +38,42 @@ public class EnemyRangedSplashController : BaseUnitController
         base.FixedUpdate();
         if (enemyUnit.MoveDir != Vector3.zero)
         {
-            transform.position += enemyUnit.MoveDir * enemyUnit.MoveSpeed * Time.fixedDeltaTime;
+            transform.position += enemyUnit.MoveDir * enemyUnit.FinMoveSpeed * Time.fixedDeltaTime;
         }
     }
+    protected override void Update()
+    {
+        base.Update();
+        AttackUpdate();
+    }
+    protected virtual void AttackUpdate()
+    {
+        // 공격 쿨타임 관리
+        attackTimer += Time.deltaTime;
 
+        // 공격 가능 상태 체크
+        // 공격 가능 시간이 안됐거나, 타겟이 없거나, 이미 죽었거나, 현재 공격 중이라면 리턴
+        if (attackTimer < enemyUnit.FinAttackRate ||
+            enemyUnit.TargetUnit == null ||
+            enemyUnit.TargetUnit.IsDead() ||
+            isAttacking == true) return;
+
+        attackTimer = 0f;
+        // 애니메이션이 없다면 바로 공격
+        if (animator == null)
+        {
+            Attack(); // 바로 공격
+            return;
+        }
+        // 적 인식했다면 공격 시작
+        animator?.SetTrigger(enemyUnit.AnimationData.AttackParameterHash);
+        // 적 인식 루틴 정지(움직임 중지)
+        if (findTargetRoutine != null) StopCoroutine(findTargetRoutine);
+        // 어택 애니메이션 루틴 시작
+        isAttacking = true;
+        atkAnimRoutine = StartCoroutine(AtkAnimRoutine());
+
+    }
     /// 타겟의 위치를 중심으로 범위 피해를 입히는 공격 함수
     public override void Attack()
     {
@@ -97,7 +130,7 @@ public class EnemyRangedSplashController : BaseUnitController
         while (selectedUnitPQ.Count > 0)
         {
             BaseCharacter target = selectedUnitPQ.Dequeue().Element;
-            target.Damageable.TakeDamage(enemyUnit.AtkPower);
+            target.Damageable.TakeDamage(enemyUnit.FinAttackPower);
         }
         if (hitCount > 0)
         {
@@ -110,7 +143,7 @@ public class EnemyRangedSplashController : BaseUnitController
     {
         base.Dead();
         if (findTargetRoutine != null) StopCoroutine(findTargetRoutine);
-        if (attackRoutine != null) StopCoroutine(attackRoutine);
+        //if (attackRoutine != null) StopCoroutine(attackRoutine);
         if (atkAnimRoutine != null) StopCoroutine(atkAnimRoutine);
     }
 
@@ -119,14 +152,14 @@ public class EnemyRangedSplashController : BaseUnitController
         if (active)
         {
             if (findTargetRoutine != null) StopCoroutine(findTargetRoutine);
-            if (attackRoutine != null) StopCoroutine(attackRoutine);
+            //if (attackRoutine != null) StopCoroutine(attackRoutine);
             if (atkAnimRoutine != null) StopCoroutine(atkAnimRoutine);
             ResetEnemyUnitController();
         }
         else
         {
             findTargetRoutine = StartCoroutine(TargetingRoutine());
-            attackRoutine = StartCoroutine(AttackRoutine());
+            //attackRoutine = StartCoroutine(AttackRoutine());
         }
     }
 
@@ -138,16 +171,16 @@ public class EnemyRangedSplashController : BaseUnitController
         {
             enemyUnit.TargetUnit = UnitManager.Instance.FindClosestTarget(enemyUnit, false, out targetPos);
 
-            enemyUnit.MoveDir = enemyUnit.TargetUnit != null ? Vector3.zero : Vector3.left;
+            enemyUnit.MoveDir = (enemyUnit.TargetUnit != null && enemyUnit.TargetUnit.IsDead() == false) ? Vector3.zero : Vector3.left;
             if (animator) animator.SetFloat(
                 enemyUnit.AnimationData.SpeedParameterHash,
                 Mathf.Abs((float)enemyUnit.MoveDir.x));
             yield return wait;
         }
     }
-    private IEnumerator AttackRoutine()
+    /*private IEnumerator AttackRoutine()
     {
-        WaitForSeconds wait = new WaitForSeconds(enemyUnit.AttackRate);
+        WaitForSeconds wait = new WaitForSeconds(enemyUnit.FinAttackRate);
         while (true)
         {
             // 타겟이 있고, 사거리 안에 있을 때만 공격 시도
@@ -173,7 +206,7 @@ public class EnemyRangedSplashController : BaseUnitController
             }
             else yield return null;
         }
-    }
+    }*/
 
     private IEnumerator AtkAnimRoutine()
     {
