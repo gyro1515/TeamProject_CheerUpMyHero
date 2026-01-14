@@ -1,7 +1,10 @@
+using Cysharp.Threading.Tasks;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using Unity.Services.CloudCode;
 using Unity.Services.CloudCode.GeneratedBindings;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -21,6 +24,10 @@ public class UIMenu : BaseUI, IBackButtonHandler
     [SerializeField] private Button WisdomBtn;
     [Header("설정 팝업")]
     [SerializeField] private BasePopUpUI _settingPanelPopUpUI;
+    [Header("우편함 관련")]
+    [SerializeField] private PostBox _postPopUpUI;
+    [SerializeField] private GameObject _postAlert;
+    [SerializeField] private TMP_Text _postAlertNum;
 
     MainScreenUI mainScreenUI;
     UIStageSelect uiStageSelect;
@@ -30,7 +37,7 @@ public class UIMenu : BaseUI, IBackButtonHandler
 
     private void Awake()
     {
-        PostBtn.onClick.AddListener(OnLateUpdateClicked);
+        PostBtn.onClick.AddListener(OnPostBtnClicked);
         NoticeBtn.onClick.AddListener(OnLateUpdateClicked);
         GuideBtn.onClick.AddListener(OnGuidBtnClicked);
         EnforceBtn.onClick.AddListener(OnLateUpdateClicked);
@@ -44,6 +51,7 @@ public class UIMenu : BaseUI, IBackButtonHandler
     private void OnEnable()
     {
         UIManager.PubishAddUIStackEvent(this);
+        _postPopUpUI.CheckNewMail(false).Forget();
     }
     private void OnDisable()
     {
@@ -114,5 +122,23 @@ public class UIMenu : BaseUI, IBackButtonHandler
     public void OnBackPressed()
     {
         _settingPanelPopUpUI.OpenUI();
+    }
+
+    public void OnPostBtnClicked()
+    {
+        _postPopUpUI.OpenUI();
+    }
+
+    public void DisplayNewPost(int newPostNum)
+    {
+        if (newPostNum > 0)
+        {
+            _postAlert.SetActive(true);
+            _postAlertNum.text = newPostNum.ToString();
+        }
+        else
+        {
+            _postAlert.SetActive(false);
+        }
     }
 }

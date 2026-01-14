@@ -565,6 +565,13 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
             int previousAmount = _resources[type];
             _resources[type] += amount;
             int currentAmount = _resources[type];
+            
+            if (currentAmount > 99999)
+            {
+                amount = 99999 - previousAmount;
+                _resources[type] = 99999;
+                currentAmount = 99999;
+            }
 
             Debug.Log($"[PlayerData AddResource] '{type}' 값 변경: {previousAmount} -> {currentAmount}");
 
@@ -588,7 +595,7 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
             //    CheckLevelUp();
             //}
 
-            await BackendManager.ChangeEconomy(BackendManager.EconomyEnumToId(type), amount);
+            await BackendManager.ChangeEconomyAsync(BackendManager.EconomyEnumToId(type), amount);
         }
         else
         {
