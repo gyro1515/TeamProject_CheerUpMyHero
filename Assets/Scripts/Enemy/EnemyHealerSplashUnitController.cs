@@ -9,7 +9,7 @@ public class EnemyHealerSplashController : BaseUnitController
 
     // 코루틴 관리 변수
     private Coroutine findTargetRoutine;
-    private Coroutine attackRoutine;
+    //private Coroutine attackRoutine;
     private Coroutine atkAnimRoutine;
     private Coroutine healAnimRoutine;
     private bool isAttacking = false;
@@ -31,7 +31,8 @@ public class EnemyHealerSplashController : BaseUnitController
         base.OnEnable();
         ResetEnemyUnitController();
         findTargetRoutine = StartCoroutine(TargetingRoutine());
-        attackRoutine = StartCoroutine(AttackRoutine());
+        //attackRoutine = StartCoroutine(AttackRoutine());
+        attackTimer = enemyUnit.FinAttackRate;
     }
 
     protected override void FixedUpdate()
@@ -39,15 +40,19 @@ public class EnemyHealerSplashController : BaseUnitController
         base.FixedUpdate();
         if (enemyUnit.MoveDir != Vector3.zero)
         {
-            transform.position += enemyUnit.MoveDir * enemyUnit.MoveSpeed * Time.fixedDeltaTime;
+            transform.position += enemyUnit.MoveDir * enemyUnit.FinMoveSpeed * Time.fixedDeltaTime;
         }
     }
-
+    protected override void Update()
+    {
+        base.Update();
+        AttackUpdate();
+    }
     public override void Dead()
     {
         base.Dead();
         if (findTargetRoutine != null) StopCoroutine(findTargetRoutine);
-        if (attackRoutine != null) StopCoroutine(attackRoutine);
+        //if (attackRoutine != null) StopCoroutine(attackRoutine);
         if (atkAnimRoutine != null) StopCoroutine(atkAnimRoutine);
         if (healAnimRoutine != null) StopCoroutine(healAnimRoutine);
     }
@@ -57,7 +62,7 @@ public class EnemyHealerSplashController : BaseUnitController
         if (active)
         {
             if (findTargetRoutine != null) StopCoroutine(findTargetRoutine);
-            if (attackRoutine != null) StopCoroutine(attackRoutine);
+            //if (attackRoutine != null) StopCoroutine(attackRoutine);
             if (atkAnimRoutine != null) StopCoroutine(atkAnimRoutine);
             if (healAnimRoutine != null) StopCoroutine(healAnimRoutine);
             ResetEnemyUnitController();
@@ -65,10 +70,51 @@ public class EnemyHealerSplashController : BaseUnitController
         else
         {
             findTargetRoutine = StartCoroutine(TargetingRoutine());
-            attackRoutine = StartCoroutine(AttackRoutine());
+            //attackRoutine = StartCoroutine(AttackRoutine());
         }
     }
+    protected virtual void AttackUpdate()
+    {
+        // 공격 쿨타임 관리
+        attackTimer += Time.deltaTime;
 
+        // 공격 가능 상태 체크
+        // 공격 가능 시간이 안됐거나, 타겟이 없거나, 이미 죽었거나, 현재 공격 중이라면 리턴
+        if (attackTimer < enemyUnit.FinAttackRate ||
+            enemyUnit.TargetUnit == null ||
+            enemyUnit.TargetUnit.IsDead() ||
+            isAttacking == true) return;
+
+        attackTimer = 0f;
+
+        HealTarget = FindClosestInjuredAlly();
+        if (HealTarget != null)
+        {
+            // 애니메이션이 없다면 바로 힐
+            if (animator == null)
+            {
+                Heel(); // 바로 힐
+                return;
+            }
+            animator?.SetTrigger(enemyUnit.AnimationData.AttackParameterHash);
+            if (findTargetRoutine != null) StopCoroutine(findTargetRoutine);
+            isAttacking = true;
+            healAnimRoutine = StartCoroutine(HealAnimRoutine());
+        }
+        else
+        {
+            // 애니메이션이 없다면 바로 공격
+            if (animator == null)
+            {
+                Attack(); // 바로 공격
+                return;
+            }
+            animator?.SetTrigger(enemyUnit.AnimationData.AttackParameterHash);
+            if (findTargetRoutine != null) StopCoroutine(findTargetRoutine);
+            isAttacking = true;
+            atkAnimRoutine = StartCoroutine(AtkAnimRoutine());
+        }
+    }
     // 광역 공격을 수행하는 함수
     public override void Attack()
     {
@@ -124,14 +170,21 @@ public class EnemyHealerSplashController : BaseUnitController
         while (selectedUnitPQ.Count > 0)
         {
             BaseCharacter target = selectedUnitPQ.Dequeue().Element;
-            target.Damageable.TakeDamage(enemyUnit.AtkPower);
+            target.Damageable.TakeDamage(enemyUnit.FinAttackPower);
         }
         if (hitCount > 0)
         {
             //Debug.Log($"{gameObject.name}이(가) {hitCount}명의 플레이어 유닛에게 원거리 범위 공격!");
         }
     }
-
+    void Heel()
+    {
+        HealTarget.Damageable.TakeHeal(enemyUnit.UnitData.healAmount);
+        GameObject fxHeal = ObjectPoolManager.Instance.Get(PoolType.FXHealEffect);
+        //fxHeal.transform.SetParent(HealTarget.transform);
+        fxHeal.transform.position = HealTarget.transform.position + new Vector3(0f, 0.7f, 0f);
+        AudioManager.PlayOneShotByCameraDistance(DataManager.AudioData.unitHealSE, HealTarget.transform, 0.5f);
+    }
     #region Coroutines
 
     private IEnumerator TargetingRoutine()
@@ -144,7 +197,7 @@ public class EnemyHealerSplashController : BaseUnitController
             enemyUnit.TargetUnit = UnitManager.Instance.FindClosestTarget(enemyUnit, false, out targetPos);
 
             // 이동 방향: 타겟이 없으면 왼쪽으로 전진
-            enemyUnit.MoveDir = enemyUnit.TargetUnit != null ? Vector3.zero : Vector3.left;
+            enemyUnit.MoveDir = (enemyUnit.TargetUnit != null && enemyUnit.TargetUnit.IsDead() == false) ? Vector3.zero : Vector3.left;
 
             if (animator) animator.SetFloat(
                 enemyUnit.AnimationData.SpeedParameterHash,
@@ -154,9 +207,9 @@ public class EnemyHealerSplashController : BaseUnitController
         }
     }
 
-    private IEnumerator AttackRoutine()
+    /*private IEnumerator AttackRoutine()
     {
-        WaitForSeconds wait = new WaitForSeconds(enemyUnit.AttackRate);
+        WaitForSeconds wait = new WaitForSeconds(enemyUnit.FinAttackRate);
         while (true)
         {
             if (enemyUnit.TargetUnit != null)
@@ -185,7 +238,7 @@ public class EnemyHealerSplashController : BaseUnitController
             }
             yield return null;
         }
-    }
+    }*/
 
     private IEnumerator HealAnimRoutine()
     {

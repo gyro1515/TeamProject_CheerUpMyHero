@@ -63,7 +63,7 @@ public class TestEnemySplashController : BaseController
     protected override void FixedUpdate()
     {
         base.FixedUpdate();
-        gameObject.transform.position += enemyUnit.MoveDir * enemyUnit.MoveSpeed * Time.fixedDeltaTime;
+        //gameObject.transform.position += enemyUnit.MoveDir * enemyUnit.MoveSpeed * Time.fixedDeltaTime;
     }
     protected override void OnDisable()
     {
@@ -80,7 +80,7 @@ public class TestEnemySplashController : BaseController
         base.Attack();
         if (attackType == AttackTypeTest.Single)
         {
-            enemyUnit.TargetUnit?.TakeDamage(enemyUnit.AtkPower);
+            //enemyUnit.TargetUnit?.TakeDamage(enemyUnit.AtkPower);
         }
         else if (attackType == AttackTypeTest.ExplosiveRange)
         {
@@ -113,7 +113,7 @@ public class TestEnemySplashController : BaseController
     IEnumerator AttackRoutine()
     {
         // 0.2초마다 타겟 갱신
-        WaitForSeconds wait = new WaitForSeconds(enemyUnit.AttackRate);
+        WaitForSeconds wait = new WaitForSeconds(enemyUnit.FinAttackRate);
         while (true)
         {
             if (enemyUnit.TargetUnit != null)
@@ -134,8 +134,8 @@ public class TestEnemySplashController : BaseController
 
         for (int i = 0; i < hitCount; i++)
         {
-            if (overLapCollider[i].TryGetComponent<BaseCharacter>(out BaseCharacter unit))
-                unit.Damageable.TakeDamage(enemyUnit.AtkPower);
+            /*if (overLapCollider[i].TryGetComponent<BaseCharacter>(out BaseCharacter unit))
+                unit.Damageable.TakeDamage(enemyUnit.AtkPower);*/
         }
 
     }
@@ -149,8 +149,8 @@ public class TestEnemySplashController : BaseController
 
         for (int i = 0; i < hitCount; i++)
         {
-            if (overLapCollider[i].TryGetComponent<BaseCharacter>(out BaseCharacter unit))
-                unit.Damageable.TakeDamage(enemyUnit.AtkPower);
+            /*if (overLapCollider[i].TryGetComponent<BaseCharacter>(out BaseCharacter unit))
+                unit.Damageable.TakeDamage(enemyUnit.AtkPower);*/
         }
     }
 
@@ -184,7 +184,7 @@ public class TestEnemySplashController : BaseController
         for (int i = 0; i < attackCount; i++)
         {
             // 정렬된 리스트의 앞에서부터 순서대로 공격
-            listForSortTarget[i].Damageable.TakeDamage(enemyUnit.AtkPower);
+            //listForSortTarget[i].Damageable.TakeDamage(enemyUnit.AtkPower);
         }
     }
 

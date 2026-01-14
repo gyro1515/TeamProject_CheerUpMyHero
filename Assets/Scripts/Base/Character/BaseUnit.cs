@@ -19,16 +19,14 @@ public abstract class BaseUnit : BaseCharacter
     [field: SerializeField] protected int HitBackCount { get; set; } = 3; // 최대 몇 번 히트백될 수 되는지
     [field: SerializeField] public float SpawnCooldown { get; set; } = 5f;
     [field: SerializeField] public virtual BaseUnitData UnitData { get; protected set; }
-    // 최종 스탯 계산용 프로퍼티
-    public float FinAttackPower { get { return AtkPower * attackPowerMultiplier + attackPowerAdd; }}
-    public float FinAttackRate { get { return AttackRate * attackRateMultiplier; }}
-    public float FinMoveSpeed { get { return MoveSpeed * moveSpeedMultiplier; }}
+
     // 퍼센트
-    float attackPowerMultiplier = 1f; //
-    float attackRateMultiplier = 1f;  //
-    float moveSpeedMultiplier = 1f;   // 
-    // 상수
-    int attackPowerAdd = 0;
+    [SerializeField] protected float attackPowerMultiplier = 1f; //
+    [SerializeField] protected float attackRateMultiplier = 1f;  //
+    [SerializeField] protected float moveSpeedMultiplier = 1f;   // 
+    // 고정 수치
+    [SerializeField] protected float attackPowerAdd = 0;
+    [SerializeField] protected float moveSpeedAdd = 0;
 
     public BaseUnitController UnitController { get; protected set; }
 
@@ -98,6 +96,7 @@ public abstract class BaseUnit : BaseCharacter
     protected override void OnEnable()
     {
         base.OnEnable();
+        
         SetStatMultiplier(1f);
         TargetUnit = null;
     }
@@ -107,23 +106,56 @@ public abstract class BaseUnit : BaseCharacter
         //SetStatMultiplier(1f); // 몬스터 비활성화시 초기화
         TargetUnit = null;
     }
-    public void SetBuffStat(IntegratedBuffType buffType, float percentValue)
+    protected void InitFinStats()
+    {
+        // 수치는 다 버프 컨트롤러 쪽에서 다 원상복구하지만, 다시 활성화될 때마다 예방으로 초기화
+        attackPowerMultiplier = 1f;
+        attackRateMultiplier = 1f;
+        moveSpeedMultiplier = 1f;
+        attackPowerAdd = 0f;
+        moveSpeedAdd = 0f;
+        FinAttackPower = AtkPower * attackPowerMultiplier + attackPowerAdd;
+        FinAttackRate = AttackRate * attackRateMultiplier;
+        FinMoveSpeed = MoveSpeed * moveSpeedMultiplier + moveSpeedAdd;
+    }
+    public void SetBuffStatPercent(IntegratedBuffType buffType, float percentValue)
     {
         // 버프 타입에 따라 스탯
         switch (buffType)
         {
-            case IntegratedBuffType.AtkackPower:
+            case IntegratedBuffType.AttackPower:
                 attackPowerMultiplier += percentValue;
+                FinAttackPower = AtkPower * attackPowerMultiplier + attackPowerAdd;
                 break;
             case IntegratedBuffType.AttackRate:
                 attackRateMultiplier += percentValue;
+                FinAttackRate = AttackRate * attackRateMultiplier;
                 break;
             case IntegratedBuffType.MoveSpeed:
                 moveSpeedMultiplier += percentValue;
+                FinMoveSpeed = MoveSpeed * moveSpeedMultiplier + moveSpeedAdd;
                 break;
         }
     }
-    public void SetMoveSpeed(float newSpeed)
+    public void SetBuffStatAdd(IntegratedBuffType buffType, float addValue)
+    {
+        // 버프 타입에 따라 스탯
+        switch (buffType)
+        {
+            case IntegratedBuffType.AttackPower:
+                attackPowerAdd += addValue;
+                FinAttackPower = AtkPower * attackPowerMultiplier + attackPowerAdd;
+                break;
+            case IntegratedBuffType.AttackRate:
+                FinAttackRate = AttackRate * attackRateMultiplier;
+                break;
+            case IntegratedBuffType.MoveSpeed:
+                moveSpeedAdd += addValue;
+                FinMoveSpeed = MoveSpeed * moveSpeedMultiplier + moveSpeedAdd;
+                break;
+        }
+    }
+    /*public void SetMoveSpeed(float newSpeed)
     {
         MoveSpeed = newSpeed;
     }
@@ -136,7 +168,7 @@ public abstract class BaseUnit : BaseCharacter
     public void SetAttackRate(float newAttackRate)
     {
         AttackRate = newAttackRate;
-    }
+    }*/
     protected abstract void SetDataFromExcelData();
    
     protected virtual void SetHitBackActive(bool active)

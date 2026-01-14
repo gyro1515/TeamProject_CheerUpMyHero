@@ -56,6 +56,9 @@ public class EnemyUnit : BaseUnit
         hitbackHp = MaxHp / UnitData.hitBack;
         // ex: curHp / hitbackHp  => 2 -> 1 -> 0에서만 히트백이 발생하도록
         hitbackTriggerCount = UnitData.hitBack - 1;
+
+        // 최종 스탯계산
+        InitFinStats();
     }
     protected override void SetDataFromExcelData()
     {
