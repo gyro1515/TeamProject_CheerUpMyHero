@@ -55,17 +55,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   idNumber: 0
   <MaxHp>k__BackingField: 600
-  <AtkPower>k__BackingField: 35
-  <MoveSpeed>k__BackingField: 1.3
-  <AttackRate>k__BackingField: 1.05
+  AtkPower: 0
+  MoveSpeed: 0
+  AttackRate: 0
+  <FinAttackPower>k__BackingField: 0
+  <FinAttackRate>k__BackingField: 0
+  <FinMoveSpeed>k__BackingField: 0
   <HpBarPosByCharacter>k__BackingField: {x: 0, y: 2.3, z: 0}
   <HpBarSize>k__BackingField: {x: 0, y: 0}
   curHp: 0
   <ListIndex>k__BackingField: -1
   <AttackRange>k__BackingField: 0
   <CognizanceRange>k__BackingField: 1.5
-  <FoodConsumption>k__BackingField: 300
-  <AttackDelayTime>k__BackingField: 0.6
   <StartAttackTime>k__BackingField: 0.1
   <StartAttackNormalizedTime>k__BackingField: 0.4
   <HitBackCount>k__BackingField: 3
@@ -96,6 +97,11 @@ MonoBehaviour:
     gachaHeroSprite: {fileID: 0}
     healAmount: 0
     maxTargetCount: 0
+  attackPowerMultiplier: 1
+  attackRateMultiplier: 1
+  moveSpeedMultiplier: 1
+  attackPowerAdd: 0
+  moveSpeedAdd: 0
   <UnitType>k__BackingField: 1
   <UnitRarity>k__BackingField: 0
 --- !u!114 &187243894227736016
@@ -3470,7 +3476,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6732601726089819593}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: Shadow
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3812,7 +3818,7 @@ GameObject:
   m_Component:
   - component: {fileID: 9138425620579609089}
   - component: {fileID: 9193756637487795184}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: Shadow
   m_TagString: Untagged
   m_Icon: {fileID: 0}

@@ -3586,17 +3586,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   idNumber: 0
   <MaxHp>k__BackingField: 100
-  <AtkPower>k__BackingField: 15
-  <MoveSpeed>k__BackingField: 0.8
-  <AttackRate>k__BackingField: 1.85
+  AtkPower: 0
+  MoveSpeed: 0
+  AttackRate: 0
+  <FinAttackPower>k__BackingField: 0
+  <FinAttackRate>k__BackingField: 0
+  <FinMoveSpeed>k__BackingField: 0
   <HpBarPosByCharacter>k__BackingField: {x: 0, y: 2.3, z: 0}
   <HpBarSize>k__BackingField: {x: 0, y: 0}
   curHp: 0
   <ListIndex>k__BackingField: -1
   <AttackRange>k__BackingField: 0
   <CognizanceRange>k__BackingField: 1.1
-  <FoodConsumption>k__BackingField: 0
-  <AttackDelayTime>k__BackingField: 0.8
   <StartAttackTime>k__BackingField: 0.1
   <StartAttackNormalizedTime>k__BackingField: 0.4
   <HitBackCount>k__BackingField: 3
@@ -3627,6 +3628,11 @@ MonoBehaviour:
     gachaHeroSprite: {fileID: 0}
     healAmount: 0
     maxTargetCount: 0
+  attackPowerMultiplier: 1
+  attackRateMultiplier: 1
+  moveSpeedMultiplier: 1
+  attackPowerAdd: 0
+  moveSpeedAdd: 0
   <UnitType>k__BackingField: 1
   <UnitRarity>k__BackingField: 0
 --- !u!114 &3663210988550714101
