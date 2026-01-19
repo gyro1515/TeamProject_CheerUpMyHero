@@ -949,11 +949,47 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
         _standardPityPublisher?.Publish(new StandardPityCountUpdatedEvent { NewCount = StandardGachaPityCount });
     }
     #endregion
+
+    #region 운명, 도전 관련
+    // 현재 선택된 운명 효과
     public StageDestinyData currentDestiny { get; set; } = new StageDestinyData();
+
+    // 현재 활성화된 도전 효과
     public Dictionary<int, int> activeChallenges { get; private set; } = new Dictionary<int, int>();
 
-    // 유물 관련
-    #region Artifact
+    // 운명, 도전 효과로 인한 보너스 스탯 구조체 캐싱
+    private Dictionary<int, DestinyChallengeUnitCache> _destinyChallengeCache;
+
+    // 캐시 저장하는 메서드 -> 전투 시작 시에 호출
+    public void SetDestinyChallengeCache(Dictionary<int, DestinyChallengeUnitCache> cache)
+    {
+        _destinyChallengeCache = cache;
+    }
+
+    // 유닛 id로 스탯 보너스 구조체 도출하는 메서드 -> 각 유닛이 전투 시작 시에 호출
+    public DestinyChallengeUnitCache GetDestinyChallengeBonus(int unitId)
+    {
+        if (_destinyChallengeCache != null &&
+            _destinyChallengeCache.TryGetValue(unitId, out DestinyChallengeUnitCache cache))
+        {
+            return cache;
+        }
+
+        return default;
+    }
+
+    // 전투 종료했을 때 캐싱된 정보 비우는 메서드
+    public void ClearDestinyChallengeCache()
+    {
+        if (_destinyChallengeCache != null)
+        {
+            _destinyChallengeCache.Clear();
+            _destinyChallengeCache = null;
+        }
+    }
+    #endregion
+
+    #region 유물 관련
     private const int ArtifactSlotCount = 8;
 
     public List<ArtifactData> OwnedArtifacts { get; private set; } = new List<ArtifactData>();

@@ -144,6 +144,12 @@ public class GameManager : SingletonMono<GameManager>
 
     public void StartBattle()
     {
+        // ▼▼▼▼▼▼ 운명, 도전 효과로 인한 스탯 보너스 캐싱 ▼▼▼▼▼▼
+        DestinyChallengeCalculator calculator = new DestinyChallengeCalculator(PlayerDataManager.Instance);
+        Dictionary<int, DestinyChallengeUnitCache> destinyResult = calculator.Calculate();
+        PlayerDataManager.Instance.SetDestinyChallengeCache(destinyResult);
+        // =================================================================
+
         PlayerDataManager.Instance.ResetFood();
 
         IsBattleStarted = true;
@@ -185,6 +191,9 @@ public class GameManager : SingletonMono<GameManager>
 
     public async UniTaskVoid ShowResultUI(bool isVictory)
     {
+        // 운명, 도전 효과 구조체 캐시 삭제
+        PlayerDataManager.Instance.ClearDestinyChallengeCache();
+
         EventManager.GetPublisher<BattleEndedEvent>().Publish(new BattleEndedEvent { IsVictory = isVictory });
 
         Modifiercalculator.EndBattle();
