@@ -718,7 +718,7 @@ public class BackendManager : SingletonMono<BackendManager>
         await Instance.EnqueueRequestAsync(() => Instance.InternalChangeEconomyAsync(id, amount), nameof(ChangeEconomyAsync));
     }
 
-    public static async UniTask<List<PublicMailData>> CheckMailAsync()
+    public static async UniTask<List<PublicMailData>> CheckMailAsync(string key)
     {
         var status = await CanCommunicateAsync(nameof(CheckMailAsync));
         if (status != CommunicationStatus.Success)
@@ -726,7 +726,7 @@ public class BackendManager : SingletonMono<BackendManager>
             throw new InvalidOperationException("서버와 통신할 수 없는 상태입니다.");
         }
 
-        return await Instance.EnqueueRequestAsync(() => Instance.InternalCheckMailAsync(), nameof(CheckMailAsync));
+        return await Instance.EnqueueRequestAsync(() => Instance.InternalCheckMailAsync(key), nameof(CheckMailAsync));
     }
 
     public static async UniTask WatchAdAndGetReward()
@@ -1063,15 +1063,15 @@ public class BackendManager : SingletonMono<BackendManager>
         }
     }
 
-    private async UniTask<List<PublicMailData>> InternalCheckMailAsync()
+    private async UniTask<List<PublicMailData>> InternalCheckMailAsync(string key)
     {
         try 
         {
             await RemoteConfigService.Instance.FetchConfigsAsync(new userAttributes(), new appAttributes());
 
-            if (RemoteConfigService.Instance.appConfig.HasKey(Constants.RC_PUBLICMAIL_KEY))
+            if (RemoteConfigService.Instance.appConfig.HasKey(key))
             {
-                string jsonString = RemoteConfigService.Instance.appConfig.GetJson(Constants.RC_PUBLICMAIL_KEY);
+                string jsonString = RemoteConfigService.Instance.appConfig.GetJson(key);
 
                 // 4. 파싱 (문자열 -> 리스트 객체)
                 var mailList = JsonConvert.DeserializeObject<List<PublicMailData>>(jsonString);
@@ -1083,7 +1083,7 @@ public class BackendManager : SingletonMono<BackendManager>
             }
             else
             {
-                Debug.LogWarning($"[BackendManager] Remote Config에 '{Constants.RC_PUBLICMAIL_KEY}' 키가 없습니다.");
+                Debug.LogWarning($"[BackendManager] Remote Config에 '{key}' 키가 없습니다.");
                 return new List<PublicMailData>(); // 빈 리스트 반환
             }
         }

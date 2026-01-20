@@ -28,6 +28,10 @@ public class UIMenu : BaseUI, IBackButtonHandler
     [SerializeField] private PostBox _postPopUpUI;
     [SerializeField] private GameObject _postAlert;
     [SerializeField] private TMP_Text _postAlertNum;
+    [SerializeField] private PostBox _noticePopUpUI;
+    [SerializeField] private GameObject _noticeAlert;
+    [SerializeField] private TMP_Text _noticeAlertNum;
+
 
     MainScreenUI mainScreenUI;
     UIStageSelect uiStageSelect;
@@ -38,7 +42,7 @@ public class UIMenu : BaseUI, IBackButtonHandler
     private void Awake()
     {
         PostBtn.onClick.AddListener(OnPostBtnClicked);
-        NoticeBtn.onClick.AddListener(OnLateUpdateClicked);
+        NoticeBtn.onClick.AddListener(OnNoticeBtnClicked);
         GuideBtn.onClick.AddListener(OnGuidBtnClicked);
         EnforceBtn.onClick.AddListener(OnLateUpdateClicked);
         StoreBtn.onClick.AddListener(OnLateUpdateClicked);
@@ -52,6 +56,7 @@ public class UIMenu : BaseUI, IBackButtonHandler
     {
         UIManager.PubishAddUIStackEvent(this);
         _postPopUpUI.CheckNewMail(false).Forget();
+        _noticePopUpUI.CheckNewMail(false).Forget();
     }
     private void OnDisable()
     {
@@ -129,6 +134,11 @@ public class UIMenu : BaseUI, IBackButtonHandler
         _postPopUpUI.OpenUI();
     }
 
+    public void OnNoticeBtnClicked()
+    {
+        _noticePopUpUI.OpenUI();
+    }
+
     public void DisplayNewPost(int newPostNum)
     {
         if (newPostNum > 0)
@@ -139,6 +149,19 @@ public class UIMenu : BaseUI, IBackButtonHandler
         else
         {
             _postAlert.SetActive(false);
+        }
+    }
+
+    public void DisplayNewNotice(int newNotiveNum)
+    {
+        if (newNotiveNum > 0)
+        {
+            _noticeAlert.SetActive(true);
+            _noticeAlertNum.text = newNotiveNum.ToString();
+        }
+        else
+        {
+            _noticeAlert.SetActive(false);
         }
     }
 }
