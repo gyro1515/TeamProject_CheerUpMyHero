@@ -58,6 +58,10 @@ public class AdManager : SingletonMono<AdManager>
     /// </summary>
     public static async UniTask<bool> ShowRewardedAdAsync()
     {
+#if UNITY_WEBGL
+        return true;
+#endif
+
         // 초기화 안 됐으면 실패 처리
         if (!Instance._isInitialized)
         {

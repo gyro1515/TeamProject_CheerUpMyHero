@@ -266,9 +266,10 @@ public class BackendManager : SingletonMono<BackendManager>
             //4. 재화, 데이터 관련 세팅
             await StartEconomyAndClound();
 
+#if !UNITY_WEBGL
             //5. 광고 세팅
             await AdManager.InitializeAsync();
-
+#endif
 
             _initializationTcs.TrySetResult(true);
 
