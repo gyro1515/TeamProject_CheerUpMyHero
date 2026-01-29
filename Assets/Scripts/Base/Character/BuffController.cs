@@ -32,7 +32,7 @@ public enum BuffColorType
 // TODO: 상태이상 관련 enum 및 클래스 추가 예정
 #endregion
 
-public enum BuffType
+/*public enum BuffType
 {
     AttackDamage,   // 공격력 증가
     AttackSpeed     // 공격 속도 증가
@@ -41,12 +41,10 @@ public enum DebuffType
 {
     MoveSpeed,      // 이동 속도 감소
     AttackCooldown  // 공격 쿨타임(속도) 감소 (증가)
-}
+}*/
 public class BuffController : MonoBehaviour
 {
     #region 251128: 리팩토링 -> 완성 시 다른 코드 삭제, 참조 수정 예정
-    bool isReFactoringDone = true; // 리팩토링 완료 플래그 -> 완성 시 삭제
-    private const int MAX_BUFFS = 100;
     // 활성화된 버프 수
     List<ActiveBuff> activeBuffs = new List<ActiveBuff>();
     Dictionary<BuffSource, ActiveBuff> activeBuffDict = new Dictionary<BuffSource, ActiveBuff>();
@@ -84,8 +82,6 @@ public class BuffController : MonoBehaviour
     #region 251128: 리팩토링 -> 완성 시 다른 코드 삭제, 참조 수정 예정
     private void Update()
     {
-        if (!isReFactoringDone) return; // 리팩토링 완료 전까지는 리턴
-
         // 버프 관련 업데이트
         UpdateActiveBuffs();
         // 버프 색 관련 업데이트
