@@ -15,6 +15,15 @@ public class UIActiveAfPanel : MonoBehaviour
         if (!GameManager.IsTutorialCompleted)
         {
             Debug.Log("튜토리얼 유물 세팅");
+            if(equippedActiveAfData == null)
+            {
+                Debug.LogError("튜토리얼 유물 세팅 null");
+            }
+            else if(equippedActiveAfData.Count != 8)
+            {
+                Debug.LogWarning($"튜토리얼 유물 개수 세팅 안됨 -> 현재 {equippedActiveAfData.Count}개, 강제 추가 세팅");
+                equippedActiveAfData = new List<ArtifactData>(new ArtifactData[8]);
+            }
             equippedActiveAfData[0] = DataManager.ArtifactData.GetData(08010001); // 튜토리얼용 액티브 유물
             equippedActiveAfData[1] = DataManager.ArtifactData.GetData(08010002); // 튜토리얼용 액티브 유물
             equippedActiveAfData[2] = DataManager.ArtifactData.GetData(08010003); // 튜토리얼용 액티브 유물
