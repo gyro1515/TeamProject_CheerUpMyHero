@@ -65,6 +65,8 @@ public class UIArtifactUpgrade : BaseUI, IBackButtonHandler
         _closeButton.onClick.AddListener(OnCloseButtonClicked);
 
         InitializePassiveMaterialSlots();
+
+        _presenter.InitialDisplay();
     }
 
     private void OnEnable()

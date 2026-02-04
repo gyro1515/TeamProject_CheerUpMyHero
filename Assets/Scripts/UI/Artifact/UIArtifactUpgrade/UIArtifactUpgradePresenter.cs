@@ -106,12 +106,45 @@ public class UIArtifactUpgradePresenter
 
     private void HandleAutoEquipRequest()
     {
-        _service.AutoEquipArtifacts(ArtifactType.Passive);
+        List<int> upgradeableIds = new List<int>();
+        HashSet<int> checkedIds = new HashSet<int>(); // 중복 체크 방지용
+
+        foreach (var artifact in _data.OwnedArtifacts)
+        {
+            if (artifact is PassiveArtifactData passive)
+            {
+                // 이미 확인한 ID면 패스
+                if (checkedIds.Contains(passive.idNumber)) continue;
+                checkedIds.Add(passive.idNumber);
+
+                // 강화 조건(3개 이상 보유 + 다음 등급 존재)을 만족하는지 확인
+                if (_upgradeService.CanUpgradePassive(passive.idNumber))
+                {
+                    upgradeableIds.Add(passive.idNumber);
+                }
+            }
+        }
+
+        // 2. 후보가 있다면 그 중 하나를 무작위(또는 첫 번째)로 선택해 슬롯에 올립니다.
+        if (upgradeableIds.Count > 0)
+        {
+            int randomIndex = UnityEngine.Random.Range(0, upgradeableIds.Count);
+            int targetId = upgradeableIds[randomIndex];
+
+            HandlePassiveArtifactSelected(targetId);
+
+            Debug.Log($"자동 선택됨: ID {targetId}");
+        }
+        else
+        {
+            Debug.Log("강화 가능한 패시브 유물이 없습니다.");
+        }
     }
 
     private void HandleUnequipAllRequest()
     {
-        _service.UnEquipAllArtifacts();
+        _selectedPassiveIdNumber = -1;
+        _mainView.ClearAllPassiveMaterialSlots();
     }
 
     private void HandleCloseRequest()
@@ -207,43 +240,45 @@ public class UIArtifactUpgradePresenter
     private List<PassiveSlotViewModel> CreatePassiveSlotViewModels()
     {
         List<PassiveSlotViewModel> viewModels = new List<PassiveSlotViewModel>();
-        Dictionary<int, int> countByIdNumber = new Dictionary<int, int>();
 
+        // 1. 소지 개수 카운트 (강화 가능 여부 판단용)
+        Dictionary<int, int> countByIdNumber = new Dictionary<int, int>();
         for (int i = 0; i < _data.OwnedArtifacts.Count; i++)
         {
             ArtifactData artifact = _data.OwnedArtifacts[i];
             if (artifact is PassiveArtifactData passive)
             {
                 if (countByIdNumber.ContainsKey(passive.idNumber))
-                {
                     countByIdNumber[passive.idNumber]++;
-                }
                 else
-                {
                     countByIdNumber[passive.idNumber] = 1;
-                }
             }
         }
 
-        HashSet<int> addedIdNumbers = new HashSet<int>();
-
+        // 2. 뷰모델 생성 (중복 체크 제거 -> 모든 유물 표시)
         for (int i = 0; i < _data.OwnedArtifacts.Count; i++)
         {
             ArtifactData artifact = _data.OwnedArtifacts[i];
             if (artifact is PassiveArtifactData passive)
             {
-                if (addedIdNumbers.Contains(passive.idNumber)) continue;
-                addedIdNumbers.Add(passive.idNumber);
+                // [삭제됨] if (addedIdNumbers.Contains(passive.idNumber)) continue;
+                // 이제 중복을 건너뛰지 않고 모두 리스트에 담습니다.
 
                 int count = countByIdNumber[passive.idNumber];
+
+                // 강화 조건: 3개 이상 보유 & 다음 등급 존재
                 bool canUpgrade = _upgradeService.CanUpgradePassive(passive.idNumber);
+
+                // [수정] 강화 불가능하거나 전설 등급이면 선택 불가(어둡게) 처리
+                // 버튼의 interactable 속성이 이 값(IsSelectable)을 따라갑니다.
+                bool isSelectable = canUpgrade && (passive.grade != PassiveArtifactGrade.Legendary);
 
                 PassiveSlotViewModel vm = new PassiveSlotViewModel()
                 {
                     Artifact = passive,
                     OwnedCount = count,
                     CanUpgrade = canUpgrade,
-                    IsSelectable = passive.grade != PassiveArtifactGrade.Legendary,
+                    IsSelectable = isSelectable, // 수정된 조건 적용
                     Icon = Resources.Load<Sprite>(passive.iconSpritePath)
                 };
 
