@@ -90,6 +90,8 @@ public class BuildingTile : MonoBehaviour, IBeginDragHandler, IDragHandler, IEnd
                 {
                     tileImage.sprite = yeongjugwanBuildingSprite;
                     if (tileButton != null) tileButton.interactable = true;
+
+                    tileImage.color = Color.white;
                 }
                 else
                 {
