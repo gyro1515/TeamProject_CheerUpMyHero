@@ -1,11 +1,8 @@
+using Cysharp.Threading.Tasks;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Newtonsoft.Json;
-using Cysharp.Threading.Tasks;
 using UnityEngine.UI;
-using System.Threading.Tasks;
 
 [Serializable]
 public class PublicMailData
@@ -24,6 +21,12 @@ public class MailReward
     public int amount;
 }
 
+public enum MailOrNotice
+{
+    isMail,
+    isNotice
+}
+
 public class PostBox : BasePopUpUI
 {
     private const float postCheckDuration = 600f;
@@ -36,10 +39,14 @@ public class PostBox : BasePopUpUI
     [SerializeField] private PostList mailListprefab;
 
     [SerializeField] private PostContent postContent;
+    [SerializeField] private NoticeContent noticeContent;
 
     [SerializeField] private Button backButton;
 
     [SerializeField] private UIMenu uIMenu;
+
+    [Header("우편함인지 공지함인지 설정")]
+    public MailOrNotice mailOrNotice;
 
     protected override void Awake()
     {
@@ -64,16 +71,37 @@ public class PostBox : BasePopUpUI
                 Destroy(child.gameObject); 
             }
 
-            //새 매일 받아오기
-            mailList = await BackendManager.CheckMailAsync();
+            if (mailOrNotice == MailOrNotice.isMail)
+            {
+                //새 매일 받아오기
+                mailList = await BackendManager.CheckMailAsync(Constants.RC_PUBLICMAIL_KEY);
 
-            //이미 수령된 메일 id 불러오기
-            alreadyRecivedIdList = await BackendManager.LoadSimpleDataAsync<List<string>>(Constants.ALREADY_RECIEVED_MAIL_KEY);
+                //이미 수령된 메일 id 불러오기
+                alreadyRecivedIdList = await BackendManager.LoadSimpleDataAsync<List<string>>(Constants.ALREADY_RECIEVED_MAIL_KEY);
 
-            int newMailCount = ProcessMailData(mailList);
+                int newMailCount = ProcessMailData(mailList);
 
-            //UIMenu에 표시
-            uIMenu.DisplayNewPost(newMailCount);
+                //UIMenu에 표시
+                uIMenu.DisplayNewPost(newMailCount);
+            }
+            else if (mailOrNotice == MailOrNotice.isNotice)
+            {
+                //새 공지 받아오기
+                mailList = await BackendManager.CheckMailAsync(Constants.RC_NOTICE_KEY);
+
+                //이미 수령된 공지 id 불러오기
+                alreadyRecivedIdList = await BackendManager.LoadSimpleDataAsync<List<string>>(Constants.ALREADY_RECIEVED_NOTICE_KEY);
+
+                int newMailCount = ProcessMailData(mailList);
+
+                //UIMenu에 표시
+                uIMenu.DisplayNewNotice(newMailCount);
+            }
+            else
+            {
+                Debug.LogWarning("인스펙터에서 mailOrNotice를 설정해야 합니다.");
+            }
+
         }
     }
 
@@ -104,7 +132,13 @@ public class PostBox : BasePopUpUI
 
 
                         PostList postList = Instantiate(mailListprefab, contentsTransform);
-                        postList.SetPostListText(i, mailList[i].title, mailList[i].expirationDate, isAlreadyRecieved, this);
+
+                        //만료일 표시 여부: 공지사항은 만료일 표시하지 않음. 어색하니까.
+                        bool showExpireDate = true;
+                        if (mailOrNotice == MailOrNotice.isNotice)
+                            showExpireDate = false;
+
+                        postList.SetPostListText(i, mailList[i].id, mailList[i].title, mailList[i].expirationDate, isAlreadyRecieved, this, showExpireDate);
 
                         if (isAlreadyRecieved)
                         {
@@ -153,8 +187,17 @@ public class PostBox : BasePopUpUI
     public void OpenPostContent(int num)
     {
         bool isAlreadyRecieved = receivedCheckList[mailList[num].id];
-        postContent.MakePostContent(mailList[num], isAlreadyRecieved);
-        postContent.OpenUI();
+
+        if (mailOrNotice == MailOrNotice.isMail)
+        {
+            postContent.MakePostContent(mailList[num], isAlreadyRecieved);
+            postContent.OpenUI();
+        }
+        else if (mailOrNotice == MailOrNotice.isNotice)
+        {
+            noticeContent.MakePostContent(mailList[num]);
+            noticeContent.OpenUI();
+        }
     }
 
     public async UniTask OnRewardRecieved(string mailId)
@@ -168,8 +211,10 @@ public class PostBox : BasePopUpUI
         
         alreadyRecivedIdList.Add(mailId);
         var data = new Dictionary<string, object>();
-        data.Add(Constants.ALREADY_RECIEVED_MAIL_KEY, alreadyRecivedIdList);
-
+        if (mailOrNotice == MailOrNotice.isMail)
+            data.Add(Constants.ALREADY_RECIEVED_MAIL_KEY, alreadyRecivedIdList);
+        else if (mailOrNotice == MailOrNotice.isNotice)
+            data.Add(Constants.ALREADY_RECIEVED_NOTICE_KEY, alreadyRecivedIdList);
         await BackendManager.SaveDataAsync(data);
 
         await CheckNewMail(true);

@@ -26,6 +26,7 @@ public static class Constants
     public static string PICKUP_GACHA_KEY = "PICKUP_BANNER";
     //수령된 메일 id 보관 key
     public static string ALREADY_RECIEVED_MAIL_KEY = "ALREADY_RECIEVED_MAIL";
+    public static string ALREADY_RECIEVED_NOTICE_KEY = "ALREADY_RECIEVED_NOTICE";
 
     //통계 전송 이벤트 파라미터 Key값
     public const string IS_HERO_ARRIVE = "isHeroArriveStage";
@@ -43,5 +44,6 @@ public static class Constants
 
     //우편함 remote config Key값
     public const string RC_PUBLICMAIL_KEY = "GLOBAL_MAIL_LIST";
+    public const string RC_NOTICE_KEY = "NOTICE_LIST";
 
 }

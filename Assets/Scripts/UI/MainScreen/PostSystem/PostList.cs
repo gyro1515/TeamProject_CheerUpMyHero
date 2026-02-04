@@ -1,3 +1,4 @@
+using Cysharp.Threading.Tasks;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -20,13 +21,16 @@ public class PostList : MonoBehaviour
         _button.onClick.RemoveAllListeners();
     }
 
-    public void SetPostListText(int num, string title, string expire, bool isAlreadyReceived, PostBox postBox)
+    public void SetPostListText(int num, string id, string title, string expire, bool isAlreadyReceived, PostBox postBox, bool showExpireDate)
     {
         listNum = num;
         
         titleText.text = title;
 
-        expireText.text = "만료: " + expire;
+        if(showExpireDate)
+            expireText.text = "만료: " + expire;
+        else
+            expireText.text = string.Empty;
 
         this.postBox = postBox;
 
@@ -42,6 +46,8 @@ public class PostList : MonoBehaviour
         _button = GetComponent<Button>();
 
         _button.onClick.AddListener(() => this.postBox.OpenPostContent(num));
+        if (postBox.mailOrNotice == MailOrNotice.isNotice && !isAlreadyReceived)
+            _button.onClick.AddListener(() => this.postBox.OnRewardRecieved(id).Forget());
 
     }
 

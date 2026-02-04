@@ -29,7 +29,7 @@ public class AdManager : SingletonMono<AdManager>
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
         AD_UNIT_ID = TEST_UNIT_ID;
 #else
-        _adUnitId = REAL_UNIT_ID;
+        //_adUnitId = REAL_UNIT_ID;
 #endif
 
         // 2. 동적 생성 대응: ConsentController 자동 부착
@@ -58,6 +58,10 @@ public class AdManager : SingletonMono<AdManager>
     /// </summary>
     public static async UniTask<bool> ShowRewardedAdAsync()
     {
+#if UNITY_WEBGL
+        return true;
+#endif
+
         // 초기화 안 됐으면 실패 처리
         if (!Instance._isInitialized)
         {
