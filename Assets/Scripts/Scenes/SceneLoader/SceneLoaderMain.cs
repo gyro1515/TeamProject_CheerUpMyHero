@@ -43,5 +43,7 @@ public class SceneLoaderMain : MonoBehaviour
         //UIManager.Instance.GetUI<UISelectActiveArtifact>().CloseUI();
         UIManager.Instance.GetUI<UIStageSelect>().CloseUI();
         //UIManager.Instance.GetUI<UISelectCard>().CloseUI();
+        UIManager.Instance.GetUI<UIArtifact>().CloseUI();
+        UIManager.Instance.GetUI<UIArtifactUpgrade>().CloseUI();
     }
 }

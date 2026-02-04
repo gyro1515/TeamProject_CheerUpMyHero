@@ -21,6 +21,7 @@ public class MainScreenBuildingController : MonoBehaviour
     [SerializeField] private AdCooldownPopup adCooldownPopup; // 팝업 UI
     [SerializeField] private DestroyConfirmPopup destroyPopup;
     [SerializeField] private DiplomacyPanel diplomacyPanel;
+    [SerializeField] private LordManorPanel lordManorPanel;
     [SerializeField] private LaterUpdatePopup laterUpdatePopup;
     [SerializeField] private LoginConfirmPopup loginconfirmPopup;
 
@@ -190,7 +191,13 @@ public class MainScreenBuildingController : MonoBehaviour
             HandleDiplomacyTileClick(tile);
             return;
         }
-        if ((tile.X == 4 && tile.Y == 0) || (tile.X == 4 && tile.Y == 2))
+        if (tile.X == 4 && tile.Y == 0)
+        {
+            HandleLordManorTileClick(tile);
+            return;
+        }
+
+        if (tile.X == 4 && tile.Y == 2)
         {
             // "추후 업데이트" 팝업 표시
             if (loginconfirmPopup != null)
@@ -301,6 +308,24 @@ public class MainScreenBuildingController : MonoBehaviour
         else
         {
             Debug.LogError("DiplomacyPanel이 MainScreenBuildingController에 연결되지 않았습니다!");
+            DeselectTile();
+        }
+    }
+
+    // 영주관 클릭했을 때 팝업 띄우기
+    private void HandleLordManorTileClick(BuildingTile tile)
+    {
+        Debug.Log($"영주관 타일 ({tile.X},{tile.Y}) 클릭됨.");
+
+        if (lordManorPanel != null)
+        {
+            lordManorPanel.OpenUI();
+            selectedFrameObject.SetActive(false);
+            _selectedTile = null;
+        }
+        else
+        {
+            Debug.LogError("LordManorPanel이 MainScreenBuildingController에 연결되지 않았습니다!");
             DeselectTile();
         }
     }

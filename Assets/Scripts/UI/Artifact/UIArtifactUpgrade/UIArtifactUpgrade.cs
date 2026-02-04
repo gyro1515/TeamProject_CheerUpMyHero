@@ -1,3 +1,4 @@
+using Cysharp.Threading.Tasks.Triggers;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -5,7 +6,7 @@ using Unity.Services.Core;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UIArtifactUpgrade : BaseUI
+public class UIArtifactUpgrade : BaseUI, IBackButtonHandler
 {
     #region UI 참조 + 변수
     private const int DefaultPassiveMaterialSlotCount = 3;
@@ -48,15 +49,6 @@ public class UIArtifactUpgrade : BaseUI
     #endregion
 
     #region 생명주기
-    private void Awake()
-    {
-        InitializePassiveMaterialSlots();
-
-        _passiveUpgradeButton.onClick.AddListener(OnUpgradeButtonClicked);
-        _autoEquipButton.onClick.AddListener(OnAutoEquipButtonClicked);
-        _unequipAllButton.onClick.AddListener(OnUnequipAllButtonClicked);
-        _closeButton.onClick.AddListener(OnCloseButtonClicked);
-    }
 
     private void Start()
     {
@@ -66,11 +58,25 @@ public class UIArtifactUpgrade : BaseUI
                                                     _service,
                                                     _upgradeService,
                                                     this);
+
+        _passiveUpgradeButton.onClick.AddListener(OnUpgradeButtonClicked);
+        _autoEquipButton.onClick.AddListener(OnAutoEquipButtonClicked);
+        _unequipAllButton.onClick.AddListener(OnUnequipAllButtonClicked);
+        _closeButton.onClick.AddListener(OnCloseButtonClicked);
+
+        InitializePassiveMaterialSlots();
     }
 
     private void OnEnable()
     {
+        UIManager.PubishAddUIStackEvent(this);
+
         _presenter?.InitialDisplay();
+    }
+
+    private void OnDisable()
+    {
+        UIManager.PublishRemoveUIStackEvent();
     }
 
     private void OnDestroy()
@@ -192,12 +198,26 @@ public class UIArtifactUpgrade : BaseUI
 
     private void OnCloseButtonClicked()
     {
-        OnRequestClose?.Invoke();
+        var mainScreen = UIManager.Instance.GetUI<MainScreenUI>();
+
+        if (mainScreen != null && UIManager.Instance.fromUI == FromUI.MainScreen)
+        {
+            FadeManager.Instance.SwitchGameObjects(gameObject, mainScreen.gameObject);
+            UIManager.Instance.fromUI = FromUI.MainScreen;
+        }
     }
 
     private void OnActiveSlotButtonClicked(ActiveArtifactData artifact)
     {
         OnActiveSlotClicked?.Invoke(artifact);
+    }
+    #endregion
+
+    #region 뒤로가기 로직
+    public void OnBackPressed()
+    {
+        Debug.Log($"{gameObject.name} 뒤로가기 버튼 눌림");
+        OnCloseButtonClicked();
     }
     #endregion
 }
