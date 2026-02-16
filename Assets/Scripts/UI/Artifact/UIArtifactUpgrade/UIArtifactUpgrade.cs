@@ -201,11 +201,17 @@ public class UIArtifactUpgrade : BaseUI, IBackButtonHandler
     private void OnCloseButtonClicked()
     {
         var mainScreen = UIManager.Instance.GetUI<MainScreenUI>();
+        var menu = UIManager.Instance.GetUI<UIMenu>();
 
         if (mainScreen != null && UIManager.Instance.fromUI == FromUI.MainScreen)
         {
-            FadeManager.Instance.SwitchGameObjects(gameObject, mainScreen.gameObject);
+            FadeManager.Instance.SwitchGameObjects(this.gameObject, mainScreen.gameObject);
             UIManager.Instance.fromUI = FromUI.MainScreen;
+        }
+        else if (menu != null && UIManager.Instance.fromUI == FromUI.UIMenu)
+        {
+            FadeManager.Instance.SwitchGameObjects(this.gameObject, menu.gameObject);
+            UIManager.Instance.fromUI = FromUI.UIMenu;
         }
     }
 

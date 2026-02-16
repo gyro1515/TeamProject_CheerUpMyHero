@@ -219,6 +219,7 @@ public class UIArtifactUpgradePresenter
         {
             ActiveUpgradeViewModel vm = CreateActiveUpgradeViewModel(artifact);
             _activePanel.RefreshUI(vm);
+            RefreshActiveSlotList();
         }
     }
 

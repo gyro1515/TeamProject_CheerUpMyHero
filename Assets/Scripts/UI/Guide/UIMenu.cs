@@ -38,13 +38,14 @@ public class UIMenu : BaseUI, IBackButtonHandler
     GachaUIPanel gachaUIPanel;
     UIGuide UIGuide;
     DeckPresetController deckPresetController;
+    UIArtifactUpgrade uIArtifactUpgrade;
 
     private void Awake()
     {
         PostBtn.onClick.AddListener(OnPostBtnClicked);
         NoticeBtn.onClick.AddListener(OnNoticeBtnClicked);
         GuideBtn.onClick.AddListener(OnGuidBtnClicked);
-        EnforceBtn.onClick.AddListener(OnLateUpdateClicked);
+        EnforceBtn.onClick.AddListener(OnEnforceBtnClicked);
         StoreBtn.onClick.AddListener(OnLateUpdateClicked);
         GachaBtn.onClick.AddListener(OnGachaBtnClicked);
         AlliesBtn.onClick.AddListener(OnLateUpdateClicked);
@@ -69,7 +70,9 @@ public class UIMenu : BaseUI, IBackButtonHandler
         gachaUIPanel = UIManager.Instance.GetUI<GachaUIPanel>();
         UIGuide = UIManager.Instance.GetUI<UIGuide>();
         deckPresetController = UIManager.Instance.GetUI<DeckPresetController>();
+        uIArtifactUpgrade = UIManager.Instance.GetUI<UIArtifactUpgrade>();
         UIGuide.CloseUI();
+        uIArtifactUpgrade.CloseUI();
     }
 
     void Update()
@@ -114,6 +117,13 @@ public class UIMenu : BaseUI, IBackButtonHandler
 
         FadeManager.Instance.SwitchGameObjects(this.gameObject, gachaUIPanel.gameObject);
     }
+
+    private void OnEnforceBtnClicked()
+    {
+        UIManager.Instance.fromUI = FromUI.UIMenu;
+        FadeManager.Instance.SwitchGameObjects(this.gameObject, uIArtifactUpgrade.gameObject);
+    }
+
     private void OnGuidBtnClicked()
     {
         UIManager.Instance.fromUI = FromUI.UIMenu;
