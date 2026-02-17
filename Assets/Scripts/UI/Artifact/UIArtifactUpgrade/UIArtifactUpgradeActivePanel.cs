@@ -34,6 +34,11 @@ public class UIArtifactUpgradeActivePanel : BasePopUpUI
     [SerializeField] private Button _upgradeButton;
     [SerializeField] private Button _closeButton;
 
+    [Header("강화 확인 패널")]
+    [SerializeField] private GameObject _confirmPanel;
+    [SerializeField] private Button _confirmUpgradeButton;
+    [SerializeField] private Button _confirmCancleButton;
+
     private ActiveArtifactData _selectedArtifact;
 
     public event Action<ActiveArtifactData> OnRequestUpgrade;
@@ -44,6 +49,10 @@ public class UIArtifactUpgradeActivePanel : BasePopUpUI
         base.Awake();
         _upgradeButton.onClick.AddListener(OnUpgradeButtonClicked);
         _closeButton.onClick.AddListener(OnCloseButtonClicked);
+
+        _confirmUpgradeButton.onClick.AddListener(OnConfirmUpgradeButtonClicked);
+        _confirmCancleButton.onClick.AddListener(OnCancleUpgradeButtonClicked);
+        _confirmPanel.SetActive(false);
     }
 
     public void OpenActivePanel(ActiveUpgradeViewModel vm)
@@ -123,14 +132,26 @@ public class UIArtifactUpgradeActivePanel : BasePopUpUI
 
     private void OnUpgradeButtonClicked()
     {
+        if (_selectedArtifact == null) return;
+        _confirmPanel.SetActive (true);
+    }
+
+    private void OnCloseButtonClicked()
+    {
+        OnRequestClose?.Invoke();
+    }
+
+    private void OnConfirmUpgradeButtonClicked()
+    {
+        _confirmPanel.SetActive(false);
         if (_selectedArtifact != null)
         {
             OnRequestUpgrade?.Invoke(_selectedArtifact);
         }
     }
 
-    private void OnCloseButtonClicked()
+    private void OnCancleUpgradeButtonClicked()
     {
-        OnRequestClose?.Invoke();
+        _confirmPanel?.SetActive (false);
     }
 }
