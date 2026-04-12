@@ -26,7 +26,8 @@ public class AdManager : SingletonMono<AdManager>
         base.Awake();
 
         // 1. ID 설정 (에디터나 개발 빌드면 테스트 ID)
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+//#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if true
         AD_UNIT_ID = TEST_UNIT_ID;
 #else
         //_adUnitId = REAL_UNIT_ID;

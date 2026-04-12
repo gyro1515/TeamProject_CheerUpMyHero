@@ -1,16 +1,9 @@
 using Cysharp.Threading.Tasks;
 using Newtonsoft.Json;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Serialization;
-using System.Text;
-using Unity.Services.CloudCode.GeneratedBindings.CheerUpMyHero.CloudCode;
-using Unity.VisualScripting;
-using UnityEditor.Tilemaps;
 using UnityEngine;
-using static UnityEngine.UI.CanvasScaler;
 using Random = UnityEngine.Random;
 
 public struct SynergyDataUpdatedEvent { }
@@ -1205,7 +1198,7 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
                 {
                     initalUnitIds.Add(i);
                 }
-
+                await UniTask.SwitchToMainThread();
                 CardGenerate(initalUnitIds);
                 Debug.Log($"유닛해금 시도: {initalUnitIds.Count}");
                 return;
@@ -1220,6 +1213,7 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
             LoadDeckName(loadedPlayerData.DeckNames);
             this.ActiveDeckIndex = loadedPlayerData.ActiveDeckIndex;
 
+            await UniTask.SwitchToMainThread();
             CardGenerate(loadedPlayerData.OwnedCardData);
             
             if (loadedPlayerData.CardCounts != null && loadedPlayerData.CardCounts.Count > 0)
@@ -1268,7 +1262,7 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
             {
                 initalUnitIds.Add(i);
             }
-
+            await UniTask.SwitchToMainThread();
             CardGenerate(initalUnitIds);
 
         }
