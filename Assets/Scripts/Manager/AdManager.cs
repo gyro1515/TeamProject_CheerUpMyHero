@@ -89,6 +89,7 @@ public class AdManager : SingletonMono<AdManager>
         var consentTcs = new UniTaskCompletionSource<bool>();
         _consentController.GatherConsent((error) => consentTcs.TrySetResult(true));
         await consentTcs.Task;
+        await UniTask.SwitchToMainThread(); // GatherConsent 콜백이 JNI 백그라운드 스레드에서 호출될 수 있음
 
         if (_consentController.CanRequestAds) //if 문이지만 현재 100% 실행됨
         {
@@ -120,6 +121,7 @@ public class AdManager : SingletonMono<AdManager>
                 initTcs.TrySetResult(true);
             });
             await initTcs.Task;
+            await UniTask.SwitchToMainThread(); // MobileAds.Initialize 콜백이 JNI 백그라운드 스레드에서 호출됨
 
             LoadRewardedAd(); // 광고 미리 로드
         }
@@ -239,7 +241,9 @@ public class AdManager : SingletonMono<AdManager>
         });
 
         // 광고가 닫힐 때까지 대기 (게임 흐름 제어에 용이)
-        return await completionSource.Task;
+        var result = await completionSource.Task;
+        await UniTask.SwitchToMainThread(); // OnAdFullScreenContentClosed 콜백이 JNI 백그라운드 스레드에서 호출됨
+        return result;
     }
 
     // ===================================================================

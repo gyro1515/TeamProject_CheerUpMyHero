@@ -269,6 +269,7 @@ public class BackendManager : SingletonMono<BackendManager>
 #if !UNITY_WEBGL
             //5. 광고 세팅
             await AdManager.InitializeAsync();
+            await UniTask.SwitchToMainThread(); // 광고 SDK 네이티브 콜백이 백그라운드 스레드에서 깨우는 경우 대비
 #endif
 
             _initializationTcs.TrySetResult(true);
@@ -283,6 +284,7 @@ public class BackendManager : SingletonMono<BackendManager>
         }
         catch (Exception e)
         {
+            await UniTask.SwitchToMainThread(); // SDK 콜백이 throw하면 catch 진입 시 백그라운드 스레드일 수 있음
             Debug.LogError($"<color=red>BackendManager 초기화 실패: {e.Message}</color>");
             Debug.LogException(e);
             _initializationTcs.TrySetResult(false);
@@ -299,6 +301,7 @@ public class BackendManager : SingletonMono<BackendManager>
         try
         {
             await AuthenticationService.Instance.SignInAnonymouslyAsync();
+            await UniTask.SwitchToMainThread(); // UGS 콜백이 백그라운드 스레드에서 깨우는 경우 대비
 
             // 로그인 성공시 결과 표시
             Debug.Log($"<color=cyan>익명 로그인 성공! PlayerID: {AuthenticationService.Instance.PlayerId}</color>");
@@ -377,7 +380,7 @@ public class BackendManager : SingletonMono<BackendManager>
         }
     }
 
-    private UniTask<T> EnqueueRequestAsync<T>(Func<UniTask<T>> action, string apiName)
+    private async UniTask<T> EnqueueRequestAsync<T>(Func<UniTask<T>> action, string apiName)
     {
         // action을 직접 전달하는 대신, ExecuteWithRetryAsync로 감싸서 전달합니다.
         var request = new QueuedRequest<T>(() => ExecuteWithRetryAsync(action, apiName));
@@ -397,11 +400,13 @@ public class BackendManager : SingletonMono<BackendManager>
 
         // 외부 호출자는 이 Task를 await하게 됨.
         // 이 Task는 나중에 ProcessQueueAsync 루프 안에서 완료됨.
-        return request.Task;
+        var result = await request.Task;
+        await UniTask.SwitchToMainThread(); // UGS SDK 콜백이 백그라운드 스레드에서 깨우는 경우 호출자 측 메인스레드 보장
+        return result;
     }
 
     // 반환 값이 없는 버전을 위한 오버로딩
-    private UniTask EnqueueRequestAsync(Func<UniTask> action, string apiName)
+    private async UniTask EnqueueRequestAsync(Func<UniTask> action, string apiName)
     {
         var request = new QueuedRequest(() => ExecuteWithRetryAsync(action, apiName));
 
@@ -414,7 +419,8 @@ public class BackendManager : SingletonMono<BackendManager>
                 ProcessQueueAsync().Forget();
             }
         }
-        return request.Task;
+        await request.Task;
+        await UniTask.SwitchToMainThread(); // UGS SDK 콜백이 백그라운드 스레드에서 깨우는 경우 호출자 측 메인스레드 보장
     }
     #endregion
 
@@ -442,6 +448,7 @@ public class BackendManager : SingletonMono<BackendManager>
                 Debug.LogError($"[{apiName}] 네트워크 오류: {ex.Message}");
 
                 var style = PopupStyle.RetryOrCancel;
+                await UniTask.SwitchToMainThread(); // SDK 콜백이 throw하면 catch 진입 시 백그라운드 스레드일 수 있음
 
                 // UIManager를 통해 팝업을 띄우고 사용자 선택을 기다림
                 bool shouldRetry = await UIManager.Instance.GetUI<SystemPopup>().ShowMessageAsync("네트워크 오류", "연결이 불안정합니다.\n다시 시도하시겠습니까?", style);
@@ -460,6 +467,7 @@ public class BackendManager : SingletonMono<BackendManager>
             // 잔액 부족 예외 처리
             catch (Exception ex) when (ex.Message == "NOT_ENOUGH_FUNDS")
             {
+                await UniTask.SwitchToMainThread(); // SDK 콜백이 throw하면 catch 진입 시 백그라운드 스레드일 수 있음
                 // 여기서 공용 알림 팝업 띄우기
                 await UIManager.Instance.GetUI<SystemPopup>()
                     .ShowMessageAsync("알림", "재화가 부족하여 \n진행할 수 없습니다.", PopupStyle.ConfirmOnly);
@@ -502,7 +510,9 @@ public class BackendManager : SingletonMono<BackendManager>
             return false;
         }
 
-        return await Instance.InitializationTask;
+        var result = await Instance.InitializationTask;
+        await UniTask.SwitchToMainThread(); // 초기화 흐름의 _initializationTcs.TrySetResult가 백그라운드 스레드에서 호출될 수 있음
+        return result;
     }
 
     //인터넷 연결 선제적 확인

@@ -519,6 +519,7 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
          //_resources[ResourceType.Ticket] = 0;
 
             Dictionary<ResourceType, int> serverData = await BackendManager.LoadEconomyData();
+            await UniTask.SwitchToMainThread(); // UGS Economy 콜백이 백그라운드 스레드에서 깨우는 경우 대비
 
             if (serverData == null)
             {
@@ -1181,6 +1182,7 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
         {
             //비동기를 변수에 넣고 기다리지 않고 일단 진행
             var allCloudData = await BackendManager.LoadDataAsync();
+            await UniTask.SwitchToMainThread(); // UGS CloudSave/CloudCode 콜백이 백그라운드 스레드에서 깨우는 경우 대비
 
             //가챠 천장 데이터는 서버에서 가져오기 때문에 무조건 있음
             StandardGachaPityLimit = allCloudData.NormalPityThreshold;
@@ -1198,7 +1200,6 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
                 {
                     initalUnitIds.Add(i);
                 }
-                await UniTask.SwitchToMainThread();
                 CardGenerate(initalUnitIds);
                 Debug.Log($"유닛해금 시도: {initalUnitIds.Count}");
                 return;
@@ -1213,7 +1214,6 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
             LoadDeckName(loadedPlayerData.DeckNames);
             this.ActiveDeckIndex = loadedPlayerData.ActiveDeckIndex;
 
-            await UniTask.SwitchToMainThread();
             CardGenerate(loadedPlayerData.OwnedCardData);
             
             if (loadedPlayerData.CardCounts != null && loadedPlayerData.CardCounts.Count > 0)
