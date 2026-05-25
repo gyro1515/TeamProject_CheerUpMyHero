@@ -92,20 +92,52 @@ public class SettingDataManager : SingletonMono<SettingDataManager>
 
     public void UnlockStage(int mainIndex, int subIndex)
     {
-        MainStageData[mainIndex].subStages[subIndex].isUnlocked = true;
+        if (mainIndex < 0 || mainIndex >= MainStageData.Count)
+        {
+            Debug.LogWarning($"[SettingDataManager] UnlockStage: mainIndex({mainIndex})가 범위를 벗어났습니다. (max: {MainStageData.Count - 1})");
+            return;
+        }
+        var mainStage = MainStageData[mainIndex];
+        if (mainStage == null || mainStage.subStages == null)
+        {
+            Debug.LogWarning($"[SettingDataManager] UnlockStage: MainStageData[{mainIndex}] 또는 subStages가 null입니다.");
+            return;
+        }
+        if (subIndex < 0 || subIndex >= mainStage.subStages.Count)
+        {
+            Debug.LogWarning($"[SettingDataManager] UnlockStage: subIndex({subIndex})가 범위를 벗어났습니다. (max: {mainStage.subStages.Count - 1})");
+            return;
+        }
+        if (mainStage.subStages[subIndex] == null)
+        {
+            Debug.LogWarning($"[SettingDataManager] UnlockStage: subStage({mainIndex},{subIndex})가 null입니다.");
+            return;
+        }
+        mainStage.subStages[subIndex].isUnlocked = true;
     }
 
 
     public List<List<bool>> SaveClearData()
     {
         List<List<bool>> boolListList = new ();
-        
+
         for (int i = 0; i < MainStageData.Count; i++)
         {
             List<bool> boolList = new ();
-            
+
+            if (MainStageData[i] == null || MainStageData[i].subStages == null)
+            {
+                boolListList.Add(boolList);
+                continue;
+            }
+
             for(int j = 0; j < MainStageData[i].subStages.Count; j++)
             {
+                if (MainStageData[i].subStages[j] == null)
+                {
+                    boolList.Add(false);
+                    continue;
+                }
                 boolList.Add(MainStageData[i].subStages[j].isUnlocked);
             }
 
@@ -117,10 +149,33 @@ public class SettingDataManager : SingletonMono<SettingDataManager>
 
     public void LoadClearData(List<List<bool>> boolListList)
     {
+        if (boolListList == null)
+        {
+            Debug.LogWarning("[SettingDataManager] LoadClearData: boolListList가 null입니다.");
+            return;
+        }
+
         for (int i = 0; i < boolListList.Count; i++)
         {
+            // 저장 당시보다 메인 스테이지 수가 적어졌거나, MainStageData가 아직 로드되지 않은 경우 방어
+            if (i >= MainStageData.Count || MainStageData[i] == null)
+            {
+                Debug.LogWarning($"[SettingDataManager] LoadClearData: MainStageData[{i}] 접근 불가. 건너뜁니다.");
+                continue;
+            }
+            if (boolListList[i] == null) continue;
+
+            var subStages = MainStageData[i].subStages;
+            if (subStages == null) continue;
+
             for (int j = 0; j < boolListList[i].Count; j++)
             {
+                // 저장 당시보다 서브 스테이지 수가 적어진 경우 방어
+                if (j >= subStages.Count || subStages[j] == null)
+                {
+                    continue;
+                }
+
                 bool result = boolListList[i][j];
                 if (result)
                 {
@@ -129,8 +184,8 @@ public class SettingDataManager : SingletonMono<SettingDataManager>
                         MainStageData[i].isUnlocked = true;
                     }
 
-                    
-                    MainStageData[i].subStages[j].isUnlocked = result;
+
+                    subStages[j].isUnlocked = result;
                     Debug.Log($"{i + 1}-{j + 1} 클리어 결과 로드");
                 }
             }

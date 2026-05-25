@@ -98,11 +98,20 @@ public class ArtifactUIPresenter
 
         for (int i = 0; i < slots.Count; i++)
         {
-            if (1 < _data.EquippedArtifacts.Count)
+            // 기존 `if (1 < _data.EquippedArtifacts.Count)` 는 의도가 불명확하고,
+            // EquippedArtifacts.Count가 slots.Count보다 작은 경우 OOB가 발생했음.
+            // 각 슬롯 i에 대해 EquippedArtifacts[i]가 안전한지 확인.
+            if (i < _data.EquippedArtifacts.Count)
             {
                 ArtifactData artifact = _data.EquippedArtifacts[i];
                 EquipSlotViewModel vm = CreateEquipSlotViewModel(artifact);
                 slots[i].RefreshArtifactEquipSlotDisplay(vm);
+            }
+            else
+            {
+                // EquippedArtifacts 길이가 부족하면 해당 슬롯은 빈 상태로 표시
+                EquipSlotViewModel emptyVm = new EquipSlotViewModel { Name = null };
+                slots[i].RefreshArtifactEquipSlotDisplay(emptyVm);
             }
         }
     }

@@ -824,7 +824,7 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
     }
 
     //현재 서버에서 List<List<bool>>을 쓰고 있어서, 거기에 맞출께용
-    public void UpdateClearedStagesFromServer(List<List<bool>> serverClearedStages) //서버에서 해금 데이터 가져옴 
+    public void UpdateClearedStagesFromServer(List<List<bool>> serverClearedStages) //서버에서 해금 데이터 가져옴
     {
         clearedStages.Clear(); // 일단 로컬 정보 초기화
         //foreach (var stage in serverClearedStages)
@@ -832,8 +832,17 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
         //    clearedStages[stage] = true;
         //}
 
+        if (serverClearedStages == null)
+        {
+            Debug.LogWarning("[PlayerData] UpdateClearedStagesFromServer: serverClearedStages가 null입니다.");
+            _clearedStagesEvent?.Publish(new ClearedStagesUpdatedEvent());
+            return;
+        }
+
         for (int i = 0; i < serverClearedStages.Count; i++)
         {
+            if (serverClearedStages[i] == null) continue;
+
             for(int j = 0; j < serverClearedStages[i].Count; j++)
             {
                 //생각해보니, 모든 데이터를 볼 필요없이 true까지인 것만 보면 되는거 아닌가?
@@ -987,7 +996,9 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
     private const int ArtifactSlotCount = 8;
 
     public List<ArtifactData> OwnedArtifacts { get; private set; } = new List<ArtifactData>();
-    public List<ArtifactData> EquippedArtifacts { get; private set; } = new List<ArtifactData>();
+    // 선언 시점에 미리 8칸으로 초기화. LoadPlayerData가 호출되지 않은 진입 경로에서도 안전하도록.
+    public List<ArtifactData> EquippedArtifacts { get; private set; }
+        = new List<ArtifactData>(new ArtifactData[ArtifactSlotCount]);
 
     public event Action OnArtifactEquippedChanged;
     public event Action OnArtifactOwnedChanged;
@@ -995,6 +1006,16 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
     private void InitializeArtifactSlots()
     {
         EquippedArtifacts = new List<ArtifactData>(new ArtifactData[ArtifactSlotCount]);
+    }
+
+    // 어떤 이유로든 EquippedArtifacts의 슬롯 수가 ArtifactSlotCount와 다르면 강제로 8칸으로 복구.
+    // 모든 슬롯 접근/수정 메서드는 이 가드를 먼저 호출해야 함.
+    private void EnsureEquippedSlotsInitialized()
+    {
+        if (EquippedArtifacts == null || EquippedArtifacts.Count != ArtifactSlotCount)
+        {
+            InitializeArtifactSlots();
+        }
     }
 
     public void AddOwnedArtifact(ArtifactData artifact)
@@ -1021,6 +1042,7 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
     public void SetEquippedArtifact(int slotIndex, ArtifactData artifact)
     {
         if (slotIndex < 0 || slotIndex >= ArtifactSlotCount) return;
+        EnsureEquippedSlotsInitialized();
         EquippedArtifacts[slotIndex] = artifact;
         OnArtifactEquippedChanged?.Invoke();
     }
@@ -1028,12 +1050,14 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
     public void ClearEquippedSlot(int slotIndex)
     {
         if (slotIndex < 0 || slotIndex >= ArtifactSlotCount) return;
+        EnsureEquippedSlotsInitialized();
         EquippedArtifacts[slotIndex] = null;
         OnArtifactEquippedChanged?.Invoke();
     }
 
     public void ClearAllEquippedSlots()
     {
+        EnsureEquippedSlotsInitialized();
         for (int i = 0; i < ArtifactSlotCount; i++)
         {
             EquippedArtifacts[i] = null;
@@ -1044,6 +1068,7 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
     public ArtifactData GetEquippedArtifact(int slotIndex)
     {
         if (slotIndex < 0 || slotIndex >= ArtifactSlotCount) return null;
+        EnsureEquippedSlotsInitialized();
         return EquippedArtifacts[slotIndex];
     }
 
@@ -1056,7 +1081,11 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
     public void SetEquippedArtifacts(List<ArtifactData> artifacts)
     {
         InitializeArtifactSlots();
-        if (artifacts == null) return;
+        if (artifacts == null)
+        {
+            OnArtifactEquippedChanged?.Invoke();
+            return;
+        }
 
         for (int i = 0; i < artifacts.Count && i < ArtifactSlotCount; i++)
         {
@@ -1097,11 +1126,31 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
 
     private void ConvertIntToDeck(Dictionary<int, List<int>> loadIntDic)
     {
+        if (loadIntDic == null)
+        {
+            Debug.LogWarning("[PlayerData] ConvertIntToDeck: loadIntDic이 null입니다. 덱 로드를 건너뜁니다.");
+            return;
+        }
+
         for (int i = 1; i <= loadIntDic.Count; i++)
         {
-            for (int j = 0; j < DeckPresets[i].BaseUnitDatas.Count; j++)
+            if (!DeckPresets.ContainsKey(i))
             {
-                int id = loadIntDic[i][j];
+                Debug.LogWarning($"[PlayerData] ConvertIntToDeck: DeckPresets에 키 {i}가 없습니다. 건너뜁니다.");
+                continue;
+            }
+            if (!loadIntDic.TryGetValue(i, out List<int> idsForDeck) || idsForDeck == null)
+            {
+                Debug.LogWarning($"[PlayerData] ConvertIntToDeck: loadIntDic[{i}]가 null입니다. 건너뜁니다.");
+                continue;
+            }
+
+            int slotCount = DeckPresets[i].BaseUnitDatas.Count;
+            int loadedCount = idsForDeck.Count;
+
+            for (int j = 0; j < slotCount && j < loadedCount; j++)
+            {
+                int id = idsForDeck[j];
                 if (id != -1)
                 {
                     DeckPresets[i].UnitIds[j] = id;
@@ -1114,9 +1163,21 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
 
     private void LoadDeckName(List<string> loadedName)
     {
+        if (loadedName == null)
+        {
+            Debug.LogWarning("[PlayerData] LoadDeckName: loadedName이 null입니다. 덱 이름 로드를 건너뜁니다.");
+            return;
+        }
+
         for (int i = 0; i < loadedName.Count; i++)
         {
-            DeckPresets[i+1].DeckName = loadedName[i];
+            int deckKey = i + 1;
+            if (!DeckPresets.ContainsKey(deckKey))
+            {
+                Debug.LogWarning($"[PlayerData] LoadDeckName: DeckPresets에 키 {deckKey}가 없습니다. 건너뜁니다.");
+                continue;
+            }
+            DeckPresets[deckKey].DeckName = loadedName[i];
         }
     }
 
@@ -1275,12 +1336,13 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
     //홈 버튼 등으로 백그라운드로 갈때 호출
     private void OnApplicationPause(bool pauseStatus)
     {
-        if (pauseStatus)
-        {
-            Debug.Log("앱이 백그라운드로 전환되었습니다. 저장을 시도합니다.");
-            // await를 사용하지 않고 Task를 바로 실행시킵니다.
-            SaveDataToCloudAsync().Forget();
-        }
+        if (!pauseStatus) return;
+        // 중복 인스턴스가 OnApplicationPause를 받는 경우(혹은 destroy 직전) 저장 시도 차단
+        if (Instance != this) return;
+
+        Debug.Log("앱이 백그라운드로 전환되었습니다. 저장을 시도합니다.");
+        // await를 사용하지 않고 Task를 바로 실행시킵니다.
+        SaveDataToCloudAsync().Forget();
     }
 
     //Newtonsoft.Json 사용해서 패시브, 액티브까지 알아서 구분
@@ -1299,39 +1361,46 @@ public class PlayerDataManager : SingletonMono<PlayerDataManager>
 
     public void LoadArtifactData(string ownedList, string equippedList)
     {
-        bool hasSaveData = false;
+        // 어느 경로로 들어오든 EquippedArtifacts는 항상 8칸으로 시작.
+        InitializeArtifactSlots();
 
-        if (ownedList != null && equippedList != null)
-        {
-            hasSaveData = true;
-        }
+        bool hasSaveData = !string.IsNullOrEmpty(ownedList) && !string.IsNullOrEmpty(equippedList);
 
         if (hasSaveData)
         {
-            InitializeArtifactSlots();
             JsonSerializerSettings settings = new JsonSerializerSettings
             {
                 TypeNameHandling = TypeNameHandling.Auto
             };
 
-
-            OwnedArtifacts = JsonConvert.DeserializeObject<List<ArtifactData>>(ownedList, settings);
-            List<ArtifactData> equippedData = JsonConvert.DeserializeObject<List<ArtifactData>>(equippedList, settings);
-
-            for (int i = 0; i < equippedData.Count && i < ArtifactSlotCount; i++)
+            try
             {
-                if (equippedData[i] != null)
+                // OwnedArtifacts는 null이 들어오면 빈 리스트로 보장 (다른 코드가 null 체크 없이 접근하므로)
+                OwnedArtifacts = JsonConvert.DeserializeObject<List<ArtifactData>>(ownedList, settings)
+                                 ?? new List<ArtifactData>();
+
+                List<ArtifactData> equippedData = JsonConvert.DeserializeObject<List<ArtifactData>>(equippedList, settings);
+
+                if (equippedData != null)
                 {
-                    EquippedArtifacts[i] = equippedData[i];  // 직접 할당
-                    Debug.Log($"[ArtifactManager] Slot {i}에 유물 복원: {equippedData[i].name}");
+                    for (int i = 0; i < equippedData.Count && i < ArtifactSlotCount; i++)
+                    {
+                        if (equippedData[i] != null)
+                        {
+                            EquippedArtifacts[i] = equippedData[i];  // 직접 할당
+                            Debug.Log($"[ArtifactManager] Slot {i}에 유물 복원: {equippedData[i].name}");
+                        }
+                    }
                 }
             }
-
+            catch (Exception ex)
+            {
+                Debug.LogError($"[ArtifactManager] 유물 데이터 역직렬화 실패: {ex.Message}. 기본값으로 초기화합니다.");
+                OwnedArtifacts = new List<ArtifactData>();
+                InitializeArtifactSlots();
+            }
         }
-        else    // 아예 게임 처음이면 초기화 메서드 
-        {
-            InitializeArtifactSlots();
-        }
+        // else: 아예 게임 처음이면 위에서 InitializeArtifactSlots() 이미 호출됨.
 
         OnArtifactEquippedChanged?.Invoke();
         OnArtifactOwnedChanged?.Invoke();
