@@ -73,3 +73,17 @@ crashlytics-build.properties
 # Temporary auto-generated Android Assets
 /[Aa]ssets/[Ss]treamingAssets/aa.meta
 /[Aa]ssets/[Ss]treamingAssets/aa/*
+# AI workflow — per-session work folders and machine-local agent settings stay local
+/.AI/sessions/
+/.AI/cross-review.local.conf
+/.claude/settings.local.json
+# Codex project hooks are machine-local: Cate merges absolute-path bridge hooks into this file.
+# Install the project hook with `.AI/tools/session.sh install-codex-hook`.
+/.codex/hooks.json
+# Cate app workspace state (panels, sessions) — machine-local
+/.cate/
+
+# macOS Finder metadata
+.DS_Store
+# Claude Code worktrees (claude --worktree, isolated subagents)
+/.claude/worktrees/

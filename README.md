@@ -1,5 +1,8 @@
 # TeamProject_CheerUpMyHero
 
+> **팀 작업 안내**: AI 워크플로우(Claude Code·Codex), 문서 규칙, CI 문서 검사, 클론 후 할 일은
+> [`Docs/AI/ai-workflow.md`](Docs/AI/ai-workflow.md)에 정리되어 있습니다.
+
 ## 1. 게임 소개
 
 ## Cheer Up, My Hero ⚔️
