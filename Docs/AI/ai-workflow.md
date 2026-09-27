@@ -24,7 +24,15 @@ AGENTS.md          Codex 루트: "공통 루트 먼저 읽기" + Codex 전용(�
    │     ├─ .AI/cross-review.conf     리뷰어 모델·추론강도 팀 기본값   ← 아래 §3
    │     └─ .AI/tools/cross_review.sh 라운드 실행기
    ├─ Docs/AI/development.md          빌드·컴파일 게이트·테스트·커밋·코드 스타일
-   ├─ Docs/AI/architecture.md         기존 시스템 구조
+   ├─ Docs/AI/architecture.md  [router]   기존 구조(공통 인프라) + 게임 시스템별 문서로 라우팅
+   │  ├─ Docs/AI/systems/app-shell.md        시작 씬·튜토리얼·메인 메뉴·설정·오디오·입력·공용 팝업
+   │  ├─ Docs/AI/systems/player-data.md      세이브 구조·로드 순서·저장 시점·재화
+   │  ├─ Docs/AI/systems/territory.md        영지 5×5: 건물·비용·수리·이동·건물 시너지
+   │  ├─ Docs/AI/systems/deck-and-units.md   유닛 카드·덱 프리셋·유닛 시너지
+   │  ├─ Docs/AI/systems/artifacts.md        유물: 인벤토리·장착·합성/강화·스탯·액티브 스킬
+   │  ├─ Docs/AI/systems/gacha-and-rewards.md 가챠·천장·우편·광고 보상·지급 중복/유실 위험
+   │  ├─ Docs/AI/systems/stages.md           스테이지 id·해금·웨이브·운명/도전 수정자
+   │  └─ Docs/AI/systems/battle.md           전투: 시작 순서·식량/소환·지휘관·유닛 AI·데미지·전투 종료
    ├─ Docs/AI/module-rules.md         새 코드 규칙(소유·통신·EventManager·프리팹)
    ├─ Docs/AI/ai-workflow.md          이 문서
    ├─ .github/workflows/doc-check.yml CI: PR과 main/Develop push마다 문서 검사   ← 아래 §7
@@ -149,7 +157,11 @@ AI가 레포 파일을 고치는 작업을 시작하면 `.AI/sessions/<YYMMDD>-<
 `AGENTS.md`의 첫 작업 문단이 `PROJECT.md`와 같은지, 문서에 적힌 레포 경로·링크가 살아 있는지,
 Claude 스킬 스텁이 원본과 맞는지를 봅니다. 파일 이름의 대소문자는 macOS·Windows에서는 구분되지
 않으므로 CI(Linux) 결과가 기준입니다. 문서의 설명 내용이 코드와 맞는지는 기계로 볼 수 없어서,
-AI 절차와 리뷰어가 맡습니다.
+AI 절차와 리뷰어가 맡습니다. 새 하위 라우터가 필요하면 `PROJECT.md` 전체 트리에서 그 문서에
+`[router]`를 붙이면 검사기가 부모로 인정합니다(`architecture.md`가 그 예).
+
+시스템 문서(`Docs/AI/systems/`)의 "Gotchas"에는 조사 중 발견한 **의심 버그**(`Suspected issue:`)가
+적혀 있습니다. 고치지 않고 기록만 한 것이니, 그 시스템을 수정할 때 참고하세요.
 
 ## 8. 무엇이 강제이고 무엇이 자유인가
 
