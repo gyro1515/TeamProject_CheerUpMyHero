@@ -1,6 +1,6 @@
 ---
 name: cross-review
-description: Cross-review a plan, a bug diagnosis, or a finished diff with independent read-only reviewers from two model families (Claude and Codex; models and effort from .AI/cross-review.conf, overridable per person), fanned out over several perspectives, iterated to consensus. Use for post-diff validation of non-trivial changes, for plans touching a risk subsystem in .AI/flow.md §3, for disputed root causes, and whenever the user asks to 검증/체크/교차검증/크로스리뷰 something. Works identically from a Claude or a Codex primary.
+description: Cross-review a plan, a bug diagnosis, or a finished diff with independent read-only reviewers from two model families (Claude and Codex; models and effort from .AI/cross-review.conf, overridable per person), fanned out over several perspectives, iterated to consensus. Recommended, not required: offer it for non-trivial finished changes, for plans touching a risk subsystem in .AI/flow.md §3, and for disputed root causes, and run it when the user asks or agrees, including whenever the user asks to 검증/체크/교차검증/크로스리뷰 something. Works identically from a Claude or a Codex primary.
 argument-hint: integration | diagnosis | post-diff
 ---
 
@@ -25,10 +25,14 @@ Two models agreeing is **not** verification: their failure modes are correlated.
 you show a change to the user with confidence. It never replaces the mechanical gate in
 `.AI/flow.md` §2 *Mechanical gate* (the compile check), and it never authorizes something the user didn't ask for.
 
+Cross-review is **recommended, not required**. `.AI/flow.md` §2 says when to offer it. Run it
+when the user asks for it or agrees to it, or without asking when that person's `REVIEW_POLICY`
+is `required` (`.AI/tools/cross_review.sh --policy`).
+
 ## Modes
 
 - `integration` — a plan that crosses system boundaries, changes serialized or saved data, or
-  touches a risk subsystem (`.AI/flow.md` §3 is the canonical list). Run it before writing.
+  touches a risk subsystem (`.AI/flow.md` §3 is the canonical list). When it runs, run it before writing.
 - `diagnosis` — a disputed or unproven root cause. **Refuse to run without a reproduction or
   concrete evidence on record.** Reviewing a guess produces two confident guesses.
 - `post-diff` — a finished change. Weigh depth by blast radius, not diff size: a one-line change
@@ -112,7 +116,9 @@ script prepends `.AI/reviewer.md` (the shared persona and output format), so don
   some reviewer in that set has no valid verdict (MISSING/INVALID), so the round is
   **one-sided**: say so, don't count it as a round, and fix the
   cause (quota, auth, trust prompt) before continuing. Retry only that side with
-  `--only <family>` (and `--perspective <k>`).
+  `--only <family>` (and `--perspective <k>`). If this person has no access to the other family's
+  CLI at all, and the user accepts it, a single-family review with `--only <family>` may be
+  reported as `ONE-SIDED`: a second opinion, never consensus.
 - One run per round at a time: the script holds `$T/.lock-r<n>` and refuses a second run of the
   same round. If you interrupt a run, it signals its reviewers and keeps the lock. Check that no
   reviewer of that run is still alive, remove the lock, then rerun.

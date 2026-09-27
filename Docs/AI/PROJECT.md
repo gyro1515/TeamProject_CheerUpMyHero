@@ -41,14 +41,14 @@ CLAUDE.md / AGENTS.md            agent roots. Their family-only branches are in 
    ├─ .AI/flow.md  [router]      BEFORE any repository work (file writes, or longer investigations)
    │  ├─ §1 Session folder          the STATE.md rules
    │  ├─ §2 Change flow             steps, the compile gate, the Korean report format
-   │  ├─ §3 Risk subsystems         changes here need plan review
+   │  ├─ §3 Risk subsystems         changes here get a plan review offered
    │  ├─ §4 Claude ↔ Codex          shared files, talking through Cate
    │  ├─ §5 Runtime mechanics       the per-family difference table
    │  ├─ .AI/tools/session.sh       session folders, SessionStart hook, Codex hook installer
    │  ├─ .AI/tools/doc_check.sh     docs baseline and sync check: trees, Parent lines, doc paths, skill stubs
-   │  └─ .agents/skills/cross-review/SKILL.md  [router]   to verify a plan, a diagnosis, or a diff
+   │  └─ .agents/skills/cross-review/SKILL.md  [router]   to verify a plan, a diagnosis, or a diff (recommended, on request)
    │     ├─ .AI/reviewer.md            reviewer persona and verdict format
-   │     ├─ .AI/cross-review.conf      reviewer models, effort, and cap (+ .local.conf override)
+   │     ├─ .AI/cross-review.conf      reviewer models, effort, cap, review policy (+ .local.conf override)
    │     └─ .AI/tools/cross_review.sh  runs one round
    ├─ Docs/AI/development.md     BEFORE building, compiling, testing, committing, or writing C#
    │  ├─ Build / run / test         the batch-mode compile command, tests, defines

@@ -34,9 +34,11 @@ AGENTS.md                         ← you are here (Codex)
   `session.sh current|new|bind` prints a one-line reminder. The matcher is
   `startup|resume|compact`, so after a clear there is no hook line. Run `session.sh current`
   instead.
-- **Sandbox network**: the shell sandbox disables the network. `.AI/tools/cross_review.sh`
-  launches both reviewer CLIs, and they need the network, so request escalated permissions for
-  that command up front. Don't wait for it to fail first. The reviewers stay read-only either way.
+- **Sandbox network**: the shell sandbox disables the network. A review round
+  (`.AI/tools/cross_review.sh <task-dir> <round>`) launches both reviewer CLIs, and they need the
+  network, so request escalated permissions for that command up front. Don't wait for it to fail
+  first. The reviewers stay read-only either way. `cross_review.sh --policy` only reads the conf
+  files, so run it inside the sandbox without escalation.
 - **Sandbox `ps`**: `ps` is denied, so `session.sh` detects the family from the environment
   (`CODEX_SESSION_ID`/`CODEX_THREAD_ID`, plus `CODEX_SANDBOX` when a Claude id is also present). If
   it ever picks the wrong family, prefix the command with `AI_SESSION_AGENT=codex`.

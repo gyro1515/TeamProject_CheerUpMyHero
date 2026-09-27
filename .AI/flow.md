@@ -67,8 +67,15 @@ the folder only when the user asks. `.AI/sessions/` is git-ignored.
    scripts, prefabs, managers, or events, that includes `Docs/AI/module-rules.md`. Reuse an
    existing manager, base class, or pattern before adding a new one, and name the existing
    thing you considered.
-3. **Plan review, risky changes only**: when the change touches a risk subsystem (§3) or
-   crosses system boundaries, run `cross-review` in `integration` mode on the plan before writing.
+3. **Plan review (recommended), risky changes only**: when the change touches a risk subsystem
+   (§3) or crosses system boundaries, stop before writing and offer `cross-review` in
+   `integration` mode in one line: what it would check, and how many reviewers it launches. Run it
+   when the user asks or agrees; otherwise go on and record the skip.
+   **Review policy**: each person can make reviews required for themselves. Read the policy once
+   per session with `.AI/tools/cross_review.sh --policy`. If it prints `required`, run the review
+   here and in step 8 without asking. It prints `recommended` by default. If the command fails (a
+   bad conf line), treat the policy as `recommended` and report the error. `required` never
+   covers a one-sided review: ask before an `--only` run.
 4. **Docs baseline**, before the first edit:
    `.AI/tools/doc_check.sh --baseline .AI/sessions/<session>/<change>/doc-baseline.txt`. It only
    reads the repository. Take it again after a pull or rebase in the middle of the work, so that
@@ -90,10 +97,13 @@ the folder only when the user asks. `.AI/sessions/` is git-ignored.
    change. Report the command, the exit code, and the error count. If it cannot run (the
    Editor has the project open, the Editor isn't installed, and so on), write `BLOCKED: <reason>`,
    which is not a pass.
-8. **Post-diff review**: for any non-trivial change, run `cross-review` in `post-diff` mode, with
-   the doc_check receipt and the `문서 갱신` line in the evidence bundle.
-   Trivial means comments, whitespace, or a rename the user dictated. Name that exemption
-   in the report.
+8. **Post-diff review (recommended)**: for a non-trivial change, offer `cross-review` in
+   `post-diff` mode in the report, and run it when the user asks or agrees, or when the policy
+   (step 3) is `required`. Trivial means
+   comments, whitespace, or a rename the user dictated. When it runs, the evidence bundle carries
+   the doc_check receipt and the `문서 갱신` line. Cross-review needs both the `claude` and the
+   `codex` CLI. If this person has only one, a single-family review (`--only <family>`) is allowed
+   when the user accepts it, and it is reported as `ONE-SIDED`: a second opinion, never consensus.
 9. **Report** in Korean, in this order:
    - **목적** (what it was for)
    - **한 일** (what was done, and how)
@@ -101,6 +111,8 @@ the folder only when the user asks. `.AI/sessions/` is git-ignored.
    - **결과** (the final state, with gate receipts, verdict headers, and open items)
    - **문서 갱신**: `있음(<files>)` or `없음(<reason>)`, plus the doc_check receipt. List each
      pre-existing finding with a one-line fix proposal; the user decides whether to fix it.
+   - **교차검증**: `실행(<verdict headers>)`, `ONE-SIDED(<family>)`, `생략(권장, 사용자 미요청)`, or
+     `면제(trivial)`, plus the policy (`recommended` or `required`).
 
    Also list the "(내 판단)" decisions.
 
@@ -157,7 +169,7 @@ branch conventions are in `Docs/AI/development.md` → *Commits and branches*.
 | Read-only reviewer | `claude -p --agent reviewer` (`.claude/agents/reviewer.md`, tools Read/Grep/Glob) | `codex exec -s read-only` |
 | Reviewer persona | `.AI/reviewer.md` (shared, prepended by `cross_review.sh`) | same file |
 | Runtime session id | `CLAUDE_CODE_SESSION_ID` | `CODEX_SESSION_ID` (= `CODEX_THREAD_ID`) |
-| Running `cross_review.sh` | normal Bash, in the background | **needs escalated permissions**: the Codex shell sandbox disables the network (`CODEX_SANDBOX_NETWORK_DISABLED=1`), but both reviewer CLIs call their APIs. Request escalation for the command up front, not after it fails |
+| Running `cross_review.sh` | normal Bash, in the background | a review round (`cross_review.sh <task-dir> <round>`) **needs escalated permissions**: the Codex shell sandbox disables the network (`CODEX_SANDBOX_NETWORK_DISABLED=1`), but both reviewer CLIs call their APIs. Request escalation for the round up front, not after it fails. `cross_review.sh --policy` only reads the conf files and runs inside the sandbox, with no escalation |
 
 The reviewer models and effort come from `.AI/cross-review.conf` (the team defaults), with
 `.AI/cross-review.local.conf` overriding it per person (git-ignored). They never come from the

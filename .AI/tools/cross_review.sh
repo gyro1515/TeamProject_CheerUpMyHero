@@ -4,6 +4,7 @@
 # Parent: .agents/skills/cross-review/SKILL.md
 #
 #   cross_review.sh <task-dir> <round> [--only claude|codex] [--perspective <k>]
+#   cross_review.sh --policy      print the effective REVIEW_POLICY (recommended | required)
 #
 # <task-dir>  .AI/sessions/<session>/<change>  (absolute or repo-relative)
 # Inputs      <task-dir>/prompt-r<round>-p<k>.md   one file per perspective (k = 1, 2, ...)
@@ -29,6 +30,7 @@ cd "$ROOT" || exit 1   # `claude --agent reviewer` resolves .claude/agents from 
 die() { printf 'cross_review.sh: %s\n' "$*" >&2; exit 1; }
 
 CLAUDE_MODEL=""; CLAUDE_EFFORT=""; CODEX_MODEL=""; CODEX_EFFORT=""; MAX_PERSPECTIVES=""
+REVIEW_POLICY="recommended"
 load_conf() { # <file> — parsed, never sourced
   local f="$1" line key val n=0
   [ -f "$f" ] || return 0
@@ -45,6 +47,8 @@ load_conf() { # <file> — parsed, never sourced
         [[ "$val" =~ ^[a-z]+$ ]] || die "$f:$n: bad $key '$val'" ;;
       MAX_PERSPECTIVES)
         [[ "$val" =~ ^([1-9][0-9]*)?$ ]] || die "$f:$n: bad $key '$val'" ;;   # empty = no cap
+      REVIEW_POLICY)
+        [[ "$val" =~ ^(recommended|required)$ ]] || die "$f:$n: bad $key '$val'" ;;
       *) die "$f:$n: unknown key '$key'" ;;
     esac
     eval "$key=\$val"      # key is whitelisted above; val is assigned, not evaluated
@@ -55,6 +59,9 @@ load_conf "$ROOT/.AI/cross-review.local.conf"
 for k in CLAUDE_MODEL CLAUDE_EFFORT CODEX_MODEL CODEX_EFFORT; do
   eval "[ -n \"\${$k}\" ]" || die "$k is not set (.AI/cross-review.conf)"
 done
+
+# When to run a review is the agent's call (.AI/flow.md §2); this only reports the person's policy.
+if [ "${1:-}" = --policy ]; then printf '%s\n' "$REVIEW_POLICY"; exit 0; fi
 
 T="${1:-}"; R="${2:-}"; shift 2 2>/dev/null || true
 [ -n "$T" ] && [ -n "$R" ] || die "usage: cross_review.sh <task-dir> <round> [--only claude|codex] [--perspective <k>]"
@@ -70,8 +77,9 @@ while [ $# -gt 0 ]; do
   esac
 done
 case "$ONLY" in ""|claude|codex) ;; *) die "--only must be claude or codex, got: $ONLY" ;; esac
-command -v claude >/dev/null || die "claude CLI not found"
-command -v codex  >/dev/null || die "codex CLI not found"
+# Only the families this invocation launches need their CLI (a one-sided review uses --only).
+[ "$ONLY" = codex ]  || command -v claude >/dev/null || die "claude CLI not found (use --only codex for a one-sided review)"
+[ "$ONLY" = claude ] || command -v codex  >/dev/null || die "codex CLI not found (use --only claude for a one-sided review)"
 [ -f "$PERSONA" ] || die "missing $PERSONA"
 
 ALL=()       # every perspective of this round — the convergence check covers all of them

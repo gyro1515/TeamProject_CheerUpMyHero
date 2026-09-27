@@ -4,7 +4,7 @@ Parent: [`PROJECT.md`](PROJECT.md). 이 문서는 사람이 읽는 설명서입�
 규칙 원본은 [`.AI/flow.md`](../../.AI/flow.md)이고, 이 문서와 어긋나면 그쪽이 맞습니다.
 
 Claude Code와 Codex는 둘 다 같은 지시문, 같은 스킬, 같은 스크립트를 씁니다. 그래서 어느 쪽에서
-작업해도 절차와 결과가 같습니다.
+작업해도 절차와 결과가 같습니다. 무엇이 강제이고 무엇이 자유인지는 §8에 표로 정리했습니다.
 
 ## 1. 구성 한눈에 (라우터 트리)
 
@@ -19,7 +19,7 @@ AGENTS.md          Codex 루트: "공통 루트 먼저 읽기" + Codex 전용(�
    ├─ .AI/flow.md  [router]           작업 규칙: 세션 폴더, 변경 흐름·게이트, 위험 영역, 협업
    │  ├─ .AI/tools/session.sh         세션 작업 폴더 도구
    │  ├─ .AI/tools/doc_check.sh       문서·트리 검사기                    ← 아래 §7
-   │  └─ .agents/skills/cross-review/SKILL.md  [router]   교차검증 스킬
+   │  └─ .agents/skills/cross-review/SKILL.md  [router]   교차검증 스킬 (권장, 요청 시 실행)
    │     ├─ .AI/reviewer.md           리뷰어 공용 페르소나
    │     ├─ .AI/cross-review.conf     리뷰어 모델·추론강도 팀 기본값   ← 아래 §3
    │     └─ .AI/tools/cross_review.sh 라운드 실행기
@@ -84,6 +84,7 @@ MAX_PERSPECTIVES=1
 | `CODEX_MODEL` | `codex exec -m`에 전달 | 계정에서 쓸 수 있는 Codex 모델 |
 | `CODEX_EFFORT` | Codex `model_reasoning_effort` | `minimal` / `low` / `medium` / `high` / `xhigh` |
 | `MAX_PERSPECTIVES` | 라운드당 관점 수 상한 (비우면 상한 없음) | 숫자 |
+| `REVIEW_POLICY` | 교차검증을 언제 돌릴지 | `recommended`(기본: AI가 제안, 동의하면 실행) / `required`(AI가 묻지 않고 실행) |
 
 - 파일은 `KEY=VALUE` 형식으로 한 줄에 하나씩 씁니다. 따옴표와 공백은 쓰지 않고, `#`부터는
   주석입니다. 파일은 파싱만 하고 셸로 실행하지 않습니다. 모르는 키나 잘못된 값이 있으면 라운드가
@@ -94,8 +95,13 @@ MAX_PERSPECTIVES=1
   다르면 그 판정은 무효입니다. Codex는 배너로, Claude는 `modelUsage`로 확인합니다. Claude의
   effort는 요청값만 기록하고, 실제로 적용됐는지는 검증하지 않습니다.
 - 팀 전체의 기본값을 바꾸려면 `.AI/cross-review.conf`를 수정해서 커밋합니다.
+- 교차검증을 항상 받고 싶다면 개인 파일에 `REVIEW_POLICY=required` 한 줄을 넣으세요. AI는 세션마다
+  `.AI/tools/cross_review.sh --policy`로 이 값을 확인합니다.
+- 한쪽 CLI만 설치되어 있어도 `--only claude` 또는 `--only codex`로 한쪽 리뷰를 돌릴 수 있습니다.
 - 두 family 중 한쪽 CLI가 없거나 한도를 넘으면 라운드는 `ONE-SIDED`로 끝나고 수렴으로 치지
-  않습니다. 교차검증은 **양쪽이 모두 있어야** 의미가 있습니다.
+  않습니다. 교차검증은 **양쪽이 모두 있어야** 합의가 됩니다. 한쪽 CLI만 쓸 수 있는 사람은 동의하면
+  한쪽 리뷰(`--only claude` 또는 `--only codex`)를 받을 수 있지만, 보고서에는 `ONE-SIDED`로 적히고
+  합의로 치지 않습니다.
 
 ## 4. 레포에 남는 것 / 로컬에만 남는 것
 
@@ -144,3 +150,23 @@ AI가 레포 파일을 고치는 작업을 시작하면 `.AI/sessions/<YYMMDD>-<
 Claude 스킬 스텁이 원본과 맞는지를 봅니다. 파일 이름의 대소문자는 macOS·Windows에서는 구분되지
 않으므로 CI(Linux) 결과가 기준입니다. 문서의 설명 내용이 코드와 맞는지는 기계로 볼 수 없어서,
 AI 절차와 리뷰어가 맡습니다.
+
+## 8. 무엇이 강제이고 무엇이 자유인가
+
+각자의 작업 방식은 존중합니다. CI가 모든 사람에게 검사하는 것은 **문서·라우터 트리의 구조**
+하나뿐이고, 그것도 병합이나 push를 막지 않습니다. AI는 그 밖에 자기 작업에 대해 컴파일 게이트를
+돌립니다(아래 표).
+
+| 층 | 대상 | 적용 대상 | 강제 수준 |
+|---|---|---|---|
+| 문서·트리 구조 | `Docs/AI/`, `.AI/`, `.agents/`, `.claude/`, `.codex/`, `.github/`의 트리, `Parent:`, 고아 문서, 문서에 적힌 레포 경로·링크, 스킬 스텁 | 모든 사람 (CI) | CI `doc-check`가 ✓/✗만 표시. 필수 체크가 아니어서 막지 않음 |
+| AI 작업 절차 | 세션 폴더와 `STATE.md`, 문서 기준선·동기화, C# 변경 후 Unity 배치 컴파일 게이트, 한국어 보고 (`.AI/flow.md`) | Claude·Codex로 작업할 때만 | AI가 스스로 따름. 사람에게는 적용 안 됨 |
+| 교차검증 | `cross-review` 스킬 | AI 작업 | **권장**. AI가 제안하고, 사용자가 요청하거나 동의할 때만 실행. 개인 설정 `REVIEW_POLICY=required`면 묻지 않고 실행 (§3) |
+| 코드 규칙 | `module-rules.md`(소유·통신·EventManager·프리팹), `development.md`(스타일·커밋·브랜치) | AI가 코드를 쓸 때 참고 | 기계 검사 없음. 기존 코드는 예외 목록에 두고 고치지 않음 |
+| 개인 설정 | 리뷰어 모델·추론강도, `REVIEW_POLICY`, `settings.local.json` | 각자 | 자유 (git 제외 파일) |
+
+- 사람이 코드를 바꾸다 CI에 걸리는 경우는 하나뿐입니다. 문서에 적힌 코드 경로(예:
+  `Assets/GlobalScripts/SceneLoader.cs`)를 옮기거나 지우면 ✗가 뜹니다. 이때 해당 문서의 경로를
+  고치면 됩니다. 클래스·메서드 이름 변경은 기계로 잡지 못하니, 관련 문서가 있으면 같이 고쳐 주세요.
+- 브랜치 이름, 커밋 메시지, 코딩 스타일, 작업 도구(GUI·CLI·AI 여부)는 검사하지 않습니다.
+- CI를 병합 필수 체크로 바꾸는 것은 레포 설정(브랜치 보호)에서 소유자가 정합니다.
