@@ -45,6 +45,7 @@ CLAUDE.md / AGENTS.md            agent roots. Their family-only branches are in 
    │  ├─ §4 Claude ↔ Codex          shared files, talking through Cate
    │  ├─ §5 Runtime mechanics       the per-family difference table
    │  ├─ .AI/tools/session.sh       session folders, SessionStart hook, Codex hook installer
+   │  ├─ .AI/tools/doc_check.sh     docs baseline and sync check: trees, Parent lines, doc paths, skill stubs
    │  └─ .agents/skills/cross-review/SKILL.md  [router]   to verify a plan, a diagnosis, or a diff
    │     ├─ .AI/reviewer.md            reviewer persona and verdict format
    │     ├─ .AI/cross-review.conf      reviewer models, effort, and cap (+ .local.conf override)
@@ -67,7 +68,9 @@ CLAUDE.md / AGENTS.md            agent roots. Their family-only branches are in 
    │  ├─ Rules O C E P              ownership, EventManager channels, values, prefabs
    │  ├─ Anti-patterns / Verification greps
    │  └─ Known exceptions           existing code not to copy
-   └─ Docs/AI/ai-workflow.md     (Korean, for people) setup after clone, reviewer model config, local vs repo
+   ├─ Docs/AI/ai-workflow.md     (Korean, for people) setup after clone, docs check and CI, reviewer model config, local vs repo
+   ├─ .github/workflows/doc-check.yml    CI: runs doc_check.sh on every PR and every push to main or Develop
+   └─ .github/pull_request_template.md   the PR checklist (Korean), including the docs question
 ```
 
 ## Keeping the tree honest
@@ -76,15 +79,19 @@ CLAUDE.md / AGENTS.md            agent roots. Their family-only branches are in 
   says only *when* to go to a child, never the child's facts.
 - **Shared nodes** appear in this full tree, and also in their direct parent router's tree when
   that parent is not this file. Each one names that parent in a `Parent:` line, or in a comment
-  for scripts and the conf.
-- **Family nodes** are the files under `.claude/` and `.codex/`, except discovery symlinks. They
-  appear only in their own root's tree (`CLAUDE.md` or `AGENTS.md`), never here, and they name
-  that root as parent. JSON files can't hold a comment, so their entry in the root's tree is the
-  record.
+  for scripts, the conf, and the `.github/` files. Shared trees list every node by its exact
+  path, never with a wildcard.
+- **Family nodes** are the files under `.claude/` and `.codex/`. They appear only in their own
+  root's tree (`CLAUDE.md` or `AGENTS.md`), never here, and they name that root as parent. JSON
+  files can't hold a comment, so their entry in the root's tree is the record. A root's tree may
+  use a `<name>` placeholder for one file per shared skill.
 - A root may also list a **discovery path**, marked `(discovery)`: the location where that family's
   tool finds a shared node (for example `.agents/skills/`). This is not ownership, and the node keeps
   its shared parent.
 - When you add, move, or rename a node, update every place above that applies, in the same change.
+  `.AI/tools/doc_check.sh` checks these rules, and CI runs it too.
+- Create a new leaf only when no existing leaf owns its topic. A long section is a hint to split,
+  not a rule.
 - Family-specific instructions go only in `CLAUDE.md` or `AGENTS.md`. If both roots would say
   the same thing, it belongs here instead. The one deliberate duplicate is the first-action
   paragraph: `AGENTS.md` repeats it word for word, because Codex has no import. Edit both copies

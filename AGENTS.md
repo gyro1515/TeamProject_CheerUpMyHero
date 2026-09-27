@@ -28,9 +28,12 @@ AGENTS.md                         ← you are here (Codex)
 ## Codex-specific
 
 - **SessionStart hook**: `.codex/hooks.json` is not tracked, because the Cate app merges
-  absolute-path hooks into it. Once per clone, run `.AI/tools/session.sh install-codex-hook`, then
-  trust the hook in the TUI with `/hooks`. The matcher is `startup|resume|compact`, so after a
-  clear there is no hook line. Run `session.sh current` instead.
+  absolute-path hooks into it. Once per clone, run `.AI/tools/session.sh install-codex-hook` with
+  escalated permissions (the sandbox can't write `.codex/`), or have the user run it from an
+  ordinary terminal. Then trust the hook in the TUI with `/hooks`. Until it is installed,
+  `session.sh current|new|bind` prints a one-line reminder. The matcher is
+  `startup|resume|compact`, so after a clear there is no hook line. Run `session.sh current`
+  instead.
 - **Sandbox network**: the shell sandbox disables the network. `.AI/tools/cross_review.sh`
   launches both reviewer CLIs, and they need the network, so request escalated permissions for
   that command up front. Don't wait for it to fail first. The reviewers stay read-only either way.

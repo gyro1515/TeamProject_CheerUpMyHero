@@ -6,7 +6,7 @@ argument-hint: integration | diagnosis | post-diff
 
 # Cross-review (Claude ↔ Codex, multi-perspective)
 
-Parent: [`.AI/flow.md`](../../../.AI/flow.md) (§2 steps 3 and 6).
+Parent: [`.AI/flow.md`](../../../.AI/flow.md) (§2 *Plan review* and *Post-diff review*).
 
 ```
 SKILL.md  [router]                 ← you are here
@@ -23,7 +23,7 @@ families, so the procedure and the result are the same whichever family is the p
 
 Two models agreeing is **not** verification: their failure modes are correlated. Consensus lets
 you show a change to the user with confidence. It never replaces the mechanical gate in
-`.AI/flow.md` §2 step 5 (the compile check), and it never authorizes something the user didn't ask for.
+`.AI/flow.md` §2 *Mechanical gate* (the compile check), and it never authorizes something the user didn't ask for.
 
 ## Modes
 
@@ -75,7 +75,8 @@ mkdir -p "$T"
   Save a diff as `$T/candidate.diff` (`git diff > …`; for untracked files use
   `git diff --no-index /dev/null <file>` or quote them) and record the candidate identity
   (`git rev-parse HEAD` plus `shasum` of the changed files);
-- facts and gate results already established: the compile receipt, or `BLOCKED` and why;
+- facts and gate results already established: the compile receipt, or `BLOCKED` and why, and
+  for a post-diff review the `doc_check.sh --against` receipt and the `문서 갱신` line;
 - **numbered claims to attack**, stated so that each one can be proven wrong;
 - cited paths the reviewers can actually open. Reference files by path and symbol or heading,
   not by line number.

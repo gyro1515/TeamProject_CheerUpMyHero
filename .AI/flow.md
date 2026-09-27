@@ -13,7 +13,8 @@ the family's root, `CLAUDE.md` or `AGENTS.md`, and §5 compares the two.
 ├─ §4 Claude ↔ Codex            shared files, Cate protocol
 ├─ §5 Runtime mechanics         per-family difference table
 ├─ .AI/tools/session.sh         the §1 tool
-└─ .agents/skills/cross-review/SKILL.md  [router]   §2 steps 3 and 6
+├─ .AI/tools/doc_check.sh       §2 docs baseline and sync: checks trees, Parent lines, doc paths
+└─ .agents/skills/cross-review/SKILL.md  [router]   §2 plan review and post-diff review
    ├─ .AI/reviewer.md
    ├─ .AI/cross-review.conf
    └─ .AI/tools/cross_review.sh
@@ -68,19 +69,38 @@ the folder only when the user asks. `.AI/sessions/` is git-ignored.
    thing you considered.
 3. **Plan review, risky changes only**: when the change touches a risk subsystem (§3) or
    crosses system boundaries, run `cross-review` in `integration` mode on the plan before writing.
-4. **Implement**: surgical changes only. Don't reformat or refactor beyond the request.
-5. **Mechanical gate**: run the Unity batch-mode compile from `Docs/AI/development.md` after any `.cs`
+4. **Docs baseline**, before the first edit:
+   `.AI/tools/doc_check.sh --baseline .AI/sessions/<session>/<change>/doc-baseline.txt`. It only
+   reads the repository. Take it again after a pull or rebase in the middle of the work, so that
+   a teammate's finding is not counted as yours.
+5. **Implement**: surgical changes only. Don't reformat or refactor beyond the request.
+6. **Docs and tree sync**:
+   - For every file, class, method, or path you added, moved, renamed, or removed, search the
+     docs for its old and new name
+     (`grep -rn --exclude-dir=sessions --exclude-dir=worktrees -e <old> -e <new> Docs/AI .AI .agents .claude .github CLAUDE.md AGENTS.md README.md`),
+     and fix whatever is now wrong, whichever document it is in.
+   - If you added, moved, renamed, or removed a document, script, skill, or config node, update
+     every tree and `Parent:` line as `Docs/AI/PROJECT.md` → *Keeping the tree honest* says.
+   - Run `.AI/tools/doc_check.sh --against <the baseline>`. Exit 0 means the change added no
+     finding; lines marked `pre-existing` were already there. Exit 1 means the change introduced
+     a finding: fix it, wherever it is. Exit 2 is `BLOCKED: <reason>`. If you have no baseline,
+     run it without `--against`, and every finding counts as yours. Identical findings hide each
+     other, so recheck a pre-existing finding that sits in a document you edited.
+7. **Mechanical gate**: run the Unity batch-mode compile from `Docs/AI/development.md` after any `.cs`
    change. Report the command, the exit code, and the error count. If it cannot run (the
    Editor has the project open, the Editor isn't installed, and so on), write `BLOCKED: <reason>`,
    which is not a pass.
-6. **Post-diff review**: for any non-trivial change, run `cross-review` in `post-diff` mode.
+8. **Post-diff review**: for any non-trivial change, run `cross-review` in `post-diff` mode, with
+   the doc_check receipt and the `문서 갱신` line in the evidence bundle.
    Trivial means comments, whitespace, or a rename the user dictated. Name that exemption
    in the report.
-7. **Report** in Korean, in this order:
+9. **Report** in Korean, in this order:
    - **목적** (what it was for)
    - **한 일** (what was done, and how)
    - **과정·트러블슈팅** (what went wrong and how it was resolved)
    - **결과** (the final state, with gate receipts, verdict headers, and open items)
+   - **문서 갱신**: `있음(<files>)` or `없음(<reason>)`, plus the doc_check receipt. List each
+     pre-existing finding with a one-line fix proposal; the user decides whether to fix it.
 
    Also list the "(내 판단)" decisions.
 
@@ -109,8 +129,10 @@ branch conventions are in `Docs/AI/development.md` → *Commits and branches*.
 - **Same instructions**: both roots load the common root `Docs/AI/PROJECT.md`. Its *Keeping the
   tree honest* section owns the rules for what goes in the common tree and what goes in a root.
 - **Same skills**: canonical skills live in `.agents/skills/<name>/`, which Codex discovers.
-  `.claude/skills/<name>` is a symlink to that directory. Add new shared skills the same way.
-- **Same tools**: `.AI/tools/*.sh` are the executable parts (sessions, cross-review), and
+  Claude finds them through a stub, `.claude/skills/<name>/SKILL.md`: the same frontmatter,
+  and a body that says to read and follow the canonical file. Add a new shared skill as both
+  files. `doc_check.sh` fails if the two drift apart or either one is missing.
+- **Same tools**: `.AI/tools/*.sh` are the executable parts (sessions, docs check, cross-review), and
   both families call them identically.
 - **Talking to the other session via Cate**: `cate panel list` shows the terminals. Before
   sending anything, `cate terminal read --panel <id>` and confirm the other agent is idle at
@@ -129,9 +151,9 @@ branch conventions are in `Docs/AI/development.md` → *Commits and branches*.
 | | Claude Code | Codex |
 |---|---|---|
 | Root (auto-loaded) | `CLAUDE.md`: imports `Docs/AI/PROJECT.md`, plus Claude-only notes | `AGENTS.md`: says to read `Docs/AI/PROJECT.md` first (no import), repeats the first action, plus Codex-only notes |
-| Skills | `.claude/skills/cross-review` → symlink | `.agents/skills/cross-review` |
+| Skills | `.claude/skills/cross-review/SKILL.md`, a stub that points to the canonical file | `.agents/skills/cross-review` |
 | Invoke a skill | Skill tool / `/cross-review` | read `.agents/skills/<name>/SKILL.md` (or `$cross-review`) |
-| SessionStart hook | `.claude/settings.json` (tracked) → `session.sh hook claude`; matcher `startup\|resume\|clear\|compact` | `.codex/hooks.json` (machine-local, git-ignored: Cate merges absolute-path hooks into it) → `session.sh hook codex`; matcher `startup\|resume\|compact` (no `clear` entry; after a Codex clear, run `session.sh current`). Install per clone with `session.sh install-codex-hook`, then trust it once via `/hooks` |
+| SessionStart hook | `.claude/settings.json` (tracked) → `session.sh hook claude`; matcher `startup\|resume\|clear\|compact` | `.codex/hooks.json` (machine-local, git-ignored: Cate merges absolute-path hooks into it) → `session.sh hook codex`; matcher `startup\|resume\|compact` (no `clear` entry; after a Codex clear, run `session.sh current`). Install per clone with `session.sh install-codex-hook`, which **needs escalated permissions** because the sandbox can't write `.codex/` (or run it from an ordinary terminal), then trust it once via `/hooks`. Until it is installed, `session.sh current\|new\|bind` prints a one-line reminder |
 | Read-only reviewer | `claude -p --agent reviewer` (`.claude/agents/reviewer.md`, tools Read/Grep/Glob) | `codex exec -s read-only` |
 | Reviewer persona | `.AI/reviewer.md` (shared, prepended by `cross_review.sh`) | same file |
 | Runtime session id | `CLAUDE_CODE_SESSION_ID` | `CODEX_SESSION_ID` (= `CODEX_THREAD_ID`) |

@@ -36,6 +36,9 @@ A blocker is one of these:
   reset on scene transitions;
 - for workflow or configuration material, it would make Claude and Codex behave differently,
   or it fails to do what the user asked;
+- it leaves a routed document or a router tree wrong: a fact the change contradicts, or a node
+  that is dangling or missing. The bundle's `doc_check.sh` receipt covers the mechanical part;
+  judge the facts it can't see;
 - it is unsafe to ship for another concrete, stated reason.
 
 These are **not** blockers: naming, formatting, style preferences, missing abstractions,

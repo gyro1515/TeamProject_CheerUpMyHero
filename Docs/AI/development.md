@@ -9,7 +9,7 @@ writing C#.
   exist outside third-party code. Builds and play-testing go through the Editor. The build scenes,
   in order, are `StartScene` → `MainScene` → `BattleScene` → `EmptyScene`. Play from `StartScene`,
   because it initializes the backend.
-- **Batch-mode compile check** (the mechanical gate in `.AI/flow.md` §2 step 5). Use this exact
+- **Batch-mode compile check** (the *Mechanical gate* in `.AI/flow.md` §2). Use this exact
   path, because Unity 6 editors are also installed on this Mac. It fails while the project is
   open in the Editor:
   `/Applications/Unity/Hub/Editor/2022.3.62f2/Unity.app/Contents/MacOS/Unity -batchmode -quit -nographics -projectPath . -logFile -`

@@ -17,7 +17,7 @@
 #       Never fails a session start: any error degrades to a plain-text note, exit 0.
 #   session.sh install-codex-hook
 #       Merge the project's SessionStart entry into the machine-local .codex/hooks.json
-#       (idempotent). Run once per clone; then trust it in the Codex TUI with /hooks.
+#       (idempotent). Once per clone, outside the Codex sandbox; then trust it with /hooks.
 #
 # Agent and runtime session id are detected, so callers normally pass neither: the nearest
 # ancestor process named `claude` or `codex` decides the family (both env vars are present
@@ -80,6 +80,15 @@ rewrite() { # <file> <sed-expr>  — BSD/GNU-safe in-place edit that keeps the f
 
 touch_state() { rewrite "$1" "s/^- 갱신: .*/- 갱신: $(now)/"; }
 
+# Reminder only: installing needs a write to .codex/, which the Codex sandbox denies, and trust
+# (/hooks) can't be automated anyway. Reads the file, prints one stderr line, never fails.
+codex_hook_reminder() { # <agent>
+  [ "$1" = codex ] || return 0
+  grep -qF '.AI/tools/session.sh' "$ROOT/.codex/hooks.json" 2>/dev/null && return 0
+  printf '%s\n' "session.sh: the Codex project hook is not installed. Run .AI/tools/session.sh install-codex-hook with escalated permissions (or from an ordinary terminal), then trust it with /hooks." >&2
+  return 0
+}
+
 cmd_new() {
   local slug="" agent="" id=""
   while [ $# -gt 0 ]; do
@@ -93,6 +102,7 @@ cmd_new() {
   [ -n "$slug" ] || die "usage: session.sh new <slug> [--agent claude|codex] [--id <id>]"
   printf '%s' "$slug" | grep -Eq '^[a-z0-9]+(-[a-z0-9]+)*$' || die "slug must be kebab-case: $slug"
   [ -n "$agent" ] || agent="$(detect_agent)"
+  codex_hook_reminder "$agent"
   [ -n "$id" ] || id="$(detect_id "$agent")"
   [ -n "$id" ] || die "cannot detect the runtime session id for agent '$agent'; pass --agent and --id"
 
@@ -141,6 +151,7 @@ cmd_bind() {
   local name="${1:-}" agent="${2:-}" id="${3:-}"
   [ -n "$name" ] || die "usage: session.sh bind <session-dir-name> [<agent> <runtime-session-id>]"
   [ -n "$agent" ] || agent="$(detect_agent)"
+  codex_hook_reminder "$agent"
   [ -n "$id" ] || id="$(detect_id "$agent")"
   [ -n "$id" ] || die "cannot detect the runtime session id for agent '$agent'; pass <agent> <id>"
   local f="$SESSIONS/$name/STATE.md"
@@ -172,7 +183,7 @@ bound_to() { # <agent> <id>  -> path of the open session recording <agent>:<id>
 }
 
 cmd_current() {
-  local agent id b; agent="$(detect_agent)"; id="$(detect_id "$agent")"
+  local agent id b; agent="$(detect_agent)"; codex_hook_reminder "$agent"; id="$(detect_id "$agent")"
   b="$(bound_to "$agent" "$id")"
   if [ -n "$b" ]; then printf '%s\n' "$b"; else
     printf 'none bound to %s:%s\n' "$agent" "${id:-unknown}" >&2; exit 1; fi

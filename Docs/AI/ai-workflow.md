@@ -13,11 +13,12 @@ Claude Code와 Codex는 둘 다 같은 지시문, 같은 스킬, 같은 스크�
 첫머리의 `Parent:` 줄로 부모를 가리킵니다. 그래서 AI는 작업에 필요한 가지만 따라 내려가 읽습니다.
 
 ```
-CLAUDE.md          Claude 루트: 공통 루트를 import + Claude 전용(스킬 심링크, 훅, 리뷰어 에이전트)
+CLAUDE.md          Claude 루트: 공통 루트를 import + Claude 전용(스킬 스텁, 훅, 리뷰어 에이전트)
 AGENTS.md          Codex 루트: "공통 루트 먼저 읽기" + Codex 전용(훅 설치·신뢰, 샌드박스 권한)
 └─ Docs/AI/PROJECT.md  [router]      공통 루트: 첫 작업 절차, 프로젝트 요약, 전체 트리
    ├─ .AI/flow.md  [router]           작업 규칙: 세션 폴더, 변경 흐름·게이트, 위험 영역, 협업
    │  ├─ .AI/tools/session.sh         세션 작업 폴더 도구
+   │  ├─ .AI/tools/doc_check.sh       문서·트리 검사기                    ← 아래 §7
    │  └─ .agents/skills/cross-review/SKILL.md  [router]   교차검증 스킬
    │     ├─ .AI/reviewer.md           리뷰어 공용 페르소나
    │     ├─ .AI/cross-review.conf     리뷰어 모델·추론강도 팀 기본값   ← 아래 §3
@@ -25,17 +26,22 @@ AGENTS.md          Codex 루트: "공통 루트 먼저 읽기" + Codex 전용(�
    ├─ Docs/AI/development.md          빌드·컴파일 게이트·테스트·커밋·코드 스타일
    ├─ Docs/AI/architecture.md         기존 시스템 구조
    ├─ Docs/AI/module-rules.md         새 코드 규칙(소유·통신·EventManager·프리팹)
-   └─ Docs/AI/ai-workflow.md          이 문서
+   ├─ Docs/AI/ai-workflow.md          이 문서
+   ├─ .github/workflows/doc-check.yml CI: PR과 main/Develop push마다 문서 검사   ← 아래 §7
+   └─ .github/pull_request_template.md PR 체크리스트
 ```
 
 모델마다 다르게 적어야 하는 지시는 `CLAUDE.md`나 `AGENTS.md`에만 넣고, 두 모델이 똑같이 따라야
 하는 내용은 공통 트리에 넣습니다. 스킬 원본은 `.agents/skills/`에 있고, Claude 쪽
-`.claude/skills/<이름>`은 그 폴더를 가리키는 심링크입니다.
+`.claude/skills/<이름>/SKILL.md`는 원본과 같은 머리말(frontmatter)에 "원본을 읽고 따르라"는 짧은 안내만
+담은 스텁 파일입니다. 스킬 내용은 원본에서만 고칩니다. 둘이 어긋나면 문서 검사(§7)가 실패합니다.
 
 ## 2. 클론 후 한 번만 할 일
 
 1. **Codex를 쓴다면** 프로젝트 훅을 설치하고 신뢰합니다.
-   - `.AI/tools/session.sh install-codex-hook`를 실행합니다.
+   - `.AI/tools/session.sh install-codex-hook`를 실행합니다. Codex 샌드박스는 `.codex/`에 쓸 수
+     없으니, Codex 안에서는 권한 상승(escalation)을 승인하거나 일반 터미널에서 직접 실행하세요.
+     설치 전에는 `session.sh current`·`new`·`bind`가 설치 안내를 한 줄 출력합니다.
    - Codex TUI에서 `/hooks`로 훅을 신뢰합니다.
    - 설치 명령은 우리 항목을 목록 맨 앞에 넣습니다. 그래서 이미 신뢰해 둔 다른 도구의 항목도
      순번이 바뀌어 `/hooks` 재신뢰를 한 번 더 요청받을 수 있습니다.
@@ -48,11 +54,14 @@ AGENTS.md          Codex 루트: "공통 루트 먼저 읽기" + Codex 전용(�
    개인 설정은 `.claude/settings.local.json`에 두세요. 이 파일은 git에서 제외됩니다.
 3. 훅이 동작하지 않아도 작업은 할 수 있습니다. `.AI/tools/session.sh current`가 같은 정보를
    알려 줍니다.
-4. **Windows**: 도구는 bash 스크립트이고, Claude 스킬 경로는 심링크입니다. 그래서 Git Bash나
-   WSL에서 `git clone -c core.symlinks=true <url>`로 클론해야 하고, 심링크를 만들 수 있게
-   개발자 모드나 관리자 권한도 필요합니다. 이 설정이 없으면
-   `.claude/skills/cross-review`가 일반 텍스트 파일로 체크아웃되어, Claude 쪽에서만 스킬이
-   보이지 않습니다.
+4. **Windows**: 도구는 bash 스크립트라서 Git Bash나 WSL에서 실행합니다. 심링크는 더 쓰지 않으므로
+   심링크 설정이나 개발자 모드는 필요 없습니다. 기존 클론에서 두 가지 문제가 생길 수 있습니다.
+   - 예전에 `.claude/skills/cross-review`를 손으로 폴더로 바꿔 두었다면 pull이
+     "untracked working tree files would be overwritten"으로 멈춥니다. 그 폴더를 지우고 다시
+     pull하세요.
+   - `core.autocrlf=true`로 받은 클론은 스크립트가 CRLF로 남아 Git Bash에서 실패할 수 있습니다.
+     `rm .AI/tools/*.sh && git checkout -- .AI/tools/`로 한 번 다시 받으세요. 새 클론은
+     `.gitattributes`가 LF로 받게 합니다.
 
 ## 3. 교차검증 모델·추론강도 설정 (요금제별)
 
@@ -94,9 +103,10 @@ MAX_PERSPECTIVES=1
 |---|---|
 | `CLAUDE.md`, `AGENTS.md`, `Docs/AI/*` | `.AI/sessions/` — 세션별 작업 기록(STATE.md, 리뷰 판정, 로그) |
 | `.AI/flow.md`, `.AI/reviewer.md`, `.AI/cross-review.conf`, `.AI/tools/*` | `.AI/cross-review.local.conf` — 개인 모델 설정 |
-| `.agents/skills/*`, `.claude/skills/*`(심링크), `.claude/agents/*` | `.claude/settings.local.json` — 개인 Claude 설정 (Cate 훅 포함) |
+| `.agents/skills/*`, `.claude/skills/*`(스텁), `.claude/agents/*` | `.claude/settings.local.json` — 개인 Claude 설정 (Cate 훅 포함) |
 | `.claude/settings.json` | `.codex/hooks.json` — `install-codex-hook`로 생성 |
-| | `.cate/` — Cate 앱 작업공간 상태 |
+| `.github/workflows/doc-check.yml`, `.github/pull_request_template.md` | `.cate/` — Cate 앱 작업공간 상태 |
+| `README.md` 맨 위 안내, `.gitignore`, `.gitattributes` | `.claude/worktrees/` — Claude Code 워크트리 |
 
 ## 5. 세션 작업 폴더
 
@@ -110,3 +120,27 @@ AI가 레포 파일을 고치는 작업을 시작하면 `.AI/sessions/<YYMMDD>-<
 두 터미널을 Cate로 연결했다면, 한쪽 AI가 다른 쪽에 작업이나 검토를 요청할 수 있습니다.
 요청과 답은 세션 폴더의 파일로 주고받고, 터미널에는 그 파일을 가리키는 한 줄만 입력합니다.
 자세한 규칙은 `.AI/flow.md` §4에 있습니다.
+
+## 7. 문서·트리 동기화와 CI 문서 검사
+
+코드나 문서를 바꾸면 그 때문에 틀려진 문서도 같이 고쳐야 합니다. AI와 사람이 같은 기준으로
+작업하도록 세 가지 장치를 두었습니다.
+
+- **AI 작업 절차**: AI는 `.AI/flow.md` §2에 따라 수정 전에 문서 검사 기준선을 기록하고, 수정 후
+  문서를 동기화한 다음 기준선과 비교합니다. 이번 변경이 새로 만든 결함만 실패로 치고, 원래
+  있던 결함은 보고서에 "pre-existing"으로 수정 제안과 함께 적습니다. 고칠지는 사용자가 정합니다.
+- **CI (`doc-check`)**: 모든 PR과, `main`·`Develop`에 push된 커밋마다(로컬 병합 후 push 포함) GitHub Actions가
+  `.AI/tools/doc_check.sh`를 돌립니다. 로컬 설정은 필요 없습니다. push한 뒤에는 GitHub의 커밋 옆
+  ✓/✗나 Actions 탭에서 결과를 확인하세요. 실패 메일은 GitHub 알림 설정에서 Actions 알림을 켠
+  경우에만 옵니다. ✗가 이전부터 있던 결함 때문일 수도 있으니 로그를 읽어 보고, 오래된 결함은
+  빨리 고쳐 두세요. 계속 빨간 CI는 아무것도 알려 주지 못합니다. 필수 체크는 아니라서 병합을
+  막지는 않습니다.
+- **PR 템플릿**: PR을 열면 "틀려진 문서를 고쳤나요?"와 "CI 결과를 확인했나요?"가 체크리스트로
+  나옵니다. 템플릿은 `main`에 들어간 뒤부터 보입니다.
+
+로컬에서 직접 돌리려면 bash와 python3가 필요합니다: `.AI/tools/doc_check.sh`. 이 검사는 트리에
+적힌 경로가 실제로 있는지, 각 문서의 `Parent:`가 부모 트리와 맞는지, 트리에 빠진 문서가 없는지,
+`AGENTS.md`의 첫 작업 문단이 `PROJECT.md`와 같은지, 문서에 적힌 레포 경로·링크가 살아 있는지,
+Claude 스킬 스텁이 원본과 맞는지를 봅니다. 파일 이름의 대소문자는 macOS·Windows에서는 구분되지
+않으므로 CI(Linux) 결과가 기준입니다. 문서의 설명 내용이 코드와 맞는지는 기계로 볼 수 없어서,
+AI 절차와 리뷰어가 맡습니다.

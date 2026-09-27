@@ -1,0 +1,24 @@
+# Parent: Docs/AI/PROJECT.md
+# Runs the docs-and-tree check (.AI/tools/doc_check.sh) on every PR and every direct push to
+# main or Develop, so teammates who never run an AI still see a ✓/✗ on their commit.
+# Read-only: no secrets, no write token. Not a required check (branch protection is the owner's call).
+name: doc-check
+
+on:
+  pull_request:
+  push:
+    branches: [main, Develop]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  doc-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - run: .AI/tools/doc_check.sh

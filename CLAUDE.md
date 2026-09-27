@@ -15,16 +15,17 @@ what is specific to Claude Code.
 ```
 CLAUDE.md                                   ← you are here (Claude)
 ├─ Docs/AI/PROJECT.md  [router]             common root (imported above)
-├─ .claude/skills/<name>                    (discovery) symlinks to ../../.agents/skills/<name>, which `.AI/flow.md` owns. Edit the target
+├─ .claude/skills/<name>/SKILL.md           stub per shared skill: same frontmatter, body points to `.agents/skills/<name>/SKILL.md` (edit that one)
 ├─ .claude/agents/reviewer.md               read-only reviewer that cross_review.sh launches
 └─ .claude/settings.json                    SessionStart hook (tracked). Personal settings: settings.local.json
 ```
 
 ## Claude-specific
 
-- **Skills**: shared skills live in `.agents/skills/`. `.claude/skills/<name>` is a symlink to
-  them, so edit the file in `.agents/skills/`. Invoke a skill with the Skill tool (for example
-  `/cross-review`).
+- **Skills**: shared skills live in `.agents/skills/`. `.claude/skills/<name>/SKILL.md` is a
+  tracked stub with the same frontmatter whose body says to read and follow the canonical file,
+  so edit the file in `.agents/skills/` (and the stub's frontmatter, if that changed). Invoke a
+  skill with the Skill tool (for example `/cross-review`).
 - **SessionStart hook**: `.claude/settings.json` runs `.AI/tools/session.sh hook claude` on
   `startup|resume|clear|compact`. It injects this runtime's session id and the work session bound
   to it.
