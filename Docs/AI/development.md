@@ -26,15 +26,18 @@ writing C#.
 ## Commits and branches
 
 Commits use a `[Feat]` / `[Fix]` / `[Refactor]` / `[Chore]` / `[Build]` prefix followed by a Korean
-summary. Feature branches are named `Feat_<Topic>_<Name>_<YYMMDD>`. During team development they
-merged into `Develop`. Now `main` is ahead of `Develop`, and every GitHub PR opened so far has
-targeted `main`. Before choosing a PR base, run
+summary. History also has lowercase prefixes, `[Test]`, and unprefixed commits; write new ones with
+the capitalized forms above. Feature branches are named `Feat_<Topic>_<Name>_<YYMMDD>`. During team development they
+merged into `Develop`. Every GitHub PR opened so far has targeted `main`, and `main` and `Develop`
+may point to the same commit or drift apart. Before choosing a PR base, run
 `git rev-list --left-right --count origin/main...origin/Develop`. Commit `.meta` files together
 with their assets. Commit, push, and PR creation need the user's explicit request.
 
 ## Code style
 
-C# uses 4-space indentation and matches the brace layout of nearby files. Types and public
+C# uses 4-space indentation (a few files contain tabs; don't convert them) and matches the brace layout of nearby files. Types and public
 members are `PascalCase`; locals and private fields are `camelCase` (some files use `_camelCase`,
 so match the file). Keep one `MonoBehaviour` per file with the same name. The root
-`.editorconfig` only holds C++ rules, so don't reformat unrelated code.
+`.editorconfig` holds a global `charset = utf-8` and otherwise only C++ rules, so don't reformat
+unrelated code. Some file names differ from their class name; see
+[`architecture.md`](architecture.md) → *Naming traps* before renaming anything.

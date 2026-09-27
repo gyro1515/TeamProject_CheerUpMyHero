@@ -16,7 +16,8 @@ discussion skip this.
 ## Project
 
 "Cheer Up, My Hero" is a 2D mobile strategy-defense game (like Nyanko/Paladog) with territory
-management. It runs on Unity **2022.3.62f2** with URP 2D and the New Input System, and targets
+management. It runs on Unity **2022.3.62f2** with URP 2D and the New Input System (Active Input Handling is *Both*;
+some code still reads the legacy `Input` class), and targets
 Android (plus WebGL and Standalone). Player data lives on Unity Gaming Services. Code comments,
 commit messages, and the README are in Korean. Internal agent work (prompts, evidence, agent
 messages) is in English, and everything the user reads is in Korean.
@@ -27,7 +28,9 @@ Three facts you need before you route anywhere:
 - `UIManager.OpenUI<T>()` and `ObjectPoolManager.Get(PoolType)` load prefabs by **name** from
   `Resources/`.
 - Third-party code is vendor code, so don't modify it. That covers `Assets/Plugins` (DOTween,
-  UniTask), the packs in `Assets/Externals` (ExcelImporter, SPUM, …), and `Assets/GoogleMobileAds`.
+  UniTask, the Android/iOS ad libraries), the packs in `Assets/Externals` (ExcelImporter, SPUM, …),
+  `Assets/GoogleMobileAds`, `Assets/ExternalDependencyManager`, `Assets/MobileDependencyResolver`, and
+  TextMesh Pro. The full list and one exception are in `Docs/AI/architecture.md` → *Third-party*.
 
 ## Router tree
 
@@ -54,15 +57,17 @@ CLAUDE.md / AGENTS.md            agent roots. Their family-only branches are in 
    │  ├─ Build / run / test         the batch-mode compile command, tests, defines
    │  ├─ Commits and branches
    │  └─ Code style
-   ├─ Docs/AI/architecture.md    to find how an existing system works
-   │  ├─ Managers (singletons)      which manager owns what
-   │  ├─ Scene transitions          SceneLoader, ISceneResettable
-   │  ├─ Static game data           Excel → SO, the BuildingUpgradeSO exception
-   │  ├─ Backend (UGS)              the BackendManager queue and its bypasses, Cloud Code
-   │  ├─ Resources-path conventions UI and pooling prefabs by name
-   │  ├─ Events                     the EventManager API
-   │  ├─ Combat                     controllers, AI loop, spawning, battle end
-   │  └─ Third-party
+   ├─ Docs/AI/architecture.md  [router]   to find how an existing system works, BEFORE changing one
+   │  ├─ Managers / Startup and scene transitions / Static game data / Backend (UGS)
+   │  ├─ Resources-path conventions / Events / Naming traps / Third-party
+   │  ├─ Docs/AI/systems/app-shell.md          start scene, tutorial, main menu, settings, audio, input, popups
+   │  ├─ Docs/AI/systems/player-data.md        save shape, load order, saving, currencies
+   │  ├─ Docs/AI/systems/territory.md          buildings, grid, building synergies
+   │  ├─ Docs/AI/systems/deck-and-units.md     unit cards, deck presets, unit synergies
+   │  ├─ Docs/AI/systems/artifacts.md          artifacts: inventory, upgrade, stats, active skills
+   │  ├─ Docs/AI/systems/gacha-and-rewards.md  gacha, pity, mail, ad rewards, grant risks
+   │  ├─ Docs/AI/systems/stages.md             stage ids, unlocks, waves, destiny/challenge modifiers
+   │  └─ Docs/AI/systems/battle.md             battle runtime: spawning, hero, units, damage, battle end
    ├─ Docs/AI/module-rules.md    BEFORE adding a script, prefab, manager, or event, or connecting two systems
    │  ├─ Project bindings / Decision procedure   which mechanism to use
    │  ├─ Rules O C E P              ownership, EventManager channels, values, prefabs
@@ -77,6 +82,10 @@ CLAUDE.md / AGENTS.md            agent roots. Their family-only branches are in 
 
 - Every document owns one topic. When you learn a fact, put it in the owning leaf. A router
   says only *when* to go to a child, never the child's facts.
+- A **router** is a node marked `[router]` in this full tree, plus the two roots, this file, and every
+  `.agents/skills/*/SKILL.md`. It shows its own subtree in a fenced tree, and `doc_check.sh` treats
+  exactly these nodes as valid parents. To turn a leaf into a router, mark it in this tree and give
+  it a tree of its own.
 - **Shared nodes** appear in this full tree, and also in their direct parent router's tree when
   that parent is not this file. Each one names that parent in a `Parent:` line, or in a comment
   for scripts, the conf, and the `.github/` files. Shared trees list every node by its exact

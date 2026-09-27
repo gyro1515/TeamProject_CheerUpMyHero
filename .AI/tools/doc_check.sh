@@ -9,7 +9,9 @@
 # Exit 2 means BLOCKED (no usable python3, or a bad argument). Paths are relative to the repo root.
 # Checks: C1 tree paths exist; C2 each node's Parent names a router whose tree lists it; C3 no
 # orphan shared or family node; C4 AGENTS.md repeats PROJECT.md's first-action paragraph; C5 repo
-# paths and relative links in the docs exist; S Claude skill stubs match .agents/skills both ways.
+# paths and relative links in the docs (Docs/AI/ and its subfolders) exist; S Claude skill stubs
+# match .agents/skills both ways. Routers: the roots, flow.md, skills, and any node PROJECT.md's
+# tree marks `[router]`.
 # The rules it enforces live in Docs/AI/PROJECT.md → "Keeping the tree honest".
 set -uo pipefail
 
@@ -51,7 +53,7 @@ def tracked(pattern):
                    if l and (os.path.isfile(l) or os.path.islink(l))})
 
 def globn(pattern):
-    return sorted(norm(p) for p in glob.glob(pattern))
+    return sorted(norm(p) for p in glob.glob(pattern, recursive=True))
 
 # Only the AI workflow's own machine-local rules excuse a missing path (not e.g. `*.log`).
 LOCAL = ("/.AI/", "/.claude/", "/.codex/", "/.cate/")
@@ -85,7 +87,17 @@ def exists(path):
 
 
 # ---- router trees -------------------------------------------------------
+GLYPHS_PRE = re.compile(r"^[\s│├└─]*")
 ROUTERS = ["Docs/AI/PROJECT.md", "CLAUDE.md", "AGENTS.md", ".AI/flow.md"] + globn(".agents/skills/*/SKILL.md")
+# Any other node the full tree marks `[router]` (e.g. Docs/AI/architecture.md) is a router too.
+# Only lines inside PROJECT.md's tree fence(s) count, never prose.
+for _fence in re.findall(r"```\n(.*?)```", read("Docs/AI/PROJECT.md"), re.S):
+    if "├─" not in _fence and "└─" not in _fence:
+        continue
+    for _line in _fence.splitlines():
+        _tok = GLYPHS_PRE.sub("", _line).split(" ")[0]
+        if "[router]" in _line and _tok.endswith(".md") and os.path.isfile(_tok) and _tok not in ROUTERS:
+            ROUTERS.append(_tok)
 GLYPHS = re.compile(r"^[\s│├└─]*")
 PATHLIKE = re.compile(r"(/|\.(md|sh|conf|json|py|txt)$)")
 
@@ -164,7 +176,7 @@ if not a or a != p:
 
 # C5: backticked repo paths in the routed docs exist
 PREFIX = re.compile(r"^(Assets|Docs|Packages|ProjectSettings|\.AI|\.agents|\.claude|\.codex|\.github)/")
-for doc in sorted(set(globn("Docs/AI/*.md") + ROUTERS + [".AI/reviewer.md", "README.md"] +
+for doc in sorted(set(globn("Docs/AI/**/*.md") + ROUTERS + [".AI/reviewer.md", "README.md"] +
                       globn(".claude/skills/*/SKILL.md") + globn(".github/*.md"))):
     for span in re.findall(r"`([^`\n]+)`", read(doc)):
         tok = span.split()[0].rstrip(".,;:)")

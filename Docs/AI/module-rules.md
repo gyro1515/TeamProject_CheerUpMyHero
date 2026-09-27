@@ -19,16 +19,16 @@ instead of quietly working around it.
 
 | The rule concept | In this project |
 |---|---|
-| App-level owners | The persistent `SingletonMono` managers in `Assets/Scripts/Manager/`, plus `SceneLoader`/`FadeManager`. Anything can reach them through `X.Instance`. |
-| Scene-level owners | Non-persistent singletons (`UnitManager`, `UnitRenderManager`) and the per-scene bootstrap and root UI scripts. |
-| Domain owner of a fact or value | The manager that owns the data: `PlayerDataManager` for player data, pity, and synergy; `GameManager` for battle flow; `BackendManager` for server calls; `DataManager` for static tables. For UI, it is the root panel script of that screen. |
+| App-level owners | The persistent `SingletonMono` managers in `Assets/Scripts/Manager/`, plus `SceneLoader`/`FadeManager` and `AnimationData` (full list in [`architecture.md`](architecture.md) → *Managers*). Anything can reach them through `X.Instance`. |
+| Scene-level owners | Non-persistent singletons (`UnitManager`, `UnitRenderManager`), the hand-written `MainScreenBuildingController.Instance`, and the per-scene bootstrap and root UI scripts. |
+| Domain owner of a fact or value | The manager that owns the data: `PlayerDataManager` for player data, pity, and synergy; `SettingDataManager` for stage unlocks and local settings; `GameManager` for battle flow; `BackendManager` for server calls; `DataManager` for static tables. For UI, it is the root panel script of that screen. |
 | Global fact bus | `EventManager`, facts only. It has no request/response channel, and none should be added. |
 | State change across systems | A call to the owning manager's public method. |
 | Lifecycle pair | `OnEnable` ↔ `OnDisable`. Pooled objects are toggled active on get and release, and `OpenUI`/`CloseUI` toggle the UI too, so this one pair covers MonoBehaviours, pooled objects, and UI. |
 
 This project keeps Unity's lifecycle callbacks. ETL's rule that only the composition root may use
 `Awake`/`OnEnable`/`OnDestroy` (its O5) was **not** ported. The managers and `BaseUI`/`BasePopUpUI`
-are built on those callbacks.
+are built on those callbacks (`BaseUI` itself declares none).
 
 ## Decision procedure
 
@@ -147,7 +147,7 @@ common owner should wire the two ends instead.
 | `EventManager.GetSubscriber<T>().Unsubscribe(…)` inside `OnDisable`/`OnDestroy` | C5 | Throws on quit, because `EventManager` is already destroyed |
 | `XRequested` event plus `XSucceeded` event | C2 | A hand-rolled RPC with no ordering, error path, or single handler |
 | A `GameObject` or `List<>` in an event payload | C3 | Stale after pooling or scene reset, and mutable by any subscriber |
-| An SO used as a runtime event or state channel | — | In the Editor its runtime state survives leaving Play mode. The `Resources/DB` SOs are static data. |
+| An SO used as a runtime event or state channel | — | In the Editor its runtime state survives leaving Play mode. Treat the `Resources/DB` SOs as static data (existing code doesn't; see *Known exceptions*). |
 | A new manager for something an existing manager already owns | O3 | Two sources of truth, and a new auto-created singleton on first `Instance` |
 
 ## Verification greps
@@ -166,11 +166,43 @@ For untracked new files, run the same patterns on those paths.
 
 ## Known exceptions in existing code (do not copy)
 
-- `UIManager` subscribes with lambdas for the lifetime of the app. That's allowed under the C6
-  exception, but don't copy it into anything that unsubscribes.
-- Some views subscribe in `Awake` and unsubscribe in `OnDisable`, for example `UITimer`. That
-  breaks C5. If you touch one, fix it in the same change.
-- `BattleEndedEvent` is declared in `UI/BattleScene/`, next to a subscriber, but `GameManager`
-  publishes it. That breaks C4. Declare new events with their publisher.
-- `GetComponentInParent`/`GetComponentInChildren` has about 17 uses in `Assets/Scripts`. That
-  breaks O2 where the target is an owner. A lookup down into your own children is fine.
+- `UIManager` subscribes with lambdas for the lifetime of the app (two of its three subscriptions;
+  the only lambda subscriptions in `Assets/Scripts`). That's allowed under the C6 exception, but
+  don't copy it into anything that unsubscribes.
+- Several scripts subscribe in `Awake` and unsubscribe in `OnDisable` (`UITimer`, `UITimeBar`,
+  `UIHpBarContainer`, `PlayerHQ`, `UnitManager`, `UIDeckSynergyForBattleScene`, …), and
+  `MainScreenBuildingController` subscribes in `Awake` and never unsubscribes. That breaks C5. If
+  you touch one, fix it in the same change.
+- `BattleEndedEvent` has its own file in `UI/BattleScene/`, away from its publisher (`GameManager`)
+  and its only subscriber (`PlayerDataManager`). That breaks C4. Declare new events with their
+  publisher.
+- `GridStateChangedEvent` works as a request ("recompute synergies"): UI and `TileDataHandler`
+  publish it, `PlayerDataManager` handles it, and it is declared under `UI/MainScreen/Building/`.
+  That breaks C1, C2, and C4.
+- Two payloads carry MonoBehaviours: `AddUIStackEvent.ui` and `SpawnHQEvent.baseHQ`. That breaks C3.
+- `PlayerDataManager` exposes plain C# `event`s (`OnResourceChangedEvent`,
+  `OnArtifactOwnedChanged`, `OnArtifactEquippedChanged`) that UI subscribes to directly, instead of
+  EventManager facts. New code for currencies or artifacts may bind to these existing events (with
+  C5/C6 pairing). Don't add new manager-to-UI C# events.
+- UI writes manager state directly in places, for example `UIDeckSynergy` and
+  `UIPlayerUnitSpawnPanel` set `PlayerDataManager.AppliedDeckUnitSynergies`. That breaks C2.
+- In battle, UI and the camera own gameplay: `UISpawnUnitSlot` spends food and calls
+  `PlayerHQ.SpawnUnit`, `HQSkillsCooldown` (UI) owns the HQ skill cooldowns and writes
+  `PlayerHQSkill.IsCoolTime`, and `CameraController.SpawnHero` spawns the hero reinforcement. See
+  [`systems/battle.md`](systems/battle.md) before moving any of it.
+- `UnitManager.onUnitSpawn`/`onUnitDeSpawn` and the static `PlayerController.OnPlayerAction` are
+  plain C# events used across systems.
+- **Runtime state in `Resources/DB` SOs.** `ownedCount` lives on the `PlayerUnitSO` rows that
+  `PlayerDataManager.OwnedCardData` holds by reference; `ArtifactUpgradeService.UpgradeActive`
+  increments `curLevel` on shared `ArtifactSO` rows and `ArtifactSO.SetData` appends level rows;
+  `SettingDataManager` and `StageModifierSO.SetData` edit stage rows; `PlayerUnitSO.SetData` writes
+  loaded sprites into serialized fields. This contradicts the anti-pattern above. Keep new player
+  state in `PlayerDataManager` (and `PlayerSaveData`), never on table rows.
+- Two screens use their own presentation split: the artifact screens (MVP: view intents →
+  presenter → view-model structs, services hold the rules; see
+  [`systems/artifacts.md`](systems/artifacts.md)) and the stage-modifier popups (a plain C# model
+  and view model with C# events; see [`systems/stages.md`](systems/stages.md)). Extend those screens
+  in their own pattern. Don't introduce it elsewhere (P1).
+- `GetComponentInParent`/`GetComponentInChildren` has 15 live uses in `Assets/Scripts` (plus two
+  commented out). That breaks O2 where the target is an owner. A lookup down into your own
+  children is fine.
