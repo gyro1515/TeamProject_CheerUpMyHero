@@ -64,6 +64,10 @@ def ignored(path):
     rule = out.split("\t")[0].split(":", 2)[-1] if out else ""
     return rule.startswith(LOCAL)
 
+def local_only(path):
+    """A machine-local file: git ignores it by an AI-workflow rule and does not track it."""
+    return ignored(path) and not subprocess.run(["git", "ls-files", "--error-unmatch", "--", path],
+                                                capture_output=True).returncode == 0
 def norm(path):
     return os.path.normpath(path).replace(os.sep, "/")
 
@@ -177,7 +181,8 @@ if not a or a != p:
 # C5: backticked repo paths in the routed docs exist
 PREFIX = re.compile(r"^(Assets|Docs|Packages|ProjectSettings|\.AI|\.agents|\.claude|\.codex|\.github)/")
 for doc in sorted(set(globn("Docs/AI/**/*.md") + ROUTERS + [".AI/reviewer.md", "README.md"] +
-                      globn(".claude/skills/*/SKILL.md") + globn(".github/*.md"))):
+                      [p for p in globn(".claude/skills/*/SKILL.md") if not local_only(p)] +
+                      globn(".github/*.md"))):
     for span in re.findall(r"`([^`\n]+)`", read(doc)):
         tok = span.split()[0].rstrip(".,;:)")
         if PREFIX.match(tok) and not exists(tok):
@@ -202,6 +207,8 @@ for src in globn(".agents/skills/*/SKILL.md"):
         findings.append("S %s: frontmatter differs from %s" % (stub, src))
 
 for stub in globn(".claude/skills/*/SKILL.md"):   # reverse: a Claude-only skill breaks parity
+    if local_only(stub):                           # machine-local (e.g. Cate's cate-cli skill)
+        continue
     if not os.path.isfile(stub.replace(".claude/", ".agents/", 1)):
         findings.append("S %s: no canonical skill in .agents/skills/" % stub)
 
