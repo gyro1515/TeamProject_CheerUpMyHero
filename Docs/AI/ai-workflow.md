@@ -121,6 +121,7 @@ MAX_PERSPECTIVES=1
 | `.claude/settings.json` | `.codex/hooks.json` — `install-codex-hook`로 생성 |
 | `.github/workflows/doc-check.yml`, `.github/pull_request_template.md` | `.cate/` — Cate 앱 작업공간 상태 |
 | `README.md` 맨 위 안내, `.gitignore`, `.gitattributes` | `.claude/worktrees/` — Claude Code 워크트리 |
+| | Cate 앱이 설치하는 `cate-cli` 스킬 폴더(Claude·Codex 스킬 폴더 아래). 레포 `.gitignore`가 아니라 각자 `.git/info/exclude`에 `/.claude/skills/cate-cli/`, `/.codex/skills/cate-cli/` 두 줄을 추가하세요(문서 검사도 그러면 건너뜀) |
 
 ## 5. 세션 작업 폴더
 
