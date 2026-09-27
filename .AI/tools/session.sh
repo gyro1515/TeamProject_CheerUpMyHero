@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # Session work folders — one shared implementation for Claude Code and Codex.
+# Parent: .AI/flow.md §1
 #
 #   session.sh new <slug>
 #       Create .AI/sessions/<YYMMDD>-<slug>/STATE.md from the template and print its path.
@@ -286,5 +287,5 @@ case "${1:-}" in
   current) shift; cmd_current ;;
   status)  shift; cmd_status ;;
   hook)    shift; cmd_hook "$@" ;;
-  *)       sed -n '2,24p' "$0" | sed 's/^# \{0,1\}//'; exit 2 ;;
+  *)       sed -n '2,25p' "$0" | sed 's/^# \{0,1\}//'; exit 2 ;;
 esac

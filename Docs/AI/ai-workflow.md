@@ -6,22 +6,31 @@ Parent: [`PROJECT.md`](PROJECT.md). 이 문서는 사람이 읽는 설명서입�
 Claude Code와 Codex는 둘 다 같은 지시문, 같은 스킬, 같은 스크립트를 씁니다. 그래서 어느 쪽에서
 작업해도 절차와 결과가 같습니다.
 
-## 1. 구성 한눈에
+## 1. 구성 한눈에 (라우터 트리)
+
+모델별 루트 파일은 얇게 두고, 두 모델이 공유하는 내용은 모두 공통 루트 `Docs/AI/PROJECT.md`
+아래에 트리로 모았습니다. 라우터(`[router]`) 문서마다 자기 하위 트리를 보여 주고, 각 문서는
+첫머리의 `Parent:` 줄로 부모를 가리킵니다. 그래서 AI는 작업에 필요한 가지만 따라 내려가 읽습니다.
 
 ```
-AGENTS.md                         공용 지시문 원본 (Codex는 자동으로 읽고, Claude는 CLAUDE.md가 import)
-CLAUDE.md                         @AGENTS.md + Claude 전용 메모
-.AI/flow.md                       작업 규칙: 세션 폴더, 변경 흐름·게이트, 위험 영역, Claude↔Codex 협업
-.AI/reviewer.md                   교차검증 리뷰어 공용 페르소나
-.AI/cross-review.conf             교차검증 리뷰어 모델·추론강도 팀 기본값      ← 아래 §3
-.AI/tools/session.sh              세션 작업 폴더 도구
-.AI/tools/cross_review.sh         교차검증 라운드 실행기
-.agents/skills/cross-review/      교차검증 스킬 원본 (Codex 탐색 경로)
-.claude/skills/cross-review       → 위 폴더를 가리키는 심링크 (Claude 탐색 경로)
-.claude/agents/reviewer.md        Claude 쪽 읽기 전용 리뷰어 (Read/Grep/Glob만)
-.claude/settings.json             Claude SessionStart 훅
-Docs/AI/                          프로젝트 문서 트리 (PROJECT.md가 입구)
+CLAUDE.md          Claude 루트: 공통 루트를 import + Claude 전용(스킬 심링크, 훅, 리뷰어 에이전트)
+AGENTS.md          Codex 루트: "공통 루트 먼저 읽기" + Codex 전용(훅 설치·신뢰, 샌드박스 권한)
+└─ Docs/AI/PROJECT.md  [router]      공통 루트: 첫 작업 절차, 프로젝트 요약, 전체 트리
+   ├─ .AI/flow.md  [router]           작업 규칙: 세션 폴더, 변경 흐름·게이트, 위험 영역, 협업
+   │  ├─ .AI/tools/session.sh         세션 작업 폴더 도구
+   │  └─ .agents/skills/cross-review/SKILL.md  [router]   교차검증 스킬
+   │     ├─ .AI/reviewer.md           리뷰어 공용 페르소나
+   │     ├─ .AI/cross-review.conf     리뷰어 모델·추론강도 팀 기본값   ← 아래 §3
+   │     └─ .AI/tools/cross_review.sh 라운드 실행기
+   ├─ Docs/AI/development.md          빌드·컴파일 게이트·테스트·커밋·코드 스타일
+   ├─ Docs/AI/architecture.md         기존 시스템 구조
+   ├─ Docs/AI/module-rules.md         새 코드 규칙(소유·통신·EventManager·프리팹)
+   └─ Docs/AI/ai-workflow.md          이 문서
 ```
+
+모델마다 다르게 적어야 하는 지시는 `CLAUDE.md`나 `AGENTS.md`에만 넣고, 두 모델이 똑같이 따라야
+하는 내용은 공통 트리에 넣습니다. 스킬 원본은 `.agents/skills/`에 있고, Claude 쪽
+`.claude/skills/<이름>`은 그 폴더를 가리키는 심링크입니다.
 
 ## 2. 클론 후 한 번만 할 일
 
@@ -83,7 +92,7 @@ MAX_PERSPECTIVES=1
 
 | 레포(추적) | 로컬(git 제외) |
 |---|---|
-| `AGENTS.md`, `CLAUDE.md`, `Docs/AI/*` | `.AI/sessions/` — 세션별 작업 기록(STATE.md, 리뷰 판정, 로그) |
+| `CLAUDE.md`, `AGENTS.md`, `Docs/AI/*` | `.AI/sessions/` — 세션별 작업 기록(STATE.md, 리뷰 판정, 로그) |
 | `.AI/flow.md`, `.AI/reviewer.md`, `.AI/cross-review.conf`, `.AI/tools/*` | `.AI/cross-review.local.conf` — 개인 모델 설정 |
 | `.agents/skills/*`, `.claude/skills/*`(심링크), `.claude/agents/*` | `.claude/settings.local.json` — 개인 Claude 설정 (Cate 훅 포함) |
 | `.claude/settings.json` | `.codex/hooks.json` — `install-codex-hook`로 생성 |

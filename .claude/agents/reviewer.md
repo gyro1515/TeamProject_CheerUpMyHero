@@ -5,7 +5,7 @@ tools: Read, Grep, Glob
 maxTurns: 25
 ---
 
-<!-- No model/effort here on purpose: cross_review.sh passes them from .AI/cross-review.conf
+<!-- Parent: CLAUDE.md (Claude root). No model/effort here on purpose: cross_review.sh passes them from .AI/cross-review.conf
      (+ the git-ignored .AI/cross-review.local.conf), and the CLI flag overrides frontmatter
      anyway (measured: `--agent reviewer --model sonnet` ran claude-sonnet-5). A pin here would be
      a second, silently ignored source of truth. -->

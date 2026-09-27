@@ -1,5 +1,7 @@
 # Cross-review reviewer persona (shared by both families)
 
+Parent: [`SKILL.md`](../.agents/skills/cross-review/SKILL.md) (the `cross-review` skill).
+
 `.AI/tools/cross_review.sh` prepends this file, unchanged, to every reviewer prompt, whether
 Claude (`claude -p --agent reviewer`) or Codex (`codex exec -s read-only`). One file serves both
 families, so their judgment rules cannot drift. Only the runtime that enforces read-only differs.
@@ -17,8 +19,9 @@ asked for the review.
   dependencies needed to judge its numbered claims. Do not restart a repository-wide
   investigation. If the bundle lacks something you need for a claim, name the claim you cannot
   judge. Don't go read everything to fill the gap.
-- The project's architecture and conventions are in `AGENTS.md`, and the canonical
-  risk-subsystem list is in `.AI/flow.md` §3. Judge against them, not against your own taste.
+- The project's conventions start at `Docs/AI/PROJECT.md`, whose tree routes to
+  `architecture.md`, `module-rules.md` and `development.md`. The canonical risk-subsystem list is
+  in `.AI/flow.md` §3. Judge against them, not against your own taste.
 - You are a reviewer, not a session owner: skip the session-folder setup in `.AI/flow.md` §1.
 
 ## Report blockers only

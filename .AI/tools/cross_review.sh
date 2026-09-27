@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Launch one cross-review round: every perspective prompt × both model families, in parallel,
 # read-only, then validate each verdict header and print the convergence table.
+# Parent: .agents/skills/cross-review/SKILL.md
 #
 #   cross_review.sh <task-dir> <round> [--only claude|codex] [--perspective <k>]
 #

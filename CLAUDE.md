@@ -2,16 +2,33 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-@AGENTS.md
+@Docs/AI/PROJECT.md
 
-## Claude Code runtime notes
+## Claude Code root
 
-`AGENTS.md` above is the shared source, and Codex reads the same file. Put project or workflow
-guidance there or in `.AI/flow.md`, never here. This file holds only what differs in Claude Code:
+The common root above is imported from `Docs/AI/PROJECT.md`. Codex reads the same file through
+`AGENTS.md`. Put anything both families need there or below it, never here. This file holds only
+what is specific to Claude Code.
 
-- Shared skills live in `.agents/skills/`. `.claude/skills/<name>` is a symlink to them, so edit
-  the file in `.agents/skills/`. Invoke a skill with the Skill tool (for example `/cross-review`).
-- The SessionStart hook in `.claude/settings.json` runs `.AI/tools/session.sh hook claude`. It
-  injects this runtime's session id and the work session bound to it.
-- `.claude/agents/reviewer.md` is the read-only reviewer that `cross_review.sh` launches with
-  `claude -p --agent reviewer`. Don't use it as a writer.
+## Router tree — Claude root
+
+```
+CLAUDE.md                                   ← you are here (Claude)
+├─ Docs/AI/PROJECT.md  [router]             common root (imported above)
+├─ .claude/skills/<name>                    (discovery) symlinks to ../../.agents/skills/<name>, which `.AI/flow.md` owns. Edit the target
+├─ .claude/agents/reviewer.md               read-only reviewer that cross_review.sh launches
+└─ .claude/settings.json                    SessionStart hook (tracked). Personal settings: settings.local.json
+```
+
+## Claude-specific
+
+- **Skills**: shared skills live in `.agents/skills/`. `.claude/skills/<name>` is a symlink to
+  them, so edit the file in `.agents/skills/`. Invoke a skill with the Skill tool (for example
+  `/cross-review`).
+- **SessionStart hook**: `.claude/settings.json` runs `.AI/tools/session.sh hook claude` on
+  `startup|resume|clear|compact`. It injects this runtime's session id and the work session bound
+  to it.
+- **Reviewer agent**: `.claude/agents/reviewer.md` is the read-only reviewer that `cross_review.sh`
+  launches with `claude -p --agent reviewer`. Its model and effort come from
+  `.AI/cross-review.conf`. Don't use it as a writer.
+- The Codex side is described in `AGENTS.md`. Both columns are compared in `.AI/flow.md` §5.

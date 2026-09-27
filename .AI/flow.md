@@ -1,10 +1,23 @@
 # AI working flow — shared by Claude Code and Codex
 
-Parent: [`AGENTS.md`](../AGENTS.md). Project documentation router: [`Docs/AI/PROJECT.md`](../Docs/AI/PROJECT.md).
+Parent: [`Docs/AI/PROJECT.md`](../Docs/AI/PROJECT.md) (the common root).
 
-One copy serves both agent families. Do not put agent-specific text here; the only
-per-family differences are the runtime mechanics in §5. Internal work (subagent prompts,
-evidence bundles, agent-to-agent messages) is in English; everything the user reads is Korean.
+One copy serves both agent families. Don't put family-specific instructions here. They belong in
+the family's root, `CLAUDE.md` or `AGENTS.md`, and §5 compares the two.
+
+```
+.AI/flow.md  [router]           ← you are here
+├─ §1 Session folder            before any repository work (file writes, or longer investigations)
+├─ §2 Change flow               steps, gates, report format
+├─ §3 Risk subsystems           the canonical list
+├─ §4 Claude ↔ Codex            shared files, Cate protocol
+├─ §5 Runtime mechanics         per-family difference table
+├─ .AI/tools/session.sh         the §1 tool
+└─ .agents/skills/cross-review/SKILL.md  [router]   §2 steps 3 and 6
+   ├─ .AI/reviewer.md
+   ├─ .AI/cross-review.conf
+   └─ .AI/tools/cross_review.sh
+```
 
 ## 1. Session folder — before any repository work
 
@@ -48,15 +61,15 @@ the folder only when the user asks. `.AI/sessions/` is git-ignored.
 ## 2. Change flow
 
 1. **Session**: §1.
-2. **Read before designing**: the root instructions (`AGENTS.md`), the document
-   `Docs/AI/PROJECT.md` routes the task to, and the code the change touches. For new
+2. **Read before designing**: the common root (`Docs/AI/PROJECT.md`), the document its
+   tree routes the task to, and the code the change touches. For new
    scripts, prefabs, managers, or events, that includes `Docs/AI/module-rules.md`. Reuse an
    existing manager, base class, or pattern before adding a new one, and name the existing
    thing you considered.
 3. **Plan review, risky changes only**: when the change touches a risk subsystem (§3) or
    crosses system boundaries, run `cross-review` in `integration` mode on the plan before writing.
 4. **Implement**: surgical changes only. Don't reformat or refactor beyond the request.
-5. **Mechanical gate**: run the Unity batch-mode compile from `AGENTS.md` after any `.cs`
+5. **Mechanical gate**: run the Unity batch-mode compile from `Docs/AI/development.md` after any `.cs`
    change. Report the command, the exit code, and the error count. If it cannot run (the
    Editor has the project open, the Editor isn't installed, and so on), write `BLOCKED: <reason>`,
    which is not a pass.
@@ -71,8 +84,8 @@ the folder only when the user asks. `.AI/sessions/` is git-ignored.
 
    Also list the "(내 판단)" decisions.
 
-Commit, push, and PR creation need the user's explicit request. Commit messages use the
-`[Feat]`/`[Fix]`/`[Refactor]`/`[Chore]`/`[Build]` prefix with a Korean summary.
+When to commit, push, or open a PR (only on the user's explicit request) and the commit and
+branch conventions are in `Docs/AI/development.md` → *Commits and branches*.
 
 ## 3. Risk subsystems (canonical list — `cross-review` points here)
 
@@ -93,8 +106,8 @@ Commit, push, and PR creation need the user's explicit request. Commit messages 
 
 ## 4. Claude ↔ Codex collaboration
 
-- **Same instructions**: `AGENTS.md` is the single source. `CLAUDE.md` imports it with
-  `@AGENTS.md` and adds only Claude runtime notes. Edit `AGENTS.md`, never a copy.
+- **Same instructions**: both roots load the common root `Docs/AI/PROJECT.md`. Its *Keeping the
+  tree honest* section owns the rules for what goes in the common tree and what goes in a root.
 - **Same skills**: canonical skills live in `.agents/skills/<name>/`, which Codex discovers.
   `.claude/skills/<name>` is a symlink to that directory. Add new shared skills the same way.
 - **Same tools**: `.AI/tools/*.sh` are the executable parts (sessions, cross-review), and
@@ -115,7 +128,7 @@ Commit, push, and PR creation need the user's explicit request. Commit messages 
 
 | | Claude Code | Codex |
 |---|---|---|
-| Root instructions | `CLAUDE.md` → `@AGENTS.md` | `AGENTS.md` (auto-loaded) |
+| Root (auto-loaded) | `CLAUDE.md`: imports `Docs/AI/PROJECT.md`, plus Claude-only notes | `AGENTS.md`: says to read `Docs/AI/PROJECT.md` first (no import), repeats the first action, plus Codex-only notes |
 | Skills | `.claude/skills/cross-review` → symlink | `.agents/skills/cross-review` |
 | Invoke a skill | Skill tool / `/cross-review` | read `.agents/skills/<name>/SKILL.md` (or `$cross-review`) |
 | SessionStart hook | `.claude/settings.json` (tracked) → `session.sh hook claude`; matcher `startup\|resume\|clear\|compact` | `.codex/hooks.json` (machine-local, git-ignored: Cate merges absolute-path hooks into it) → `session.sh hook codex`; matcher `startup\|resume\|compact` (no `clear` entry; after a Codex clear, run `session.sh current`). Install per clone with `session.sh install-codex-hook`, then trust it once via `/hooks` |

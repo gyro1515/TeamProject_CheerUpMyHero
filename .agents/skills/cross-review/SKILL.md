@@ -6,6 +6,15 @@ argument-hint: integration | diagnosis | post-diff
 
 # Cross-review (Claude ↔ Codex, multi-perspective)
 
+Parent: [`.AI/flow.md`](../../../.AI/flow.md) (§2 steps 3 and 6).
+
+```
+SKILL.md  [router]                 ← you are here
+├─ .AI/reviewer.md                 persona and verdict format; the script prepends it
+├─ .AI/cross-review.conf           reviewer models, effort, cap (+ git-ignored .local.conf)
+└─ .AI/tools/cross_review.sh       runs one round, validates verdicts, prints the table
+```
+
 Two model families review the same material independently, then review each other's verdicts,
 until they converge. The primary session orchestrates: it writes the evidence bundle and the
 prompts, runs `.AI/tools/cross_review.sh`, reads the verdict files, and judges convergence. It
